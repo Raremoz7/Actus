@@ -8,7 +8,7 @@ import Animated, {
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Logo } from '@/components/ui';
+import { AppText, Logo } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
 import type { UserTipo } from '@/types/me';
@@ -67,8 +67,16 @@ export default function SplashScreenRoute() {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={logoStyle}>
-        <Logo variant="symbol" color="neon" width={96} />
+      {/* Símbolo isolado, centrado — variação A do mockup. */}
+      <Animated.View style={[styles.center, logoStyle]}>
+        <Logo variant="symbol" color="neon" width={92} />
+      </Animated.View>
+
+      {/* Wordmark discreto no rodapé. */}
+      <Animated.View style={[styles.wordmark, logoStyle]}>
+        <AppText variant="eyebrow" color="tertiary" style={styles.wordmarkText}>
+          ACTUS
+        </AppText>
       </Animated.View>
     </View>
   );
@@ -80,5 +88,22 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.bgLowest,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wordmark: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    paddingBottom: theme.spacing.xxl,
+  },
+  wordmarkText: {
+    letterSpacing: 4,
+    textAlign: 'center',
   },
 }));
