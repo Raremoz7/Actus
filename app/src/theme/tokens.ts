@@ -13,6 +13,8 @@ export const palette = {
 
   // Brand & accent
   neon: '#CBFE00',
+  // Neon com alpha 0 — stop transparente para degradês sobre imagem (mesmo matiz, sem muddy edge).
+  neonTransparent: 'rgba(203, 254, 0, 0)',
   secondary: '#4DE082',
   surfaceTint: '#ABD600',
 
