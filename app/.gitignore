@@ -31,7 +31,14 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# mockups do brainstorming (visual companion)
+.superpowers/
+
+# Sentry
+.sentryclirc
 
 # typescript
 *.tsbuildinfo
