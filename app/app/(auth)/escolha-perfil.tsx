@@ -40,7 +40,7 @@ export default function EscolhaPerfilScreen() {
 
   return (
     <View style={styles.root}>
-      {/* Bloco neon full-bleed — cobre a área da status bar (edges top). */}
+      {/* Bloco neon full-bleed — inalterado. Cobre a área da status bar (edges top). */}
       <Animated.View style={blockStyle}>
         <SafeAreaView edges={['top']} style={styles.neonBlock}>
           <View style={styles.neonInner}>
@@ -52,18 +52,32 @@ export default function EscolhaPerfilScreen() {
         </SafeAreaView>
       </Animated.View>
 
-      {/* Base escura com as escolhas. */}
+      {/* Base escura — escolhas distribuídas no eixo (B). */}
       <SafeAreaView edges={['bottom']} style={styles.base}>
         <View style={styles.baseInner}>
+          <View style={styles.spacer} />
+
           <AppText variant="eyebrow" color="tertiary" style={styles.eyebrow}>
             Acesso
           </AppText>
 
-          {/* "Sou aluno" — pill primário com layout interno custom. */}
-          <PillAluno onPress={() => go('/(auth)/cadastro')} />
+          {/* As duas escolhas — cards-irmãos, mesmo raio. */}
+          <ChoiceCard
+            variant="primary"
+            title="Sou aluno"
+            description="Recebi um convite do meu treinador"
+            accessibilityLabel="Sou aluno, com convite"
+            onPress={() => go('/(auth)/cadastro')}
+          />
+          <ChoiceCard
+            variant="secondary"
+            title="Sou professor"
+            description="Gerencio meus alunos"
+            accessibilityLabel="Sou professor"
+            onPress={() => go('/(auth)/professor-info')}
+          />
 
-          {/* "Sou professor" — outline com chevron. */}
-          <OutlineProfessor onPress={() => go('/(auth)/professor-info')} />
+          <View style={styles.spacer} />
 
           <Pressable
             accessibilityRole="link"
@@ -85,18 +99,35 @@ export default function EscolhaPerfilScreen() {
   );
 }
 
-// Pill primário "Sou aluno": label à esquerda + tag mono "COM CONVITE →" à direita.
-function PillAluno({ onPress }: { onPress: () => void }) {
+// Card de escolha: título + descrição à esquerda, chevron à direita.
+// variant 'primary' = fill neon · 'secondary' = outline. Mesmo raio (input/12).
+type ChoiceCardProps = {
+  variant: 'primary' | 'secondary';
+  title: string;
+  description: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+};
+
+function ChoiceCard({
+  variant,
+  title,
+  description,
+  accessibilityLabel,
+  onPress,
+}: ChoiceCardProps) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
+  const isPrimary = variant === 'primary';
+
   return (
-    <Animated.View style={[styles.pillOuter, animatedStyle]}>
+    <Animated.View style={[styles.cardOuter, animatedStyle]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Sou aluno, com convite"
+        accessibilityLabel={accessibilityLabel}
         onPress={onPress}
         onPressIn={() => {
           scale.value = withTiming(0.98, { duration: motion.microMs });
@@ -104,44 +135,25 @@ function PillAluno({ onPress }: { onPress: () => void }) {
         onPressOut={() => {
           scale.value = withTiming(1, { duration: motion.microMs });
         }}
-        style={styles.pillFill}
+        style={[styles.cardFill, isPrimary ? styles.cardPrimary : styles.cardSecondary]}
       >
-        <AppText variant="label" color="inverse">
-          Sou aluno
-        </AppText>
-        <AppText variant="metaSmall" color="inverse" style={styles.pillTag}>
-          COM CONVITE →
-        </AppText>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-// Outline "Sou professor": label à esquerda + chevron à direita. Radius input (12).
-function OutlineProfessor({ onPress }: { onPress: () => void }) {
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  return (
-    <Animated.View style={[styles.outlineOuter, animatedStyle]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Sou professor"
-        onPress={onPress}
-        onPressIn={() => {
-          scale.value = withTiming(0.98, { duration: motion.microMs });
-        }}
-        onPressOut={() => {
-          scale.value = withTiming(1, { duration: motion.microMs });
-        }}
-        style={styles.outlineFill}
-      >
-        <AppText variant="label" color="primary">
-          Sou professor
-        </AppText>
-        <CaretRight size={18} weight="duotone" color={colors.textTertiary} />
+        <View style={styles.cardText}>
+          <AppText variant="label" color={isPrimary ? 'inverse' : 'primary'}>
+            {title}
+          </AppText>
+          <AppText
+            variant="bodySm"
+            color={isPrimary ? 'inverse' : 'tertiary'}
+            style={isPrimary ? styles.descPrimary : undefined}
+          >
+            {description}
+          </AppText>
+        </View>
+        <CaretRight
+          size={18}
+          weight="duotone"
+          color={isPrimary ? colors.textInverse : colors.textTertiary}
+        />
       </Pressable>
     </Animated.View>
   );
@@ -171,49 +183,48 @@ const styles = StyleSheet.create((theme) => ({
   baseInner: {
     flex: 1,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
+  },
+  // Espaçadores que distribuem as escolhas no eixo (B) e ancoram "Entrar" no rodapé.
+  spacer: {
+    flex: 1,
   },
   eyebrow: {
     marginBottom: theme.spacing.lg,
     letterSpacing: 3,
   },
-  // Pill primário
-  pillOuter: {
+  // Card de escolha (par)
+  cardOuter: {
     alignSelf: 'stretch',
     marginBottom: theme.spacing.md,
   },
-  pillFill: {
+  cardFill: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.neon,
-    borderRadius: theme.radius.pill,
-    paddingVertical: 17,
+    borderRadius: theme.radius.input,
+    paddingVertical: theme.spacing.xl,
     paddingHorizontal: theme.spacing.xl,
   },
-  pillTag: {
-    letterSpacing: 1,
+  cardPrimary: {
+    backgroundColor: theme.colors.neon,
   },
-  // Outline secundário
-  outlineOuter: {
-    alignSelf: 'stretch',
-  },
-  outlineFill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  cardSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: theme.radius.input,
-    paddingVertical: 15,
-    paddingHorizontal: theme.spacing.xl,
+  },
+  cardText: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  // Descrição sobre fundo neon: texto inverse atenuado (opacity, não hex novo).
+  descPrimary: {
+    opacity: 0.6,
   },
   entrarRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto',
     paddingBottom: theme.spacing.xl,
   },
   entrarLink: {
