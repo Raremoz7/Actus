@@ -149,11 +149,13 @@ function ChoiceCard({
             {description}
           </AppText>
         </View>
-        <CaretRight
-          size={18}
-          weight="duotone"
-          color={isPrimary ? colors.textInverse : colors.textTertiary}
-        />
+        <View style={styles.cardIcon}>
+          <CaretRight
+            size={18}
+            weight="duotone"
+            color={isPrimary ? colors.textInverse : colors.textTertiary}
+          />
+        </View>
       </Pressable>
     </Animated.View>
   );
@@ -216,6 +218,10 @@ const styles = StyleSheet.create((theme) => ({
   cardText: {
     flex: 1,
     gap: theme.spacing.xs,
+  },
+  // Chevron não encolhe se a copy crescer em telas estreitas.
+  cardIcon: {
+    flexShrink: 0,
   },
   // Descrição sobre fundo neon: texto inverse atenuado (opacity, não hex novo).
   descPrimary: {
