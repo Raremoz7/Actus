@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Logo } from '@/components/ui';
@@ -61,7 +61,9 @@ export default function SplashScreenRoute() {
       return;
     }
     if (status === 'authenticated' && user) {
-      router.replace(homeForTipo(user.tipo));
+      // Cast: as áreas (aluno)/(personal)/(nutri) ainda não existem como rotas (Bloco 1),
+      // então não estão na união de rotas tipadas do expo-router. Seguro em runtime.
+      router.replace(homeForTipo(user.tipo) as Href);
     }
   }, [status, user]);
 
