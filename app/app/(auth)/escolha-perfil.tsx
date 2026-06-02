@@ -171,13 +171,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   neonInner: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
+    paddingTop: theme.spacing.xxl,
     paddingBottom: theme.spacing.xxl,
   },
   manifesto: {
     marginTop: theme.spacing.lg,
-    fontSize: 38,
-    lineHeight: Math.round(38 * 0.92),
+    fontSize: 52,
+    lineHeight: Math.round(52 * 0.92),
   },
   base: {
     flex: 1,
