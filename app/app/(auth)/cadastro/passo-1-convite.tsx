@@ -1,25 +1,18 @@
-import { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Controller, useFormContext } from 'react-hook-form';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input, Screen } from '@/components/ui';
-import { FormErrorBanner } from '@/components/molecules';
+import { AppText, Button, Input, ScreenHero } from '@/components/ui';
+import { FormErrorBanner, WizardProgress } from '@/components/molecules';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 import { authErrorMessage } from '@/features/auth/errors';
-import {
-  type CadastroForm,
-  PASSO_1_FIELDS,
-} from '@/features/auth/cadastroForm';
-import { darkTheme } from '@/theme';
+import { type CadastroForm, PASSO_1_FIELDS } from '@/features/auth/cadastroForm';
 
-const { motion } = darkTheme;
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const PASSO1_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1080&q=70&auto=format&fit=crop',
+};
 
 // [MOCK — sem endpoint na API v1: GET /invites/:code/preview]
 // O nome de quem convidou não existe na API. Card exibido com dado falso até o endpoint existir.
@@ -40,18 +33,15 @@ export default function Passo1ConviteScreen() {
   const lastInviteError = useCadastroDraftStore((s) => s.lastInviteError);
   const setLastInviteError = useCadastroDraftStore((s) => s.setLastInviteError);
 
-  // ÚNICA animação da tela: reveal de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(1, { duration: motion.screenMs });
-  }, [reveal]);
-
-  const revealStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 12 }],
-  }));
-
   const inviteError = lastInviteError ? authErrorMessage(lastInviteError) : null;
+
+  function handleBack() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(auth)/escolha-perfil');
+    }
+  }
 
   async function handleContinue() {
     const ok = await trigger([...PASSO_1_FIELDS]);
@@ -63,18 +53,29 @@ export default function Passo1ConviteScreen() {
   const fieldErrorMessage = errors.invite_code?.message;
 
   return (
-    <Screen scroll>
+    <View style={styles.root}>
+      <ScreenHero
+        photo={PASSO1_PHOTO}
+        eyebrow="Passo 01 / Convite"
+        title="Seu convite"
+        titleSize={28}
+        compact
+        onBack={handleBack}
+      />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.flex, revealStyle]}>
-          <AppText variant="eyebrow" color="tertiary">
-            Passo 1 / Convite
-          </AppText>
-          <AppText variant="h2" style={styles.title}>
-            Seu convite
-          </AppText>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.progress}>
+            <WizardProgress total={3} current={1} />
+          </View>
 
           {inviteError ? (
             <View style={styles.banner}>
@@ -145,20 +146,29 @@ export default function Passo1ConviteScreen() {
           </AppText>
 
           <View style={styles.cta}>
-            <Button variant="primary" label="Continuar" onPress={handleContinue} />
+            <Button variant="primary" label="Usar meu convite" onPress={handleContinue} />
           </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.bgBase,
+  },
   flex: {
     flex: 1,
   },
-  title: {
-    marginTop: theme.spacing.sm,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
+  },
+  progress: {
     marginBottom: theme.spacing.xl,
   },
   banner: {
@@ -222,6 +232,5 @@ const styles = StyleSheet.create((theme) => ({
   cta: {
     marginTop: 'auto',
     paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.lg,
   },
 }));
