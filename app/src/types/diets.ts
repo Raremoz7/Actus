@@ -8,3 +8,7 @@ export const StudentDietSchema = z.object({
   title: z.string(),
 });
 export type StudentDiet = z.infer<typeof StudentDietSchema>;
+
+// [Bloco 2] Resumo da dieta para o card do HOJE. Detalhe = Bloco 8.
+export const StudentDietSummarySchema = StudentDietSchema;
+export type StudentDietSummary = z.infer<typeof StudentDietSummarySchema>;
