@@ -1,5 +1,5 @@
 // Reanimated v4 usa worklets nativos — no jest, substituímos pelo mock oficial.
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/src/mock'));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 // Unistyles 3 exige configure nativo; no jest, StyleSheet.create vira passthrough
 // que executa a factory com um theme stub (basta para resolver os estilos).
