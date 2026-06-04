@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Controller, useFormContext } from 'react-hook-form';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input, Screen } from '@/components/ui';
-import { FormErrorBanner, MaskedField } from '@/components/molecules';
+import { AppText, Button, Input, ScreenHero } from '@/components/ui';
+import { FormErrorBanner, MaskedField, WizardProgress } from '@/components/molecules';
 import { useRegisterMutation } from '@/features/auth/hooks';
 import { authErrorMessage } from '@/features/auth/errors';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
@@ -20,9 +15,11 @@ import {
   routeRegisterError,
   type CadastroForm,
 } from '@/features/auth/cadastroForm';
-import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const PASSO3_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=1080&q=70&auto=format&fit=crop',
+};
 
 export default function Passo3AcessoScreen() {
   const {
@@ -41,17 +38,6 @@ export default function Passo3AcessoScreen() {
   // Banner form-level (erro genérico/rede); o e-mail já-em-uso oferece link "Entrar".
   const [formError, setFormError] = useState<string | null>(null);
   const [emailTaken, setEmailTaken] = useState(false);
-
-  // ÚNICA animação da tela: reveal de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(1, { duration: motion.screenMs });
-  }, [reveal]);
-
-  const revealStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 12 }],
-  }));
 
   function handleApiError(err: unknown) {
     if (!isApiError(err)) {
@@ -96,7 +82,15 @@ export default function Passo3AcessoScreen() {
     setFormError(null);
     setEmailTaken(false);
 
-    const body = buildRegisterBody(getValues());
+    const values = getValues();
+
+    // Confirmação de senha: bloqueia o envio se não conferir (passo 3 não roda zod).
+    if (values.password !== values.confirm_password) {
+      setError('confirm_password', { message: 'As senhas não conferem.' });
+      return;
+    }
+
+    const body = buildRegisterBody(values);
     mutation.mutate(body, {
       onSuccess: () => {
         // O store já fez tokens → /me → status; o index.tsx despacha por tipo.
@@ -108,18 +102,29 @@ export default function Passo3AcessoScreen() {
   }
 
   return (
-    <Screen scroll>
+    <View style={styles.root}>
+      <ScreenHero
+        photo={PASSO3_PHOTO}
+        eyebrow="Passo 03 / Acesso"
+        title="Seu acesso"
+        titleSize={28}
+        compact
+        onBack={() => router.back()}
+      />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.flex, revealStyle]}>
-          <AppText variant="eyebrow" color="tertiary">
-            Passo 3 / Acesso
-          </AppText>
-          <AppText variant="h2" style={styles.title}>
-            Seu acesso
-          </AppText>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.progress}>
+            <WizardProgress total={3} current={3} />
+          </View>
 
           {formError ? (
             <View style={styles.banner}>
@@ -219,18 +224,27 @@ export default function Passo3AcessoScreen() {
               onPress={handleCreate}
             />
           </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.bgBase,
+  },
   flex: {
     flex: 1,
   },
-  title: {
-    marginTop: theme.spacing.sm,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
+  },
+  progress: {
     marginBottom: theme.spacing.xl,
   },
   banner: {
@@ -251,6 +265,5 @@ const styles = StyleSheet.create((theme) => ({
   cta: {
     marginTop: 'auto',
     paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.lg,
   },
 }));
