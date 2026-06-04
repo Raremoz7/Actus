@@ -1,7 +1,7 @@
 // [fluxo futuro] auto-cadastro de profissional não existe na API v1 —
 // a conta do professor é criada pela equipe Actus (credenciamento).
 import { useEffect } from 'react';
-import { Linking, Pressable, View } from 'react-native';
+import { Linking, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,13 +9,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router } from 'expo-router';
-import { CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Screen } from '@/components/ui';
+import { AppText, Button, ScreenHero } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
-const { motion, colors } = darkTheme;
+const { motion } = darkTheme;
+
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const PROFESSOR_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1080&q=70&auto=format&fit=crop',
+};
 
 // [ajuste: definir canal de contato real]
 const CONTATO_URL = 'mailto:contato@actus.fit';
@@ -67,27 +71,16 @@ function StepRow({ step, index, isLast }: { step: Step; index: number; isLast: b
 
 export default function ProfessorInfoScreen() {
   return (
-    <Screen padded>
-      <View style={styles.flex}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Voltar"
-          hitSlop={12}
-          onPress={() => router.back()}
-          style={styles.back}
-        >
-          <CaretLeft size={24} weight="duotone" color={colors.textTertiary} />
-        </Pressable>
+    <View style={styles.root}>
+      <ScreenHero
+        photo={PROFESSOR_PHOTO}
+        eyebrow="Acesso de professor"
+        title={'Credenciamento\nActus'}
+        titleSize={30}
+        onBack={() => router.back()}
+      />
 
-        <View style={styles.header}>
-          <AppText variant="eyebrow" color="tertiary">
-            Acesso de professor
-          </AppText>
-          <AppText variant="h1" style={styles.title}>
-            Credenciamento{'\n'}Actus
-          </AppText>
-        </View>
-
+      <View style={styles.body}>
         <View style={styles.steps}>
           {STEPS.map((step, index) => (
             <StepRow
@@ -114,25 +107,20 @@ export default function ProfessorInfoScreen() {
           />
         </View>
       </View>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  flex: {
+  root: {
     flex: 1,
+    backgroundColor: theme.colors.bgBase,
   },
-  back: {
-    alignSelf: 'flex-start',
-    marginBottom: theme.spacing.lg,
-  },
-  header: {
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
-  },
-  title: {
-    fontSize: 40,
-    lineHeight: 40,
+  body: {
+    flex: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
   },
   steps: {
     alignSelf: 'stretch',
