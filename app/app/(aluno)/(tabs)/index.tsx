@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -103,9 +103,22 @@ export default function AlunoHojeScreen() {
         </View>
 
         {workout.isError && week.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.block}>
-            Não foi possível carregar agora. Puxe para atualizar.
-          </AppText>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Tentar de novo"
+            onPress={() => {
+              void me.refetch();
+              void week.refetch();
+              void workout.refetch();
+              void diet.refetch();
+              void challenge.refetch();
+            }}
+            style={styles.retry}
+          >
+            <AppText variant="bodySm" color="tertiary">
+              Não foi possível carregar agora. Tentar de novo.
+            </AppText>
+          </Pressable>
         ) : null}
       </Animated.View>
     </Screen>
@@ -114,5 +127,6 @@ export default function AlunoHojeScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   block: { marginTop: theme.spacing.lg },
+  retry: { marginTop: theme.spacing.lg, alignItems: 'center' },
   row: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.lg },
 }));

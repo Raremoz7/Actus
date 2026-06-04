@@ -12,7 +12,7 @@ type FormErrorBannerProps = {
 
 const { colors } = darkTheme;
 
-// Banner sóbrio de erro form-level: borda error radius 4, sem animação.
+// Banner sóbrio de erro form-level: borda error radius de card (token), sem animação.
 // A presença do banner já é o feedback (decisão visual: nunca shake/alarme).
 export function FormErrorBanner({ message }: FormErrorBannerProps) {
   if (!message) return null;
