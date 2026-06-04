@@ -16,4 +16,23 @@ module.exports = defineConfig([
       'import/no-named-as-default-member': 'off',
     },
   },
+  {
+    // Arquivos de infraestrutura de testes (JS puro, globals do jest)
+    files: ['jest.config.js', 'jest.setup.js', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
+    languageOptions: {
+      globals: {
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 ]);
