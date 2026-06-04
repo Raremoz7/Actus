@@ -13,6 +13,7 @@ export { Tag } from './Tag';
 export type { TagTone } from './Tag';
 
 export { Screen } from './Screen';
+export { ScreenHero } from './ScreenHero';
 
 // Logo é criado por outro agente (Onda 1), mas reexportado aqui por conveniência.
 export { Logo } from './Logo';
