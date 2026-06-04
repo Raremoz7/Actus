@@ -1,30 +1,25 @@
 import { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Controller, useFormContext } from 'react-hook-form';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Screen } from '@/components/ui';
+import { Button, ScreenHero } from '@/components/ui';
 import {
   DateField,
   FormField,
   GenderChips,
   MaskedField,
+  WizardProgress,
 } from '@/components/molecules';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
-import {
-  type CadastroForm,
-  PASSO_2_FIELDS,
-} from '@/features/auth/cadastroForm';
+import { type CadastroForm, PASSO_2_FIELDS } from '@/features/auth/cadastroForm';
 import type { Gender } from '@/types/auth';
-import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const PASSO2_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1546483875-ad9014c88eba?w=1080&q=70&auto=format&fit=crop',
+};
 
 export default function Passo2VoceScreen() {
   const {
@@ -45,17 +40,6 @@ export default function Passo2VoceScreen() {
     }
   }, [lastCpfError, setError, setLastCpfError]);
 
-  // ÚNICA animação da tela: reveal de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(1, { duration: motion.screenMs });
-  }, [reveal]);
-
-  const revealStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 12 }],
-  }));
-
   async function handleContinue() {
     const ok = await trigger([...PASSO_2_FIELDS]);
     if (ok) {
@@ -64,18 +48,29 @@ export default function Passo2VoceScreen() {
   }
 
   return (
-    <Screen scroll>
+    <View style={styles.root}>
+      <ScreenHero
+        photo={PASSO2_PHOTO}
+        eyebrow="Passo 02 / Você"
+        title="Quem treina"
+        titleSize={28}
+        compact
+        onBack={() => router.back()}
+      />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.flex, revealStyle]}>
-          <AppText variant="eyebrow" color="tertiary">
-            Passo 2 / Você
-          </AppText>
-          <AppText variant="h2" style={styles.title}>
-            Quem treina
-          </AppText>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.progress}>
+            <WizardProgress total={3} current={2} />
+          </View>
 
           <View style={styles.form}>
             <FormField
@@ -136,18 +131,27 @@ export default function Passo2VoceScreen() {
           <View style={styles.cta}>
             <Button variant="primary" label="Continuar" onPress={handleContinue} />
           </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.bgBase,
+  },
   flex: {
     flex: 1,
   },
-  title: {
-    marginTop: theme.spacing.sm,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
+  },
+  progress: {
     marginBottom: theme.spacing.xl,
   },
   form: {
@@ -156,6 +160,5 @@ const styles = StyleSheet.create((theme) => ({
   cta: {
     marginTop: 'auto',
     paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.lg,
   },
 }));
