@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +11,7 @@ import Animated, {
 import { router, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Input, Button, Screen } from '@/components/ui';
+import { AppText, Input, Button, ScreenHero } from '@/components/ui';
 import { FormErrorBanner } from '@/components/molecules';
 import { useChangePasswordMutation } from '@/features/auth/hooks';
 import { isApiError } from '@/api/errors';
@@ -19,11 +19,15 @@ import { darkTheme } from '@/theme';
 
 const { motion } = darkTheme;
 
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const TROCA_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=1080&q=70&auto=format&fit=crop',
+};
+
 // Tamanho mínimo da nova senha — espelha ChangePasswordBodySchema (new_password >= 8).
 const MIN_NEW_PASSWORD = 8;
 
 // Form local: além dos campos da API, há "confirmar" (validação 100% local).
-// A regra de match vive aqui no schema do form; o body enviado é só { current, new }.
 const TrocarSenhaFormSchema = z
   .object({
     current_password: z.string().min(1, 'Informe a senha provisória.'),
@@ -53,28 +57,20 @@ export default function TrocarSenhaScreen() {
     mode: 'onSubmit',
   });
 
-  // ÚNICA animação da tela: reveal de entrada (opacity 0→1 + translateY sutil, 300ms).
-  const revealOpacity = useSharedValue(0);
-  const revealTranslate = useSharedValue(12);
-
+  // ÚNICA animação da tela: entrada do hero (opacity 0→1 + translateY -16→0, 300ms).
+  const heroReveal = useSharedValue(0);
   useEffect(() => {
-    revealOpacity.value = withTiming(1, { duration: motion.screenMs });
-    revealTranslate.value = withTiming(0, { duration: motion.screenMs });
-  }, [revealOpacity, revealTranslate]);
-
-  const revealStyle = useAnimatedStyle(() => ({
-    opacity: revealOpacity.value,
-    transform: [{ translateY: revealTranslate.value }],
+    heroReveal.value = withTiming(1, { duration: motion.screenMs });
+  }, [heroReveal]);
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroReveal.value,
+    transform: [{ translateY: (1 - heroReveal.value) * -16 }],
   }));
 
-  // Indicador sóbrio do requisito atendido (mockup B): linha mono neon quando >= 8 chars.
   const newPassword = watch('new_password');
   const meetsLength = newPassword.length >= MIN_NEW_PASSWORD;
 
-  // Branch SEMPRE pelo ApiError.code (campo "error" do backend), NUNCA pelo HTTP status:
-  // - invalid_credentials → senha provisória não confere (erro no campo atual)
-  // - invalid_body        → nova senha fora da regra (erro no campo nova)
-  // - internal_error / network_error / desconhecido → banner form-level
+  // Branch SEMPRE pelo ApiError.code (campo "error" do backend), NUNCA pelo HTTP status.
   const apiCode = isApiError(mutation.error) ? mutation.error.code : null;
   const currentPasswordApiError =
     apiCode === 'invalid_credentials' ? 'A senha atual não confere.' : undefined;
@@ -94,8 +90,6 @@ export default function TrocarSenhaScreen() {
         new_password: values.new_password,
       },
       {
-        // A mutation já chama completePasswordChange() no store (revalida /me e
-        // libera o app). O replace é a rede de segurança — o index despacha por tipo.
         onSuccess: () => {
           router.replace('/');
         },
@@ -104,26 +98,32 @@ export default function TrocarSenhaScreen() {
   }
 
   return (
-    <Screen padded>
+    <View style={styles.root}>
       {/* Gate: sem voltar (sem botão e sem gesture). Só sai trocando a senha. */}
       <Stack.Screen options={{ headerShown: false, gestureEnabled: false }} />
+
+      <Animated.View style={heroStyle}>
+        <ScreenHero
+          photo={TROCA_PHOTO}
+          eyebrow="Primeiro acesso"
+          title={'Defina sua\nsenha'}
+          titleSize={30}
+        />
+      </Animated.View>
 
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.flex, revealStyle]}>
-          <View style={styles.header}>
-            <AppText variant="eyebrow" color="tertiary">
-              Primeiro acesso
-            </AppText>
-            <AppText variant="h1" style={styles.title}>
-              Defina sua{'\n'}senha
-            </AppText>
-            <AppText variant="bodyMd" color="secondary" style={styles.intro}>
-              Sua senha provisória expira agora.
-            </AppText>
-          </View>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <AppText variant="bodyMd" color="secondary" style={styles.intro}>
+            Sua senha provisória expira agora.
+          </AppText>
 
           {bannerMessage ? <FormErrorBanner message={bannerMessage} /> : null}
 
@@ -205,27 +205,28 @@ export default function TrocarSenhaScreen() {
               onPress={handleSubmit(onSubmit)}
             />
           </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.bgBase,
+  },
   flex: {
     flex: 1,
   },
-  header: {
-    marginTop: theme.spacing.xl,
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
-  },
-  title: {
-    fontSize: 36,
-    lineHeight: 36,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
   },
   intro: {
-    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.lg,
   },
   form: {
     gap: theme.spacing.lg,
