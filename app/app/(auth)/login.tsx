@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Animated, {
@@ -11,7 +11,7 @@ import { router } from 'expo-router';
 import { WarningCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input, Logo, Screen } from '@/components/ui';
+import { AppText, Button, Input, ScreenHero } from '@/components/ui';
 import { LoginBodySchema, type LoginBody } from '@/types/auth';
 import { useLoginMutation } from '@/features/auth/hooks';
 import { authErrorMessage } from '@/features/auth/errors';
@@ -19,6 +19,11 @@ import { isApiError } from '@/api/errors';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
+
+// [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
+const LOGIN_PHOTO = {
+  uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1080&q=70&auto=format&fit=crop',
+};
 
 // [fluxo futuro] sem reset de senha na API v1 — não há link "Esqueci a senha".
 
@@ -57,18 +62,14 @@ export default function LoginScreen() {
     mode: 'onSubmit',
   });
 
-  // ÚNICA animação da tela: reveal de entrada (opacity 0→1 + translateY sutil, 300ms).
-  const revealOpacity = useSharedValue(0);
-  const revealTranslate = useSharedValue(12);
-
+  // ÚNICA animação da tela: entrada do hero (opacity 0→1 + translateY -16→0, 300ms).
+  const heroReveal = useSharedValue(0);
   useEffect(() => {
-    revealOpacity.value = withTiming(1, { duration: motion.screenMs });
-    revealTranslate.value = withTiming(0, { duration: motion.screenMs });
-  }, [revealOpacity, revealTranslate]);
-
-  const revealStyle = useAnimatedStyle(() => ({
-    opacity: revealOpacity.value,
-    transform: [{ translateY: revealTranslate.value }],
+    heroReveal.value = withTiming(1, { duration: motion.screenMs });
+  }, [heroReveal]);
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroReveal.value,
+    transform: [{ translateY: (1 - heroReveal.value) * -16 }],
   }));
 
   // Erro de credencial/validação vindo da API marca os DOIS campos e o banner.
@@ -80,8 +81,6 @@ export default function LoginScreen() {
 
   function onSubmit(values: LoginBody) {
     mutation.mutate(values, {
-      // Sucesso: o store já roteia (transação tokens → /me → status); o index.tsx
-      // despacha pelo tipo. Mantemos o replace como rede de segurança.
       onSuccess: () => {
         router.replace('/');
       },
@@ -89,23 +88,21 @@ export default function LoginScreen() {
   }
 
   return (
-    <Screen padded>
+    <View style={styles.root}>
+      <Animated.View style={heroStyle}>
+        <ScreenHero photo={LOGIN_PHOTO} eyebrow="Acesso" title="Entrar" titleSize={44} />
+      </Animated.View>
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.flex, revealStyle]}>
-          <Logo variant="symbol" color="neon" width={30} />
-
-          <View style={styles.header}>
-            <AppText variant="eyebrow" color="tertiary">
-              Acesso
-            </AppText>
-            <AppText variant="h1" style={styles.title}>
-              Entrar
-            </AppText>
-          </View>
-
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           {apiErrorMessage ? <FormErrorBanner message={apiErrorMessage} /> : null}
 
           <View style={styles.form}>
@@ -188,24 +185,25 @@ export default function LoginScreen() {
               </AppText>
             </Pressable>
           </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.bgBase,
+  },
   flex: {
     flex: 1,
   },
-  header: {
-    marginTop: theme.spacing.xxl,
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
-  },
-  title: {
-    fontSize: 44,
-    lineHeight: 44,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
   },
   banner: {
     flexDirection: 'row',
