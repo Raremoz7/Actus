@@ -46,3 +46,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Git worktrees isoladas (subagent-driven)
+.claude/worktrees/
+
+# Dev artifacts (nao versionar)
+.claire/
+.playwright-mcp/
+*-390x844.png

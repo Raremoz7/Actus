@@ -1,4 +1,10 @@
-import { Image, Pressable, View, type ImageSourcePropType } from 'react-native';
+import {
+  Image,
+  Pressable,
+  useWindowDimensions,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CaretLeft } from 'phosphor-react-native';
@@ -25,7 +31,13 @@ type ScreenHeroProps = {
 };
 
 const BASE_HEIGHT = 168;
-const COMPACT_HEIGHT = 116;
+
+// Hero compacto (wizard): altura responsiva — cresce com a tela para preencher o
+// espaço disponível e não deixar vão entre o formulário e o CTA ancorado.
+// Proporção da altura útil, com piso/teto para não exagerar em telas extremas.
+const COMPACT_RATIO = 0.26;
+const COMPACT_MIN = 150;
+const COMPACT_MAX = 248;
 
 export function ScreenHero({
   photo,
@@ -36,7 +48,14 @@ export function ScreenHero({
   onBack,
 }: ScreenHeroProps) {
   const insets = useSafeAreaInsets();
-  const height = (compact ? COMPACT_HEIGHT : BASE_HEIGHT) + insets.top;
+  const { height: windowHeight } = useWindowDimensions();
+
+  // Área útil = janela menos as safe areas; o compacto ocupa uma fração dela.
+  const usableHeight = windowHeight - insets.top - insets.bottom;
+  const compactHeight = Math.round(
+    Math.min(COMPACT_MAX, Math.max(COMPACT_MIN, usableHeight * COMPACT_RATIO)),
+  );
+  const height = (compact ? compactHeight : BASE_HEIGHT) + insets.top;
 
   return (
     <View style={[styles.root, { height }]}>

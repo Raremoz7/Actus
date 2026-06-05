@@ -67,12 +67,14 @@ export function Button({
     opacity: variant === 'primary' && loading ? loadingPulse.value : 1,
   }));
 
-  const ghostBgStyle = useAnimatedStyle(() => ({
-    backgroundColor:
-      variant === 'ghost' && ghostPress.value === 1
-        ? darkTheme.colors.surface2
-        : 'transparent',
-  }));
+  const ghostBgStyle = useAnimatedStyle(() => {
+    // Só o ghost controla o fundo por aqui; nas outras variantes não devolvemos
+    // backgroundColor para NÃO sobrescrever o fill (neon) definido em styles.fill.
+    if (variant !== 'ghost') return {};
+    return {
+      backgroundColor: ghostPress.value === 1 ? darkTheme.colors.surface2 : 'transparent',
+    };
+  });
 
   function handlePressIn() {
     pressScale.value = withTiming(0.98, { duration: motion.microMs });

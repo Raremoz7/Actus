@@ -51,6 +51,9 @@ export const CadastroFormSchema = z.object({
     .string()
     .min(8, 'A senha precisa de ao menos 8 caracteres.')
     .max(200, 'Senha muito longa.'),
+  // Confirmação de senha: a igualdade com `password` é checada no submit do
+  // passo 3 (handleCreate) — este passo não roda o zod antes de enviar.
+  confirm_password: z.string().min(1, 'Confirme sua senha.'),
 });
 
 export type CadastroForm = z.infer<typeof CadastroFormSchema>;
@@ -65,12 +68,13 @@ export const cadastroDefaultValues: CadastroForm = {
   email: '',
   phone: '',
   password: '',
+  confirm_password: '',
 };
 
 // Campos validados em cada passo, usados em trigger() antes de avançar.
 export const PASSO_1_FIELDS = ['invite_code'] as const;
 export const PASSO_2_FIELDS = ['full_name', 'birth_date', 'gender', 'cpf'] as const;
-export const PASSO_3_FIELDS = ['email', 'phone', 'password'] as const;
+export const PASSO_3_FIELDS = ['email', 'phone', 'password', 'confirm_password'] as const;
 
 // Monta o RegisterBody final a partir do form: normaliza opcionais (digits-only,
 // undefined quando vazio) e injeta os campos de consentimento da v1.

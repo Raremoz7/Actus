@@ -6,7 +6,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { CaretRight } from 'phosphor-react-native';
@@ -17,28 +16,18 @@ import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
 
-// Foto do hero (academia) — coberta por um degradê neon que vira sólido embaixo,
-// onde ficam logo e manifesto (texto escuro, legível).
+// Foto do hero (academia) ocupa o topo; abaixo, um bloco neon SÓLIDO com logo + manifesto.
 const HERO_IMAGE = require('../../assets/images/hero-couple.png');
 
-// Enquadramento aprovado pelo designer (mockup 1:1):
-const HERO_HEIGHT_RATIO = 0.58; // hero ocupa ~58% da altura da tela
-const HERO_IMAGE_ZOOM = 0.9; // foto a 90% da altura do hero; o resto fica sob o neon sólido
-const HERO_IMAGE_ASPECT = 1.5; // 1248×832
-const HERO_IMAGE_POS_X = 0.32; // recorte horizontal (centro-esquerda)
-
-// Degradê do hero: transparente no topo → neon sólido a partir de 72% (base do bloco).
-const HERO_GRADIENT_LOCATIONS = [0, 0.4, 0.72, 1] as const;
+// Hero ocupa ~58% da altura da tela; a foto preenche o topo e o bloco neon a base.
+const HERO_HEIGHT_RATIO = 0.58;
 
 export default function EscolhaPerfilScreen() {
   const router = useRouter();
 
-  // Enquadramento da foto: derivado do tamanho real da tela (zoom-out + recorte à esquerda).
-  const { width: screenW, height: screenH } = useWindowDimensions();
+  // Altura do hero derivada da tela; a foto ocupa o topo e o bloco neon a base.
+  const { height: screenH } = useWindowDimensions();
   const heroHeight = Math.round(screenH * HERO_HEIGHT_RATIO);
-  const imageHeight = Math.round(heroHeight * HERO_IMAGE_ZOOM);
-  const imageWidth = Math.round(imageHeight * HERO_IMAGE_ASPECT);
-  const imageLeft = -Math.round((imageWidth - screenW) * HERO_IMAGE_POS_X);
 
   // ÚNICA animação da tela: o bloco do hero desliza de cima no load.
   const blockY = useSharedValue(-40);
@@ -61,28 +50,16 @@ export default function EscolhaPerfilScreen() {
 
   return (
     <View style={styles.root}>
-      {/* Hero: foto full-bleed + degradê neon que vira sólido embaixo. */}
+      {/* Hero: foto no topo + bloco neon sólido na base (logo + manifesto sobre ele). */}
       <Animated.View style={[styles.heroBlock, { height: heroHeight }, blockStyle]}>
-        <Image
-          source={HERO_IMAGE}
-          style={[
-            styles.heroImage,
-            { width: imageWidth, height: imageHeight, left: imageLeft },
-          ]}
-          resizeMode="cover"
-          accessible={false}
-        />
-        <LinearGradient
-          colors={[
-            colors.neonTransparent,
-            colors.neonTransparent,
-            colors.neon,
-            colors.neon,
-          ]}
-          locations={[...HERO_GRADIENT_LOCATIONS]}
-          style={styles.heroGradient}
-          pointerEvents="none"
-        />
+        <View style={styles.heroPhotoWrap}>
+          <Image
+            source={HERO_IMAGE}
+            style={styles.heroImage}
+            resizeMode="cover"
+            accessible={false}
+          />
+        </View>
         <View style={styles.heroContent}>
           <Logo variant="symbol" color="dark" width={44} />
           <AppText variant="h1" color="inverse" style={styles.manifesto}>
@@ -208,30 +185,28 @@ const styles = StyleSheet.create((theme) => ({
   heroBlock: {
     width: '100%',
     overflow: 'hidden',
-    // Neon sólido por baixo cobre o vazio que o zoom-out da foto deixa na base.
     backgroundColor: theme.colors.neon,
   },
-  heroImage: {
-    position: 'absolute',
-    top: 0,
-  },
-  heroGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  heroContent: {
+  // Foto preenche o topo do hero; o bloco neon (heroContent) fica abaixo dela.
+  heroPhotoWrap: {
     flex: 1,
-    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  // Bloco neon SÓLIDO na base: logo + manifesto sobre ele (texto escuro, legível).
+  heroContent: {
+    backgroundColor: theme.colors.neon,
     paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.xxl,
   },
   manifesto: {
     marginTop: theme.spacing.lg,
-    fontSize: 52,
-    lineHeight: Math.round(52 * 0.92),
+    fontSize: 44,
+    lineHeight: Math.round(44 * 0.92),
   },
   base: {
     flex: 1,
@@ -239,6 +214,7 @@ const styles = StyleSheet.create((theme) => ({
   baseInner: {
     flex: 1,
     paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
   },
   // Espaçadores que distribuem as escolhas no eixo (B) e ancoram "Entrar" no rodapé.
   spacer: {

@@ -4,6 +4,7 @@ import '@/theme/unistyles';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -21,6 +22,18 @@ void SplashScreen.preventAutoHideAsync();
 
 // bgLowest do design — exceção legítima a hex hardcoded (contentStyle nativo do Stack).
 const STACK_BG = '#10252D';
+
+// Tema de navegação escuro. SEM isto, o React Navigation usa o tema Light padrão,
+// cujo colors.background (#F2F2F2) pinta o container de tela de cinza-claro no web
+// (vaza acima/abaixo do conteúdo). Aqui forçamos o fundo do navegador no design.
+const navTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: STACK_BG,
+    card: STACK_BG,
+  },
+};
 
 function RootLayout() {
   const fontsLoaded = useAppFonts();
@@ -72,14 +85,16 @@ function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: STACK_BG }}>
       <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: STACK_BG },
-          }}
-        />
+        <ThemeProvider value={navTheme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: STACK_BG },
+            }}
+          />
+        </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

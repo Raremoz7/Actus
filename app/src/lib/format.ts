@@ -24,6 +24,33 @@ export function maskCpf(v: string): string {
   return out;
 }
 
+// Máscara progressiva de data BR: DD/MM/AAAA.
+// Aplica as barras conforme os dígitos chegam, sem exigir a data completa.
+export function maskDateBr(v: string): string {
+  const digits = onlyDigits(v).slice(0, 8);
+  let out = digits.slice(0, 2);
+  if (digits.length > 2) out += `/${digits.slice(2, 4)}`;
+  if (digits.length > 4) out += `/${digits.slice(4, 8)}`;
+  return out;
+}
+
+// Converte 8 dígitos (DDMMAAAA) em YYYY-MM-DD, ou null se incompleto/inválido.
+// Rejeita datas que "transbordam" (ex.: 31/02 vira 03/03) comparando os
+// componentes de volta com o Date construído.
+export function isoFromBrDigits(v: string): string | null {
+  const digits = onlyDigits(v);
+  if (digits.length !== 8) return null;
+  const day = Number(digits.slice(0, 2));
+  const month = Number(digits.slice(2, 4));
+  const year = Number(digits.slice(4, 8));
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const d = new Date(year, month - 1, day);
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {
+    return null;
+  }
+  return formatDateLocal(d);
+}
+
 // Máscara progressiva de telefone (celular): (00) 00000-0000.
 export function maskPhone(v: string): string {
   const digits = onlyDigits(v).slice(0, 11);

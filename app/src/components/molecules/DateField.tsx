@@ -5,8 +5,13 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
-import { formatDateLocal } from '@/lib/format';
+import { AppText, Input } from '@/components/ui';
+import {
+  formatDateLocal,
+  isoFromBrDigits,
+  maskDateBr,
+  onlyDigits,
+} from '@/lib/format';
 
 type DateFieldProps = {
   // Data no formato YYYY-MM-DD (ou null quando ainda não escolhida).
@@ -37,7 +42,52 @@ function displayDate(date: Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export function DateField({ value, onChange, label, error }: DateFieldProps) {
+// Converte YYYY-MM-DD em DD/MM/AAAA para preencher o input web.
+function brFromIso(value: string | null): string {
+  if (!value) return '';
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return '';
+  return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
+// WEB: o DateTimePicker nativo não funciona no navegador. Renderiza um input
+// mascarado (DD/MM/AAAA) digitável; só emite o YYYY-MM-DD quando a data é real
+// e não está no futuro — caso contrário limpa o valor (form segue inválido).
+function DateFieldWeb({ value, onChange, label, error }: DateFieldProps) {
+  const [text, setText] = useState(() => brFromIso(value));
+
+  function handleText(input: string) {
+    const digits = onlyDigits(input).slice(0, 8);
+    setText(maskDateBr(digits));
+    const iso = isoFromBrDigits(digits);
+    const todayIso = formatDateLocal(new Date());
+    onChange(iso && iso <= todayIso ? iso : '');
+  }
+
+  return (
+    <Input
+      label={label}
+      error={error}
+      value={text}
+      onChangeText={handleText}
+      placeholder="DD/MM/AAAA"
+      keyboardType="number-pad"
+      inputMode="numeric"
+      maxLength={10}
+      accessibilityLabel={label}
+      style={styles.webInput}
+    />
+  );
+}
+
+export function DateField(props: DateFieldProps) {
+  if (Platform.OS === 'web') {
+    return <DateFieldWeb {...props} />;
+  }
+  return <DateFieldNative {...props} />;
+}
+
+function DateFieldNative({ value, onChange, label, error }: DateFieldProps) {
   const [open, setOpen] = useState(false);
 
   const selected = parseLocalDate(value);
@@ -125,5 +175,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   error: {
     marginTop: theme.spacing.xs,
+  },
+  webInput: {
+    fontFamily: theme.fontFamily.mono,
+    letterSpacing: 1,
   },
 }));

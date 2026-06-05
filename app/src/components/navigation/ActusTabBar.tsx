@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -68,14 +68,15 @@ export function ActusTabBar({
         // Rotas sem spec (não deveriam existir) são puladas silenciosamente.
         const tabButton = spec ? renderTab(spec, index) : null;
 
-        // Injeta o botão central ANTES da aba que ocupa o slot do meio.
+        // Injeta o botão central como COLUNA própria antes da aba do meio,
+        // para que todas as colunas (abas + central) dividam a largura igualmente.
         const injectCenter = center && index === centerSlot;
 
         return (
-          <View key={route.key} style={styles.slotGroup}>
+          <Fragment key={route.key}>
             {injectCenter ? renderCenter() : null}
             {tabButton}
-          </View>
+          </Fragment>
         );
       })}
     </View>
@@ -99,6 +100,7 @@ export function ActusTabBar({
         <AppText
           variant="eyebrow"
           color={focused ? 'neon' : 'tertiary'}
+          numberOfLines={1}
           style={styles.label}
         >
           {spec.label}
@@ -131,10 +133,6 @@ const styles = StyleSheet.create((theme) => ({
     borderTopWidth: 1,
     borderTopColor: theme.colors.outlineVariant,
   },
-  slotGroup: {
-    flex: 1,
-    flexDirection: 'row',
-  },
   tab: {
     flex: 1,
     alignItems: 'center',
@@ -146,9 +144,9 @@ const styles = StyleSheet.create((theme) => ({
   label: {
     marginTop: 2,
   },
-  // Reserva espaço na fileira para o botão central sem sobrepor as abas vizinhas.
+  // Coluna do botão central: mesma largura (flex:1) das abas, mantendo simetria.
   centerSlot: {
-    width: 72,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },

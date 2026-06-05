@@ -10,6 +10,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'actus',
   version: '0.1.0',
   scheme: 'actus', // deep link: actus://register?code=XXX
+  owner: 'somo-tec',
+  extra: {
+    eas: {
+      projectId: '0ea086da-f952-4141-a20f-ed0f814afbb5',
+    },
+  },
   orientation: 'portrait',
   userInterfaceStyle: 'dark', // dark mode é o único tema (quiet luxury)
   icon: './assets/icon.png', // [ASSET PENDENTE] gerar raster a partir do actus.svg

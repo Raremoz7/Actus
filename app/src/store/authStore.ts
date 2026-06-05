@@ -6,6 +6,7 @@ import { parseApi } from '@/api/parseApi';
 import { isApiError } from '@/api/errors';
 import { TokensResponseSchema, type LoginBody, type RegisterBody } from '@/types/auth';
 import { MeSchema, type Me } from '@/types/me';
+import { DEV_BYPASS_AUTH, DEV_USER } from '@/lib/devAuth';
 
 // 4 estados, conforme contrato — nunca há um quinto.
 // 'hydrating'   → boot, ainda decidindo se há sessão válida
@@ -59,6 +60,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   // Boot da app: decide a partir do refresh_token persistido + /me.
   async hydrate() {
+    // [DEV — bypass de auth] Sessão falsa: nunca toca na rede, cai direto na área do DEV_TIPO.
+    if (DEV_BYPASS_AUTH) {
+      set({ status: 'authenticated', user: DEV_USER });
+      return;
+    }
+
     const refresh = await tokenStorage.getRefresh();
     if (!refresh) {
       set({ status: 'unauthenticated', user: null });
