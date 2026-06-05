@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
@@ -9,6 +9,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText } from '@/components/ui';
 import { WorkoutDetailHeader, ExerciseCard } from '@/components/workouts';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
+import { useCreateSession } from '@/hooks/useCreateSession';
 import { estimatedMinutes } from '@/lib/duration';
 import { darkTheme } from '@/theme';
 
@@ -18,6 +19,16 @@ export default function TreinoDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === 'string' ? params.id : '';
   const detail = useWorkoutDetail(id);
+  const createSession = useCreateSession();
+
+  function handleStart() {
+    if (!id || createSession.isPending) return;
+    createSession.mutate(id, {
+      onSuccess: (payload) => {
+        router.push(`/(aluno)/sessao/${payload.session.id}` as Href);
+      },
+    });
+  }
 
   const opacity = useSharedValue(0);
   useEffect(() => {
@@ -87,18 +98,34 @@ export default function TreinoDetailScreen() {
 
       {workout ? (
         <View style={styles.ctaBar}>
+          {createSession.isError ? (
+            <AppText variant="bodySm" color="tertiary" style={styles.ctaError}>
+              Não foi possível iniciar. Tente de novo.
+            </AppText>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Iniciar treino"
+            accessibilityState={{ disabled: createSession.isPending }}
+            disabled={createSession.isPending}
             style={styles.cta}
-            onPress={() => {
-              // [fluxo futuro] player de execução = próximo bloco.
-            }}
+            onPress={handleStart}
           >
-            <Play size={18} weight="fill" color={colors.textInverse} />
-            <AppText variant="label" color="inverse">
-              Iniciar treino
-            </AppText>
+            {createSession.isPending ? (
+              <>
+                <ActivityIndicator size="small" color={colors.textInverse} />
+                <AppText variant="label" color="inverse">
+                  Iniciando…
+                </AppText>
+              </>
+            ) : (
+              <>
+                <Play size={18} weight="fill" color={colors.textInverse} />
+                <AppText variant="label" color="inverse">
+                  Iniciar treino
+                </AppText>
+              </>
+            )}
           </Pressable>
         </View>
       ) : null}
@@ -134,6 +161,7 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.lg,
     backgroundColor: theme.colors.bgBase,
   },
+  ctaError: { textAlign: 'center', marginBottom: theme.spacing.sm },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
