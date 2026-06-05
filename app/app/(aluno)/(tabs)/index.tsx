@@ -18,11 +18,15 @@ import {
 } from '@/components/home';
 import { useMe } from '@/hooks/useMe';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
-import { useTodayWorkout } from '@/hooks/useTodayWorkout';
+import { useStudentWorkouts } from '@/hooks/useStudentWorkouts';
 import { useStudentDiet } from '@/hooks/useStudentDiet';
-import { useChallengeTeaser } from '@/hooks/useChallengeTeaser';
+import { useChallenges } from '@/hooks/useChallenges';
+import { pickNextWorkout } from '@/lib/nextWorkout';
+import { challengeDayProgress } from '@/lib/challenge';
 import { greetingForHour } from '@/lib/greeting';
+import { formatDateLocal } from '@/lib/format';
 import { nextMealMock } from '@/mocks/home';
+import type { TodayWorkoutSummary, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 
 const { motion } = darkTheme;
@@ -34,12 +38,18 @@ function dateLabelLocal(d: Date): string {
   return `${DIAS[d.getDay()]} · ${String(d.getDate()).padStart(2, '0')} ${MESES[d.getMonth()]}`;
 }
 
+// weekday local ISO 1..7 (1=seg). getDay(): 0=dom..6=sab.
+function todayWeekday(d: Date): Weekday {
+  const dow = d.getDay();
+  return (dow === 0 ? 7 : dow) as Weekday;
+}
+
 export default function AlunoHojeScreen() {
   const me = useMe();
   const week = useWeeklyOverview();
-  const workout = useTodayWorkout();
+  const workouts = useStudentWorkouts();
   const diet = useStudentDiet();
-  const challenge = useChallengeTeaser();
+  const challenges = useChallenges();
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const opacity = useSharedValue(0);
@@ -55,10 +65,54 @@ export default function AlunoHojeScreen() {
 
   const now = new Date();
   const greeting = greetingForHour(now.getHours());
+  const todayStr = formatDateLocal(now);
 
-  // [fluxo futuro] destino real do treino = Bloco 5 (execução de sessão).
-  function startWorkout() {
-    router.push('/(aluno)/(tabs)/treinos' as Href);
+  // Treino do dia derivado da lista real /me/workouts (não há endpoint "treino de hoje").
+  // pickNextWorkout decide o de hoje (ou o próximo) pelo weekday local.
+  const items = workouts.data?.student_workouts ?? [];
+  const picked = pickNextWorkout(items, todayWeekday(now));
+  const todaySummary: TodayWorkoutSummary | null =
+    picked.next == null
+      ? items.length > 0
+        ? { has_workout: false, workout: null, next_workout: null }
+        : null
+      : picked.isToday
+        ? {
+            has_workout: true,
+            workout: {
+              id: picked.next.workout_id,
+              name: picked.next.workout_name,
+              muscle_groups: picked.next.workout_notes ?? picked.next.workout_name,
+              exercise_count: picked.next.exercise_count,
+              est_minutes: 0,
+            },
+            next_workout: null,
+          }
+        : {
+            has_workout: false,
+            workout: null,
+            next_workout: {
+              weekday: ([...picked.next.weekdays].sort((a, b) => a - b)[0] ?? 1) as Weekday,
+              muscle_groups: picked.next.workout_notes ?? picked.next.workout_name,
+            },
+          };
+
+  // Desafio em destaque: primeiro desafio ativo (participação ativa).
+  const activeChallenge =
+    challenges.data?.challenges.find(
+      (c) => c.participant_status === 'active' && c.challenge.status === 'active',
+    ) ?? null;
+  const challengeProgress = activeChallenge
+    ? challengeDayProgress(
+        activeChallenge.challenge.starts_on,
+        activeChallenge.challenge.ends_on,
+        todayStr,
+      )
+    : null;
+
+  // Abrir o treino do dia (detalhe → onde "Iniciar treino" cria a sessão).
+  function openTodayWorkout() {
+    if (picked.next) router.push(`/(aluno)/treino/${picked.next.id}` as Href);
   }
   function seeWeek() {
     router.push('/(aluno)/(tabs)/treinos' as Href);
@@ -74,8 +128,12 @@ export default function AlunoHojeScreen() {
           dateLabel={dateLabelLocal(now)}
         />
 
-        {workout.data ? (
-          <TodayWorkoutCard summary={workout.data} onStart={startWorkout} onSeeWeek={seeWeek} />
+        {todaySummary ? (
+          <TodayWorkoutCard
+            summary={todaySummary}
+            onStart={openTodayWorkout}
+            onSeeWeek={seeWeek}
+          />
         ) : null}
 
         {week.data ? (
@@ -92,26 +150,26 @@ export default function AlunoHojeScreen() {
               onPress={() => router.push('/(aluno)/(tabs)/treinos' as Href)}
             />
           ) : null}
-          {challenge.data ? (
+          {activeChallenge && challengeProgress ? (
             <ChallengeCard
-              title={challenge.data.title}
-              current={challenge.data.progress_current}
-              total={challenge.data.progress_total}
+              title={activeChallenge.challenge.name}
+              current={challengeProgress.day}
+              total={challengeProgress.total}
               onPress={() => router.push('/(aluno)/(tabs)/desafios' as Href)}
             />
           ) : null}
         </View>
 
-        {workout.isError && week.isError ? (
+        {workouts.isError && week.isError ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Tentar de novo"
             onPress={() => {
               void me.refetch();
               void week.refetch();
-              void workout.refetch();
+              void workouts.refetch();
               void diet.refetch();
-              void challenge.refetch();
+              void challenges.refetch();
             }}
             style={styles.retry}
           >

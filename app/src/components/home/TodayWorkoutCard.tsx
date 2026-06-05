@@ -26,7 +26,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek }: Props) {
           {w.muscle_groups}
         </AppText>
         <AppText variant="bodySm" color="secondary" style={styles.meta}>
-          {`${w.exercise_count} exercícios · ~${w.est_minutes} min · ${w.name}`}
+          {`${w.exercise_count} exercícios${w.est_minutes > 0 ? ` · ~${w.est_minutes} min` : ''} · ${w.name}`}
         </AppText>
         <Pressable
           accessibilityRole="button"
