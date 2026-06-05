@@ -68,10 +68,11 @@ export function StudentDetailScreen({ id }: Props) {
 
   function handleAssign() {
     if (!id) return;
-    // Destinos (builder de treino / dieta) são criados em bloco posterior — forward ref.
     if (role === 'personal') {
-      router.push(('/montar-treino?student=' + id) as Href);
+      // Atribui um TEMPLATE existente ao aluno (escolhe treino + dias da semana).
+      router.push(('/atribuir-treino?student=' + id) as Href);
     } else if (role === 'nutricionista') {
+      // Destino do builder de dieta é criado em bloco posterior — forward ref.
       router.push(('/montar-dieta?student=' + id) as Href);
     }
   }

@@ -95,3 +95,113 @@ export const WorkoutDetailSchema = z.object({
   ),
 });
 export type WorkoutDetail = z.infer<typeof WorkoutDetailSchema>;
+
+// ── Visão do PROFISSIONAL (templates de treino) ────────────────────────────
+// Shapes REAIS verificados no backend: api/src/routes/workouts.ts.
+
+// [Pro] Item da lista — GET /workouts → { workouts: [...] } (templates do
+// profissional logado). `exercise_count` já vem como int (Number() no backend);
+// `created_at` é ISO string.
+export const ProWorkoutListItemSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  notes: z.string().nullable(),
+  exercise_count: z.number().int().nonnegative(),
+  created_at: z.string(),
+});
+export type ProWorkoutListItem = z.infer<typeof ProWorkoutListItemSchema>;
+
+export const ProWorkoutsResponseSchema = z.object({
+  workouts: z.array(ProWorkoutListItemSchema),
+});
+export type ProWorkoutsResponse = z.infer<typeof ProWorkoutsResponseSchema>;
+
+// [Pro] Exercício de um template — GET /workouts/:id.
+export const ProWorkoutExerciseSchema = z.object({
+  id: z.string().uuid(),
+  position: z.number().int().positive(),
+  wger_exercise_id: z.number().int(),
+  name_snapshot: z.string(),
+  sets: z.number().int().positive(),
+  reps: z.number().int().positive(),
+  rest_seconds: z.number().int().nonnegative(),
+  notes: z.string().nullable(),
+  muscle_group: z.string().nullable(),
+});
+export type ProWorkoutExercise = z.infer<typeof ProWorkoutExerciseSchema>;
+
+// [Pro] Detalhe do template — GET /workouts/:id retorna o workout FLAT
+// (res.json(out.workout)), NÃO embrulhado em { workout: {...} }, e inclui
+// `created_at`. Verificado em api/src/routes/workouts.ts (router.get("/:workout_id")).
+export const ProWorkoutDetailSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  notes: z.string().nullable(),
+  created_at: z.string(),
+  exercises: z.array(ProWorkoutExerciseSchema),
+});
+export type ProWorkoutDetail = z.infer<typeof ProWorkoutDetailSchema>;
+
+// [Pro] Corpo de atribuição — POST /students/:student_id/workouts.
+// Verificado em api/src/routes/studentWorkouts.ts (assignWorkoutSchema).
+export const AssignWorkoutBodySchema = z.object({
+  workout_id: z.string().uuid(),
+  weekdays: z.array(WeekdaySchema).min(1),
+  start_date: dateOnly.optional(),
+  end_date: dateOnly.optional(),
+  display_order: z.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+export type AssignWorkoutBody = z.infer<typeof AssignWorkoutBodySchema>;
+
+// [Pro] Corpo de criação de template — POST /workouts.
+// Verificado em api/src/routes/workouts.ts (createWorkoutSchema): mínimo 1 exercício.
+// `wger_exercise_id` é obrigatório (int>=1) — sem busca Wger na API v1, a UI usa
+// placeholder 1 e o nome digitado (name_snapshot). Os defaults do backend
+// (sets=3, reps=10, rest_seconds=60) são replicados aqui para o cliente.
+export const CreateWorkoutExerciseSchema = z.object({
+  position: z.number().int().min(1),
+  wger_exercise_id: z.number().int().min(1),
+  name_snapshot: z.string().min(1).max(200),
+  sets: z.number().int().min(1).max(50).default(3),
+  reps: z.number().int().min(1).max(500).default(10),
+  rest_seconds: z.number().int().min(0).max(3600).default(60),
+  notes: z.string().max(2000).optional(),
+  muscle_group: z.string().min(1).max(80).optional().nullable(),
+});
+export type CreateWorkoutExercise = z.infer<typeof CreateWorkoutExerciseSchema>;
+
+export const CreateWorkoutBodySchema = z.object({
+  name: z.string().min(1).max(200),
+  notes: z.string().max(5000).optional(),
+  exercises: z.array(CreateWorkoutExerciseSchema).min(1).max(200),
+});
+export type CreateWorkoutBody = z.infer<typeof CreateWorkoutBodySchema>;
+
+// PATCH /workouts/:id — patch parcial; `exercises` é FULL REPLACE quando enviado.
+export const PatchWorkoutBodySchema = z
+  .object({
+    name: z.string().min(1).max(200).optional(),
+    notes: z.string().max(5000).nullable().optional(),
+    exercises: z.array(CreateWorkoutExerciseSchema).min(1).max(200).optional(),
+  })
+  .refine((o) => o.name !== undefined || o.notes !== undefined || o.exercises !== undefined, {
+    message: 'empty_patch',
+  });
+export type PatchWorkoutBody = z.infer<typeof PatchWorkoutBodySchema>;
+
+// [Pro] Resposta de POST /workouts → 201 { ok: true, workout_id }.
+// Verificado em api/src/routes/workouts.ts (res.status(201).json(out)).
+export const CreateWorkoutResponseSchema = z.object({
+  ok: z.literal(true),
+  workout_id: z.string().uuid(),
+});
+export type CreateWorkoutResponse = z.infer<typeof CreateWorkoutResponseSchema>;
+
+// [Pro] Resposta de POST /students/:id/workouts → 201 { ok: true, student_workout_id }.
+// Verificado em api/src/routes/studentWorkouts.ts (res.status(201).json(out)).
+export const AssignWorkoutResponseSchema = z.object({
+  ok: z.literal(true),
+  student_workout_id: z.string().uuid(),
+});
+export type AssignWorkoutResponse = z.infer<typeof AssignWorkoutResponseSchema>;

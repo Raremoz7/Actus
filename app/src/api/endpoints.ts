@@ -23,4 +23,8 @@ export const endpoints = {
   },
   invites: '/invites',
   health: '/health',
+  // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
+  workouts: '/workouts',
+  // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
+  studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
 } as const;

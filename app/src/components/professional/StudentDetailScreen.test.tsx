@@ -84,10 +84,10 @@ describe('StudentDetailScreen', () => {
     expect(screen.getByText('2')).toBeTruthy();
   });
 
-  it('personal vê "Atribuir treino" e navega para o builder com o student', () => {
+  it('personal vê "Atribuir treino" e navega para a tela de atribuição com o student', () => {
     render(<StudentDetailScreen id={STUDENT_ID} />);
     fireEvent.press(screen.getByText('Atribuir treino'));
-    expect(mockPush).toHaveBeenCalledWith('/montar-treino?student=' + STUDENT_ID);
+    expect(mockPush).toHaveBeenCalledWith('/atribuir-treino?student=' + STUDENT_ID);
   });
 
   it('nutricionista vê "Atribuir dieta" e navega para o builder de dieta', () => {
