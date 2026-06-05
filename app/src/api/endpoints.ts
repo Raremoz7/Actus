@@ -16,5 +16,10 @@ export const endpoints = {
     weeklyOverview: '/me/weekly-overview',
     challenges: '/me/challenges',
   },
+  professional: {
+    students: '/professional/students',
+    studentCheckIns: (studentId: string) =>
+      `/professional/students/${studentId}/check-ins`,
+  },
   health: '/health',
 } as const;

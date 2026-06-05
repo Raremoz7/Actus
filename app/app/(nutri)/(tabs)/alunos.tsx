@@ -1,10 +1,6 @@
-import { Screen, AppText } from '@/components/ui';
+import { StudentsScreen } from '@/components/professional';
 
-// Placeholder — implementação real no Bloco 9 (alunos do nutricionista).
+// Alunos do nutricionista — tela compartilhada (personal + nutricionista).
 export default function NutriAlunosScreen() {
-  return (
-    <Screen padded>
-      <AppText variant="h2">Alunos</AppText>
-    </Screen>
-  );
+  return <StudentsScreen />;
 }
