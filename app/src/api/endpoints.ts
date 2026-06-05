@@ -21,5 +21,6 @@ export const endpoints = {
     studentCheckIns: (studentId: string) =>
       `/professional/students/${studentId}/check-ins`,
   },
+  invites: '/invites',
   health: '/health',
 } as const;
