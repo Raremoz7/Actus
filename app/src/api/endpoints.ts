@@ -27,6 +27,11 @@ export const endpoints = {
   workouts: '/workouts',
   // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
   studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
+  // Templates de dieta do nutricionista logado (GET/POST /diet-templates,
+  // GET/PATCH /diet-templates/:id). requireAuth + dono nutricionista.
+  dietTemplates: '/diet-templates',
+  // Atribuição de dieta a um aluno: POST /students/:student_id/diets.
+  studentDiets: (studentId: string) => `/students/${studentId}/diets`,
   // Desafios do profissional logado (GET/POST /professional/challenges,
   // GET/PATCH /professional/challenges/:id, .../participants, .../ranking).
   professionalChallenges: '/professional/challenges',

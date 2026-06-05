@@ -90,13 +90,13 @@ describe('StudentDetailScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/atribuir-treino?student=' + STUDENT_ID);
   });
 
-  it('nutricionista vê "Atribuir dieta" e navega para o builder de dieta', () => {
+  it('nutricionista vê "Atribuir dieta" e navega para a tela de atribuição com o student', () => {
     mockUseMe.mockReturnValue({
       data: { id: 'n', tipo: 'nutricionista', display_name: 'Ale' },
     });
     render(<StudentDetailScreen id={STUDENT_ID} />);
     fireEvent.press(screen.getByText('Atribuir dieta'));
-    expect(mockPush).toHaveBeenCalledWith('/montar-dieta?student=' + STUDENT_ID);
+    expect(mockPush).toHaveBeenCalledWith('/atribuir-dieta?student=' + STUDENT_ID);
   });
 
   it('mostra fallback discreto quando o aluno não está no cache (deep link)', () => {
