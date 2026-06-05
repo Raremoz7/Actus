@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { CaretLeft, Play } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -68,6 +68,12 @@ export default function TreinoDetailScreen() {
                   reps={e.reps}
                   restSeconds={e.rest_seconds}
                   muscleGroup={e.muscle_group}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(aluno)/exercicio/[id]',
+                      params: { id: e.id, name: e.name_snapshot, muscle: e.muscle_group ?? '' },
+                    } as Href)
+                  }
                 />
               ))}
             </>

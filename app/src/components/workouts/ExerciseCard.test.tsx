@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ExerciseCard } from './ExerciseCard';
 
 describe('ExerciseCard', () => {
@@ -14,5 +14,21 @@ describe('ExerciseCard', () => {
     render(<ExerciseCard name="Agachamento" sets={3} reps={12} restSeconds={90} muscleGroup={null} />);
     expect(screen.queryByText('Peito')).toBeNull();
     expect(screen.getByText('3×12')).toBeTruthy();
+  });
+  it('chama onPress ao tocar no card', () => {
+    const onPress = jest.fn();
+    render(
+      <ExerciseCard
+        name="Levantamento terra"
+        sets={5}
+        reps={5}
+        restSeconds={120}
+        muscleGroup="Costas"
+        equipment="Barra"
+        onPress={onPress}
+      />,
+    );
+    fireEvent.press(screen.getByText('Levantamento terra'));
+    expect(onPress).toHaveBeenCalledTimes(1);
   });
 });
