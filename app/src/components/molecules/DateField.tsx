@@ -15,6 +15,12 @@ type DateFieldProps = {
   // Label eyebrow mono acima do campo.
   label: string;
   error?: string;
+  // Limites do picker (data-only LOCAL, sem UTC). Contrato do teto:
+  //   prop ausente (undefined) → teto = HOJE (caso nascimento, padrão).
+  //   maximumDate={null}        → sem teto (datas futuras, ex.: período de desafio).
+  //   maximumDate={Date}        → teto explícito.
+  minimumDate?: Date;
+  maximumDate?: Date | null;
 };
 
 // Converte "YYYY-MM-DD" em Date usando componentes LOCAIS (evita o parse UTC
@@ -37,12 +43,22 @@ function displayDate(date: Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export function DateField({ value, onChange, label, error }: DateFieldProps) {
+export function DateField({
+  value,
+  onChange,
+  label,
+  error,
+  minimumDate,
+  maximumDate,
+}: DateFieldProps) {
   const [open, setOpen] = useState(false);
 
   const selected = parseLocalDate(value);
   const today = new Date();
   const hasError = Boolean(error);
+  // Contrato do teto (ver DateFieldProps): undefined → HOJE; null → sem teto.
+  const effectiveMaximum =
+    maximumDate === undefined ? today : (maximumDate ?? undefined);
 
   function handleChange(event: DateTimePickerEvent, date?: Date) {
     // No Android o picker é um diálogo: fecha em qualquer ação.
@@ -91,7 +107,8 @@ export function DateField({ value, onChange, label, error }: DateFieldProps) {
           value={selected ?? today}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          maximumDate={today}
+          minimumDate={minimumDate}
+          maximumDate={effectiveMaximum}
           onChange={handleChange}
         />
       ) : null}

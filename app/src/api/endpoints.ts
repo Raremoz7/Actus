@@ -27,4 +27,7 @@ export const endpoints = {
   workouts: '/workouts',
   // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
   studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
+  // Desafios do profissional logado (GET/POST /professional/challenges,
+  // GET/PATCH /professional/challenges/:id, .../participants, .../ranking).
+  professionalChallenges: '/professional/challenges',
 } as const;
