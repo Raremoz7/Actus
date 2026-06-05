@@ -1,10 +1,6 @@
-import { Screen, AppText } from '@/components/ui';
+import { AccountScreen } from '@/components/account/AccountScreen';
 
-// Placeholder — implementação real no Bloco 3 (perfil do aluno).
+// Streak (weekly-overview) só existe para aluno → showStreak.
 export default function AlunoPerfilScreen() {
-  return (
-    <Screen padded>
-      <AppText variant="h2">Perfil</AppText>
-    </Screen>
-  );
+  return <AccountScreen showStreak />;
 }

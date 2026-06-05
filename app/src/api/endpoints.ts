@@ -16,5 +16,23 @@ export const endpoints = {
     weeklyOverview: '/me/weekly-overview',
     challenges: '/me/challenges',
   },
+  professional: {
+    students: '/professional/students',
+    studentCheckIns: (studentId: string) =>
+      `/professional/students/${studentId}/check-ins`,
+  },
+  invites: '/invites',
   health: '/health',
+  // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
+  workouts: '/workouts',
+  // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
+  studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
+  // Templates de dieta do nutricionista logado (GET/POST /diet-templates,
+  // GET/PATCH /diet-templates/:id). requireAuth + dono nutricionista.
+  dietTemplates: '/diet-templates',
+  // Atribuição de dieta a um aluno: POST /students/:student_id/diets.
+  studentDiets: (studentId: string) => `/students/${studentId}/diets`,
+  // Desafios do profissional logado (GET/POST /professional/challenges,
+  // GET/PATCH /professional/challenges/:id, .../participants, .../ranking).
+  professionalChallenges: '/professional/challenges',
 } as const;

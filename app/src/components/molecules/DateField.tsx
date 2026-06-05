@@ -20,6 +20,12 @@ type DateFieldProps = {
   // Label eyebrow mono acima do campo.
   label: string;
   error?: string;
+  // Limites do picker (data-only LOCAL, sem UTC). Contrato do teto:
+  //   prop ausente (undefined) → teto = HOJE (caso nascimento, padrão).
+  //   maximumDate={null}        → sem teto (datas futuras, ex.: período de desafio).
+  //   maximumDate={Date}        → teto explícito.
+  minimumDate?: Date;
+  maximumDate?: Date | null;
 };
 
 // Converte "YYYY-MM-DD" em Date usando componentes LOCAIS (evita o parse UTC
@@ -52,16 +58,29 @@ function brFromIso(value: string | null): string {
 
 // WEB: o DateTimePicker nativo não funciona no navegador. Renderiza um input
 // mascarado (DD/MM/AAAA) digitável; só emite o YYYY-MM-DD quando a data é real
-// e não está no futuro — caso contrário limpa o valor (form segue inválido).
-function DateFieldWeb({ value, onChange, label, error }: DateFieldProps) {
+// e dentro dos limites — respeita o mesmo contrato de teto/piso do nativo
+// (maximumDate undefined → HOJE; null → sem teto; Date → explícito).
+function DateFieldWeb({ value, onChange, label, error, minimumDate, maximumDate }: DateFieldProps) {
   const [text, setText] = useState(() => brFromIso(value));
 
   function handleText(input: string) {
     const digits = onlyDigits(input).slice(0, 8);
     setText(maskDateBr(digits));
     const iso = isoFromBrDigits(digits);
-    const todayIso = formatDateLocal(new Date());
-    onChange(iso && iso <= todayIso ? iso : '');
+    if (!iso) {
+      onChange('');
+      return;
+    }
+    const maxIso =
+      maximumDate === undefined
+        ? formatDateLocal(new Date())
+        : maximumDate
+          ? formatDateLocal(maximumDate)
+          : null;
+    const minIso = minimumDate ? formatDateLocal(minimumDate) : null;
+    const okMax = maxIso === null || iso <= maxIso;
+    const okMin = minIso === null || iso >= minIso;
+    onChange(okMax && okMin ? iso : '');
   }
 
   return (
@@ -87,12 +106,22 @@ export function DateField(props: DateFieldProps) {
   return <DateFieldNative {...props} />;
 }
 
-function DateFieldNative({ value, onChange, label, error }: DateFieldProps) {
+function DateFieldNative({
+  value,
+  onChange,
+  label,
+  error,
+  minimumDate,
+  maximumDate,
+}: DateFieldProps) {
   const [open, setOpen] = useState(false);
 
   const selected = parseLocalDate(value);
   const today = new Date();
   const hasError = Boolean(error);
+  // Contrato do teto (ver DateFieldProps): undefined → HOJE; null → sem teto.
+  const effectiveMaximum =
+    maximumDate === undefined ? today : (maximumDate ?? undefined);
 
   function handleChange(event: DateTimePickerEvent, date?: Date) {
     // No Android o picker é um diálogo: fecha em qualquer ação.
@@ -141,7 +170,8 @@ function DateFieldNative({ value, onChange, label, error }: DateFieldProps) {
           value={selected ?? today}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          maximumDate={today}
+          minimumDate={minimumDate}
+          maximumDate={effectiveMaximum}
           onChange={handleChange}
         />
       ) : null}

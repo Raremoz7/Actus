@@ -26,7 +26,7 @@ Expo SDK 55 (dev build — **Expo Go não funciona**) · Expo Router · Unistyle
 ## Regras de design (violar = retrabalho)
 
 - Tudo via tokens do theme (`src/theme/tokens.ts`) — **nunca hex hardcoded** em componente
-- Radius: cards **4px sharp** · inputs 12 · tags 4 · modais 24 · botões pill 100
+- Radius: cards **12px** · inputs 12 · tags 4 · modais 24 · botões pill 100
 - Botão primário: pill neon, texto `#141414` (token textInverse), Barlow Condensed 800 uppercase
 - Sombra só em modal/sheet/dropdown · **1 momento de motion por tela**
 - Fontes: Barlow Condensed (display) / Share Tech Mono (dados) / Barlow (corpo) — nunca Inter/Roboto/Poppins

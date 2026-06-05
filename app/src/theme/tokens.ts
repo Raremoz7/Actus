@@ -32,6 +32,11 @@ export const palette = {
   warning: '#FBBF24',
   error: '#F87171',
   info: '#60A5FA',
+
+  // Overlay/scrim (fundo de modais e bottom sheets) e cor de sombra.
+  // overlay = bgLowest a 70% — escurece o conteúdo atrás do sheet.
+  overlay: 'rgba(16, 37, 45, 0.7)',
+  shadow: '#000000',
 } as const;
 
 // Gradientes (135deg no design; consumir os stops com expo-linear-gradient)
@@ -50,9 +55,9 @@ export const spacing = {
   xxl: 32,
 } as const;
 
-// Raios — DECISÃO DO DESIGNER: cards 4px sharp
+// Raios — cards 12px (decisão Bloco 2; antes 4px sharp)
 export const radius = {
-  card: 4,
+  card: 12,
   tag: 4,
   input: 12,
   modal: 24,

@@ -18,7 +18,7 @@ O plano foi produzido por 2 agentes de arquitetura e revisado por 6 verificadore
 | Navegação profissional | 4 abas (ALUNOS, TREINOS\|DIETAS, DESAFIOS, PERFIL); convite = botão no header de Alunos |
 | Entrada | Splash → **escolha de perfil** (Sou aluno / Sou professor, fiel ao Miro) → login ou cadastro |
 | Cadastro | **3 passos guiados** (convite → quem é você → acesso) com barra de progresso |
-| Cards | **4px sharp** (prompt-base prevalece sobre design.md) — tabela de radius abaixo |
+| Cards | **12px** (revisado no Bloco 2; antes 4px sharp) — tabela de radius abaixo |
 | Card "convidado por X" | **Manter com [MOCK]** (nome falso marcado) + solicitar `GET /invites/:code/preview` ao backend no futuro |
 | Tema | Dark mode único (quiet luxury) |
 | Mockups | ASCII para estrutura + **navegador (alta fidelidade) para telas-chave de cada bloco antes de implementar** |
@@ -66,7 +66,7 @@ cd actus_app && npx expo install expo@~55.0.0 && npx expo install --fix
 Todos os tokens do design.md em `tokens.ts`:
 
 - **Cores**: bgLowest `#10252D`, bgBase `#1A343F`, surface1–4 (`#203F4B` → `#406575`), neon `#CBFE00`, secondary `#4DE082`, surfaceTint `#ABD600`, textPrimary `#FFFFFF`, textSecondary `rgba(255,255,255,0.70)`, textTertiary `rgba(255,255,255,0.50)` (**rgba com alfa, não hex opaco**), textInverse `#141414`, onSurface `#E2E4CF`, outline `#8E9379`, outlineVariant `#444933`, success/warning/error/info, gradientes brand e streak
-- **Radius (decisão do designer)**: `card: 4` · `tag: 4` · `input: 12` · `modal: 24` · `pill: 100`
+- **Radius (revisado no Bloco 2)**: `card: 12` · `tag: 4` · `input: 12` · `modal: 24` · `pill: 100`
 - **Fontes**: BarlowCondensed_800/900, Barlow_400/500/600/**700** (700 exigido pelo design.md para ênfase), ShareTechMono_400
 - **Tipo**: d1 72 / h1 48 / h2 32 / h3 22 / label 14 (ls 18%) / dataBig 36 / dataMed 18 / metaSmall 11 / eyebrow 10 / bodyLg 18 / bodyMd 15 / bodySm 13
 - **Spacing**: 4/8/12/16/24/32 · **Motion**: screen 300ms cubic-bezier(0.4,0,0.2,1), micro 150ms · **Sombra**: só modal/sheet/dropdown
