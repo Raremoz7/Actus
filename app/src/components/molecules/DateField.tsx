@@ -17,8 +17,8 @@ type DateFieldProps = {
   // Data no formato YYYY-MM-DD (ou null quando ainda não escolhida).
   value: string | null;
   onChange: (value: string) => void;
-  // Label eyebrow mono acima do campo.
-  label: string;
+  // Label eyebrow mono acima do campo (opcional: o consumidor pode rotular por fora).
+  label?: string;
   error?: string;
   // Limites do picker (data-only LOCAL, sem UTC). Contrato do teto:
   //   prop ausente (undefined) → teto = HOJE (caso nascimento, padrão).
@@ -139,9 +139,11 @@ function DateFieldNative({
 
   return (
     <View style={styles.wrapper}>
-      <AppText variant="eyebrow" color="tertiary" style={styles.label}>
-        {label}
-      </AppText>
+      {label ? (
+        <AppText variant="eyebrow" color="tertiary" style={styles.label}>
+          {label}
+        </AppText>
+      ) : null}
 
       <Pressable
         accessibilityRole="button"

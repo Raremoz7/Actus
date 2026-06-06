@@ -28,7 +28,7 @@ import { formatDateLocal } from '@/lib/format';
 import type { ProWorkoutListItem, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';
-import { DateField } from '@/components/professional/DateField';
+import { DateField } from '@/components/molecules';
 
 const { colors, motion } = darkTheme;
 
@@ -283,11 +283,12 @@ export default function AtribuirTreinoScreen() {
             Início
           </AppText>
           <DateField
-            initialIso={today}
-            onChangeIso={(iso) => {
+            value={startDate}
+            onChange={(v) => {
               if (error) setError(undefined);
-              setStartDate(iso);
+              setStartDate(v === '' ? null : v);
             }}
+            maximumDate={null}
           />
 
           {error ? (
