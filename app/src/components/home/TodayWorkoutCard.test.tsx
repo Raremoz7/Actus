@@ -25,9 +25,18 @@ describe('TodayWorkoutCard', () => {
     const onStart = jest.fn();
     render(<TodayWorkoutCard summary={comTreino} onStart={onStart} onSeeWeek={jest.fn()} />);
     expect(screen.getByText('Peito e Tríceps')).toBeTruthy();
+    expect(screen.getByText('6 exercícios · ~50 min · Treino A')).toBeTruthy();
     expect(screen.getByText('Iniciar treino')).toBeTruthy();
     fireEvent.press(screen.getByText('Iniciar treino'));
     expect(onStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('estado concluído: selo "Treino concluído" e sem CTA de iniciar', () => {
+    render(
+      <TodayWorkoutCard summary={comTreino} onStart={jest.fn()} onSeeWeek={jest.fn()} done />,
+    );
+    expect(screen.getByText('Treino concluído')).toBeTruthy();
+    expect(screen.queryByText('Iniciar treino')).toBeNull();
   });
 
   it('estado de descanso: sem CTA de iniciar, com atalho da semana', () => {

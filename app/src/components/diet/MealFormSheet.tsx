@@ -25,6 +25,8 @@ const { colors, motion } = darkTheme;
 // Macros são OPCIONAIS: ausentes quando o campo fica vazio (não inventar zeros).
 export type MealFormValue = {
   name: string;
+  // Horário sugerido (texto livre, ex.: '08:00' ou 'Pós-treino'); ausente quando vazio.
+  time?: string;
   foods?: string;
   kcal?: number;
   protein?: number;
@@ -89,6 +91,7 @@ export function MealFormSheet({
   onConfirm,
 }: MealFormSheetProps) {
   const [name, setName] = useState('');
+  const [time, setTime] = useState('');
   const [foods, setFoods] = useState('');
   const [kcal, setKcal] = useState('');
   const [protein, setProtein] = useState('');
@@ -101,6 +104,7 @@ export function MealFormSheet({
   useEffect(() => {
     if (!visible) return;
     setName(initialValue?.name ?? '');
+    setTime(initialValue?.time ?? '');
     setFoods(initialValue?.foods ?? '');
     setKcal(numToField(initialValue?.kcal));
     setProtein(numToField(initialValue?.protein));
@@ -137,8 +141,10 @@ export function MealFormSheet({
     if (nameError) return;
 
     const foodsTrimmed = foods.trim();
+    const timeTrimmed = time.trim();
     const value: MealFormValue = {
       name: nameTrimmed,
+      ...(timeTrimmed === '' ? {} : { time: timeTrimmed }),
       ...(foodsTrimmed === '' ? {} : { foods: foodsTrimmed }),
       ...(parsedMacros.kcal === null ? {} : { kcal: parsedMacros.kcal }),
       ...(parsedMacros.protein === null ? {} : { protein: parsedMacros.protein }),
@@ -199,6 +205,15 @@ export function MealFormSheet({
                 onChangeText={setName}
                 autoCapitalize="sentences"
                 error={submitted && nameError ? 'Informe o nome da refeição' : undefined}
+              />
+
+              <Input
+                label="Horário · opcional"
+                accessibilityLabel="Horário"
+                placeholder="Ex.: 08:00 ou Pós-treino"
+                value={time}
+                onChangeText={setTime}
+                autoCapitalize="none"
               />
 
               <Input

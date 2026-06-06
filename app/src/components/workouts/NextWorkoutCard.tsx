@@ -12,11 +12,20 @@ type Props = {
   exerciseCount: number;
   estMinutes: number;
   isToday: boolean;
+  lastCompletedLabel?: string;
   onStart: () => void;
   onOpen: () => void;
 };
 
-export function NextWorkoutCard({ title, exerciseCount, estMinutes, isToday, onStart, onOpen }: Props) {
+export function NextWorkoutCard({
+  title,
+  exerciseCount,
+  estMinutes,
+  isToday,
+  lastCompletedLabel,
+  onStart,
+  onOpen,
+}: Props) {
   const meta =
     estMinutes > 0
       ? `${exerciseCount} exercícios · ~${estMinutes} min`
@@ -29,8 +38,11 @@ export function NextWorkoutCard({ title, exerciseCount, estMinutes, isToday, onS
       <AppText variant="h2" style={styles.title}>
         {title}
       </AppText>
-      <AppText variant="bodySm" color="secondary" style={styles.meta}>
+      <AppText variant="bodySm" color="secondary" style={styles.metaTight}>
         {meta}
+      </AppText>
+      <AppText variant="metaSmall" color="tertiary" style={styles.meta}>
+        {lastCompletedLabel ?? ''}
       </AppText>
       <Pressable
         accessibilityRole="button"
@@ -56,6 +68,7 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.lg,
   },
   title: { marginTop: theme.spacing.sm },
+  metaTight: { marginTop: theme.spacing.xs },
   meta: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
   cta: {
     flexDirection: 'row',

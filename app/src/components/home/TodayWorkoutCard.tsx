@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { Play, MoonStars, CaretRight } from 'phosphor-react-native';
+import { Play, MoonStars, CaretRight, Check } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
@@ -12,21 +12,58 @@ type Props = {
   summary: TodayWorkoutSummary;
   onStart: () => void;
   onSeeWeek: () => void;
+  // true quando o treino de hoje já foi concluído (last_completed_date === hoje).
+  done?: boolean;
 };
 
-export function TodayWorkoutCard({ summary, onStart, onSeeWeek }: Props) {
+// Texto secundário sem repetir o título. Quando muscle_groups e name coincidem
+// (caso comum: sem notes, ambos caem no nome do treino), mostra só a contagem.
+function metaLine(
+  exerciseCount: number,
+  estMinutes: number,
+  name: string,
+  title: string,
+): string {
+  const parts = [`${exerciseCount} exercícios`];
+  if (estMinutes > 0) parts.push(`~${estMinutes} min`);
+  if (name && name !== title) parts.push(name);
+  return parts.join(' · ');
+}
+
+export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: Props) {
   if (summary.has_workout && summary.workout) {
     const w = summary.workout;
+
+    // Treino concluído hoje: selo + copy quiet-luxury, sem CTA de iniciar.
+    if (done) {
+      return (
+        <View style={styles.card}>
+          <AppText variant="eyebrow" color="neon">
+            Treino de hoje
+          </AppText>
+          <AppText variant="h1" style={styles.hero}>
+            {w.muscle_groups}
+          </AppText>
+          <View style={[styles.cta, styles.ctaDone]}>
+            <Check size={18} weight="bold" color={colors.neon} />
+            <AppText variant="label" color="neon">
+              Treino concluído
+            </AppText>
+          </View>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.card}>
         <AppText variant="eyebrow" color="neon">
           Treino de hoje
         </AppText>
-        <AppText variant="h2" style={styles.muscle}>
+        <AppText variant="h1" style={styles.hero}>
           {w.muscle_groups}
         </AppText>
-        <AppText variant="bodySm" color="secondary" style={styles.meta}>
-          {`${w.exercise_count} exercícios${w.est_minutes > 0 ? ` · ~${w.est_minutes} min` : ''} · ${w.name}`}
+        <AppText variant="dataMed" color="secondary" style={styles.meta}>
+          {metaLine(w.exercise_count, w.est_minutes, w.name, w.muscle_groups)}
         </AppText>
         <Pressable
           accessibilityRole="button"
@@ -52,7 +89,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek }: Props) {
       <AppText variant="eyebrow" color="secondary">
         Hoje
       </AppText>
-      <AppText variant="h2" style={styles.muscle}>
+      <AppText variant="h2" style={styles.restTitle}>
         Dia de descanso
       </AppText>
       <AppText variant="bodySm" color="secondary" style={styles.meta}>
@@ -82,14 +119,19 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: 1,
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
+    padding: theme.spacing.xl,
   },
-  muscle: {
+  // Herói: título grande (h1) com respiro generoso acima.
+  hero: {
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+  },
+  restTitle: {
     marginTop: theme.spacing.sm,
     marginBottom: theme.spacing.xs,
   },
   meta: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
   cta: {
     flexDirection: 'row',
@@ -99,6 +141,13 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.neon,
     borderRadius: theme.radius.pill,
     paddingVertical: theme.spacing.md,
+  },
+  // Estado concluído: pílula vazada neon (afirmação, não ação).
+  ctaDone: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.neon,
+    marginTop: theme.spacing.xs,
   },
   ghostLine: {
     flexDirection: 'row',

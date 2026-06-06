@@ -22,13 +22,29 @@ const { colors, motion } = darkTheme;
 
 // Dados que o sheet devolve ao confirmar. Sem position/wger_exercise_id: esses
 // são responsabilidade do builder (placeholder Wger + ordem sequencial).
+// `muscleGroup` mapeia para muscle_group de CreateWorkoutExercise; null quando
+// não escolhido (não inventar grupo).
 export type ExerciseFormValue = {
   name: string;
   sets: number;
   reps: number;
   restSeconds: number;
   notes: string | null;
+  muscleGroup: string | null;
 };
+
+// Grupos musculares oferecidos como chips. Rótulo = valor enviado (muscle_group
+// é texto livre no backend; mantemos a grafia canônica em PT).
+export const MUSCLE_GROUPS = [
+  'Peito',
+  'Costas',
+  'Pernas',
+  'Ombro',
+  'Braço',
+  'Core',
+  'Glúteo',
+  'Cardio',
+] as const;
 
 export type ExerciseFormSheetProps = {
   visible: boolean;
@@ -113,6 +129,8 @@ export function ExerciseFormSheet({
   const [reps, setReps] = useState(DEFAULT_REPS);
   const [rest, setRest] = useState(DEFAULT_REST);
   const [notes, setNotes] = useState('');
+  // Grupo muscular selecionado (chip único); null = nenhum.
+  const [muscleGroup, setMuscleGroup] = useState<string | null>(null);
   // Só mostra erros depois de uma tentativa de confirmar (validação discreta).
   const [submitted, setSubmitted] = useState(false);
 
@@ -124,6 +142,7 @@ export function ExerciseFormSheet({
     setReps(initialValue ? String(initialValue.reps) : DEFAULT_REPS);
     setRest(initialValue ? String(initialValue.restSeconds) : DEFAULT_REST);
     setNotes(initialValue?.notes ?? '');
+    setMuscleGroup(initialValue?.muscleGroup ?? null);
     setSubmitted(false);
   }, [visible, initialValue]);
 
@@ -164,6 +183,7 @@ export function ExerciseFormSheet({
       reps: parsed.reps as number,
       restSeconds: parsed.rest as number,
       notes: notes.trim() === '' ? null : notes.trim(),
+      muscleGroup,
     });
   }
 
@@ -213,6 +233,35 @@ export function ExerciseFormSheet({
               autoCapitalize="sentences"
               error={submitted && errors.name ? 'Informe o nome do exercício' : undefined}
             />
+
+            <View style={styles.groupField}>
+              <AppText variant="eyebrow" color="tertiary">
+                Grupo muscular · opcional
+              </AppText>
+              <View style={styles.chips}>
+                {MUSCLE_GROUPS.map((g) => {
+                  const selected = muscleGroup === g;
+                  return (
+                    <Pressable
+                      key={g}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={g}
+                      // Tocar no chip já selecionado desmarca (volta a null).
+                      onPress={() => setMuscleGroup(selected ? null : g)}
+                      style={[styles.chip, selected && styles.chipSelected]}
+                    >
+                      <AppText
+                        variant="metaSmall"
+                        color={selected ? 'inverse' : 'secondary'}
+                      >
+                        {g}
+                      </AppText>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
 
             <View style={styles.numRow}>
               <NumberField
@@ -296,6 +345,26 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  groupField: {
+    gap: theme.spacing.sm,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+  },
+  chip: {
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
+    backgroundColor: 'transparent',
+  },
+  chipSelected: {
+    backgroundColor: theme.colors.neon,
+    borderColor: theme.colors.neon,
   },
   numRow: {
     flexDirection: 'row',

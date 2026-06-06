@@ -20,6 +20,22 @@ describe('MealCard', () => {
     expect(screen.getByText('P 30')).toBeTruthy();
   });
 
+  it('mostra o horário sugerido quando presente', () => {
+    render(
+      <MealCard
+        name="Café da manhã"
+        time="08:00"
+        foods={null}
+        kcal={null}
+        protein={null}
+        carbs={null}
+        fat={null}
+        isNext
+      />,
+    );
+    expect(screen.getByText('08:00')).toBeTruthy();
+  });
+
   it('sem macros: não mostra chips', () => {
     render(
       <MealCard

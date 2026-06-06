@@ -22,10 +22,13 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
 import { useAssignWorkout } from '@/hooks/useAssignWorkout';
+import { useStudents } from '@/hooks/useStudents';
 import { weekdayLetter } from '@/lib/weekday';
 import { formatDateLocal } from '@/lib/format';
 import type { ProWorkoutListItem, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
+import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';
+import { DateField } from '@/components/professional/DateField';
 
 const { colors, motion } = darkTheme;
 
@@ -131,9 +134,22 @@ export default function AtribuirTreinoScreen() {
 
   const list = useProWorkouts();
   const assign = useAssignWorkout();
+  const students = useStudents();
+
+  // Aluno-alvo resolvido do cache de useStudents (id chega por param; nome vem do cache).
+  const student = useMemo(
+    () => students.data?.students.find((s) => s.id === studentId),
+    [students.data, studentId],
+  );
+  const studentName = student
+    ? (student.full_name?.trim() || student.email)
+    : null;
 
   const [workoutId, setWorkoutId] = useState<string | null>(null);
   const [weekdays, setWeekdays] = useState<Weekday[]>([]);
+  // Data de início (ISO local). Default = hoje; o DateField devolve null se inválida.
+  const today = useMemo(() => formatDateLocal(new Date()), []);
+  const [startDate, setStartDate] = useState<string | null>(today);
   const [error, setError] = useState<string | undefined>(undefined);
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
@@ -168,11 +184,12 @@ export default function AtribuirTreinoScreen() {
     }
   }
 
-  // "Atribuir" só habilita com template + ao menos um dia + aluno conhecido.
-  const canAssign = Boolean(studentId) && workoutId !== null && weekdays.length > 0;
+  // "Atribuir" só habilita com template + ao menos um dia + data válida + aluno conhecido.
+  const canAssign =
+    Boolean(studentId) && workoutId !== null && weekdays.length > 0 && startDate !== null;
 
   function handleAssign() {
-    if (!studentId || !workoutId || weekdays.length === 0) return;
+    if (!studentId || !workoutId || weekdays.length === 0 || !startDate) return;
     setError(undefined);
     assign.mutate(
       {
@@ -180,8 +197,8 @@ export default function AtribuirTreinoScreen() {
         body: {
           workout_id: workoutId,
           weekdays,
-          // start_date = hoje LOCAL (componentes do Date, nunca toISOString → fuso UTC-3).
-          start_date: formatDateLocal(new Date()),
+          // start_date escolhido no DateField (ISO local, nunca toISOString → fuso UTC-3).
+          start_date: startDate,
         },
       },
       {
@@ -219,6 +236,8 @@ export default function AtribuirTreinoScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          <StudentTargetHeader name={studentName} email={student?.email} />
+
           <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
             Treino
           </AppText>
@@ -259,6 +278,17 @@ export default function AtribuirTreinoScreen() {
             Dias da semana
           </AppText>
           <WeekdaySelector selected={weekdays} onToggle={toggleWeekday} />
+
+          <AppText variant="eyebrow" color="tertiary" style={styles.secLabelGap}>
+            Início
+          </AppText>
+          <DateField
+            initialIso={today}
+            onChangeIso={(iso) => {
+              if (error) setError(undefined);
+              setStartDate(iso);
+            }}
+          />
 
           {error ? (
             <AppText variant="bodySm" color="error" style={styles.error}>

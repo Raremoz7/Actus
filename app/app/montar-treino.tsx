@@ -21,7 +21,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input, ListState } from '@/components/ui';
+import { AppText, Button, Input, ListState, Tag } from '@/components/ui';
 import { WizardProgress } from '@/components/molecules';
 import {
   ExerciseEditRow,
@@ -54,7 +54,35 @@ function toApiExercises(drafts: DraftExercise[]): CreateWorkoutExercise[] {
     reps: d.reps,
     rest_seconds: d.restSeconds,
     notes: d.notes ?? undefined,
+    muscle_group: d.muscleGroup ?? undefined,
   }));
+}
+
+// Tempo estimado do treino (min). Modelo simples: por série, ~40s de execução +
+// o descanso configurado. Some tudo e arredonde para minutos (mínimo 1 se houver
+// exercício). É uma estimativa de leitura — não um dado da API.
+const SECONDS_PER_SET_WORK = 40;
+function estimateMinutes(drafts: DraftExercise[]): number {
+  if (drafts.length === 0) return 0;
+  const totalSeconds = drafts.reduce(
+    (acc, d) => acc + d.sets * (SECONDS_PER_SET_WORK + d.restSeconds),
+    0,
+  );
+  return Math.max(1, Math.round(totalSeconds / 60));
+}
+
+// Grupos musculares cobertos, na ordem de primeira aparição, sem repetição.
+function coveredGroups(drafts: DraftExercise[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const d of drafts) {
+    const g = d.muscleGroup;
+    if (g && !seen.has(g)) {
+      seen.add(g);
+      out.push(g);
+    }
+  }
+  return out;
 }
 
 export default function MontarTreinoScreen() {
@@ -93,6 +121,7 @@ export default function MontarTreinoScreen() {
           reps: e.reps,
           restSeconds: e.rest_seconds,
           notes: e.notes,
+          muscleGroup: e.muscle_group,
         })),
     );
     setHydrated(true);
@@ -109,6 +138,10 @@ export default function MontarTreinoScreen() {
   }));
 
   const saving = create.isPending || update.isPending;
+
+  // Derivações para o sumário do passo Revisar.
+  const estimatedMinutes = useMemo(() => estimateMinutes(exercises), [exercises]);
+  const groups = useMemo(() => coveredGroups(exercises), [exercises]);
 
   const eyebrow = useMemo(() => {
     if (isEditing) return 'Editar treino';
@@ -323,6 +356,7 @@ export default function MontarTreinoScreen() {
                       sets={ex.sets}
                       reps={ex.reps}
                       restSeconds={ex.restSeconds}
+                      muscleGroup={ex.muscleGroup}
                       position={i + 1}
                       canMoveUp={i > 0}
                       canMoveDown={i < exercises.length - 1}
@@ -346,7 +380,7 @@ export default function MontarTreinoScreen() {
             ) : null}
 
             {step === 3 ? (
-              // --- Passo 3: revisar ---
+              // --- Passo 3: revisar (SUMÁRIO, não espelho da lista) ---
               <View style={styles.form}>
                 <View style={styles.reviewHead}>
                   <AppText variant="eyebrow" color="tertiary">
@@ -360,23 +394,50 @@ export default function MontarTreinoScreen() {
                   ) : null}
                 </View>
 
-                <AppText variant="eyebrow" color="tertiary">
-                  {`${exercises.length} ${exercises.length === 1 ? 'exercício' : 'exercícios'}`}
-                </AppText>
-
-                {exercises.map((ex, i) => (
-                  <View key={`${ex.name}-${i}`} style={styles.reviewRow}>
+                {/* Sumário em três métricas: exercícios · tempo · grupos */}
+                <View style={styles.summaryRow}>
+                  <View style={styles.summaryCard}>
+                    <AppText variant="dataBig" color="neon">
+                      {String(exercises.length)}
+                    </AppText>
                     <AppText variant="metaSmall" color="tertiary">
-                      {String(i + 1).padStart(2, '0')}
-                    </AppText>
-                    <AppText variant="bodyMd" style={styles.reviewName} numberOfLines={1}>
-                      {ex.name}
-                    </AppText>
-                    <AppText variant="dataMed" color="neon">
-                      {`${ex.sets}×${ex.reps}`}
+                      {exercises.length === 1 ? 'exercício' : 'exercícios'}
                     </AppText>
                   </View>
-                ))}
+                  <View style={styles.summaryCard}>
+                    <AppText variant="dataBig" color="primary">
+                      {String(estimatedMinutes)}
+                    </AppText>
+                    <AppText variant="metaSmall" color="tertiary">
+                      min estimados
+                    </AppText>
+                  </View>
+                  <View style={styles.summaryCard}>
+                    <AppText variant="dataBig" color="primary">
+                      {String(groups.length)}
+                    </AppText>
+                    <AppText variant="metaSmall" color="tertiary">
+                      {groups.length === 1 ? 'grupo' : 'grupos'}
+                    </AppText>
+                  </View>
+                </View>
+
+                {groups.length > 0 ? (
+                  <View style={styles.reviewHead}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Grupos cobertos
+                    </AppText>
+                    <View style={styles.groupTags}>
+                      {groups.map((g) => (
+                        <Tag key={g} label={g} tone="neutral" />
+                      ))}
+                    </View>
+                  </View>
+                ) : (
+                  <AppText variant="bodySm" color="tertiary">
+                    Nenhum grupo muscular marcado nos exercícios.
+                  </AppText>
+                )}
               </View>
             ) : null}
           </ScrollView>
@@ -502,19 +563,26 @@ const styles = StyleSheet.create((theme) => ({
   reviewHead: {
     gap: theme.spacing.xs,
   },
-  reviewRow: {
+  summaryRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: theme.spacing.md,
+  },
+  summaryCard: {
+    flex: 1,
+    alignItems: 'center',
+    gap: theme.spacing.xs,
     backgroundColor: theme.colors.surface1,
     borderWidth: 1,
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.sm,
   },
-  reviewName: {
-    flex: 1,
+  groupTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
   },
   footer: {
     paddingHorizontal: theme.spacing.lg,

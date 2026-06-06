@@ -11,9 +11,10 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, ListState } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
-import type { Student } from '@/types/professional';
+import type { ProfessionalRole, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
 import { StudentRow } from './StudentRow';
+import { compareByLinkedDesc, isNewLink, linkedSinceLabel } from './studentPulse';
 
 const { colors, motion } = darkTheme;
 
@@ -22,6 +23,12 @@ function displayName(student: Student): string {
   const name = student.full_name?.trim();
   return name && name.length > 0 ? name : student.email;
 }
+
+// Micro-rótulo curto do papel — só aparece quando a lista mistura papéis.
+const ROLE_LABEL: Record<ProfessionalRole, string> = {
+  personal: 'Personal',
+  nutricionista: 'Nutri',
+};
 
 // Contador no eyebrow: "1 aluno" / "N alunos".
 function countLabel(n: number): string {
@@ -46,7 +53,17 @@ export function StudentsScreen() {
     transform: [{ translateY: translateY.value }],
   }));
 
-  const students = useMemo(() => list.data?.students ?? [], [list.data]);
+  // Ordena por vínculo mais recente primeiro — quem entrou há pouco vem no topo.
+  const students = useMemo(
+    () => [...(list.data?.students ?? [])].sort(compareByLinkedDesc),
+    [list.data],
+  );
+
+  // A lista mistura papéis? (personal + nutri) → mostramos o micro-rótulo por linha.
+  const mixedRoles = useMemo(() => {
+    const roles = new Set(students.map((s) => s.professional_role));
+    return roles.size > 1;
+  }, [students]);
 
   // Busca client-side por nome ou e-mail (case-insensitive).
   const filtered = useMemo(() => {
@@ -57,6 +74,9 @@ export function StudentsScreen() {
       return name.includes(q) || s.email.toLowerCase().includes(q);
     });
   }, [students, query]);
+
+  // "Agora" estável por render — base para "Desde" e selo "Novo".
+  const now = useMemo(() => new Date(), []);
 
   // Rota criada em outro bloco (forward ref) — convite do profissional.
   function openInvite() {
@@ -113,6 +133,9 @@ export function StudentsScreen() {
               key={s.id}
               name={displayName(s)}
               subtitle={s.email}
+              since={linkedSinceLabel(s.linked_at)}
+              roleLabel={mixedRoles ? ROLE_LABEL[s.professional_role] : null}
+              isNew={isNewLink(s.linked_at, now)}
               onPress={() => openStudent(s.id)}
             />
           ))}

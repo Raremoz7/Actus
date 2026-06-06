@@ -3,7 +3,7 @@
 // com ações de compartilhar / copiar link / revogar (PATCH expires_at → agora;
 // não há DELETE na API). Botão "Novo convite" leva a /convite/novo.
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Alert, Pressable, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -29,6 +29,16 @@ import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
 
+// "criado em DD/MM" a partir do created_at (TIMESTAMP ISO completo, com hora →
+// new Date é seguro aqui; a regra anti-toISOString vale só p/ campos data-only).
+function createdAtLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `criado em ${day}/${month}`;
+}
+
 export default function ConvitesScreen() {
   const list = useInvites();
   const { revoke } = useInviteActions();
@@ -43,7 +53,14 @@ export default function ConvitesScreen() {
     transform: [{ translateY: (1 - reveal.value) * 12 }],
   }));
 
-  const invites = list.data?.invites ?? [];
+  // Ordena por mais recente (created_at desc) sem mutar a fonte.
+  const invites = useMemo(() => {
+    const raw = list.data?.invites ?? [];
+    return [...raw].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+  }, [list.data]);
   const isEmpty = !list.isLoading && !list.isError && invites.length === 0;
 
   function openNew() {
@@ -113,17 +130,25 @@ export default function ConvitesScreen() {
         <Animated.View style={revealStyle}>
           <View style={styles.list}>
             {invites.map((inv) => (
-              <InviteCard
-                key={inv.id}
-                code={inv.code}
-                active={inv.active}
-                usedCount={inv.used_count}
-                maxUses={inv.max_uses}
-                expiresAtLabel={inviteExpiryLabel(inv.expires_at)}
-                onShare={() => void handleShare(inv.code)}
-                onCopy={() => void handleCopy(inv.code)}
-                onRevoke={() => handleRevoke(inv.id)}
-              />
+              <View key={inv.id} style={styles.item}>
+                <InviteCard
+                  code={inv.code}
+                  active={inv.active}
+                  usedCount={inv.used_count}
+                  maxUses={inv.max_uses}
+                  expiresAtLabel={inviteExpiryLabel(inv.expires_at)}
+                  onShare={() => void handleShare(inv.code)}
+                  onCopy={() => void handleCopy(inv.code)}
+                  onRevoke={() => handleRevoke(inv.id)}
+                />
+                <AppText
+                  variant="metaSmall"
+                  color="tertiary"
+                  style={styles.createdAt}
+                >
+                  {createdAtLabel(inv.created_at)}
+                </AppText>
+              </View>
             ))}
           </View>
 
@@ -200,6 +225,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   list: {
     gap: theme.spacing.md,
+  },
+  item: {
+    gap: theme.spacing.xs,
+  },
+  createdAt: {
+    paddingLeft: theme.spacing.xs,
   },
   note: {
     marginTop: theme.spacing.lg,

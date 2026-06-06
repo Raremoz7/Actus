@@ -9,9 +9,22 @@ const { colors } = darkTheme;
 
 // onPress é opcional: sem tela de dieta do aluno (builder é do nutri), o card
 // fica informativo em vez de navegar para o lugar errado.
-type Props = { title: string; nextMealTime: string | null; onPress?: () => void };
+// Dados honestos do body: nº de refeições e meta de kcal (quando o nutri preencheu).
+type Props = {
+  title: string;
+  mealCount: number;
+  targetKcal?: number | null;
+  onPress?: () => void;
+};
 
-export function DietCard({ title, nextMealTime, onPress }: Props) {
+export function DietCard({ title, mealCount, targetKcal, onPress }: Props) {
+  // Linha de dado real: "5 refeições · 2.400 kcal" (meta só se existir no body).
+  const mealLabel = `${mealCount} ${mealCount === 1 ? 'refeição' : 'refeições'}`;
+  const detail =
+    targetKcal && targetKcal > 0
+      ? `${mealLabel} · ${targetKcal.toLocaleString('pt-BR')} kcal`
+      : mealLabel;
+
   const inner = (
     <>
       <View style={styles.head}>
@@ -20,14 +33,12 @@ export function DietCard({ title, nextMealTime, onPress }: Props) {
           Dieta
         </AppText>
       </View>
-      <AppText variant="h3" style={styles.name}>
+      <AppText variant="h3" style={styles.name} numberOfLines={1}>
         {title}
       </AppText>
-      {nextMealTime ? (
-        <AppText variant="metaSmall" color="tertiary">
-          {nextMealTime}
-        </AppText>
-      ) : null}
+      <AppText variant="metaSmall" color="tertiary">
+        {detail}
+      </AppText>
     </>
   );
 

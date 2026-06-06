@@ -9,12 +9,14 @@ const { colors } = darkTheme;
 
 type Props = {
   name: string;
+  // Horário sugerido (texto livre, ex.: '08:00' ou 'Pós-treino'). Opcional.
+  time?: string | null;
   foods: string | null;
   kcal: number | null;
   protein: number | null;
   carbs: number | null;
   fat: number | null;
-  // Primeira refeição (próxima): filete e garfo em neon.
+  // Próxima refeição do dia (calculada na tela): filete e garfo em neon.
   isNext: boolean;
 };
 
@@ -28,14 +30,19 @@ function Chip({ label, accent }: { label: string; accent?: boolean }) {
   );
 }
 
-export function MealCard({ name, foods, kcal, protein, carbs, fat, isNext }: Props) {
+export function MealCard({ name, time, foods, kcal, protein, carbs, fat, isNext }: Props) {
   return (
     <View style={[styles.row, isNext ? styles.rowNext : styles.rowRest]}>
       <View style={styles.head}>
         <ForkKnife size={16} weight="duotone" color={isNext ? colors.neon : colors.textTertiary} />
-        <AppText variant="h4">
+        <AppText variant="h4" style={styles.name}>
           {name}
         </AppText>
+        {time ? (
+          <AppText variant="metaSmall" color={isNext ? 'neon' : 'tertiary'}>
+            {time}
+          </AppText>
+        ) : null}
       </View>
       {foods ? (
         <AppText variant="bodySm" color="secondary" style={styles.foods}>
@@ -61,6 +68,7 @@ const styles = StyleSheet.create((theme) => ({
   rowNext: { borderLeftColor: theme.colors.neon },
   rowRest: { borderLeftColor: theme.colors.outlineVariant },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  name: { flex: 1 },
   foods: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs },
   chip: {

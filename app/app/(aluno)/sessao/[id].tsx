@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { CaretLeft, Check, FlagCheckered, SkipForward } from 'phosphor-react-native';
+import { CaretLeft, Check, FlagCheckered, Info, PencilSimple, SkipForward } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, ListState } from '@/components/ui';
+import { Stepper } from '@/components/session/Stepper';
+import { SessionFinishSummary } from '@/components/session/SessionFinishSummary';
 import { useSession } from '@/hooks/useSession';
 import { useSessionMutations } from '@/hooks/useSessionMutations';
 import {
@@ -17,7 +19,7 @@ import {
   sessionProgress,
 } from '@/lib/session';
 import { darkTheme } from '@/theme';
-import type { SessionExercise } from '@/types/sessions';
+import type { SessionExercise, SessionSet, WorkoutSession } from '@/types/sessions';
 
 const { motion, colors } = darkTheme;
 
@@ -32,6 +34,19 @@ function formatRest(seconds: number): string {
   return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
 }
 
+// Número como string limpa para pré-preencher inputs (sem ".0" cru, "" se nulo).
+function numToInput(n: number | null): string {
+  if (n == null) return '';
+  return String(n);
+}
+
+// schedule_hint chega via .passthrough() (não tipado). Lê de forma defensiva.
+function isOutsidePlannedDay(data: WorkoutSession | undefined): boolean {
+  if (!data) return false;
+  const hint = (data as { schedule_hint?: { matches_planned_weekdays?: boolean } }).schedule_hint;
+  return hint?.matches_planned_weekdays === false;
+}
+
 export default function SessaoPlayerScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? (params.id[0] ?? '') : (params.id ?? '');
@@ -44,6 +59,8 @@ export default function SessaoPlayerScreen() {
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
   const [restLeft, setRestLeft] = useState(0);
+  // Aviso "fora do dia planejado" é dispensável pelo aluno (não-bloqueante).
+  const [hintDismissed, setHintDismissed] = useState(false);
 
   // 1 motion por tela: reveal de entrada.
   const opacity = useSharedValue(0);
@@ -64,6 +81,22 @@ export default function SessaoPlayerScreen() {
     }
     return currentIdx != null ? (exercises[currentIdx] ?? null) : null;
   }, [exercises, activeExerciseId, currentIdx]);
+
+  const activeIndex = useMemo(
+    () =>
+      activeExercise
+        ? exercises.findIndex((e) => e.workout_exercise_id === activeExercise.workout_exercise_id)
+        : -1,
+    [exercises, activeExercise],
+  );
+
+  // Pré-preenche os inputs com a última série logada do exercício em foco —
+  // valores editáveis (o aluno costuma repetir/ajustar a partir da anterior).
+  function prefillFrom(exercise: SessionExercise): void {
+    const last = exercise.sets_logged[exercise.sets_logged.length - 1];
+    setWeight(last ? numToInput(last.weight_kg) : '');
+    setReps(last ? numToInput(last.reps_done) : '');
+  }
 
   // Countdown local do descanso; SEMPRE limpa o intervalo no cleanup (sem leak).
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -86,29 +119,43 @@ export default function SessaoPlayerScreen() {
   // Ao zerar o descanso, segue para logging da próxima série.
   useEffect(() => {
     if (mode === 'resting' && restLeft === 0) {
+      if (activeExercise) prefillFrom(activeExercise);
       setMode('logging');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, restLeft]);
 
   const progress = sessionProgress(exercises);
   const sessionComplete = isSessionComplete(exercises);
 
+  // Abre o logging de qualquer exercício — pendente OU concluído (p/ corrigir).
   function openLogging(exercise: SessionExercise) {
     setActiveExerciseId(exercise.workout_exercise_id);
-    setWeight('');
-    setReps('');
+    prefillFrom(exercise);
     setMode('logging');
   }
 
+  function doFinish() {
+    mutations.finish.mutate({ early_finish: !sessionComplete, with_check_in: true });
+  }
+
   function handleFinish() {
-    mutations.finish.mutate(
-      { early_finish: !sessionComplete, with_check_in: true },
-      {
-        onSuccess: () => {
-          router.replace('/(aluno)/(tabs)' as Href);
-        },
-      },
-    );
+    if (mutations.finish.isPending) return;
+    const pending = progress.total - progress.done;
+    if (pending > 0) {
+      // Faltam exercícios → confirma treino parcial antes de finalizar.
+      Alert.alert(
+        'Finalizar treino?',
+        `Faltam ${pending} ${pending === 1 ? 'exercício' : 'exercícios'}. Finalizar como treino parcial?`,
+        [
+          { text: 'Continuar treino', style: 'cancel' },
+          { text: 'Finalizar parcial', style: 'destructive', onPress: doFinish },
+        ],
+      );
+      return;
+    }
+    // Tudo feito → 1 toque.
+    doFinish();
   }
 
   function handleCompleteSet() {
@@ -132,15 +179,17 @@ export default function SessaoPlayerScreen() {
       },
       {
         onSuccess: () => {
-          setWeight('');
-          setReps('');
           if (hadMoreBefore) {
             // Ainda faltam séries → descanso a partir do rest prescrito.
+            setWeight('');
+            setReps('');
             setRestLeft(exercise.rest_seconds);
             setMode('resting');
           } else {
             // Última série → marca o exercício e volta ao overview.
             mutations.markExercise.mutate(exercise.workout_exercise_id);
+            setWeight('');
+            setReps('');
             setActiveExerciseId(null);
             setMode('overview');
           }
@@ -173,69 +222,92 @@ export default function SessaoPlayerScreen() {
     mutations.markExercise.isPending ||
     mutations.finish.isPending;
 
+  const finishSummary = mutations.finish.data?.summary ?? null;
+  const showFinishScreen = mutations.finish.isSuccess && finishSummary != null;
+
+  const showHint =
+    mode === 'overview' &&
+    !hintDismissed &&
+    !showFinishScreen &&
+    isOutsidePlannedDay(session.data);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={mode === 'overview' ? 'Voltar' : 'Voltar ao resumo'}
+          accessibilityLabel={
+            showFinishScreen ? 'Voltar' : mode === 'overview' ? 'Voltar' : 'Voltar ao resumo'
+          }
           hitSlop={12}
-          onPress={handleBack}
+          onPress={showFinishScreen ? () => router.replace('/(aluno)/(tabs)' as Href) : handleBack}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />
         </Pressable>
         <AppText variant="eyebrow" color="tertiary">
-          Treino · {progress.done}/{progress.total} feitos
+          {showFinishScreen ? 'Resumo do treino' : `Treino · ${progress.done}/${progress.total} feitos`}
         </AppText>
       </View>
 
-      <Animated.View style={[styles.flex, revealStyle]}>
-        {session.isLoading ? (
-          <View style={styles.center}>
-            <AppText variant="bodySm" color="tertiary">
-              Carregando sessão…
-            </AppText>
-          </View>
-        ) : session.isError || !session.data ? (
-          <View style={styles.center}>
-            <AppText variant="bodySm" color="tertiary">
-              Não foi possível carregar a sessão.
-            </AppText>
-          </View>
-        ) : mode === 'overview' ? (
-          <Overview
-            exercises={exercises}
-            currentIdx={currentIdx}
-            onPressCurrent={openLogging}
-          />
-        ) : mode === 'logging' && activeExercise ? (
-          <Logging
-            exercise={activeExercise}
-            weight={weight}
-            reps={reps}
-            onChangeWeight={setWeight}
-            onChangeReps={setReps}
-            onComplete={handleCompleteSet}
-            busy={isBusy}
-          />
-        ) : mode === 'resting' && activeExercise ? (
-          <Resting
-            exercise={activeExercise}
-            restLeft={restLeft}
-            onSkip={skipRest}
-            onAdd={addRest}
-          />
-        ) : (
-          <View style={styles.center}>
-            <AppText variant="bodySm" color="tertiary">
-              Treino concluído.
-            </AppText>
-          </View>
-        )}
-      </Animated.View>
+      {showFinishScreen && finishSummary ? (
+        <SessionFinishSummary
+          summary={finishSummary}
+          onDone={() => router.replace('/(aluno)/(tabs)' as Href)}
+        />
+      ) : (
+        <Animated.View style={[styles.flex, revealStyle]}>
+          {session.isLoading ? (
+            <View style={styles.stateWrap}>
+              <ListState kind="loading" skeletonCount={4} />
+            </View>
+          ) : session.isError || !session.data ? (
+            <View style={styles.stateWrap}>
+              <ListState
+                kind="error"
+                title="Sessão indisponível"
+                message="Não foi possível carregar a sessão de treino."
+                actionLabel="Tentar de novo"
+                onAction={() => session.refetch()}
+              />
+            </View>
+          ) : mode === 'overview' ? (
+            <Overview
+              exercises={exercises}
+              currentIdx={currentIdx}
+              showHint={showHint}
+              onDismissHint={() => setHintDismissed(true)}
+              onPressExercise={openLogging}
+            />
+          ) : mode === 'logging' && activeExercise ? (
+            <Logging
+              exercise={activeExercise}
+              positionLabel={`Exercício ${activeIndex + 1}/${exercises.length}`}
+              weight={weight}
+              reps={reps}
+              onChangeWeight={setWeight}
+              onChangeReps={setReps}
+              onComplete={handleCompleteSet}
+              busy={isBusy}
+            />
+          ) : mode === 'resting' && activeExercise ? (
+            <Resting
+              exercise={activeExercise}
+              restLeft={restLeft}
+              onSkip={skipRest}
+              onAdd={addRest}
+            />
+          ) : (
+            <View style={styles.center}>
+              <AppText variant="bodySm" color="tertiary">
+                Treino concluído.
+              </AppText>
+            </View>
+          )}
+        </Animated.View>
+      )}
 
-      {!session.isLoading && session.data && mode === 'overview' ? (
+      {!session.isLoading && session.data && mode === 'overview' && !showFinishScreen ? (
         <View style={styles.ctaBar}>
           <Pressable
             accessibilityRole="button"
@@ -246,7 +318,7 @@ export default function SessaoPlayerScreen() {
           >
             <FlagCheckered size={18} weight="fill" color={colors.textInverse} />
             <AppText variant="label" color="inverse">
-              Finalizar treino
+              {mutations.finish.isPending ? 'Finalizando…' : 'Finalizar treino'}
             </AppText>
           </Pressable>
         </View>
@@ -255,21 +327,50 @@ export default function SessaoPlayerScreen() {
   );
 }
 
-// ——— Overview: progresso + lista de exercícios ———
+// Resumo do que foi feito num exercício concluído (ex.: "40kg · 3 séries").
+function loggedSummary(exercise: SessionExercise): string | null {
+  const sets = exercise.sets_logged;
+  if (sets.length === 0) return null;
+  const weights = sets.map((s) => s.weight_kg).filter((w): w is number => w != null);
+  const count = `${sets.length} ${sets.length === 1 ? 'série' : 'séries'}`;
+  if (weights.length === 0) return count;
+  const maxW = Math.max(...weights);
+  return `${maxW}kg · ${count}`;
+}
+
+// ——— Overview: progresso + lista de exercícios (qualquer um abrível) ———
 function Overview({
   exercises,
   currentIdx,
-  onPressCurrent,
+  showHint,
+  onDismissHint,
+  onPressExercise,
 }: {
   exercises: SessionExercise[];
   currentIdx: number | null;
-  onPressCurrent: (exercise: SessionExercise) => void;
+  showHint: boolean;
+  onDismissHint: () => void;
+  onPressExercise: (exercise: SessionExercise) => void;
 }) {
   const { done, total } = sessionProgress(exercises);
   const pct = total > 0 ? done / total : 0;
 
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      {showHint ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Fora do dia planejado. Toque para dispensar."
+          onPress={onDismissHint}
+          style={styles.hint}
+        >
+          <Info size={18} weight="duotone" color={colors.textSecondary} />
+          <AppText variant="bodySm" color="secondary" style={styles.hintText}>
+            Fora do dia planejado — sem problema.
+          </AppText>
+        </Pressable>
+      ) : null}
+
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${Math.round(pct * 100)}%` }]} />
       </View>
@@ -280,6 +381,7 @@ function Overview({
 
       {exercises.map((e, idx) => {
         const isCurrent = idx === currentIdx;
+        const summary = e.completed ? loggedSummary(e) : null;
         return (
           <Pressable
             key={e.workout_exercise_id}
@@ -287,9 +389,8 @@ function Overview({
             accessibilityLabel={`${e.name_snapshot}, ${e.sets} por ${e.reps}, ${
               e.completed ? 'concluído' : isCurrent ? 'em andamento' : 'pendente'
             }`}
-            accessibilityState={{ disabled: !isCurrent, selected: isCurrent }}
-            disabled={!isCurrent}
-            onPress={isCurrent ? () => onPressCurrent(e) : undefined}
+            accessibilityState={{ selected: isCurrent }}
+            onPress={() => onPressExercise(e)}
             style={[styles.exRow, isCurrent ? styles.exRowCurrent : null]}
           >
             <View style={[styles.exMark, e.completed ? styles.exMarkDone : null]}>
@@ -303,10 +404,19 @@ function Overview({
               >
                 {e.name_snapshot}
               </AppText>
+              {summary ? (
+                <AppText variant="metaSmall" color="tertiary">
+                  {summary}
+                </AppText>
+              ) : null}
             </View>
-            <AppText variant="metaSmall" color={isCurrent ? 'neon' : 'tertiary'}>
-              {e.sets}×{e.reps}
-            </AppText>
+            {e.completed ? (
+              <PencilSimple size={16} weight="duotone" color={colors.textTertiary} />
+            ) : (
+              <AppText variant="metaSmall" color={isCurrent ? 'neon' : 'tertiary'}>
+                {e.sets}×{e.reps}
+              </AppText>
+            )}
           </Pressable>
         );
       })}
@@ -314,9 +424,10 @@ function Overview({
   );
 }
 
-// ——— Logging: foco no exercício atual, dois inputs grandes ———
+// ——— Logging: foco no exercício, referência da anterior + steppers ———
 function Logging({
   exercise,
+  positionLabel,
   weight,
   reps,
   onChangeWeight,
@@ -325,6 +436,7 @@ function Logging({
   busy,
 }: {
   exercise: SessionExercise;
+  positionLabel: string;
   weight: string;
   reps: string;
   onChangeWeight: (v: string) => void;
@@ -333,21 +445,38 @@ function Logging({
   busy: boolean;
 }) {
   const setIndex = nextSetIndex(exercise);
+  const prevSet: SessionSet | undefined = exercise.sets_logged[exercise.sets_logged.length - 1];
+  const overLogged = setIndex > exercise.sets;
 
   return (
     <View style={styles.flex}>
       <ScrollView contentContainerStyle={styles.logScroll} showsVerticalScrollIndicator={false}>
-        <AppText variant="h2" numberOfLines={2}>
+        <AppText variant="eyebrow" color="tertiary">
+          {positionLabel}
+        </AppText>
+        <AppText variant="h2" numberOfLines={2} style={styles.logTitle}>
           {exercise.name_snapshot}
         </AppText>
         <AppText variant="metaSmall" color="tertiary" style={styles.logMeta}>
           {exercise.sets}×{exercise.reps} · descanso {exercise.rest_seconds}s
         </AppText>
 
+        {exercise.notes ? (
+          <View style={styles.noteBox}>
+            <Info size={16} weight="duotone" color={colors.textSecondary} />
+            <AppText variant="bodySm" color="secondary" style={styles.noteText}>
+              {exercise.notes}
+            </AppText>
+          </View>
+        ) : null}
+
         {exercise.sets_logged.length > 0 ? (
           <View style={styles.loggedList}>
             {exercise.sets_logged.map((s) => (
               <View key={s.set_index} style={styles.loggedRow}>
+                <AppText variant="metaSmall" color="tertiary">
+                  Série {s.set_index}
+                </AppText>
                 <AppText variant="dataMed" color="secondary">
                   {s.weight_kg ?? '—'} × {s.reps_done ?? '—'}
                 </AppText>
@@ -358,38 +487,40 @@ function Logging({
         ) : null}
 
         <AppText variant="eyebrow" color="neon" style={styles.setLabel}>
-          Série {setIndex}
+          {overLogged ? `Série extra ${setIndex}` : `Série ${setIndex} de ${exercise.sets}`}
         </AppText>
 
+        {/* Referência: meta prescrita e o que foi feito na série anterior. */}
+        <View style={styles.refRow}>
+          <AppText variant="metaSmall" color="tertiary">
+            Meta {exercise.reps} reps
+          </AppText>
+          {prevSet ? (
+            <AppText variant="metaSmall" color="tertiary">
+              Anterior {prevSet.weight_kg ?? '—'}kg × {prevSet.reps_done ?? '—'}
+            </AppText>
+          ) : null}
+        </View>
+
         <View style={styles.inputsRow}>
-          <View style={styles.inputBox}>
-            <TextInput
-              accessibilityLabel="Peso em quilos"
-              value={weight}
-              onChangeText={onChangeWeight}
-              keyboardType="numeric"
-              placeholder="0"
-              placeholderTextColor={colors.textTertiary}
-              style={styles.bigInput}
-            />
-            <AppText variant="metaSmall" color="tertiary">
-              kg
-            </AppText>
-          </View>
-          <View style={styles.inputBox}>
-            <TextInput
-              accessibilityLabel="Repetições"
-              value={reps}
-              onChangeText={onChangeReps}
-              keyboardType="numeric"
-              placeholder="0"
-              placeholderTextColor={colors.textTertiary}
-              style={styles.bigInput}
-            />
-            <AppText variant="metaSmall" color="tertiary">
-              reps
-            </AppText>
-          </View>
+          <Stepper
+            label="Peso"
+            unit="kg"
+            value={weight}
+            onChange={onChangeWeight}
+            step={2.5}
+            decimals={1}
+            accessibilityLabel="Peso em quilos"
+          />
+          <Stepper
+            label="Reps"
+            unit="reps"
+            value={reps}
+            onChange={onChangeReps}
+            step={1}
+            decimals={0}
+            accessibilityLabel="Repetições"
+          />
         </View>
       </ScrollView>
 
@@ -411,7 +542,7 @@ function Logging({
   );
 }
 
-// ——— Resting: timer regressivo grande + controles ———
+// ——— Resting: timer regressivo grande + a seguir + controles ———
 function Resting({
   exercise,
   restLeft,
@@ -424,6 +555,8 @@ function Resting({
   onAdd: () => void;
 }) {
   const logged = exercise.sets_logged.length;
+  const nextSet = logged + 1;
+  const hasNextSet = nextSet <= exercise.sets;
 
   return (
     <View style={styles.flex}>
@@ -442,6 +575,11 @@ function Resting({
             />
           ))}
         </View>
+        {hasNextSet ? (
+          <AppText variant="metaSmall" color="secondary" style={styles.nextUp}>
+            A seguir: Série {nextSet} · meta {exercise.reps} reps
+          </AppText>
+        ) : null}
       </View>
 
       <View style={styles.restBar}>
@@ -481,6 +619,10 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
   },
+  stateWrap: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -498,6 +640,19 @@ const styles = StyleSheet.create((theme) => ({
   },
   scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 96 },
   secLabel: { marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
+
+  // Aviso fora do dia planejado (não-bloqueante, dispensável)
+  hint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.card,
+    backgroundColor: theme.colors.surface1,
+    marginTop: theme.spacing.sm,
+  },
+  hintText: { flex: 1 },
 
   // Progresso (overview)
   progressTrack: {
@@ -541,43 +696,41 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.secondary,
     borderColor: theme.colors.secondary,
   },
-  exBody: { flex: 1 },
+  exBody: { flex: 1, gap: theme.spacing.xs },
 
-  // Logging
+  // Logging (ancorado ao topo p/ não pular entre séries)
   logScroll: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     paddingBottom: 96,
-    flexGrow: 1,
-    justifyContent: 'center',
   },
+  logTitle: { marginTop: theme.spacing.xs },
   logMeta: { marginTop: theme.spacing.xs },
-  loggedList: { marginTop: theme.spacing.lg, gap: theme.spacing.xs },
+  noteBox: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.card,
+    backgroundColor: theme.colors.surface1,
+    marginTop: theme.spacing.md,
+  },
+  noteText: { flex: 1 },
+  loggedList: { marginTop: theme.spacing.lg, gap: theme.spacing.sm },
   loggedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.sm,
+    gap: theme.spacing.md,
   },
   setLabel: { marginTop: theme.spacing.xl, marginBottom: theme.spacing.sm },
+  refRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.md,
+  },
   inputsRow: {
     flexDirection: 'row',
     gap: theme.spacing.md,
-  },
-  inputBox: {
-    flex: 1,
-    backgroundColor: theme.colors.surface1,
-    borderRadius: theme.radius.input,
-    paddingVertical: theme.spacing.lg,
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  bigInput: {
-    fontFamily: theme.fontFamily.mono,
-    fontSize: theme.typeScale.inputHero,
-    color: theme.colors.textPrimary,
-    textAlign: 'center',
-    minWidth: 80,
-    padding: 0,
   },
 
   // Resting
@@ -599,6 +752,7 @@ const styles = StyleSheet.create((theme) => ({
   dotDone: {
     backgroundColor: theme.colors.secondary,
   },
+  nextUp: { marginTop: theme.spacing.lg },
   restBar: {
     flexDirection: 'row',
     alignItems: 'center',

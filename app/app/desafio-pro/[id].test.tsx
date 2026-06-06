@@ -21,6 +21,11 @@ let mockRanking: { data: unknown; isLoading: boolean; isError: boolean } = {
   isLoading: false,
   isError: false,
 };
+let mockReport: { data: unknown; isLoading: boolean; isError: boolean } = {
+  data: undefined,
+  isLoading: false,
+  isError: false,
+};
 let mockStudents: { data: unknown; isLoading: boolean; isError: boolean } = {
   data: undefined,
   isLoading: false,
@@ -44,6 +49,10 @@ jest.mock('@/hooks/useProChallengeDetail', () => ({
 
 jest.mock('@/hooks/useProChallengeRanking', () => ({
   useProChallengeRanking: () => mockRanking,
+}));
+
+jest.mock('@/hooks/useProChallengeReport', () => ({
+  useProChallengeReport: () => mockReport,
 }));
 
 jest.mock('@/hooks/useStudents', () => ({
@@ -118,6 +127,30 @@ beforeEach(() => {
     isError: false,
   };
   mockRanking = { data: { visibility: 'public_among_participants', ranking: [] }, isLoading: false, isError: false };
+  mockReport = {
+    data: {
+      ok: true,
+      challenge_id: CHALLENGE_ID,
+      invited_count: 2,
+      active_count: 3,
+      declined_count: 1,
+      average_active_days: 4.5,
+      average_adherence_ratio: 0.72,
+      challenge_day_span: 31,
+      participants: [
+        {
+          student_id: STUDENT_A,
+          display_name: 'Marina',
+          active_days: 5,
+          streak_current_in_challenge: 0,
+          last_activity_date: '2026-01-10',
+          streak_broken_hint: true,
+        },
+      ],
+    },
+    isLoading: false,
+    isError: false,
+  };
   mockStudents = { data: { students }, isLoading: false, isError: false };
   mockUpdateState = { mutate: mockUpdate, isPending: false };
   mockAddState = { mutate: mockAddParticipants, isPending: false };
@@ -233,5 +266,43 @@ describe('DesafioProScreen', () => {
     expect(
       screen.getByText('Não foi possível carregar este desafio.'),
     ).toBeTruthy();
+  });
+
+  it('mostra o bloco de KPIs do relatório (aderência, dias ativos, participação)', () => {
+    render(<DesafioProScreen />);
+    // average_adherence_ratio 0.72 → 72%.
+    expect(screen.getByText('72')).toBeTruthy();
+    expect(screen.getByText('Aderência média')).toBeTruthy();
+    // average_active_days 4.5.
+    expect(screen.getByText('4.5')).toBeTruthy();
+    expect(screen.getByText('Média de dias ativos')).toBeTruthy();
+    expect(screen.getByText('Participação')).toBeTruthy();
+  });
+
+  it('realça quem quebrou a sequência (gancho de retenção)', () => {
+    render(<DesafioProScreen />);
+    expect(screen.getByText('Quebrou a sequência')).toBeTruthy();
+  });
+
+  it('mostra "convidado há N dias" em participantes convidados', () => {
+    mockDetail = {
+      data: {
+        challenge: makeChallenge(),
+        participants: [
+          {
+            student_id: STUDENT_B,
+            status: 'invited',
+            display_name: 'Bruno',
+            // ~3 dias atrás a partir de agora.
+            invited_at: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+            responded_at: null,
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    };
+    render(<DesafioProScreen />);
+    expect(screen.getByText('convidado há 3 dias')).toBeTruthy();
   });
 });

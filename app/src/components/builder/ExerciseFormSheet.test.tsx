@@ -31,6 +31,8 @@ describe('ExerciseFormSheet', () => {
       reps: 10,
       restSeconds: 60,
       notes: null,
+      // Nenhum grupo muscular marcado → null (não inventar).
+      muscleGroup: null,
     });
   });
 
@@ -46,6 +48,16 @@ describe('ExerciseFormSheet', () => {
     expect(value.sets).toBe(5);
     expect(value.reps).toBe(8);
     expect(value.restSeconds).toBe(90);
+  });
+
+  it('captura o grupo muscular escolhido por chip', () => {
+    const props = setup();
+    fireEvent.changeText(screen.getByLabelText('Exercício'), 'Supino reto');
+    fireEvent.press(screen.getByLabelText('Peito'));
+    fireEvent.press(screen.getByText('Adicionar'));
+
+    const value = props.onConfirm.mock.calls[0][0] as ExerciseFormValue;
+    expect(value.muscleGroup).toBe('Peito');
   });
 
   it('não confirma e mostra erro quando o nome está vazio', () => {
@@ -64,6 +76,7 @@ describe('ExerciseFormSheet', () => {
         reps: 12,
         restSeconds: 75,
         notes: 'Pegada pronada',
+        muscleGroup: 'Costas',
       },
     });
     expect(screen.getByDisplayValue('Remada curvada')).toBeTruthy();
@@ -74,6 +87,8 @@ describe('ExerciseFormSheet', () => {
     expect(value.name).toBe('Remada curvada');
     expect(value.sets).toBe(4);
     expect(value.notes).toBe('Pegada pronada');
+    // Grupo muscular pré-preenchido é preservado.
+    expect(value.muscleGroup).toBe('Costas');
   });
 
   it('fecha ao tocar no X', () => {

@@ -13,6 +13,8 @@ export type ExerciseEditRowProps = {
   sets: number;
   reps: number;
   restSeconds: number;
+  // Grupo muscular (muscle_group) — vira chip quando informado.
+  muscleGroup?: string | null;
   // Posição 1-based exibida como prefixo discreto.
   position: number;
   // ↑ desabilitado no primeiro item; ↓ no último.
@@ -31,6 +33,7 @@ export function ExerciseEditRow({
   sets,
   reps,
   restSeconds,
+  muscleGroup,
   position,
   canMoveUp,
   canMoveDown,
@@ -74,6 +77,7 @@ export function ExerciseEditRow({
           {name}
         </AppText>
         <View style={styles.chips}>
+          {muscleGroup ? <Tag label={muscleGroup} tone="active" /> : null}
           <Tag label={`${sets}×${reps}`} tone="neutral" />
           <Tag label={`${restSeconds}s`} tone="neutral" />
         </View>

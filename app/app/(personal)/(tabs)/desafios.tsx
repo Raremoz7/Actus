@@ -10,6 +10,10 @@ import { CaretRight, Plus, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, Button, Tag, ListState, type TagTone } from '@/components/ui';
+import {
+  challengeTimingLabel,
+  deriveChallengeTiming,
+} from '@/components/challenges/challengeProgress';
 import { useProChallenges } from '@/hooks/useProChallenges';
 import type { Challenge } from '@/types/challenges';
 import { darkTheme } from '@/theme';
@@ -51,6 +55,14 @@ type CardProps = {
 // contagem de participantes aqui.
 function ProChallengeCard({ challenge, onPress }: CardProps) {
   const status = STATUS[challenge.status];
+  // Leitura temporal derivada das datas: 'Dia 4 de 30' / 'Começa em 3 dias' /
+  // 'Encerrado'. A lista não traz progresso — derivamos de starts_on/ends_on.
+  const timing = deriveChallengeTiming(
+    challenge.starts_on,
+    challenge.ends_on,
+    challenge.status,
+  );
+  const timingLabel = challengeTimingLabel(timing);
   return (
     <Pressable
       accessibilityRole="button"
@@ -70,6 +82,12 @@ function ProChallengeCard({ challenge, onPress }: CardProps) {
         </AppText>
         <View style={styles.chipRow}>
           <Tag label={status.label} tone={status.tone} />
+          <AppText
+            variant="metaSmall"
+            color={timing.kind === 'running' ? 'neon' : 'secondary'}
+          >
+            {timingLabel}
+          </AppText>
         </View>
       </View>
       <CaretRight size={16} weight="bold" color={colors.textTertiary} />
@@ -207,6 +225,8 @@ const styles = StyleSheet.create((theme) => ({
   chipRow: {
     marginTop: theme.spacing.xs,
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
   },
   note: {
     marginTop: theme.spacing.lg,

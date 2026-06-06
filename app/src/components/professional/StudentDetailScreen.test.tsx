@@ -80,8 +80,9 @@ describe('StudentDetailScreen', () => {
     render(<StudentDetailScreen id={STUDENT_ID} />);
     expect(screen.getByText('05 jun')).toBeTruthy();
     expect(screen.getByText('04 jun')).toBeTruthy();
-    // KPI: total de check-ins.
-    expect(screen.getByText('2')).toBeTruthy();
+    // KPI: total de check-ins (2). Pode haver outra KPI com o mesmo valor
+    // (dias ativos na janela), por isso usamos getAllByText.
+    expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1);
   });
 
   it('personal vê "Atribuir treino" e navega para a tela de atribuição com o student', () => {

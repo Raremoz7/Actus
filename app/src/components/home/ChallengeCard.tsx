@@ -4,26 +4,51 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
 import { darkTheme } from '@/theme';
+import { ProgressRing } from './ProgressRing';
 
 const { colors } = darkTheme;
 
-type Props = { title: string; current: number; total: number; onPress: () => void };
+type Props = {
+  title: string;
+  current: number;
+  total: number;
+  onPress: () => void;
+  // Quando o card ocupa a largura total (sem dieta ao lado), expande o layout.
+  wide?: boolean;
+};
 
-export function ChallengeCard({ title, current, total, onPress }: Props) {
+export function ChallengeCard({ title, current, total, onPress, wide = false }: Props) {
+  const progress = total > 0 ? current / total : 0;
+  const pct = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
+
   return (
-    <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
+    <Pressable
+      style={[styles.card, wide && styles.cardWide]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Desafio ${title}, dia ${current} de ${total}`}
+    >
       <View style={styles.head}>
         <Trophy size={14} weight="duotone" color={colors.textTertiary} />
         <AppText variant="eyebrow" color="tertiary">
           Desafio
         </AppText>
       </View>
-      <AppText variant="h3" style={styles.name}>
-        {title}
-      </AppText>
-      <AppText variant="metaSmall" color="tertiary">
-        {`${current} / ${total} dias`}
-      </AppText>
+      <View style={[styles.body, wide && styles.bodyWide]}>
+        <View style={styles.text}>
+          <AppText variant="h3" style={styles.name} numberOfLines={wide ? 1 : 2}>
+            {title}
+          </AppText>
+          <AppText variant="metaSmall" color="tertiary">
+            {`Dia ${current} de ${total}`}
+          </AppText>
+        </View>
+        <ProgressRing progress={progress} size={wide ? 64 : 52} strokeWidth={4}>
+          <AppText variant="metaSmall" color="neon">
+            {`${pct}%`}
+          </AppText>
+        </ProgressRing>
+      </View>
     </Pressable>
   );
 }
@@ -37,6 +62,21 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
   },
+  cardWide: {
+    padding: theme.spacing.lg,
+  },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
-  name: { marginTop: theme.spacing.xs, marginBottom: 2 },
+  body: {
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.md,
+  },
+  bodyWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  text: {
+    flex: 1,
+  },
+  name: { marginBottom: 2 },
 }));

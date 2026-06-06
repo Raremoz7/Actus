@@ -7,13 +7,17 @@ import { CaretLeft, Play } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
-import { WorkoutDetailHeader, ExerciseCard } from '@/components/workouts';
+import { WorkoutDetailHeader, ExerciseCard, WorkoutHistory } from '@/components/workouts';
+import { aggregatedMuscleGroups, planValidityLabel } from '@/components/workouts/workoutMeta';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
 import { useCreateSession } from '@/hooks/useCreateSession';
 import { estimatedMinutes } from '@/lib/duration';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
+
+// Acima deste nº de exercícios, numeramos os cards p/ orientar treinos longos.
+const NUMBER_THRESHOLD = 6;
 
 export default function TreinoDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -38,8 +42,14 @@ export default function TreinoDetailScreen() {
 
   const workout = detail.data?.workout;
   const assignment = detail.data?.assignment;
+  const recentSessions = detail.data?.recent_sessions ?? [];
   const exercises = workout?.exercises ?? [];
   const focus = workout?.notes ?? workout?.name ?? 'Treino';
+  const muscleGroups = aggregatedMuscleGroups(exercises);
+  const validity = planValidityLabel(assignment?.end_date ?? null);
+  const numbered = exercises.length > NUMBER_THRESHOLD;
+  // Nota geral do treino: só mostramos como instrução se NÃO virou o título (focus).
+  const generalNote = workout && workout.notes && focus !== workout.notes ? workout.notes : null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -67,11 +77,22 @@ export default function TreinoDetailScreen() {
                 exerciseCount={exercises.length}
                 estMinutes={estimatedMinutes(exercises)}
                 weekdays={assignment.weekdays}
+                muscleGroups={muscleGroups}
+                validityLabel={validity}
               />
+
+              {generalNote ? (
+                <View style={styles.note}>
+                  <AppText variant="bodySm" color="secondary">
+                    {generalNote}
+                  </AppText>
+                </View>
+              ) : null}
+
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Exercícios
               </AppText>
-              {exercises.map((e) => (
+              {exercises.map((e, i) => (
                 <ExerciseCard
                   key={e.id}
                   name={e.name_snapshot}
@@ -79,14 +100,28 @@ export default function TreinoDetailScreen() {
                   reps={e.reps}
                   restSeconds={e.rest_seconds}
                   muscleGroup={e.muscle_group}
+                  notes={e.notes}
+                  position={numbered ? i + 1 : undefined}
                   onPress={() =>
                     router.push({
                       pathname: '/(aluno)/exercicio/[id]',
-                      params: { id: e.id, name: e.name_snapshot, muscle: e.muscle_group ?? '' },
+                      params: {
+                        id: e.id,
+                        workoutId: id,
+                        position: String(e.position),
+                        name: e.name_snapshot,
+                        muscle: e.muscle_group ?? '',
+                        sets: String(e.sets),
+                        reps: String(e.reps),
+                        rest: String(e.rest_seconds),
+                        note: e.notes ?? '',
+                      },
                     } as Href)
                   }
                 />
               ))}
+
+              <WorkoutHistory sessions={recentSessions} />
             </>
           ) : detail.isLoading ? (
             <View style={styles.center}>
@@ -157,6 +192,15 @@ const styles = StyleSheet.create((theme) => ({
   },
   scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 96 },
   center: { paddingVertical: theme.spacing.xl, alignItems: 'center' },
+  note: {
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.surface1,
+    borderLeftWidth: 2,
+    borderLeftColor: theme.colors.neon,
+    borderRadius: theme.radius.tag,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+  },
   secLabel: { marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
   ctaBar: {
     position: 'absolute',

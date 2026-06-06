@@ -20,4 +20,20 @@ describe('RankingRow', () => {
     );
     expect(screen.getByText('Você')).toBeTruthy();
   });
+
+  it('na própria linha mostra recorde e última atividade relativa', () => {
+    render(
+      <RankingRow
+        position={1}
+        name="Marina"
+        activeDays={20}
+        streak={7}
+        isMe
+        streakBest={8}
+        lastActivityDate="2026-06-06"
+        today="2026-06-06"
+      />,
+    );
+    expect(screen.getByText('recorde: 8 dias · ativo hoje')).toBeTruthy();
+  });
 });

@@ -15,6 +15,8 @@ let mockList: { data: unknown; isLoading: boolean; isError: boolean } = {
   isError: false,
 };
 let mockAssignState = { mutate: mockAssign, isPending: false };
+let mockStudents: { data: unknown } = { data: undefined };
+let mockDetail: { data: unknown } = { data: undefined };
 
 jest.mock('expo-router', () => ({
   router: {
@@ -31,6 +33,14 @@ jest.mock('@/hooks/useDietTemplates', () => ({
 
 jest.mock('@/hooks/useAssignDiet', () => ({
   useAssignDiet: () => mockAssignState,
+}));
+
+jest.mock('@/hooks/useStudents', () => ({
+  useStudents: () => mockStudents,
+}));
+
+jest.mock('@/hooks/useDietTemplateDetail', () => ({
+  useDietTemplateDetail: () => mockDetail,
 }));
 
 const STUDENT_ID = '11111111-1111-1111-1111-111111111111';
@@ -55,6 +65,31 @@ beforeEach(() => {
   mockParams = { student: STUDENT_ID };
   mockList = { data: { diet_templates: dietTemplates }, isLoading: false, isError: false };
   mockAssignState = { mutate: mockAssign, isPending: false };
+  mockStudents = {
+    data: {
+      students: [
+        {
+          id: STUDENT_ID,
+          email: 'maria@exemplo.com',
+          full_name: 'Maria Silva',
+          birth_date: null,
+          professional_role: 'nutricionista',
+          linked_at: '2026-06-01T12:00:00.000Z',
+        },
+      ],
+    },
+  };
+  mockDetail = {
+    data: {
+      id: 'dt-1',
+      name: 'Cutting · 1800 kcal',
+      created_at: '2026-01-01T00:00:00.000Z',
+      body: {
+        meals: [{ name: 'Café' }, { name: 'Almoço' }, { name: 'Jantar' }],
+        target_kcal: 1800,
+      },
+    },
+  };
 });
 
 describe('AtribuirDietaScreen', () => {
@@ -62,6 +97,17 @@ describe('AtribuirDietaScreen', () => {
     render(<AtribuirDietaScreen />);
     expect(screen.getByText('Cutting · 1800 kcal')).toBeTruthy();
     expect(screen.getByText('Bulking · 3000 kcal')).toBeTruthy();
+  });
+
+  it('mostra o aluno-alvo (nome do cache) no topo', () => {
+    render(<AtribuirDietaScreen />);
+    expect(screen.getByText('Maria Silva')).toBeTruthy();
+  });
+
+  it('mostra o resumo do body (refeições + kcal) no template selecionado', () => {
+    render(<AtribuirDietaScreen />);
+    fireEvent.press(screen.getByLabelText('Cutting · 1800 kcal'));
+    expect(screen.getByText('3 refeições · 1800 kcal')).toBeTruthy();
   });
 
   it('"Atribuir" começa desabilitado (sem template selecionado)', () => {

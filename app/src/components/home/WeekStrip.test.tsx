@@ -22,9 +22,9 @@ const overview: WeeklyOverview = {
 };
 
 describe('WeekStrip', () => {
-  it('mostra o streak atual e os 7 dias', () => {
-    render(<WeekStrip overview={overview} />);
-    expect(screen.getByText('7 dias seguidos')).toBeTruthy();
-    expect(screen.getByText('Sua semana')).toBeTruthy();
+  it('consolida o streak num KPI único com atual e recorde', () => {
+    render(<WeekStrip overview={overview} plannedWeekdays={[1, 3, 5]} />);
+    expect(screen.getByText('Sequência')).toBeTruthy();
+    expect(screen.getByText('Atual 7 · Recorde 21')).toBeTruthy();
   });
 });

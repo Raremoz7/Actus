@@ -21,22 +21,33 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button } from '@/components/ui';
 import { useDietTemplates } from '@/hooks/useDietTemplates';
+import { useDietTemplateDetail } from '@/hooks/useDietTemplateDetail';
 import { useAssignDiet } from '@/hooks/useAssignDiet';
+import { useStudents } from '@/hooks/useStudents';
 import { formatDateLocal } from '@/lib/format';
-import type { DietTemplateListItem } from '@/types/diets';
+import { parseDietBody, type DietTemplateListItem } from '@/types/diets';
 import { darkTheme } from '@/theme';
+import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';
 
 const { colors, motion } = darkTheme;
+
+// Rótulo de refeições do resumo do body.
+function mealsLabel(n: number): string {
+  return n === 1 ? '1 refeição' : `${n} refeições`;
+}
 
 type TemplateCardProps = {
   template: DietTemplateListItem;
   selected: boolean;
+  // Resumo do body ("3 refeições · 1800 kcal") — só do template selecionado (detalhe carregado).
+  summary?: string | null;
   onPress: () => void;
 };
 
 // Card de template SELECIONÁVEL (seleção única). Visual alinhado ao card de
 // dietas da aba do nutricionista; borda/realce neon quando selecionado.
-function TemplateCard({ template, selected, onPress }: TemplateCardProps) {
+// O template selecionado mostra um resumo do body (refeições + kcal) quando há.
+function TemplateCard({ template, selected, summary, onPress }: TemplateCardProps) {
   return (
     <Pressable
       accessibilityRole="radio"
@@ -52,6 +63,11 @@ function TemplateCard({ template, selected, onPress }: TemplateCardProps) {
         <AppText variant="h3" numberOfLines={1}>
           {template.name}
         </AppText>
+        {summary ? (
+          <AppText variant="metaSmall" color="tertiary" numberOfLines={1}>
+            {summary}
+          </AppText>
+        ) : null}
       </View>
       {selected ? (
         <View style={styles.checkMark}>
@@ -70,9 +86,35 @@ export default function AtribuirDietaScreen() {
 
   const list = useDietTemplates();
   const assign = useAssignDiet();
+  const students = useStudents();
+
+  // Aluno-alvo resolvido do cache de useStudents (id chega por param; nome vem do cache).
+  const student = useMemo(
+    () => students.data?.students.find((s) => s.id === studentId),
+    [students.data, studentId],
+  );
+  const studentName = student
+    ? (student.full_name?.trim() || student.email)
+    : null;
 
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | undefined>(undefined);
+
+  // Detalhe do template SELECIONADO → resumo do body (refeições + kcal). A lista
+  // não traz body, então só o escolhido é detalhado (uma request, sob demanda).
+  const detail = useDietTemplateDetail(templateId ?? undefined);
+  const summary = useMemo(() => {
+    if (!detail.data) return null;
+    const body = parseDietBody(detail.data.body);
+    const meals = body.meals.length;
+    if (meals === 0) return null;
+    const kcal = body.target_kcal;
+    const parts = [mealsLabel(meals)];
+    if (typeof kcal === 'number' && kcal > 0) {
+      parts.push(`${Math.round(kcal)} kcal`);
+    }
+    return parts.join(' · ');
+  }, [detail.data]);
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);
@@ -149,6 +191,8 @@ export default function AtribuirDietaScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          <StudentTargetHeader name={studentName} email={student?.email} />
+
           <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
             Dieta
           </AppText>
@@ -179,6 +223,7 @@ export default function AtribuirDietaScreen() {
                   key={t.id}
                   template={t}
                   selected={templateId === t.id}
+                  summary={templateId === t.id ? summary : null}
                   onPress={() => selectTemplate(t.id)}
                 />
               ))}

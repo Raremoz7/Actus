@@ -2,21 +2,36 @@ import { useEffect } from 'react';
 import { RefreshControl, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
+import { Trophy } from 'phosphor-react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText } from '@/components/ui';
-import { ChallengeListCard } from '@/components/challenges';
+import { Screen, AppText, ListState } from '@/components/ui';
+import { ChallengeListCard, ChallengeSectionHeader } from '@/components/challenges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeActions } from '@/hooks/useChallengeActions';
-import { challengeDayProgress } from '@/lib/challenge';
+import { challengeRankingQueryKey } from '@/hooks/useChallengeRanking';
+import { useMe } from '@/hooks/useMe';
+import { challengeDayProgress, challengeStatusLabel } from '@/lib/challenge';
 import { formatDateLocal } from '@/lib/format';
-import type { ChallengeListItem } from '@/types/challenges';
+import type { ChallengeListItem, RankingResponse } from '@/types/challenges';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
 
+// Dias inteiros entre duas datas YYYY-MM-DD (UTC puro só p/ contar, nunca exibir).
+function daysUntil(fromToday: string, target: string): number {
+  const toNum = (s: string) => {
+    const [y, m, d] = s.split('-').map(Number);
+    return Math.floor(Date.UTC(y!, m! - 1, d!) / 86_400_000);
+  };
+  return toNum(target) - toNum(fromToday);
+}
+
 export default function AlunoDesafiosScreen() {
   const list = useChallenges();
+  const me = useMe();
+  const queryClient = useQueryClient();
   const { accept, decline } = useChallengeActions();
 
   // 1 momento de motion por tela: reveal de entrada.
@@ -32,21 +47,35 @@ export default function AlunoDesafiosScreen() {
   }));
 
   const items = list.data?.challenges ?? [];
-  // Convites (invited) primeiro — ação pendente do aluno.
   const invited = items.filter((it) => it.participant_status === 'invited');
   const active = items.filter((it) => it.participant_status === 'active');
-  const ordered = [...invited, ...active];
 
   // Hoje em componentes LOCAIS (nunca toISOString — bug de fuso UTC-3).
   const today = formatDateLocal(new Date());
+  const myId = me.data?.id;
 
   function openDetail(id: string) {
     router.push(`/(aluno)/desafio/${id}` as Href);
   }
 
+  // Teaser de ranking: lido do CACHE (sem fetch novo nem hook em loop). Só existe
+  // depois que o aluno abriu o detalhe; aparece quando público e ele tem posição.
+  function rankingTeaser(challengeId: string): { position: number; streak: number } | null {
+    if (!myId) return null;
+    const cached = queryClient.getQueryData<RankingResponse>(
+      challengeRankingQueryKey(challengeId),
+    );
+    if (!cached || cached.visibility !== 'public_among_participants') return null;
+    const mine = cached.ranking.find((r) => r.student_id === myId);
+    if (!mine) return null;
+    return { position: mine.position, streak: mine.streak_current_in_challenge };
+  }
+
   function renderCard(item: ChallengeListItem) {
     const { challenge, participant_status } = item;
     const dayProgress = challengeDayProgress(challenge.starts_on, challenge.ends_on, today);
+    const statusLabel = challengeStatusLabel(challenge.status, participant_status);
+    const untilStart = Math.max(0, daysUntil(today, challenge.starts_on));
     // Trava só o card cuja mutation está em curso (variables guarda o id alvo).
     const accepting = accept.isPending && accept.variables === challenge.id;
     const declining = decline.isPending && decline.variables === challenge.id;
@@ -60,6 +89,9 @@ export default function AlunoDesafiosScreen() {
           dayProgress={dayProgress}
           status={challenge.status}
           participantStatus={participant_status}
+          statusLabel={statusLabel}
+          daysUntilStart={untilStart}
+          rankingTeaser={participant_status === 'active' ? rankingTeaser(challenge.id) : null}
           onPress={() => openDetail(challenge.id)}
           onAccept={() => accept.mutate(challenge.id)}
           onDecline={() => decline.mutate(challenge.id)}
@@ -75,6 +107,8 @@ export default function AlunoDesafiosScreen() {
     );
   }
 
+  const isEmpty = !list.isLoading && !list.isError && items.length === 0;
+
   return (
     <Screen edges={['top']}>
       <Animated.ScrollView
@@ -89,34 +123,52 @@ export default function AlunoDesafiosScreen() {
           />
         }
       >
-      <Animated.View style={revealStyle}>
-        <AppText variant="eyebrow" color="tertiary">
-          Seus desafios
-        </AppText>
-        <AppText variant="h2" style={styles.title}>
-          Desafios
-        </AppText>
-
-        {ordered.map(renderCard)}
-
-        {list.isLoading ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Carregando…
+        <Animated.View style={revealStyle}>
+          <AppText variant="eyebrow" color="tertiary">
+            Seus desafios
           </AppText>
-        ) : null}
-
-        {!list.isLoading && !list.isError && ordered.length === 0 ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Nenhum desafio por aqui ainda.
+          <AppText variant="h2" style={styles.title}>
+            Desafios
           </AppText>
-        ) : null}
 
-        {list.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Não foi possível carregar agora.
-          </AppText>
-        ) : null}
-      </Animated.View>
+          {invited.length > 0 ? (
+            <View style={styles.section}>
+              <ChallengeSectionHeader
+                label="Aguardando sua resposta"
+                count={invited.length}
+              />
+              {invited.map(renderCard)}
+            </View>
+          ) : null}
+
+          {active.length > 0 ? (
+            <View style={styles.section}>
+              <ChallengeSectionHeader label="Em andamento" count={active.length} />
+              {active.map(renderCard)}
+            </View>
+          ) : null}
+
+          {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
+
+          {isEmpty ? (
+            <ListState
+              kind="empty"
+              icon={Trophy}
+              title="Nenhum desafio ainda"
+              message="Quando seu treinador criar um desafio e te convidar, ele aparece aqui."
+            />
+          ) : null}
+
+          {list.isError ? (
+            <ListState
+              kind="error"
+              title="Não foi possível carregar"
+              message="Verifique sua conexão e tente de novo."
+              actionLabel="Tentar de novo"
+              onAction={() => void list.refetch()}
+            />
+          ) : null}
+        </Animated.View>
       </Animated.ScrollView>
     </Screen>
   );
@@ -125,7 +177,7 @@ export default function AlunoDesafiosScreen() {
 const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
   title: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
+  section: { marginBottom: theme.spacing.lg },
   cardWrap: { marginBottom: theme.spacing.md },
   cardError: { marginTop: theme.spacing.xs },
-  note: { marginTop: theme.spacing.lg },
 }));

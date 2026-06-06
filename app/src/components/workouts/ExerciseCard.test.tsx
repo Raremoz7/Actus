@@ -15,6 +15,32 @@ describe('ExerciseCard', () => {
     expect(screen.queryByText('Peito')).toBeNull();
     expect(screen.getByText('3×12')).toBeTruthy();
   });
+  it('mostra a nota do exercício quando presente', () => {
+    render(
+      <ExerciseCard
+        name="Supino reto"
+        sets={4}
+        reps={10}
+        restSeconds={60}
+        muscleGroup="Peito"
+        notes="Cadência 2-1-2, sem travar no topo"
+      />,
+    );
+    expect(screen.getByText('Cadência 2-1-2, sem travar no topo')).toBeTruthy();
+  });
+  it('numera o exercício quando position é informado', () => {
+    render(
+      <ExerciseCard
+        name="Supino reto"
+        sets={4}
+        reps={10}
+        restSeconds={60}
+        muscleGroup="Peito"
+        position={2}
+      />,
+    );
+    expect(screen.getByText('2. Supino reto')).toBeTruthy();
+  });
   it('chama onPress ao tocar no card', () => {
     const onPress = jest.fn();
     render(

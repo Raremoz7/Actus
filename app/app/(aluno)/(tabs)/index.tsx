@@ -45,6 +45,14 @@ function todayWeekday(d: Date): Weekday {
   return (dow === 0 ? 7 : dow) as Weekday;
 }
 
+// Duração estimada do treino a partir da contagem de exercícios (sem `sets` na
+// lista). Heurística honesta: ~7 min por exercício (séries + descanso), arredondado
+// a múltiplos de 5. Não inventa precisão — é um "~N min".
+function estimateMinutes(exerciseCount: number): number {
+  if (exerciseCount <= 0) return 0;
+  return Math.max(5, Math.round((exerciseCount * 7) / 5) * 5);
+}
+
 export default function AlunoHojeScreen() {
   const me = useMe();
   const week = useWeeklyOverview();
@@ -72,6 +80,11 @@ export default function AlunoHojeScreen() {
   // pickNextWorkout decide o de hoje (ou o próximo) pelo weekday local.
   const items = workouts.data?.student_workouts ?? [];
   const picked = pickNextWorkout(items, todayWeekday(now));
+
+  // Treino de hoje já concluído? (last_completed_date === hoje LOCAL).
+  const todayDone =
+    picked.isToday && picked.next != null && picked.next.last_completed_date === todayStr;
+
   const todaySummary: TodayWorkoutSummary | null =
     picked.next == null
       ? items.length > 0
@@ -85,7 +98,7 @@ export default function AlunoHojeScreen() {
               name: picked.next.workout_name,
               muscle_groups: picked.next.workout_notes ?? picked.next.workout_name,
               exercise_count: picked.next.exercise_count,
-              est_minutes: 0,
+              est_minutes: estimateMinutes(picked.next.exercise_count),
             },
             next_workout: null,
           }
@@ -97,6 +110,21 @@ export default function AlunoHojeScreen() {
               muscle_groups: picked.next.workout_notes ?? picked.next.workout_name,
             },
           };
+
+  // Weekdays com treino planejado (qualquer atribuição ativa) — alimenta a WeekStrip.
+  const plannedWeekdays = Array.from(
+    new Set(items.filter((i) => i.is_active).flatMap((i) => i.weekdays)),
+  ) as Weekday[];
+
+  // Frase de estado do dia — heroína do header (promovida a H2).
+  let dayHeadline = 'Tudo certo por aqui';
+  if (todaySummary?.has_workout && todaySummary.workout) {
+    dayHeadline = todayDone
+      ? 'Treino de hoje concluído'
+      : `${todaySummary.workout.muscle_groups} hoje`;
+  } else if (todaySummary && !todaySummary.has_workout) {
+    dayHeadline = 'Descanso programado';
+  }
 
   // Desafio em destaque: primeiro desafio ativo (participação ativa).
   const activeChallenge =
@@ -111,11 +139,10 @@ export default function AlunoHojeScreen() {
       )
     : null;
 
-  // Dieta em destaque: a ativa (fallback p/ a primeira); "próxima refeição" = 1ª refeição real.
+  // Dieta em destaque: a ativa (fallback p/ a primeira). Dado honesto: nº de
+  // refeições + meta de kcal (quando o nutri preencheu no body).
   const activeDiet = diet.data?.diets.find((d) => d.is_active) ?? diet.data?.diets[0] ?? null;
-  const firstMeal = activeDiet
-    ? (parseDietBody(activeDiet.template_body).meals[0]?.name ?? null)
-    : null;
+  const dietBody = activeDiet ? parseDietBody(activeDiet.template_body) : null;
 
   // Abrir o treino do dia (detalhe → onde "Iniciar treino" cria a sessão).
   function openTodayWorkout() {
@@ -158,6 +185,11 @@ export default function AlunoHojeScreen() {
     diet.isRefetching ||
     challenges.isRefetching;
 
+  const hasDiet = activeDiet != null && dietBody != null;
+  const hasChallenge = activeChallenge != null && challengeProgress != null;
+  // Quebra a simetria 50/50: largura total quando só um dos dois existe.
+  const soloSecondary = hasDiet !== hasChallenge;
+
   return (
     <Screen edges={['top']}>
       <Animated.ScrollView
@@ -176,46 +208,52 @@ export default function AlunoHojeScreen() {
           <HomeHeader
             greeting={greeting}
             name={me.data?.display_name ?? null}
-            streakCurrent={week.data?.streak_current ?? 0}
             dateLabel={dateLabelLocal(now)}
+            headline={dayHeadline}
           />
 
           {initialLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
+          {/* HERÓI: o treino do dia ocupa o topo, com o maior peso visual. */}
           {todaySummary ? (
             <TodayWorkoutCard
               summary={todaySummary}
               onStart={openTodayWorkout}
               onSeeWeek={seeWeek}
+              done={todayDone}
             />
           ) : null}
 
           {week.data ? (
-            <View style={styles.block}>
-              <WeekStrip overview={week.data} />
+            <View style={styles.section}>
+              <WeekStrip overview={week.data} plannedWeekdays={plannedWeekdays} />
             </View>
           ) : null}
 
-          <View style={styles.row}>
-            {activeDiet ? (
-              <DietCard
-                title={activeDiet.template_name}
-                nextMealTime={firstMeal}
-                onPress={() => router.push(`/(aluno)/dieta/${activeDiet.id}` as Href)}
-              />
-            ) : null}
-            {activeChallenge && challengeProgress ? (
-              <ChallengeCard
-                title={activeChallenge.challenge.name}
-                current={challengeProgress.day}
-                total={challengeProgress.total}
-                onPress={() => router.push('/(aluno)/(tabs)/desafios' as Href)}
-              />
-            ) : null}
-          </View>
+          {hasDiet || hasChallenge ? (
+            <View style={[styles.section, styles.row]}>
+              {hasDiet ? (
+                <DietCard
+                  title={activeDiet.template_name}
+                  mealCount={dietBody.meals.length}
+                  targetKcal={dietBody.target_kcal ?? null}
+                  onPress={() => router.push(`/(aluno)/dieta/${activeDiet.id}` as Href)}
+                />
+              ) : null}
+              {hasChallenge ? (
+                <ChallengeCard
+                  title={activeChallenge.challenge.name}
+                  current={challengeProgress.day}
+                  total={challengeProgress.total}
+                  wide={soloSecondary}
+                  onPress={() => router.push('/(aluno)/(tabs)/desafios' as Href)}
+                />
+              ) : null}
+            </View>
+          ) : null}
 
           {allEmpty ? (
-            <View style={styles.block}>
+            <View style={styles.section}>
               <ListState
                 kind="empty"
                 icon={Barbell}
@@ -245,7 +283,8 @@ export default function AlunoHojeScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
-  block: { marginTop: theme.spacing.lg },
-  retry: { marginTop: theme.spacing.lg, alignItems: 'center' },
-  row: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.lg },
+  // Espaço MAIOR entre seções (hierarquia/respiro); o interior de cada bloco é justo.
+  section: { marginTop: theme.spacing.xl },
+  retry: { marginTop: theme.spacing.xl, alignItems: 'center' },
+  row: { flexDirection: 'row', gap: theme.spacing.md },
 }));

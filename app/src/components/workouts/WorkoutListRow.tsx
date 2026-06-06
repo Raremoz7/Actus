@@ -7,9 +7,16 @@ import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
 
-type Props = { title: string; subtitle: string; onPress: () => void };
+type Props = {
+  title: string;
+  // Linha de metadados (dia · nº exercícios · ~min). Mantida como string p/ flexibilidade.
+  subtitle: string;
+  // "Última vez" do treino (ex.: "Há 3 dias" / "Ainda não feito"). Linha discreta extra.
+  lastCompletedLabel?: string;
+  onPress: () => void;
+};
 
-export function WorkoutListRow({ title, subtitle, onPress }: Props) {
+export function WorkoutListRow({ title, subtitle, lastCompletedLabel, onPress }: Props) {
   return (
     <Pressable style={styles.row} onPress={onPress} accessibilityRole="button">
       <View style={styles.body}>
@@ -19,6 +26,11 @@ export function WorkoutListRow({ title, subtitle, onPress }: Props) {
         <AppText variant="metaSmall" color="tertiary" style={styles.sub}>
           {subtitle}
         </AppText>
+        {lastCompletedLabel ? (
+          <AppText variant="metaSmall" color="tertiary" style={styles.sub}>
+            {lastCompletedLabel}
+          </AppText>
+        ) : null}
       </View>
       <CaretRight size={16} weight="bold" color={colors.textTertiary} />
     </Pressable>

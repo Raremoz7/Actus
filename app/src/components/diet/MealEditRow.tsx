@@ -10,6 +10,8 @@ const { colors } = darkTheme;
 export type MealEditRowProps = {
   // Nome da refeição (ex.: "Café da manhã").
   name: string;
+  // Horário sugerido (ex.: "08:00") — exibido discreto ao lado da posição.
+  time?: string;
   // Macros opcionais — só viram chips quando informados.
   kcal?: number;
   protein?: number;
@@ -46,6 +48,7 @@ function macroChips(
 // Mostra nome + chips de macros (quando houver) e ações: reordenar ↑↓, editar, remover.
 export function MealEditRow({
   name,
+  time,
   kcal,
   protein,
   carbs,
@@ -88,9 +91,16 @@ export function MealEditRow({
       </View>
 
       <View style={styles.body}>
-        <AppText variant="metaSmall" color="tertiary">
-          {`${position.toString().padStart(2, '0')}`}
-        </AppText>
+        <View style={styles.metaLine}>
+          <AppText variant="metaSmall" color="tertiary">
+            {`${position.toString().padStart(2, '0')}`}
+          </AppText>
+          {time ? (
+            <AppText variant="metaSmall" color="neon">
+              {time}
+            </AppText>
+          ) : null}
+        </View>
         <AppText variant="h4" numberOfLines={2}>
           {name}
         </AppText>
@@ -145,6 +155,11 @@ const styles = StyleSheet.create((theme) => ({
   body: {
     flex: 1,
     gap: theme.spacing.xs,
+  },
+  metaLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
   },
   chips: {
     flexDirection: 'row',

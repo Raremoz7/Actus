@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { Barbell, Timer } from 'phosphor-react-native';
+import { Barbell, Note, Timer } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Tag } from '@/components/ui';
@@ -16,6 +16,10 @@ type Props = {
   restSeconds: number;
   muscleGroup: string | null;
   equipment?: string | null;
+  // Nota do personal para o exercício — linha discreta abaixo do nome.
+  notes?: string | null;
+  // Posição (1-based) p/ numerar exercícios em treinos longos. Omitido → sem número.
+  position?: number;
   onPress?: () => void;
 };
 
@@ -26,6 +30,8 @@ export function ExerciseCard({
   restSeconds,
   muscleGroup,
   equipment,
+  notes,
+  position,
   onPress,
 }: Props) {
   const content = (
@@ -33,7 +39,7 @@ export function ExerciseCard({
       <ExerciseThumb size={56} muscleGroup={muscleGroup} />
       <View style={styles.left}>
         <AppText variant="h3" numberOfLines={2}>
-          {name}
+          {position ? `${position}. ${name}` : name}
         </AppText>
         {muscleGroup ? (
           <View style={styles.tagWrap}>
@@ -45,6 +51,14 @@ export function ExerciseCard({
             <Barbell size={12} weight="duotone" color={colors.textTertiary} />
             <AppText variant="metaSmall" color="tertiary">
               {equipment}
+            </AppText>
+          </View>
+        ) : null}
+        {notes ? (
+          <View style={styles.notes}>
+            <Note size={12} weight="duotone" color={colors.textTertiary} />
+            <AppText variant="bodySm" color="tertiary" style={styles.notesText}>
+              {notes}
             </AppText>
           </View>
         ) : null}
@@ -63,8 +77,15 @@ export function ExerciseCard({
     </>
   );
 
-  // Rótulo agregado p/ leitor de tela: nome, séries×reps e descanso numa frase.
-  const a11yLabel = `${name}, ${sets} séries de ${reps}, descanso ${restSeconds}s`;
+  // Rótulo agregado p/ leitor de tela: nome, séries×reps, descanso e nota numa frase.
+  const a11yLabel = [
+    name,
+    `${sets} séries de ${reps}`,
+    `descanso ${restSeconds}s`,
+    notes ? `nota: ${notes}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   if (onPress) {
     return (
@@ -103,6 +124,13 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.xs,
     marginTop: theme.spacing.xs,
   },
+  notes: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
+  },
+  notesText: { flex: 1 },
   right: { alignItems: 'flex-end', gap: theme.spacing.xs },
   rest: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
 }));

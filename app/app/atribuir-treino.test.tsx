@@ -15,6 +15,7 @@ let mockList: { data: unknown; isLoading: boolean; isError: boolean } = {
   isError: false,
 };
 let mockAssignState = { mutate: mockAssign, isPending: false };
+let mockStudents: { data: unknown } = { data: undefined };
 
 jest.mock('expo-router', () => ({
   router: {
@@ -31,6 +32,10 @@ jest.mock('@/hooks/useProWorkouts', () => ({
 
 jest.mock('@/hooks/useAssignWorkout', () => ({
   useAssignWorkout: () => mockAssignState,
+}));
+
+jest.mock('@/hooks/useStudents', () => ({
+  useStudents: () => mockStudents,
 }));
 
 const STUDENT_ID = '11111111-1111-1111-1111-111111111111';
@@ -59,6 +64,20 @@ beforeEach(() => {
   mockParams = { student: STUDENT_ID };
   mockList = { data: { workouts }, isLoading: false, isError: false };
   mockAssignState = { mutate: mockAssign, isPending: false };
+  mockStudents = {
+    data: {
+      students: [
+        {
+          id: STUDENT_ID,
+          email: 'maria@exemplo.com',
+          full_name: 'Maria Silva',
+          birth_date: null,
+          professional_role: 'personal',
+          linked_at: '2026-06-01T12:00:00.000Z',
+        },
+      ],
+    },
+  };
 });
 
 describe('AtribuirTreinoScreen', () => {
@@ -66,6 +85,11 @@ describe('AtribuirTreinoScreen', () => {
     render(<AtribuirTreinoScreen />);
     expect(screen.getByText('Treino A')).toBeTruthy();
     expect(screen.getByText('Treino B')).toBeTruthy();
+  });
+
+  it('mostra o aluno-alvo (nome do cache) no topo', () => {
+    render(<AtribuirTreinoScreen />);
+    expect(screen.getByText('Maria Silva')).toBeTruthy();
   });
 
   it('"Atribuir" começa desabilitado (sem template e sem dias)', () => {

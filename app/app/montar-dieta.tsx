@@ -9,7 +9,7 @@
 // Ler o detalhe usa parseDietBody (fallback tolerante p/ templates antigos).
 
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -20,7 +20,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input, ListState } from '@/components/ui';
+import { AppText, Button, Input, ListState, Tag } from '@/components/ui';
 import { WizardProgress } from '@/components/molecules';
 import { MealEditRow, MealFormSheet, type MealFormValue } from '@/components/diet';
 import { useDietTemplateDetail } from '@/hooks/useDietTemplateDetail';
@@ -40,12 +40,72 @@ type Step = 1 | 2 | 3;
 function toMeals(drafts: DraftMeal[]): Meal[] {
   return drafts.map((d) => ({
     name: d.name,
+    ...(d.time === undefined ? {} : { time: d.time }),
     ...(d.foods === undefined ? {} : { foods: d.foods }),
     ...(d.kcal === undefined ? {} : { kcal: d.kcal }),
     ...(d.protein === undefined ? {} : { protein: d.protein }),
     ...(d.carbs === undefined ? {} : { carbs: d.carbs }),
     ...(d.fat === undefined ? {} : { fat: d.fat }),
   }));
+}
+
+// Metas diárias do dia (texto livre numérico). Estado local em string; viram
+// number no body só quando preenchidas (>=0). Espelha DietBody.target_*/water.
+type DayTargets = {
+  kcal: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+  water: string;
+};
+
+const EMPTY_TARGETS: DayTargets = {
+  kcal: '',
+  protein: '',
+  carbs: '',
+  fat: '',
+  water: '',
+};
+
+// Aceita só dígitos; devolve int ou undefined se vazio.
+function targetToNumber(raw: string): number | undefined {
+  const digits = raw.replace(/[^0-9]/g, '');
+  if (digits === '') return undefined;
+  return Number.parseInt(digits, 10);
+}
+
+// Converte número opcional do body em string de campo (vazio quando ausente).
+function numToTargetField(n: number | undefined): string {
+  return n === undefined ? '' : String(n);
+}
+
+// Campo numérico compacto para as metas do dia (grid de dois). Mono, placeholder
+// discreto. Sem validação dura: vazio = meta ausente.
+function TargetField({
+  label,
+  value,
+  onChangeText,
+}: {
+  label: string;
+  value: string;
+  onChangeText: (t: string) => void;
+}) {
+  return (
+    <View style={styles.targetCol}>
+      <AppText variant="eyebrow" color="tertiary">
+        {label}
+      </AppText>
+      <TextInput
+        style={styles.targetInput}
+        value={value}
+        onChangeText={onChangeText}
+        keyboardType="number-pad"
+        placeholder="—"
+        placeholderTextColor={colors.textTertiary}
+        accessibilityLabel={label}
+      />
+    </View>
+  );
 }
 
 export default function MontarDietaScreen() {
@@ -60,6 +120,8 @@ export default function MontarDietaScreen() {
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
   const [meals, setMeals] = useState<DraftMeal[]>([]);
+  // Metas do dia (opcionais): kcal/proteína/carbo/gordura + água (mL).
+  const [targets, setTargets] = useState<DayTargets>(EMPTY_TARGETS);
   // Ao editar, abre direto no passo 2 (lista editável).
   const [step, setStep] = useState<Step>(isEditing ? 2 : 1);
   const [nameError, setNameError] = useState<string | undefined>(undefined);
@@ -80,6 +142,7 @@ export default function MontarDietaScreen() {
     setMeals(
       parsed.meals.map((m) => ({
         name: m.name,
+        time: m.time,
         foods: m.foods,
         kcal: m.kcal,
         protein: m.protein,
@@ -87,6 +150,13 @@ export default function MontarDietaScreen() {
         fat: m.fat,
       })),
     );
+    setTargets({
+      kcal: numToTargetField(parsed.target_kcal),
+      protein: numToTargetField(parsed.target_protein),
+      carbs: numToTargetField(parsed.target_carbs),
+      fat: numToTargetField(parsed.target_fat),
+      water: numToTargetField(parsed.water),
+    });
     setHydrated(true);
   }, [isEditing, hydrated, detail.data]);
 
@@ -106,6 +176,22 @@ export default function MontarDietaScreen() {
     if (isEditing) return 'Editar dieta';
     return `Passo ${step} de 3`;
   }, [isEditing, step]);
+
+  // Chips de metas para o sumário (passo 3) — só as preenchidas.
+  const targetChips = useMemo(() => {
+    const out: { key: string; label: string }[] = [];
+    const kcal = targetToNumber(targets.kcal);
+    const protein = targetToNumber(targets.protein);
+    const carbs = targetToNumber(targets.carbs);
+    const fat = targetToNumber(targets.fat);
+    const water = targetToNumber(targets.water);
+    if (kcal !== undefined) out.push({ key: 'kcal', label: `${kcal} kcal` });
+    if (protein !== undefined) out.push({ key: 'protein', label: `P ${protein}g` });
+    if (carbs !== undefined) out.push({ key: 'carbs', label: `C ${carbs}g` });
+    if (fat !== undefined) out.push({ key: 'fat', label: `G ${fat}g` });
+    if (water !== undefined) out.push({ key: 'water', label: `${water} mL água` });
+    return out;
+  }, [targets]);
 
   function handleBack() {
     if (router.canGoBack()) {
@@ -179,8 +265,18 @@ export default function MontarDietaScreen() {
     }
 
     const trimmedNotes = notes.trim();
+    const targetKcal = targetToNumber(targets.kcal);
+    const targetProtein = targetToNumber(targets.protein);
+    const targetCarbs = targetToNumber(targets.carbs);
+    const targetFat = targetToNumber(targets.fat);
+    const water = targetToNumber(targets.water);
     const body = {
       meals: toMeals(meals),
+      ...(targetKcal === undefined ? {} : { target_kcal: targetKcal }),
+      ...(targetProtein === undefined ? {} : { target_protein: targetProtein }),
+      ...(targetCarbs === undefined ? {} : { target_carbs: targetCarbs }),
+      ...(targetFat === undefined ? {} : { target_fat: targetFat }),
+      ...(water === undefined ? {} : { water }),
       ...(trimmedNotes === '' ? {} : { notes: trimmedNotes }),
     };
 
@@ -283,6 +379,46 @@ export default function MontarDietaScreen() {
                   autoCapitalize="sentences"
                   multiline
                 />
+
+                {/* Metas do dia (opcionais) — gravadas no body da dieta. */}
+                <View style={styles.targets}>
+                  <AppText variant="eyebrow" color="tertiary">
+                    Metas do dia · opcional
+                  </AppText>
+                  <View style={styles.targetRow}>
+                    <TargetField
+                      label="Kcal"
+                      value={targets.kcal}
+                      onChangeText={(t) => setTargets((p) => ({ ...p, kcal: t }))}
+                    />
+                    <TargetField
+                      label="Proteína (g)"
+                      value={targets.protein}
+                      onChangeText={(t) => setTargets((p) => ({ ...p, protein: t }))}
+                    />
+                  </View>
+                  <View style={styles.targetRow}>
+                    <TargetField
+                      label="Carbo (g)"
+                      value={targets.carbs}
+                      onChangeText={(t) => setTargets((p) => ({ ...p, carbs: t }))}
+                    />
+                    <TargetField
+                      label="Gordura (g)"
+                      value={targets.fat}
+                      onChangeText={(t) => setTargets((p) => ({ ...p, fat: t }))}
+                    />
+                  </View>
+                  <View style={styles.targetRow}>
+                    <TargetField
+                      label="Água (mL)"
+                      value={targets.water}
+                      onChangeText={(t) => setTargets((p) => ({ ...p, water: t }))}
+                    />
+                    {/* coluna fantasma para manter o grid de 2 alinhado */}
+                    <View style={styles.targetCol} />
+                  </View>
+                </View>
               </View>
             ) : null}
 
@@ -304,6 +440,7 @@ export default function MontarDietaScreen() {
                     <MealEditRow
                       key={`${m.name}-${i}`}
                       name={m.name}
+                      time={m.time}
                       kcal={m.kcal}
                       protein={m.protein}
                       carbs={m.carbs}
@@ -352,7 +489,9 @@ export default function MontarDietaScreen() {
                 {meals.map((m, i) => (
                   <View key={`${m.name}-${i}`} style={styles.reviewRow}>
                     <AppText variant="metaSmall" color="tertiary">
-                      {String(i + 1).padStart(2, '0')}
+                      {m.time && m.time.trim() !== ''
+                        ? m.time
+                        : String(i + 1).padStart(2, '0')}
                     </AppText>
                     <AppText variant="bodyMd" style={styles.reviewName} numberOfLines={1}>
                       {m.name}
@@ -364,6 +503,19 @@ export default function MontarDietaScreen() {
                     ) : null}
                   </View>
                 ))}
+
+                {targetChips.length > 0 ? (
+                  <View style={styles.reviewHead}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Metas do dia
+                    </AppText>
+                    <View style={styles.metaChips}>
+                      {targetChips.map((c) => (
+                        <Tag key={c.key} label={c.label} tone="neutral" />
+                      ))}
+                    </View>
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </ScrollView>
@@ -488,6 +640,34 @@ const styles = StyleSheet.create((theme) => ({
   },
   reviewHead: {
     gap: theme.spacing.xs,
+  },
+  targets: {
+    gap: theme.spacing.md,
+  },
+  targetRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  targetCol: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  targetInput: {
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.input,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    fontFamily: theme.fontFamily.mono,
+    fontSize: theme.typeScale.dataMed,
+    color: theme.colors.textPrimary,
+  },
+  metaChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
   },
   reviewRow: {
     flexDirection: 'row',

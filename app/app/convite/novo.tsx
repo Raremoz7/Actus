@@ -41,6 +41,14 @@ function usesLabel(uses: number): string {
   return uses === 1 ? '1 uso' : `${uses} usos`;
 }
 
+// Microcopy contextual conforme o limite de usos: 1 = convite pessoal;
+// vários = link de turma (vários alunos com o mesmo código).
+function usesHint(uses: number): string {
+  return uses === 1
+    ? '1 uso · convite pessoal, vincula um aluno.'
+    : `${uses} usos · link de turma, vincula até ${uses} alunos.`;
+}
+
 // Chip selecionável (validade / usos). Estilo distinto quando ativo.
 function Chip({
   label,
@@ -150,8 +158,9 @@ export default function NovoConviteScreen() {
             // --- Vista COMPARTILHAR (Direção A) ---
             <View style={styles.body}>
               <AppText variant="bodySm" color="tertiary" style={styles.intro}>
-                Compartilhe o código abaixo. Ele abre o cadastro já vinculado a
-                você.
+                {maxUses === 1
+                  ? 'Convite pessoal. Compartilhe o código abaixo — ele abre o cadastro já vinculado a você e vale para um aluno.'
+                  : `Link de turma. Compartilhe o código abaixo — ele abre o cadastro já vinculado a você e vale para até ${maxUses} alunos.`}
               </AppText>
 
               <View style={styles.codeCard}>
@@ -220,6 +229,9 @@ export default function NovoConviteScreen() {
                     />
                   ))}
                 </View>
+                <AppText variant="bodySm" color="tertiary">
+                  {usesHint(maxUses)}
+                </AppText>
               </View>
 
               <View style={styles.footer}>

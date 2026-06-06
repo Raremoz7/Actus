@@ -13,25 +13,68 @@ type Props = {
   activeDays: number;
   streak: number;
   isMe: boolean;
+  // Melhor sequência DENTRO do desafio — exibida como recorde na própria linha.
+  streakBest?: number;
+  // Última atividade no intervalo (YYYY-MM-DD) → rótulo relativo ('hoje'/'há 3 dias').
+  lastActivityDate?: string | null;
+  // Hoje LOCAL (YYYY-MM-DD) — a tela passa para evitar new Date() por linha.
+  today?: string;
 };
+
+// Converte 'YYYY-MM-DD' em número ordinal de dias (UTC puro só p/ contar, não exibir).
+function dayNumber(dateOnly: string): number {
+  const [y, m, d] = dateOnly.split('-').map(Number);
+  return Math.floor(Date.UTC(y!, m! - 1, d!) / 86_400_000);
+}
+
+// Rótulo relativo curto da última atividade ('ativo hoje' / 'ontem' / 'há N dias').
+function lastActivityLabel(lastActivityDate: string, today: string): string | null {
+  const diff = dayNumber(today) - dayNumber(lastActivityDate);
+  if (diff < 0) return null;
+  if (diff === 0) return 'ativo hoje';
+  if (diff === 1) return 'ativo ontem';
+  return `há ${diff} dias`;
+}
 
 // O ranking é ordenado por streak (sequência dentro do desafio) e desempata por
 // dias ativos. Por isso o número em destaque é o STREAK (com chama); os dias
-// ativos aparecem como métrica secundária.
-export function RankingRow({ position, name, activeDays, streak, isMe }: Props) {
+// ativos aparecem como métrica secundária. Para a própria linha (isMe) mostramos
+// também recorde de sequência e última atividade.
+export function RankingRow({
+  position,
+  name,
+  activeDays,
+  streak,
+  isMe,
+  streakBest,
+  lastActivityDate,
+  today,
+}: Props) {
+  const recordLabel =
+    isMe && streakBest != null && streakBest > 0 ? `recorde: ${streakBest} dias` : null;
+  const activityLabel =
+    isMe && lastActivityDate && today ? lastActivityLabel(lastActivityDate, today) : null;
+  const subline = [recordLabel, activityLabel].filter(Boolean).join(' · ');
+
   return (
     <View style={[styles.row, isMe && styles.rowMe]}>
       <AppText variant="dataMed" color={isMe ? 'neon' : 'secondary'} style={styles.position}>
         {String(position)}
       </AppText>
-      <AppText
-        variant="bodyMd"
-        color={isMe ? 'neon' : 'primary'}
-        numberOfLines={1}
-        style={styles.name}
-      >
-        {isMe ? 'Você' : name}
-      </AppText>
+      <View style={styles.identity}>
+        <AppText
+          variant="bodyMd"
+          color={isMe ? 'neon' : 'primary'}
+          numberOfLines={1}
+        >
+          {isMe ? 'Você' : name}
+        </AppText>
+        {subline ? (
+          <AppText variant="metaSmall" color="tertiary" numberOfLines={1}>
+            {subline}
+          </AppText>
+        ) : null}
+      </View>
       <View style={styles.metrics}>
         <View style={styles.streak}>
           <Flame size={15} weight="duotone" color={isMe ? colors.neon : colors.secondary} />
@@ -65,7 +108,7 @@ const styles = StyleSheet.create((theme) => ({
   position: {
     minWidth: 28,
   },
-  name: {
+  identity: {
     flex: 1,
   },
   metrics: {

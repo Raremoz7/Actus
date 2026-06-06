@@ -22,13 +22,26 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { CaretLeft, Eye, EyeSlash, UsersThree } from 'phosphor-react-native';
+import {
+  CaretLeft,
+  Eye,
+  EyeSlash,
+  UsersThree,
+  Warning,
+} from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Tag, type TagTone } from '@/components/ui';
 import { RankingRow, AddParticipantsSheet } from '@/components/challenges';
+import { ChallengeReportKpis } from '@/components/challenges/ChallengeReportKpis';
+import { ChallengeTimingHero } from '@/components/challenges/ChallengeTimingHero';
+import {
+  deriveChallengeTiming,
+  invitedAgoLabel,
+} from '@/components/challenges/challengeProgress';
 import { useProChallengeDetail } from '@/hooks/useProChallengeDetail';
 import { useProChallengeRanking } from '@/hooks/useProChallengeRanking';
+import { useProChallengeReport } from '@/hooks/useProChallengeReport';
 import { useChallengeMutations } from '@/hooks/useChallengeMutations';
 import { useStudents } from '@/hooks/useStudents';
 import type {
@@ -82,6 +95,7 @@ export default function DesafioProScreen() {
 
   const detail = useProChallengeDetail(challengeId);
   const ranking = useProChallengeRanking(challengeId);
+  const report = useProChallengeReport(challengeId);
   const students = useStudents();
   const { update, addParticipants } = useChallengeMutations();
 
@@ -118,6 +132,18 @@ export default function DesafioProScreen() {
   }, [students.data, existingIds]);
 
   const rankingRows = ranking.data?.ranking ?? [];
+
+  // Quem quebrou a sequência (gancho de retenção): vem por participante no
+  // relatório (streak_broken_hint). Indexado por student_id para realçar a linha.
+  const brokenStreakIds = useMemo(
+    () =>
+      new Set(
+        (report.data?.participants ?? [])
+          .filter((p) => p.streak_broken_hint)
+          .map((p) => p.student_id),
+      ),
+    [report.data],
+  );
 
   function handleBack() {
     if (router.canGoBack()) {
@@ -199,6 +225,11 @@ export default function DesafioProScreen() {
 
   const status = STATUS[challenge.status];
   const isPublic = challenge.visibility === 'public_among_participants';
+  const timing = deriveChallengeTiming(
+    challenge.starts_on,
+    challenge.ends_on,
+    challenge.status,
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -210,6 +241,12 @@ export default function DesafioProScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          {/* KPI temporal herói: Dia X de Y · Começa em N dias · Encerrado */}
+          <ChallengeTimingHero timing={timing} />
+
+          {/* KPIs do relatório: aderência média, dias ativos, participação */}
+          {report.data ? <ChallengeReportKpis report={report.data} /> : null}
+
           {/* Info: período + visibilidade */}
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
@@ -287,23 +324,56 @@ export default function DesafioProScreen() {
               <View style={styles.participantList}>
                 {participants.map((p) => {
                   const ps = PARTICIPANT_STATUS[p.status];
+                  const brokeStreak = brokenStreakIds.has(p.student_id);
+                  // Subtítulo contextual: convidados → "convidado há N dias";
+                  // ativos que quebraram a sequência → gancho de retenção.
+                  const subtitle =
+                    p.status === 'invited'
+                      ? invitedAgoLabel(p.invited_at)
+                      : brokeStreak
+                        ? 'Quebrou a sequência'
+                        : null;
                   return (
-                    <View key={p.student_id} style={styles.participantRow}>
+                    <View
+                      key={p.student_id}
+                      style={[
+                        styles.participantRow,
+                        brokeStreak && styles.participantRowAlert,
+                      ]}
+                    >
                       <View style={styles.participantAvatar}>
-                        <UsersThree
-                          size={18}
-                          weight="duotone"
-                          color={colors.neon}
-                        />
+                        {brokeStreak ? (
+                          <Warning
+                            size={18}
+                            weight="duotone"
+                            color={colors.warning}
+                          />
+                        ) : (
+                          <UsersThree
+                            size={18}
+                            weight="duotone"
+                            color={colors.neon}
+                          />
+                        )}
                       </View>
-                      <AppText
-                        variant="bodyMd"
-                        color="primary"
-                        numberOfLines={1}
-                        style={styles.participantName}
-                      >
-                        {p.display_name ?? 'Aluno'}
-                      </AppText>
+                      <View style={styles.participantText}>
+                        <AppText
+                          variant="bodyMd"
+                          color="primary"
+                          numberOfLines={1}
+                        >
+                          {p.display_name ?? 'Aluno'}
+                        </AppText>
+                        {subtitle ? (
+                          <AppText
+                            variant="metaSmall"
+                            color={brokeStreak ? 'error' : 'tertiary'}
+                            numberOfLines={1}
+                          >
+                            {subtitle}
+                          </AppText>
+                        ) : null}
+                      </View>
                       <Tag label={ps.label} tone={ps.tone} />
                     </View>
                   );
@@ -486,6 +556,10 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
   },
+  // Realce discreto de quem quebrou a sequência (borda âmbar).
+  participantRowAlert: {
+    borderColor: theme.colors.warning,
+  },
   participantAvatar: {
     width: 36,
     height: 36,
@@ -494,8 +568,9 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  participantName: {
+  participantText: {
     flex: 1,
+    gap: 2,
   },
   rankingList: {
     gap: theme.spacing.xs,

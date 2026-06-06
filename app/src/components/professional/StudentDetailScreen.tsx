@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { CaretLeft, User } from 'phosphor-react-native';
+import { Barbell, CaretLeft, HandTap, Info } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, KpiNumber } from '@/components/ui';
@@ -15,18 +15,34 @@ import { useStudents } from '@/hooks/useStudents';
 import { useStudentCheckIns } from '@/hooks/useStudentCheckIns';
 import { useMe } from '@/hooks/useMe';
 import { calcAge, formatCheckInDate } from '@/lib/student';
-import type { Student } from '@/types/professional';
+import type { CheckIn, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
+import { studentInitials } from './StudentRow';
+import { CheckInHeatmap } from './CheckInHeatmap';
+import {
+  activeDaysInWindow,
+  buildHeatmap,
+  daysSinceLastCheckIn,
+  isWorkoutCheckIn,
+  lastCheckInLabel,
+  linkedSinceLabel,
+} from './studentPulse';
 
 const { colors, motion } = darkTheme;
 
-// Quantos check-ins recentes listar (a KPI mostra o total real).
-const RECENT_LIMIT = 6;
+// Quantos check-ins listar na timeline (a KPI mostra o total real).
+const RECENT_LIMIT = 8;
 
 // Nome exibido: full_name quando há, senão o e-mail (mesmo critério da lista).
 function displayName(student: Student): string {
   const name = student.full_name?.trim();
   return name && name.length > 0 ? name : student.email;
+}
+
+// Ordena check-ins por data desc (mais recente primeiro) sem depender da ordem da API.
+function byDateDesc(a: CheckIn, b: CheckIn): number {
+  if (a.check_in_date === b.check_in_date) return 0;
+  return a.check_in_date < b.check_in_date ? 1 : -1;
 }
 
 type Props = {
@@ -55,28 +71,47 @@ export function StudentDetailScreen({ id }: Props) {
     [list.data, id],
   );
 
+  // "Agora" estável por render — base do "há N dias" e da mini-trilha.
+  const now = useMemo(() => new Date(), []);
+
   const age = useMemo(() => {
     if (!student?.birth_date) return null;
-    return calcAge(student.birth_date, new Date());
-  }, [student]);
+    return calcAge(student.birth_date, now);
+  }, [student, now]);
 
-  const checkInList = checkIns.data?.check_ins ?? [];
-  const recent = checkInList.slice(0, RECENT_LIMIT);
+  const checkInList = useMemo(
+    () => checkIns.data?.check_ins ?? [],
+    [checkIns.data],
+  );
+
+  // Métricas de aderência (memo sobre a lista bruta).
+  const sinceLast = useMemo(() => daysSinceLastCheckIn(checkInList, now), [checkInList, now]);
+  const heatmap = useMemo(() => buildHeatmap(checkInList, now), [checkInList, now]);
+  const activeDays = useMemo(() => activeDaysInWindow(heatmap), [heatmap]);
+
+  const recent = useMemo(
+    () => [...checkInList].sort(byDateDesc).slice(0, RECENT_LIMIT),
+    [checkInList],
+  );
 
   const role = me.data?.tipo;
+  const sinceLabel = student ? linkedSinceLabel(student.linked_at) : null;
 
-  function handleAssign() {
+  function goAssignWorkout() {
     if (!id) return;
-    if (role === 'personal') {
-      // Atribui um TEMPLATE existente ao aluno (escolhe treino + dias da semana).
-      router.push(('/atribuir-treino?student=' + id) as Href);
-    } else if (role === 'nutricionista') {
-      // Atribui um TEMPLATE existente ao aluno (escolhe a dieta).
-      router.push(('/atribuir-dieta?student=' + id) as Href);
-    }
+    router.push(('/atribuir-treino?student=' + id) as Href);
+  }
+
+  function goAssignDiet() {
+    if (!id) return;
+    router.push(('/atribuir-dieta?student=' + id) as Href);
   }
 
   const name = student ? displayName(student) : null;
+
+  // Rótulo do programa segundo o papel — a copy é honesta: não há GET de
+  // atribuições do lado pro, então sinalizamos onde o programa aparece.
+  const programLabel = role === 'nutricionista' ? 'dieta' : 'treino';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -104,7 +139,9 @@ export function StudentDetailScreen({ id }: Props) {
             <>
               <View style={styles.identity}>
                 <View style={styles.avatar}>
-                  <User size={28} weight="duotone" color={colors.neon} />
+                  <AppText variant="h3" color="neon">
+                    {studentInitials(name ?? '')}
+                  </AppText>
                 </View>
                 <View style={styles.identityText}>
                   <AppText variant="h2" numberOfLines={2} uppercase={false}>
@@ -113,19 +150,53 @@ export function StudentDetailScreen({ id }: Props) {
                   <AppText variant="metaSmall" color="tertiary" numberOfLines={1}>
                     {student.email}
                   </AppText>
-                  {age !== null ? (
-                    <AppText variant="bodySm" color="secondary">
-                      {age} anos
-                    </AppText>
-                  ) : null}
+                  <View style={styles.identityMeta}>
+                    {age !== null ? (
+                      <AppText variant="bodySm" color="secondary">
+                        {age} anos
+                      </AppText>
+                    ) : null}
+                    {age !== null && sinceLabel ? (
+                      <AppText variant="bodySm" color="tertiary">
+                        ·
+                      </AppText>
+                    ) : null}
+                    {sinceLabel ? (
+                      <AppText variant="bodySm" color="tertiary">
+                        {sinceLabel}
+                      </AppText>
+                    ) : null}
+                  </View>
                 </View>
               </View>
 
-              <View style={styles.kpiCard}>
-                <AppText variant="eyebrow" color="tertiary">
-                  Check-ins
+              {/* Bloco de aderência: total + recência + mini-trilha de 4 semanas. */}
+              <View style={styles.adherenceCard}>
+                <View style={styles.adherenceTop}>
+                  <View style={styles.adherenceKpi}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Check-ins
+                    </AppText>
+                    <KpiNumber value={checkInList.length} size="big" />
+                  </View>
+                  <View style={styles.adherenceKpi}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Ativos · 4 sem
+                    </AppText>
+                    <KpiNumber value={activeDays} size="big" />
+                  </View>
+                </View>
+
+                <AppText
+                  variant="dataMed"
+                  color={sinceLast !== null && sinceLast <= 1 ? 'neon' : 'secondary'}
+                >
+                  {lastCheckInLabel(sinceLast)}
                 </AppText>
-                <KpiNumber value={checkInList.length} size="big" />
+
+                {checkIns.isError ? null : (
+                  <CheckInHeatmap cells={heatmap} />
+                )}
               </View>
 
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
@@ -137,15 +208,28 @@ export function StudentDetailScreen({ id }: Props) {
                   Não foi possível carregar a atividade.
                 </AppText>
               ) : recent.length > 0 ? (
-                <View style={styles.checkInList}>
-                  {recent.map((c, i) => (
-                    <View key={`${c.check_in_date}-${i}`} style={styles.checkInRow}>
-                      <View style={styles.dot} />
-                      <AppText variant="dataMed" color="primary">
-                        {formatCheckInDate(c.check_in_date)}
-                      </AppText>
-                    </View>
-                  ))}
+                <View style={styles.timeline}>
+                  {recent.map((c, i) => {
+                    const fromWorkout = isWorkoutCheckIn(c);
+                    return (
+                      <View key={`${c.check_in_date}-${i}`} style={styles.timelineRow}>
+                        <View style={styles.timelineIcon}>
+                          {fromWorkout ? (
+                            <Barbell size={16} weight="duotone" color={colors.neon} />
+                          ) : (
+                            <HandTap size={16} weight="duotone" color={colors.textSecondary} />
+                          )}
+                        </View>
+                        <AppText variant="dataMed" color="primary">
+                          {formatCheckInDate(c.check_in_date)}
+                        </AppText>
+                        <View style={styles.timelineSpacer} />
+                        <AppText variant="metaSmall" color="tertiary">
+                          {fromWorkout ? 'Treino' : 'Manual'}
+                        </AppText>
+                      </View>
+                    );
+                  })}
                 </View>
               ) : checkIns.isLoading ? (
                 <AppText variant="bodySm" color="tertiary">
@@ -156,6 +240,19 @@ export function StudentDetailScreen({ id }: Props) {
                   Sem check-ins ainda.
                 </AppText>
               )}
+
+              {/* Programa atual: sem GET de atribuições do lado pro, sinalizamos
+                  honestamente onde o programa aparece (para o aluno). */}
+              <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
+                Programa atual
+              </AppText>
+              <View style={styles.programCard}>
+                <Info size={18} weight="duotone" color={colors.textTertiary} />
+                <AppText variant="bodySm" color="secondary" style={styles.programText}>
+                  {`O ${programLabel} atribuído aparece para o aluno no app dele. `}
+                  {`Use o botão abaixo para enviar ou trocar o ${programLabel}.`}
+                </AppText>
+              </View>
             </>
           ) : list.isLoading ? (
             <AppText variant="bodySm" color="tertiary">
@@ -172,13 +269,13 @@ export function StudentDetailScreen({ id }: Props) {
 
       {student && role === 'personal' ? (
         <View style={styles.ctaBar}>
-          <Button label="Atribuir treino" onPress={handleAssign} />
+          <Button label="Atribuir treino" onPress={goAssignWorkout} />
         </View>
       ) : null}
 
       {student && role === 'nutricionista' ? (
         <View style={styles.ctaBar}>
-          <Button label="Atribuir dieta" onPress={handleAssign} />
+          <Button label="Atribuir dieta" onPress={goAssignDiet} />
         </View>
       ) : null}
     </SafeAreaView>
@@ -222,26 +319,53 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     gap: theme.spacing.xs,
   },
-  kpiCard: {
+  identityMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  adherenceCard: {
     backgroundColor: theme.colors.surface1,
     borderRadius: theme.radius.card,
     padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
+  },
+  adherenceTop: {
+    flexDirection: 'row',
+    gap: theme.spacing.xl,
+  },
+  adherenceKpi: {
     gap: theme.spacing.sm,
   },
   secLabel: { marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
-  checkInList: {
+  timeline: {
     gap: theme.spacing.md,
   },
-  checkInRow: {
+  timelineRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
   },
-  dot: {
-    width: 6,
-    height: 6,
+  timelineIcon: {
+    width: 28,
+    height: 28,
     borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.neon,
+    backgroundColor: theme.colors.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timelineSpacer: {
+    flex: 1,
+  },
+  programCard: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    backgroundColor: theme.colors.surface1,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.lg,
+  },
+  programText: {
+    flex: 1,
   },
   ctaBar: {
     position: 'absolute',

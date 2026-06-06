@@ -1,18 +1,19 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
-import { RankingRow } from '@/components/challenges';
+import { AppText, ListState } from '@/components/ui';
+import { MyPositionCard, RankingRow } from '@/components/challenges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeRanking } from '@/hooks/useChallengeRanking';
 import { useMe } from '@/hooks/useMe';
-import { challengeDayProgress } from '@/lib/challenge';
+import { challengeDayProgress, challengeStatusLabel } from '@/lib/challenge';
 import { formatDateLocal, shortDateBr } from '@/lib/format';
+import { isApiError } from '@/api/errors';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -21,6 +22,15 @@ const { motion, colors } = darkTheme;
 function progressRatio(day: number, total: number): number {
   if (total <= 0) return 0;
   return Math.min(1, Math.max(0, day / total));
+}
+
+// Ranking 403 por visibilidade/participação → privado (não é erro real).
+// O backend responde 403 com error 'ranking_private' / 'forbidden_not_participant'
+// (a branch real vem no body.error; o status reforça). Qualquer outro = erro real.
+function isPrivateRankingError(error: unknown): boolean {
+  if (!isApiError(error)) return false;
+  if (error.httpStatus === 403) return true;
+  return error.code === 'ranking_private' || error.code === 'forbidden_not_participant';
 }
 
 export default function DesafioDetailScreen() {
@@ -49,8 +59,27 @@ export default function DesafioDetailScreen() {
     ? challengeDayProgress(challenge.starts_on, challenge.ends_on, today)
     : { day: 0, total: 1 };
   const ratio = progressRatio(dayProgress.day, dayProgress.total);
+  const statusLabel = challenge
+    ? challengeStatusLabel(challenge.status, item?.participant_status ?? 'active')
+    : 'Desafio';
 
   const rows = ranking.data?.ranking ?? [];
+  const myId = me.data?.id;
+  const myRow = rows.find((r) => r.student_id === myId);
+  const isPrivate = isPrivateRankingError(ranking.error);
+  // Erro real = falhou e NÃO é o caso de ranking privado.
+  const isRealRankingError = ranking.isError && !isPrivate;
+
+  // Standing do próprio aluno para o bloco "Sua posição" (só com dado público).
+  const myStanding = myRow
+    ? {
+        position: myRow.position,
+        streakCurrent: myRow.streak_current_in_challenge,
+        activeDays: myRow.active_days,
+        streakBest: myRow.streak_best_in_challenge,
+        lastActivityDate: myRow.last_activity_date,
+      }
+    : null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -76,8 +105,8 @@ export default function DesafioDetailScreen() {
               <View style={styles.hero}>
                 <View style={styles.heroHead}>
                   <Trophy size={16} weight="duotone" color={colors.neon} />
-                  <AppText variant="eyebrow" color="tertiary">
-                    Desafio
+                  <AppText variant="eyebrow" color="neon">
+                    {statusLabel}
                   </AppText>
                 </View>
                 <AppText variant="h1" style={styles.heroTitle}>
@@ -97,21 +126,42 @@ export default function DesafioDetailScreen() {
                 </View>
               </View>
 
+              {/* Bloco ancorado "Sua posição" — entre hero e lista. */}
+              {ranking.isLoading ? null : (
+                <View style={styles.standing}>
+                  <MyPositionCard
+                    standing={myStanding}
+                    isPrivate={isPrivate}
+                    today={today}
+                  />
+                </View>
+              )}
+
+              <AppText variant="metaSmall" color="tertiary" style={styles.rule}>
+                Pontua por dia com treino; ordena por sequência.
+              </AppText>
+
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Ranking
               </AppText>
 
               {ranking.isLoading ? (
-                <View style={styles.center}>
-                  <ActivityIndicator size="small" color={colors.textTertiary} />
-                </View>
-              ) : ranking.isError ? (
+                <ListState kind="loading" skeletonCount={4} />
+              ) : isPrivate ? (
                 <AppText variant="bodySm" color="tertiary">
-                  Ranking indisponível para este desafio.
+                  O ranking deste desafio é privado. Seu progresso aparece acima.
                 </AppText>
+              ) : isRealRankingError ? (
+                <ListState
+                  kind="error"
+                  title="Ranking indisponível"
+                  message="Não foi possível carregar agora. Tente de novo."
+                  actionLabel="Tentar de novo"
+                  onAction={() => void ranking.refetch()}
+                />
               ) : rows.length === 0 ? (
                 <AppText variant="bodySm" color="tertiary">
-                  Ninguém no ranking ainda.
+                  Ninguém no ranking ainda. Seja o primeiro a treinar.
                 </AppText>
               ) : (
                 rows.map((row) => (
@@ -121,19 +171,24 @@ export default function DesafioDetailScreen() {
                     name={row.display_name ?? 'Participante'}
                     activeDays={row.active_days}
                     streak={row.streak_current_in_challenge}
-                    isMe={row.student_id === me.data?.id}
+                    streakBest={row.streak_best_in_challenge}
+                    lastActivityDate={row.last_activity_date}
+                    today={today}
+                    isMe={row.student_id === myId}
                   />
                 ))
               )}
             </>
           ) : list.isLoading ? (
-            <View style={styles.center}>
-              <ActivityIndicator size="small" color={colors.textTertiary} />
-            </View>
+            <ListState kind="loading" skeletonCount={3} />
           ) : (
-            <AppText variant="bodySm" color="tertiary">
-              Não foi possível carregar o desafio.
-            </AppText>
+            <ListState
+              kind="error"
+              title="Desafio indisponível"
+              message="Não foi possível carregar este desafio."
+              actionLabel="Voltar"
+              onAction={() => router.back()}
+            />
           )}
         </ScrollView>
       </Animated.View>
@@ -182,6 +237,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.neon,
   },
+  standing: { marginTop: theme.spacing.lg },
+  rule: { marginTop: theme.spacing.lg },
   secLabel: { marginTop: theme.spacing.xl, marginBottom: theme.spacing.sm },
-  center: { paddingVertical: theme.spacing.xl, alignItems: 'center' },
 }));
