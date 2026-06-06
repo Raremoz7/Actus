@@ -101,7 +101,7 @@ export function ActusTabBar({ state, navigation, tabs }: ActusTabBarProps) {
           return (
             <Pressable
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={spec.label}
               onPress={() => handlePress(route.name, route.key, focused)}
