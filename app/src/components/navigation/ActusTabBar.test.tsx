@@ -32,6 +32,9 @@ describe('ActusTabBar', () => {
     const props = makeProps(0);
     render(<ActusTabBar {...(props as unknown as BottomTabBarProps)} tabs={TABS} />);
     fireEvent.press(screen.getByLabelText('TREINOS'));
+    expect(props.navigation.emit).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'tabPress', canPreventDefault: true }),
+    );
     expect(props.navigation.navigate).toHaveBeenCalledWith('treinos');
     expect(Haptics.selectionAsync).toHaveBeenCalled();
   });
