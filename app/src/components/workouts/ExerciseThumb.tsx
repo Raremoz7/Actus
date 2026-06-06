@@ -23,6 +23,7 @@ export function ExerciseThumb({ size = 60, muscleGroup, testID }: Props) {
     <View testID={testID} style={[styles.thumb, { width: size, height: size }]}>
       <Barbell size={Math.round(size * 0.42)} weight="duotone" color={colors.secondary} />
       <Image
+        accessible={false}
         source={{ uri }}
         resizeMode="cover"
         style={[styles.image, { width: size, height: size }]}
@@ -35,7 +36,7 @@ export function ExerciseThumb({ size = 60, muscleGroup, testID }: Props) {
 
 const styles = StyleSheet.create((theme) => ({
   thumb: {
-    borderRadius: 8,
+    borderRadius: theme.radius.thumb,
     backgroundColor: theme.colors.surface2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -45,13 +46,13 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    borderRadius: 8,
+    borderRadius: theme.radius.thumb,
   },
   veil: {
     position: 'absolute',
     top: 0,
     left: 0,
-    borderRadius: 8,
-    backgroundColor: 'rgba(16, 37, 45, 0.28)',
+    borderRadius: theme.radius.thumb,
+    backgroundColor: theme.colors.veil,
   },
 }));

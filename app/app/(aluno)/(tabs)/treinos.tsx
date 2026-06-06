@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
@@ -11,7 +11,7 @@ import { pickNextWorkout } from '@/lib/nextWorkout';
 import type { Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+const { motion, colors } = darkTheme;
 
 // weekday local ISO 1..7 (1=seg). getDay(): 0=dom..6=sab.
 function todayWeekday(): Weekday {
@@ -50,7 +50,19 @@ export default function AlunoTreinosScreen() {
   }
 
   return (
-    <Screen scroll padded>
+    <Screen edges={['top']}>
+      <Animated.ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={list.isRefetching}
+            onRefresh={() => void list.refetch()}
+            tintColor={colors.neon}
+            colors={[colors.neon]}
+          />
+        }
+      >
       <Animated.View style={revealStyle}>
         <AppText variant="eyebrow" color="tertiary">
           Seus treinos
@@ -98,11 +110,13 @@ export default function AlunoTreinosScreen() {
           </AppText>
         ) : null}
       </Animated.View>
+      </Animated.ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  scroll: { padding: theme.spacing.lg },
   title: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
   block: { marginTop: theme.spacing.lg },
   restLabel: { marginBottom: theme.spacing.sm },

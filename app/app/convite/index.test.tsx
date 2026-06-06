@@ -126,7 +126,7 @@ describe('ConvitesScreen', () => {
       isError: false,
     });
     render(<ConvitesScreen />);
-    expect(screen.getByText('Nenhum convite ainda.')).toBeTruthy();
+    expect(screen.getByText('Nenhum convite ainda')).toBeTruthy();
   });
 
   it('mostra estado de erro discreto', () => {
@@ -136,6 +136,7 @@ describe('ConvitesScreen', () => {
       isError: true,
     });
     render(<ConvitesScreen />);
-    expect(screen.getByText('Não foi possível carregar agora.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar')).toBeTruthy();
+    expect(screen.getByText('Tentar de novo')).toBeTruthy();
   });
 });

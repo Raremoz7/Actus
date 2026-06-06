@@ -8,17 +8,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router } from 'expo-router';
-import { WarningCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input, ScreenHero } from '@/components/ui';
+import { FormErrorBanner } from '@/components/molecules';
 import { LoginBodySchema, type LoginBody } from '@/types/auth';
 import { useLoginMutation } from '@/features/auth/hooks';
 import { authErrorMessage } from '@/features/auth/errors';
 import { isApiError } from '@/api/errors';
 import { darkTheme } from '@/theme';
 
-const { motion, colors } = darkTheme;
+const { motion } = darkTheme;
 
 // [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
 const LOGIN_PHOTO = {
@@ -35,18 +35,6 @@ function loginErrorMessage(err: unknown): string {
     return authErrorMessage(err.code);
   }
   return authErrorMessage('unknown');
-}
-
-// O banner de erro aparece SEM animação (sem shake, sem alarme) — borda error radius 4.
-function FormErrorBanner({ message }: { message: string }) {
-  return (
-    <View style={styles.banner} accessibilityRole="alert">
-      <WarningCircle size={18} weight="duotone" color={colors.error} />
-      <AppText variant="bodySm" color="onSurface" style={styles.bannerText}>
-        {message}
-      </AppText>
-    </View>
-  );
 }
 
 export default function LoginScreen() {
@@ -103,7 +91,11 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {apiErrorMessage ? <FormErrorBanner message={apiErrorMessage} /> : null}
+          {apiErrorMessage ? (
+            <View style={styles.banner}>
+              <FormErrorBanner message={apiErrorMessage} />
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <Controller
@@ -122,13 +114,8 @@ export default function LoginScreen() {
                   textContentType="emailAddress"
                   returnKeyType="next"
                   accessibilityLabel="E-mail"
-                  error={
-                    errors.email
-                      ? 'Informe um e-mail válido.'
-                      : fieldsHaveApiError
-                        ? ' '
-                        : undefined
-                  }
+                  error={errors.email ? 'Informe um e-mail válido.' : undefined}
+                  invalid={fieldsHaveApiError}
                 />
               )}
             />
@@ -149,13 +136,8 @@ export default function LoginScreen() {
                   returnKeyType="go"
                   onSubmitEditing={handleSubmit(onSubmit)}
                   accessibilityLabel="Senha"
-                  error={
-                    errors.password
-                      ? 'Informe sua senha.'
-                      : fieldsHaveApiError
-                        ? ' '
-                        : undefined
-                  }
+                  error={errors.password ? 'Informe sua senha.' : undefined}
+                  invalid={fieldsHaveApiError}
                 />
               )}
             />
@@ -206,18 +188,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.lg,
   },
   banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.error,
-    borderRadius: theme.radius.card,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md,
     marginBottom: theme.spacing.lg,
-  },
-  bannerText: {
-    flex: 1,
   },
   form: {
     gap: theme.spacing.lg,

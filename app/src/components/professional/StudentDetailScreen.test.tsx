@@ -106,7 +106,7 @@ describe('StudentDetailScreen', () => {
       isError: false,
     });
     render(<StudentDetailScreen id={STUDENT_ID} />);
-    expect(screen.getByText('Aluno não encontrado nesta sessão.')).toBeTruthy();
+    expect(screen.getByText('Abra este aluno pela sua lista de alunos.')).toBeTruthy();
     // Sem aluno → nenhuma ação de atribuição.
     expect(screen.queryByText('Atribuir treino')).toBeNull();
   });

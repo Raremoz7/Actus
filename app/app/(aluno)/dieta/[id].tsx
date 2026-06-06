@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -122,11 +122,15 @@ export default function DietaDetailScreen() {
                 </AppText>
               ) : null}
             </>
-          ) : detail.isError ? (
+          ) : detail.isLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="small" color={colors.textTertiary} />
+            </View>
+          ) : (
             <AppText variant="bodySm" color="tertiary">
               Não foi possível carregar a dieta.
             </AppText>
-          ) : null}
+          )}
         </ScrollView>
       </Animated.View>
     </SafeAreaView>
@@ -152,6 +156,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.xxl },
+  center: { paddingVertical: theme.spacing.xl, alignItems: 'center' },
   title: { fontSize: 32, lineHeight: 32 },
   meta: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.md },
   totband: {

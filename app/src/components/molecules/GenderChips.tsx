@@ -29,7 +29,11 @@ export function GenderChips({ value, onChange, label }: GenderChipsProps) {
         </AppText>
       ) : null}
 
-      <View style={styles.row}>
+      <View
+        style={styles.row}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={label ?? 'Gênero'}
+      >
         {OPTIONS.map((option) => {
           const active = value === option.value;
           styles.useVariants({ active });

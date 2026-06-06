@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,10 +12,11 @@ import {
   BellSimple,
   ShieldCheck,
   SignOut,
+  UserCircle,
 } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, KpiNumber } from '@/components/ui';
+import { Screen, AppText, KpiNumber, Tag, ListState } from '@/components/ui';
 import { useMe } from '@/hooks/useMe';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
 import { useLogoutMutation } from '@/features/auth/hooks';
@@ -48,24 +49,48 @@ function initialOf(name: string | null | undefined): string {
 type ActionRowProps = {
   icon: React.ReactNode;
   label: string;
-  onPress: () => void;
+  // onPress ausente → linha informativa (sem navegação): sem afordância de toque.
+  onPress?: () => void;
   danger?: boolean;
   last?: boolean;
+  disabled?: boolean;
+  // Eyebrow discreta à direita sinalizando indisponível nesta versão.
+  soon?: boolean;
 };
 
-function ActionRow({ icon, label, onPress, danger = false, last = false }: ActionRowProps) {
+function ActionRow({
+  icon,
+  label,
+  onPress,
+  danger = false,
+  last = false,
+  disabled = false,
+  soon = false,
+}: ActionRowProps) {
+  const interactive = !!onPress && !disabled;
+  // CaretRight só quando há navegação real (não em linha informativa nem em "Sair").
+  const showCaret = interactive && !danger && !soon;
+
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={interactive ? 'button' : 'text'}
       accessibilityLabel={label}
-      onPress={onPress}
-      style={[styles.row, last && styles.rowLast]}
+      accessibilityState={{ disabled }}
+      onPress={interactive ? onPress : undefined}
+      disabled={!interactive}
+      style={({ pressed }) => [
+        styles.row,
+        last && styles.rowLast,
+        interactive && pressed && styles.rowPressed,
+        disabled && styles.rowDisabled,
+      ]}
     >
       <View style={styles.rowIcon}>{icon}</View>
       <AppText variant="bodyMd" color={danger ? 'error' : 'primary'} style={styles.rowLabel}>
         {label}
       </AppText>
-      {!danger ? <CaretRight size={16} weight="bold" color={colors.textTertiary} /> : null}
+      {soon ? <Tag label="em breve" /> : null}
+      {showCaret ? <CaretRight size={16} weight="bold" color={colors.textTertiary} /> : null}
     </Pressable>
   );
 }
@@ -90,6 +115,40 @@ export function AccountScreen({ showStreak = false }: Props) {
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
   }));
+
+  function confirmLogout() {
+    Alert.alert('Sair da conta', 'Você precisará entrar de novo para continuar.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', style: 'destructive', onPress: () => logout.mutate() },
+    ]);
+  }
+
+  // Loading/erro antes do reveal: a identidade depende de /me e o streak de
+  // weekly-overview. Skeleton enquanto carrega; aviso discreto com retry se a
+  // busca do perfil falhar.
+  const isLoading = me.isLoading || (showStreak && week.isLoading);
+  if (isLoading) {
+    return (
+      <Screen scroll padded>
+        <ListState kind="loading" skeletonCount={3} />
+      </Screen>
+    );
+  }
+
+  if (me.isError) {
+    return (
+      <Screen scroll padded>
+        <ListState
+          kind="error"
+          icon={UserCircle}
+          title="Não foi possível carregar a conta"
+          message="Verifique a conexão e tente de novo."
+          actionLabel="Tentar de novo"
+          onAction={() => void me.refetch()}
+        />
+      </Screen>
+    );
+  }
 
   return (
     <Screen scroll padded>
@@ -142,24 +201,26 @@ export function AccountScreen({ showStreak = false }: Props) {
             label="Editar perfil"
             onPress={() => router.push('/editar-perfil' as Href)}
           />
+          {/* [MOCK — sem endpoint na API v1]: preferências de notificação ainda não existem.
+              Linha informativa (sem navegação morta) com eyebrow "em breve". */}
           <ActionRow
             icon={<BellSimple size={20} weight="duotone" color={colors.onSurface} />}
             label="Notificações"
-            // [MOCK — sem endpoint na API v1]: preferências de notificação ainda não existem.
-            onPress={() => {}}
+            soon
           />
+          {/* [MOCK — sem endpoint na API v1]: documento legal ainda não disponível no app. */}
           <ActionRow
             icon={<ShieldCheck size={20} weight="duotone" color={colors.onSurface} />}
             label="Termos & privacidade"
-            // [MOCK — sem endpoint na API v1]: documento legal ainda não disponível no app.
-            onPress={() => {}}
+            soon
           />
           <ActionRow
             icon={<SignOut size={20} weight="duotone" color={colors.error} />}
             label="Sair"
             danger
             last
-            onPress={() => logout.mutate()}
+            disabled={logout.isPending}
+            onPress={confirmLogout}
           />
         </View>
       </Animated.View>
@@ -224,6 +285,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   rowLast: {
     borderBottomWidth: 0,
+  },
+  rowPressed: {
+    backgroundColor: theme.colors.surface2,
+  },
+  rowDisabled: {
+    opacity: 0.5,
   },
   rowIcon: {
     width: 24,

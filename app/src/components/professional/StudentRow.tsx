@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { CaretRight } from 'phosphor-react-native';
+import { CaretRight, User } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
@@ -24,7 +24,7 @@ export function studentInitials(name: string): string {
   return (first + last).toUpperCase();
 }
 
-// Linha densa de aluno: avatar de iniciais + nome + e-mail mono + chevron.
+// Linha densa de aluno: avatar com ícone (User duotone) + nome + e-mail mono + chevron.
 // Sem ponto de status — a lista não traz atividade.
 export function StudentRow({ name, subtitle, onPress }: Props) {
   return (
@@ -35,9 +35,7 @@ export function StudentRow({ name, subtitle, onPress }: Props) {
       style={styles.row}
     >
       <View style={styles.avatar}>
-        <AppText variant="label" color="neon">
-          {studentInitials(name)}
-        </AppText>
+        <User size={22} weight="duotone" color={colors.neon} />
       </View>
       <View style={styles.text}>
         <AppText variant="bodyMd" numberOfLines={1}>

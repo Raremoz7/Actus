@@ -63,6 +63,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek }: Props) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Ver treinos da semana"
+        hitSlop={{ top: 8, bottom: 8 }}
         style={styles.ghostLine}
         onPress={onSeeWeek}
       >
@@ -106,6 +107,7 @@ const styles = StyleSheet.create((theme) => ({
     borderTopWidth: 1,
     borderTopColor: theme.colors.outlineVariant,
     paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
     marginTop: theme.spacing.xs,
   },
   restIcon: {

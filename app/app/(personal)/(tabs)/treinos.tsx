@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { Barbell, CaretRight, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, Button } from '@/components/ui';
+import { Screen, AppText, Button, ListState } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
 import type { ProWorkoutListItem } from '@/types/workouts';
 import { darkTheme } from '@/theme';
@@ -121,22 +121,27 @@ export default function PersonalTreinosScreen() {
           ))}
         </View>
 
-        {list.isLoading ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Carregando…
-          </AppText>
-        ) : null}
+        {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
         {isEmpty ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Nenhum treino criado ainda.
-          </AppText>
+          <ListState
+            kind="empty"
+            icon={Barbell}
+            title="Nenhum treino ainda"
+            message="Monte seu primeiro template para atribuir aos alunos"
+            actionLabel="Novo treino"
+            onAction={openBuilder}
+          />
         ) : null}
 
         {list.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Não foi possível carregar agora.
-          </AppText>
+          <ListState
+            kind="error"
+            title="Não foi possível carregar"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void list.refetch()}
+          />
         ) : null}
       </Animated.View>
     </Screen>

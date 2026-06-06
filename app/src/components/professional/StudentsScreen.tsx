@@ -6,10 +6,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { MagnifyingGlass, UserPlus } from 'phosphor-react-native';
+import { MagnifyingGlass, UserPlus, Users } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText } from '@/components/ui';
+import { Screen, AppText, ListState } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import type { Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
@@ -118,16 +118,17 @@ export function StudentsScreen() {
           ))}
         </View>
 
-        {list.isLoading ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Carregando…
-          </AppText>
-        ) : null}
+        {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
         {isEmpty ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Nenhum aluno ainda.
-          </AppText>
+          <ListState
+            kind="empty"
+            icon={Users}
+            title="Nenhum aluno ainda"
+            message="Convide alguém para começar a acompanhar o progresso"
+            actionLabel="Convidar aluno"
+            onAction={openInvite}
+          />
         ) : null}
 
         {noMatches ? (
@@ -137,9 +138,13 @@ export function StudentsScreen() {
         ) : null}
 
         {list.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Não foi possível carregar agora.
-          </AppText>
+          <ListState
+            kind="error"
+            title="Não foi possível carregar"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void list.refetch()}
+          />
         ) : null}
       </Animated.View>
     </Screen>

@@ -79,8 +79,8 @@ describe('AtribuirTreinoScreen', () => {
 
     // Seleciona um template e dois dias da semana (segunda=1, quarta=3).
     fireEvent.press(screen.getByLabelText('Treino A'));
-    fireEvent.press(screen.getByLabelText('Dia 1'));
-    fireEvent.press(screen.getByLabelText('Dia 3'));
+    fireEvent.press(screen.getByLabelText('Segunda'));
+    fireEvent.press(screen.getByLabelText('Quarta'));
 
     fireEvent.press(screen.getByText('Atribuir'));
 
@@ -95,8 +95,8 @@ describe('AtribuirTreinoScreen', () => {
   it('toggle de dia remove o dia ao tocar novamente', () => {
     render(<AtribuirTreinoScreen />);
     fireEvent.press(screen.getByLabelText('Treino A'));
-    fireEvent.press(screen.getByLabelText('Dia 2'));
-    fireEvent.press(screen.getByLabelText('Dia 2')); // toggle off
+    fireEvent.press(screen.getByLabelText('Terça'));
+    fireEvent.press(screen.getByLabelText('Terça')); // toggle off
 
     fireEvent.press(screen.getByText('Atribuir'));
     // Sem dias → não atribui.
@@ -107,7 +107,7 @@ describe('AtribuirTreinoScreen', () => {
     mockAssign.mockImplementation((_vars, opts) => opts.onSuccess?.());
     render(<AtribuirTreinoScreen />);
     fireEvent.press(screen.getByLabelText('Treino B'));
-    fireEvent.press(screen.getByLabelText('Dia 5'));
+    fireEvent.press(screen.getByLabelText('Sexta'));
     fireEvent.press(screen.getByText('Atribuir'));
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
@@ -116,7 +116,7 @@ describe('AtribuirTreinoScreen', () => {
     mockAssign.mockImplementation((_vars, opts) => opts.onError?.(new Error('x')));
     render(<AtribuirTreinoScreen />);
     fireEvent.press(screen.getByLabelText('Treino A'));
-    fireEvent.press(screen.getByLabelText('Dia 1'));
+    fireEvent.press(screen.getByLabelText('Segunda'));
     fireEvent.press(screen.getByText('Atribuir'));
     expect(screen.getByText('Não foi possível atribuir. Tente novamente.')).toBeTruthy();
     expect(mockBack).not.toHaveBeenCalled();

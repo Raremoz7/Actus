@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { CaretRight, Plus, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, Button, Tag, type TagTone } from '@/components/ui';
+import { Screen, AppText, Button, Tag, ListState, type TagTone } from '@/components/ui';
 import { useProChallenges } from '@/hooks/useProChallenges';
 import type { Challenge } from '@/types/challenges';
 import { darkTheme } from '@/theme';
@@ -138,22 +138,27 @@ export default function PersonalDesafiosScreen() {
           ))}
         </View>
 
-        {list.isLoading ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Carregando…
-          </AppText>
-        ) : null}
+        {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
         {isEmpty ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Nenhum desafio criado ainda.
-          </AppText>
+          <ListState
+            kind="empty"
+            icon={Trophy}
+            title="Nenhum desafio ainda"
+            message="Crie um desafio para engajar seus alunos por um período"
+            actionLabel="Novo desafio"
+            onAction={openCreate}
+          />
         ) : null}
 
         {list.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Não foi possível carregar agora.
-          </AppText>
+          <ListState
+            kind="error"
+            title="Não foi possível carregar"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void list.refetch()}
+          />
         ) : null}
       </Animated.View>
     </Screen>

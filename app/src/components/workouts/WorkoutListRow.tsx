@@ -13,7 +13,7 @@ export function WorkoutListRow({ title, subtitle, onPress }: Props) {
   return (
     <Pressable style={styles.row} onPress={onPress} accessibilityRole="button">
       <View style={styles.body}>
-        <AppText variant="h3" style={styles.title}>
+        <AppText variant="h4">
           {title}
         </AppText>
         <AppText variant="metaSmall" color="tertiary" style={styles.sub}>
@@ -38,6 +38,5 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.sm,
   },
   body: { flex: 1 },
-  title: { fontSize: 17 },
   sub: { marginTop: 2 },
 }));

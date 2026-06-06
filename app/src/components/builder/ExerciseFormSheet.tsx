@@ -62,16 +62,19 @@ function inRange(n: number | null, min: number, max: number): n is number {
 }
 
 // Campo numérico compacto (séries / reps / descanso) em layout de três colunas.
+// `hint` mostra a faixa permitida; vira vermelho e ganha aria-invalid quando inválido.
 function NumberField({
   label,
   value,
   onChangeText,
   invalid,
+  hint,
 }: {
   label: string;
   value: string;
   onChangeText: (t: string) => void;
   invalid: boolean;
+  hint: string;
 }) {
   return (
     <View style={styles.numCol}>
@@ -85,7 +88,12 @@ function NumberField({
         keyboardType="number-pad"
         placeholderTextColor={colors.textTertiary}
         accessibilityLabel={label}
+        aria-invalid={invalid || undefined}
+        accessibilityState={{ disabled: false }}
       />
+      <AppText variant="metaSmall" color={invalid ? 'error' : 'tertiary'}>
+        {hint}
+      </AppText>
     </View>
   );
 }
@@ -212,18 +220,21 @@ export function ExerciseFormSheet({
                 value={sets}
                 onChangeText={setSets}
                 invalid={submitted && errors.sets}
+                hint={`${LIMITS.sets.min}–${LIMITS.sets.max}`}
               />
               <NumberField
                 label="Reps"
                 value={reps}
                 onChangeText={setReps}
                 invalid={submitted && errors.reps}
+                hint={`${LIMITS.reps.min}–${LIMITS.reps.max}`}
               />
               <NumberField
                 label="Descanso (s)"
                 value={rest}
                 onChangeText={setRest}
                 invalid={submitted && errors.rest}
+                hint={`${LIMITS.rest.min}–${LIMITS.rest.max}`}
               />
             </View>
 

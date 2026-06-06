@@ -14,7 +14,7 @@
 // reveal de entrada da tela; o sheet tem sua própria animação isolada.
 
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -86,6 +86,7 @@ export default function DesafioProScreen() {
   const { update, addParticipants } = useChallengeMutations();
 
   const [statusError, setStatusError] = useState<string | undefined>(undefined);
+  const [addError, setAddError] = useState<string | undefined>(undefined);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
@@ -140,13 +141,34 @@ export default function DesafioProScreen() {
     );
   }
 
+  // Encerrar é irreversível → confirma antes (mesmo padrão do revogar convite).
+  function confirmEnd() {
+    Alert.alert(
+      'Encerrar desafio',
+      'O ranking para de evoluir e não pode ser reaberto.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Encerrar desafio',
+          style: 'destructive',
+          onPress: () => handleStatusChange('ended'),
+        },
+      ],
+    );
+  }
+
   function handleAddParticipants(studentIds: string[]) {
     if (!challengeId || studentIds.length === 0) return;
+    setAddError(undefined);
     addParticipants.mutate(
       { id: challengeId, studentIds },
       {
         onSuccess: () => {
           setSheetOpen(false);
+        },
+        onError: () => {
+          // Mantém o sheet aberto para o profissional tentar de novo.
+          setAddError('Não foi possível adicionar agora. Tente novamente.');
         },
       },
     );
@@ -235,7 +257,7 @@ export default function DesafioProScreen() {
                   variant="secondary"
                   label="Encerrar desafio"
                   loading={update.isPending}
-                  onPress={() => handleStatusChange('ended')}
+                  onPress={confirmEnd}
                 />
               )}
               {statusError ? (
@@ -293,8 +315,17 @@ export default function DesafioProScreen() {
               <Button
                 variant="secondary"
                 label="Adicionar participantes"
-                onPress={() => setSheetOpen(true)}
+                onPress={() => {
+                  setAddError(undefined);
+                  setSheetOpen(true);
+                }}
               />
+            ) : null}
+
+            {addError ? (
+              <AppText variant="bodySm" color="error">
+                {addError}
+              </AppText>
             ) : null}
           </View>
 

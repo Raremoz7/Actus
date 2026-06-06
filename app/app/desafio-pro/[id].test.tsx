@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import DesafioProScreen from './[id]';
@@ -151,7 +152,14 @@ describe('DesafioProScreen', () => {
     });
   });
 
-  it('encerra o desafio ativo com status ended', () => {
+  it('encerra o desafio ativo (via confirmação) com status ended', () => {
+    // Dispara o callback do botão destrutivo do Alert de confirmação.
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_t, _m, buttons) => {
+        const endBtn = buttons?.find((b) => b.text === 'Encerrar desafio');
+        endBtn?.onPress?.();
+      });
     mockDetail = {
       data: { challenge: makeChallenge({ status: 'active' }), participants },
       isLoading: false,
@@ -160,6 +168,7 @@ describe('DesafioProScreen', () => {
     render(<DesafioProScreen />);
     fireEvent.press(screen.getByText('Encerrar desafio'));
     expect(mockUpdate.mock.calls[0][0].body.status).toBe('ended');
+    alertSpy.mockRestore();
   });
 
   it('não mostra ação de status quando encerrado', () => {

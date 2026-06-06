@@ -15,7 +15,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Barbell, Check, CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -31,6 +31,17 @@ const { colors, motion } = darkTheme;
 
 // Dias da semana na ordem ISO-8601 (1=segunda … 7=domingo).
 const WEEKDAYS: Weekday[] = [1, 2, 3, 4, 5, 6, 7];
+
+// Nome completo do dia (acessibilidade) — o chip mostra só a inicial.
+const WEEKDAY_NAME: Record<Weekday, string> = {
+  1: 'Segunda',
+  2: 'Terça',
+  3: 'Quarta',
+  4: 'Quinta',
+  5: 'Sexta',
+  6: 'Sábado',
+  7: 'Domingo',
+};
 
 // Rótulo de exercícios do card (igual à aba de treinos).
 function exerciseLabel(n: number): string {
@@ -99,7 +110,7 @@ function WeekdaySelector({ selected, onToggle }: WeekdaySelectorProps) {
             key={wd}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: on }}
-            accessibilityLabel={`Dia ${wd}`}
+            accessibilityLabel={WEEKDAY_NAME[wd]}
             hitSlop={6}
             onPress={() => onToggle(wd)}
             style={[styles.weekdayChip, on && styles.weekdayChipOn]}
@@ -221,9 +232,16 @@ export default function AtribuirTreinoScreen() {
               Não foi possível carregar seus treinos.
             </AppText>
           ) : isEmpty ? (
-            <AppText variant="bodySm" color="tertiary">
-              Nenhum treino criado ainda. Monte um treino antes de atribuir.
-            </AppText>
+            <View style={styles.emptyBlock}>
+              <AppText variant="bodySm" color="tertiary">
+                Nenhum treino criado ainda. Monte um treino antes de atribuir.
+              </AppText>
+              <Button
+                variant="secondary"
+                label="Montar treino"
+                onPress={() => router.push('/montar-treino' as Href)}
+              />
+            </View>
           ) : (
             <View style={styles.list}>
               {workouts.map((w) => (
@@ -297,6 +315,9 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.md,
   },
   list: {
+    gap: theme.spacing.md,
+  },
+  emptyBlock: {
     gap: theme.spacing.md,
   },
   card: {

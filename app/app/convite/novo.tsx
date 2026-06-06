@@ -56,7 +56,7 @@ function Chip({
   styles.useVariants({ selected });
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole="radio"
       accessibilityState={{ selected }}
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}

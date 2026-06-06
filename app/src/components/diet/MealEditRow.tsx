@@ -91,7 +91,7 @@ export function MealEditRow({
         <AppText variant="metaSmall" color="tertiary">
           {`${position.toString().padStart(2, '0')}`}
         </AppText>
-        <AppText variant="h3" numberOfLines={2} style={styles.name}>
+        <AppText variant="h4" numberOfLines={2}>
           {name}
         </AppText>
         {chips.length > 0 ? (
@@ -145,9 +145,6 @@ const styles = StyleSheet.create((theme) => ({
   body: {
     flex: 1,
     gap: theme.spacing.xs,
-  },
-  name: {
-    fontSize: 17,
   },
   chips: {
     flexDirection: 'row',

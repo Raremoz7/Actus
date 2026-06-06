@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { CaretLeft } from 'phosphor-react-native';
+import { CaretLeft, User } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, KpiNumber } from '@/components/ui';
@@ -15,7 +15,6 @@ import { useStudents } from '@/hooks/useStudents';
 import { useStudentCheckIns } from '@/hooks/useStudentCheckIns';
 import { useMe } from '@/hooks/useMe';
 import { calcAge, formatCheckInDate } from '@/lib/student';
-import { studentInitials } from './StudentRow';
 import type { Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
 
@@ -105,12 +104,10 @@ export function StudentDetailScreen({ id }: Props) {
             <>
               <View style={styles.identity}>
                 <View style={styles.avatar}>
-                  <AppText variant="h3" color="neon">
-                    {studentInitials(name ?? '')}
-                  </AppText>
+                  <User size={28} weight="duotone" color={colors.neon} />
                 </View>
                 <View style={styles.identityText}>
-                  <AppText variant="h2" numberOfLines={2}>
+                  <AppText variant="h2" numberOfLines={2} uppercase={false}>
                     {name}
                   </AppText>
                   <AppText variant="metaSmall" color="tertiary" numberOfLines={1}>
@@ -167,7 +164,7 @@ export function StudentDetailScreen({ id }: Props) {
           ) : (
             // Fallback discreto: deep link / cache ausente (sem GET de detalhe).
             <AppText variant="bodySm" color="tertiary">
-              Aluno não encontrado nesta sessão.
+              Abra este aluno pela sua lista de alunos.
             </AppText>
           )}
         </ScrollView>
@@ -253,5 +250,7 @@ const styles = StyleSheet.create((theme) => ({
     bottom: 0,
     padding: theme.spacing.lg,
     backgroundColor: theme.colors.bgBase,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.outlineVariant,
   },
 }));

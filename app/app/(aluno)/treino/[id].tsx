@@ -88,6 +88,10 @@ export default function TreinoDetailScreen() {
                 />
               ))}
             </>
+          ) : detail.isLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="small" color={colors.textTertiary} />
+            </View>
           ) : detail.isError ? (
             <AppText variant="bodySm" color="tertiary">
               Não foi possível carregar o treino.
@@ -152,6 +156,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 96 },
+  center: { paddingVertical: theme.spacing.xl, alignItems: 'center' },
   secLabel: { marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
   ctaBar: {
     position: 'absolute',

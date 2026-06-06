@@ -3,7 +3,7 @@ import { Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CaretLeft } from 'phosphor-react-native';
+import { CaretLeft, FilmSlate } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Tag } from '@/components/ui';
@@ -53,6 +53,7 @@ export default function ExercicioDemoScreen() {
           {/* [MOCK — imagem ilustrativa por grupo muscular; real virá do Wger] */}
           <View style={styles.heroWrap}>
             <Image
+              accessible={false}
               source={{ uri: exerciseImageUrl(muscle, 1200) }}
               resizeMode="cover"
               style={styles.hero}
@@ -60,7 +61,7 @@ export default function ExercicioDemoScreen() {
             <View pointerEvents="none" style={styles.heroVeil} />
           </View>
 
-          <AppText variant="h1" style={styles.title}>
+          <AppText variant="h2">
             {title}
           </AppText>
 
@@ -77,9 +78,14 @@ export default function ExercicioDemoScreen() {
           ) : null}
 
           {/* [MOCK — sem endpoint na API v1: descrição/vídeo do Wger] */}
-          <AppText variant="bodySm" color="tertiary" style={styles.instructions}>
-            Instruções e vídeo do exercício em breve.
-          </AppText>
+          <View style={styles.demo}>
+            <View style={styles.demoIcon}>
+              <FilmSlate size={22} weight="duotone" color={colors.textSecondary} />
+            </View>
+            <AppText variant="bodySm" color="tertiary" style={styles.demoText}>
+              Demonstração em vídeo ainda não disponível para este exercício.
+            </AppText>
+          </View>
         </ScrollView>
       </Animated.View>
     </SafeAreaView>
@@ -120,10 +126,28 @@ const styles = StyleSheet.create((theme) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(16, 37, 45, 0.28)',
+    backgroundColor: theme.colors.veil,
   },
-  title: { fontSize: 32, lineHeight: 32 },
   tagRow: { marginTop: theme.spacing.md },
   equipment: { marginTop: theme.spacing.sm },
-  instructions: { marginTop: theme.spacing.lg },
+  demo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.md,
+  },
+  demoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  demoText: { flex: 1 },
 }));

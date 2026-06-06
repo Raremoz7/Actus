@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, Stack } from 'expo-router';
+import { Check } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Input, Button, ScreenHero } from '@/components/ui';
@@ -17,7 +18,7 @@ import { useChangePasswordMutation } from '@/features/auth/hooks';
 import { isApiError } from '@/api/errors';
 import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+const { motion, colors } = darkTheme;
 
 // [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
 const TROCA_PHOTO = {
@@ -168,11 +169,18 @@ export default function TrocarSenhaScreen() {
                   />
                 )}
               />
-              {meetsLength ? (
-                <AppText variant="metaSmall" color="neon" uppercase style={styles.hint}>
-                  ✓ 8+ caracteres
+              <View style={styles.hint}>
+                {meetsLength ? (
+                  <Check size={12} weight="bold" color={colors.neon} />
+                ) : null}
+                <AppText
+                  variant="metaSmall"
+                  color={meetsLength ? 'neon' : 'tertiary'}
+                  uppercase
+                >
+                  {meetsLength ? '8+ caracteres' : 'Mínimo de 8 caracteres'}
                 </AppText>
-              ) : null}
+              </View>
             </View>
 
             <Controller
@@ -235,9 +243,11 @@ const styles = StyleSheet.create((theme) => ({
     alignSelf: 'stretch',
   },
   hint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
     marginTop: theme.spacing.xs,
     marginLeft: 2,
-    letterSpacing: 1,
   },
   footer: {
     marginTop: 'auto',

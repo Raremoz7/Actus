@@ -20,6 +20,9 @@ type Props = {
   onPress: () => void;
   onAccept?: () => void;
   onDecline?: () => void;
+  // Estado das mutations de convite — trava os botões durante a ação.
+  accepting?: boolean;
+  declining?: boolean;
 };
 
 // Razão dia/total clampada a [0, 1] para a largura da barra.
@@ -35,6 +38,8 @@ export function ChallengeListCard({
   onPress,
   onAccept,
   onDecline,
+  accepting = false,
+  declining = false,
 }: Props) {
   const isInvited = participantStatus === 'invited';
   const ratio = progressRatio(dayProgress.day, dayProgress.total);
@@ -61,10 +66,22 @@ export function ChallengeListCard({
         {header}
         <View style={styles.actions}>
           <View style={styles.action}>
-            <Button variant="primary" label="Aceitar" onPress={() => onAccept?.()} />
+            <Button
+              variant="primary"
+              label="Aceitar"
+              onPress={() => onAccept?.()}
+              loading={accepting}
+              disabled={declining}
+            />
           </View>
           <View style={styles.action}>
-            <Button variant="ghost" label="Recusar" onPress={() => onDecline?.()} />
+            <Button
+              variant="ghost"
+              label="Recusar"
+              onPress={() => onDecline?.()}
+              loading={declining}
+              disabled={accepting}
+            />
           </View>
         </View>
       </View>

@@ -12,11 +12,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { CaretLeft, Plus } from 'phosphor-react-native';
+import { CaretLeft, Plus, Ticket } from 'phosphor-react-native';
 import * as Clipboard from 'expo-clipboard';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button } from '@/components/ui';
+import { AppText, Button, ListState } from '@/components/ui';
 import { InviteCard } from '@/components/invite';
 import { useInvites } from '@/hooks/useInvites';
 import { useInviteActions } from '@/hooks/useInviteActions';
@@ -127,22 +127,27 @@ export default function ConvitesScreen() {
             ))}
           </View>
 
-          {list.isLoading ? (
-            <AppText variant="bodySm" color="tertiary" style={styles.note}>
-              Carregando…
-            </AppText>
-          ) : null}
+          {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
           {isEmpty ? (
-            <AppText variant="bodySm" color="tertiary" style={styles.note}>
-              Nenhum convite ainda.
-            </AppText>
+            <ListState
+              kind="empty"
+              icon={Ticket}
+              title="Nenhum convite ainda"
+              message="Gere um link para vincular seu primeiro aluno"
+              actionLabel="Novo convite"
+              onAction={openNew}
+            />
           ) : null}
 
           {list.isError ? (
-            <AppText variant="bodySm" color="tertiary" style={styles.note}>
-              Não foi possível carregar agora.
-            </AppText>
+            <ListState
+              kind="error"
+              title="Não foi possível carregar"
+              message="Verifique sua conexão e tente novamente."
+              actionLabel="Tentar de novo"
+              onAction={() => void list.refetch()}
+            />
           ) : null}
         </Animated.View>
       </Animated.ScrollView>

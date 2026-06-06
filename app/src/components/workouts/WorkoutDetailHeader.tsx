@@ -18,7 +18,7 @@ export function WorkoutDetailHeader({ focus, exerciseCount, estMinutes, weekdays
       : `${exerciseCount} exercícios`;
   return (
     <View>
-      <AppText variant="h1" style={styles.focus}>
+      <AppText variant="h2">
         {focus}
       </AppText>
       <AppText variant="bodySm" color="secondary" style={styles.meta}>
@@ -30,6 +30,5 @@ export function WorkoutDetailHeader({ focus, exerciseCount, estMinutes, weekdays
 }
 
 const styles = StyleSheet.create((theme) => ({
-  focus: { fontSize: 36, lineHeight: 34 },
   meta: { marginTop: theme.spacing.sm, marginBottom: theme.spacing.sm },
 }));

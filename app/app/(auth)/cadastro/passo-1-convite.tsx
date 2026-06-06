@@ -1,6 +1,7 @@
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Controller, useFormContext } from 'react-hook-form';
 import { router } from 'expo-router';
+import { CheckCircle, UserCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input, ScreenHero } from '@/components/ui';
@@ -8,6 +9,9 @@ import { FormErrorBanner, WizardProgress } from '@/components/molecules';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 import { authErrorMessage } from '@/features/auth/errors';
 import { type CadastroForm, PASSO_1_FIELDS } from '@/features/auth/cadastroForm';
+import { darkTheme } from '@/theme';
+
+const { colors } = darkTheme;
 
 // [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
 const PASSO1_PHOTO = {
@@ -15,12 +19,9 @@ const PASSO1_PHOTO = {
 };
 
 // [MOCK — sem endpoint na API v1: GET /invites/:code/preview]
-// O nome de quem convidou não existe na API. Card exibido com dado falso até o endpoint existir.
-const MOCK_INVITER = {
-  initials: 'CM',
-  name: 'Carlos Mendes',
-  role: 'Personal Trainer · convidou você',
-} as const;
+// O nome de quem convidou não existe na API. Enquanto o endpoint não existir,
+// exibimos um card NEUTRO e honesto (sem nome/avatar falso). O nome real só
+// aparecerá quando GET /invites/:code/preview for implementado.
 
 export default function Passo1ConviteScreen() {
   const {
@@ -83,30 +84,18 @@ export default function Passo1ConviteScreen() {
             </View>
           ) : null}
 
-          {/* Card do convidador — dado MOCK (ver comentário no topo). */}
+          {/* Card NEUTRO do convidador — sem nome/avatar falso (ver comentário no topo). */}
           <View style={styles.inviterCard}>
-            <View style={styles.avatar}>
-              <AppText variant="h3" color="neon">
-                {MOCK_INVITER.initials}
-              </AppText>
+            <View style={styles.inviterIcon}>
+              <UserCircle size={26} weight="duotone" color={colors.neon} />
             </View>
             <View style={styles.inviterInfo}>
-              <AppText variant="h3" style={styles.inviterName}>
-                {MOCK_INVITER.name}
-              </AppText>
+              <AppText variant="h4">Convite de treinador</AppText>
               <AppText variant="bodySm" color="tertiary">
-                {MOCK_INVITER.role}
+                Confirmamos quem te convidou ao criar a conta.
               </AppText>
             </View>
           </View>
-
-          {__DEV__ ? (
-            <View style={styles.mockBadge}>
-              <AppText variant="metaSmall" style={styles.mockText}>
-                Demonstração — dado mock
-              </AppText>
-            </View>
-          ) : null}
 
           <View style={styles.field}>
             <Controller
@@ -136,9 +125,12 @@ export default function Passo1ConviteScreen() {
           </View>
 
           {inviteFromLink ? (
-            <AppText variant="metaSmall" color="tertiary" style={styles.fromLink}>
-              ✓ Código recebido pelo link
-            </AppText>
+            <View style={styles.fromLink}>
+              <CheckCircle size={14} weight="duotone" color={colors.neon} />
+              <AppText variant="metaSmall" color="tertiary">
+                Código recebido pelo link
+              </AppText>
+            </View>
           ) : null}
 
           <AppText variant="bodySm" color="tertiary" style={styles.helper}>
@@ -183,9 +175,9 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.lg,
   },
-  avatar: {
+  inviterIcon: {
     width: 42,
     height: 42,
     borderRadius: theme.radius.pill,
@@ -197,24 +189,6 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     gap: 2,
   },
-  inviterName: {
-    fontSize: 15,
-  },
-  mockBadge: {
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: theme.colors.warning,
-    borderRadius: theme.radius.tag,
-    paddingVertical: 3,
-    paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
-  },
-  mockText: {
-    fontSize: 8,
-    letterSpacing: 1.6,
-    color: theme.colors.warning,
-  },
   field: {
     alignSelf: 'stretch',
   },
@@ -223,8 +197,10 @@ const styles = StyleSheet.create((theme) => ({
     letterSpacing: 1,
   },
   fromLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
     marginTop: theme.spacing.sm,
-    letterSpacing: 1,
   },
   helper: {
     marginTop: theme.spacing.md,

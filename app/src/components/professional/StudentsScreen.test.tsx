@@ -96,7 +96,8 @@ describe('StudentsScreen', () => {
       isError: false,
     });
     render(<StudentsScreen />);
-    expect(screen.getByText('Nenhum aluno ainda.')).toBeTruthy();
+    expect(screen.getByText('Nenhum aluno ainda')).toBeTruthy();
+    expect(screen.getByText('Convidar aluno')).toBeTruthy();
   });
 
   it('mostra estado de erro discreto', () => {
@@ -106,6 +107,7 @@ describe('StudentsScreen', () => {
       isError: true,
     });
     render(<StudentsScreen />);
-    expect(screen.getByText('Não foi possível carregar agora.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar')).toBeTruthy();
+    expect(screen.getByText('Tentar de novo')).toBeTruthy();
   });
 });

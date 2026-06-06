@@ -12,7 +12,7 @@ import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeRanking } from '@/hooks/useChallengeRanking';
 import { useMe } from '@/hooks/useMe';
 import { challengeDayProgress } from '@/lib/challenge';
-import { formatDateLocal } from '@/lib/format';
+import { formatDateLocal, shortDateBr } from '@/lib/format';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -84,7 +84,7 @@ export default function DesafioDetailScreen() {
                   {challenge.name}
                 </AppText>
                 <AppText variant="metaSmall" color="tertiary" style={styles.period}>
-                  {`${challenge.starts_on} — ${challenge.ends_on}`}
+                  {`${shortDateBr(challenge.starts_on)} até ${shortDateBr(challenge.ends_on)}`}
                 </AppText>
 
                 <View style={styles.progressRow}>

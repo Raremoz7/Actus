@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
@@ -13,7 +13,7 @@ import { formatDateLocal } from '@/lib/format';
 import type { ChallengeListItem } from '@/types/challenges';
 import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+const { motion, colors } = darkTheme;
 
 export default function AlunoDesafiosScreen() {
   const list = useChallenges();
@@ -47,6 +47,12 @@ export default function AlunoDesafiosScreen() {
   function renderCard(item: ChallengeListItem) {
     const { challenge, participant_status } = item;
     const dayProgress = challengeDayProgress(challenge.starts_on, challenge.ends_on, today);
+    // Trava só o card cuja mutation está em curso (variables guarda o id alvo).
+    const accepting = accept.isPending && accept.variables === challenge.id;
+    const declining = decline.isPending && decline.variables === challenge.id;
+    const failed =
+      (accept.isError && accept.variables === challenge.id) ||
+      (decline.isError && decline.variables === challenge.id);
     return (
       <View key={challenge.id} style={styles.cardWrap}>
         <ChallengeListCard
@@ -57,13 +63,32 @@ export default function AlunoDesafiosScreen() {
           onPress={() => openDetail(challenge.id)}
           onAccept={() => accept.mutate(challenge.id)}
           onDecline={() => decline.mutate(challenge.id)}
+          accepting={accepting}
+          declining={declining}
         />
+        {failed ? (
+          <AppText variant="bodySm" color="error" style={styles.cardError}>
+            Não foi possível concluir. Tente de novo.
+          </AppText>
+        ) : null}
       </View>
     );
   }
 
   return (
-    <Screen scroll padded>
+    <Screen edges={['top']}>
+      <Animated.ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={list.isRefetching}
+            onRefresh={() => void list.refetch()}
+            tintColor={colors.neon}
+            colors={[colors.neon]}
+          />
+        }
+      >
       <Animated.View style={revealStyle}>
         <AppText variant="eyebrow" color="tertiary">
           Seus desafios
@@ -92,12 +117,15 @@ export default function AlunoDesafiosScreen() {
           </AppText>
         ) : null}
       </Animated.View>
+      </Animated.ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  scroll: { padding: theme.spacing.lg },
   title: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
   cardWrap: { marginBottom: theme.spacing.md },
+  cardError: { marginTop: theme.spacing.xs },
   note: { marginTop: theme.spacing.lg },
 }));

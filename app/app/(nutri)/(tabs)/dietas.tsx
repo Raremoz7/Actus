@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { CaretRight, ForkKnife, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, Button } from '@/components/ui';
+import { Screen, AppText, Button, ListState } from '@/components/ui';
 import { useDietTemplates } from '@/hooks/useDietTemplates';
 import type { DietTemplateListItem } from '@/types/diets';
 import { darkTheme } from '@/theme';
@@ -128,22 +128,27 @@ export default function NutriDietasScreen() {
           ))}
         </View>
 
-        {list.isLoading ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Carregando…
-          </AppText>
-        ) : null}
+        {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
         {isEmpty ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Nenhuma dieta criada ainda.
-          </AppText>
+          <ListState
+            kind="empty"
+            icon={ForkKnife}
+            title="Nenhuma dieta ainda"
+            message="Monte seu primeiro template para atribuir aos alunos"
+            actionLabel="Nova dieta"
+            onAction={openBuilder}
+          />
         ) : null}
 
         {list.isError ? (
-          <AppText variant="bodySm" color="tertiary" style={styles.note}>
-            Não foi possível carregar agora.
-          </AppText>
+          <ListState
+            kind="error"
+            title="Não foi possível carregar"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void list.refetch()}
+          />
         ) : null}
       </Animated.View>
     </Screen>

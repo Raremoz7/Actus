@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, RefreshControl, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
+import { Barbell } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText } from '@/components/ui';
+import { Screen, AppText, ListState } from '@/components/ui';
 import {
   HomeHeader,
   WeekStrip,
@@ -29,7 +30,7 @@ import { parseDietBody } from '@/types/diets';
 import type { TodayWorkoutSummary, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 
-const { motion } = darkTheme;
+const { motion, colors } = darkTheme;
 
 // Rótulo de data PT curto: "Terça · 03 jun". Usa componentes LOCAIS do Date.
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -124,72 +125,126 @@ export default function AlunoHojeScreen() {
     router.push('/(aluno)/(tabs)/treinos' as Href);
   }
 
+  // Pull-to-refresh: recarrega todas as fontes da Home.
+  function refreshAll() {
+    void me.refetch();
+    void week.refetch();
+    void workouts.refetch();
+    void diet.refetch();
+    void challenges.refetch();
+  }
+
+  // Carregando pela primeira vez (nenhuma fonte resolveu ainda) → skeleton.
+  const initialLoading =
+    workouts.isLoading && week.isLoading && diet.isLoading && challenges.isLoading;
+
+  // Qualquer fonte em erro mostra o retry (antes era AND — escondia falhas parciais).
+  const anyError =
+    me.isError || week.isError || workouts.isError || diet.isError || challenges.isError;
+
+  // Nenhuma seção montada e nada carregando/em erro → plano ainda não montado.
+  const allEmpty =
+    !initialLoading &&
+    !anyError &&
+    todaySummary == null &&
+    !week.data &&
+    activeDiet == null &&
+    activeChallenge == null;
+
+  const refreshing =
+    me.isRefetching ||
+    week.isRefetching ||
+    workouts.isRefetching ||
+    diet.isRefetching ||
+    challenges.isRefetching;
+
   return (
-    <Screen scroll padded>
-      <Animated.View style={revealStyle}>
-        <HomeHeader
-          greeting={greeting}
-          name={me.data?.display_name ?? null}
-          streakCurrent={week.data?.streak_current ?? 0}
-          dateLabel={dateLabelLocal(now)}
-        />
-
-        {todaySummary ? (
-          <TodayWorkoutCard
-            summary={todaySummary}
-            onStart={openTodayWorkout}
-            onSeeWeek={seeWeek}
+    <Screen edges={['top']}>
+      <Animated.ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refreshAll}
+            tintColor={colors.neon}
+            colors={[colors.neon]}
           />
-        ) : null}
+        }
+      >
+        <Animated.View style={revealStyle}>
+          <HomeHeader
+            greeting={greeting}
+            name={me.data?.display_name ?? null}
+            streakCurrent={week.data?.streak_current ?? 0}
+            dateLabel={dateLabelLocal(now)}
+          />
 
-        {week.data ? (
-          <View style={styles.block}>
-            <WeekStrip overview={week.data} />
+          {initialLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
+
+          {todaySummary ? (
+            <TodayWorkoutCard
+              summary={todaySummary}
+              onStart={openTodayWorkout}
+              onSeeWeek={seeWeek}
+            />
+          ) : null}
+
+          {week.data ? (
+            <View style={styles.block}>
+              <WeekStrip overview={week.data} />
+            </View>
+          ) : null}
+
+          <View style={styles.row}>
+            {activeDiet ? (
+              <DietCard
+                title={activeDiet.template_name}
+                nextMealTime={firstMeal}
+                onPress={() => router.push(`/(aluno)/dieta/${activeDiet.id}` as Href)}
+              />
+            ) : null}
+            {activeChallenge && challengeProgress ? (
+              <ChallengeCard
+                title={activeChallenge.challenge.name}
+                current={challengeProgress.day}
+                total={challengeProgress.total}
+                onPress={() => router.push('/(aluno)/(tabs)/desafios' as Href)}
+              />
+            ) : null}
           </View>
-        ) : null}
 
-        <View style={styles.row}>
-          {activeDiet ? (
-            <DietCard
-              title={activeDiet.template_name}
-              nextMealTime={firstMeal}
-              onPress={() => router.push(`/(aluno)/dieta/${activeDiet.id}` as Href)}
-            />
+          {allEmpty ? (
+            <View style={styles.block}>
+              <ListState
+                kind="empty"
+                icon={Barbell}
+                title="Plano em preparo"
+                message="Seu personal ainda não montou seu plano."
+              />
+            </View>
           ) : null}
-          {activeChallenge && challengeProgress ? (
-            <ChallengeCard
-              title={activeChallenge.challenge.name}
-              current={challengeProgress.day}
-              total={challengeProgress.total}
-              onPress={() => router.push('/(aluno)/(tabs)/desafios' as Href)}
-            />
-          ) : null}
-        </View>
 
-        {workouts.isError && week.isError ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Tentar de novo"
-            onPress={() => {
-              void me.refetch();
-              void week.refetch();
-              void workouts.refetch();
-              void diet.refetch();
-              void challenges.refetch();
-            }}
-            style={styles.retry}
-          >
-            <AppText variant="bodySm" color="tertiary">
-              Não foi possível carregar agora. Tentar de novo.
-            </AppText>
-          </Pressable>
-        ) : null}
-      </Animated.View>
+          {anyError ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Tentar de novo"
+              onPress={refreshAll}
+              style={styles.retry}
+            >
+              <AppText variant="bodySm" color="tertiary">
+                Não foi possível carregar agora. Tentar de novo.
+              </AppText>
+            </Pressable>
+          ) : null}
+        </Animated.View>
+      </Animated.ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  scroll: { padding: theme.spacing.lg },
   block: { marginTop: theme.spacing.lg },
   retry: { marginTop: theme.spacing.lg, alignItems: 'center' },
   row: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.lg },

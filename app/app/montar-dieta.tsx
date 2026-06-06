@@ -20,7 +20,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input } from '@/components/ui';
+import { AppText, Button, Input, ListState } from '@/components/ui';
 import { WizardProgress } from '@/components/molecules';
 import { MealEditRow, MealFormSheet, type MealFormValue } from '@/components/diet';
 import { useDietTemplateDetail } from '@/hooks/useDietTemplateDetail';
@@ -208,6 +208,8 @@ export default function MontarDietaScreen() {
 
   // Estado de carregamento do detalhe (só no modo edição, antes de hidratar).
   const loadingDetail = isEditing && detail.isLoading && !hydrated;
+  // Falha ao carregar o detalhe em edição (antes de hidratar) → não mostrar form vazio.
+  const detailError = isEditing && detail.isError && !hydrated;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -242,6 +244,14 @@ export default function MontarDietaScreen() {
               Carregando dieta…
             </AppText>
           </View>
+        ) : detailError ? (
+          <ListState
+            kind="error"
+            title="Não foi possível abrir a dieta"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void detail.refetch()}
+          />
         ) : (
           <ScrollView
             style={styles.flex}
@@ -360,7 +370,7 @@ export default function MontarDietaScreen() {
         )}
       </Animated.View>
 
-      {!loadingDetail ? (
+      {!loadingDetail && !detailError ? (
         <View style={styles.footer}>
           {step === 1 ? (
             <Button variant="primary" label="Continuar" onPress={handleStep1Continue} />

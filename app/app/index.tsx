@@ -71,7 +71,7 @@ export default function SplashScreenRoute() {
     <View style={styles.container}>
       {/* Símbolo isolado, centrado — variação A do mockup. */}
       <Animated.View style={[styles.center, logoStyle]}>
-        <Logo variant="symbol" color="neon" width={92} />
+        <Logo variant="symbol" color="neon" width={92} accessibilityLabel="Actus" />
       </Animated.View>
 
       {/* Wordmark discreto no rodapé. */}

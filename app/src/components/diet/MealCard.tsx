@@ -33,7 +33,7 @@ export function MealCard({ name, foods, kcal, protein, carbs, fat, isNext }: Pro
     <View style={[styles.row, isNext ? styles.rowNext : styles.rowRest]}>
       <View style={styles.head}>
         <ForkKnife size={16} weight="duotone" color={isNext ? colors.neon : colors.textTertiary} />
-        <AppText variant="h3" style={styles.name}>
+        <AppText variant="h4">
           {name}
         </AppText>
       </View>
@@ -61,7 +61,6 @@ const styles = StyleSheet.create((theme) => ({
   rowNext: { borderLeftColor: theme.colors.neon },
   rowRest: { borderLeftColor: theme.colors.outlineVariant },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  name: { fontSize: 19 },
   foods: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs },
   chip: {

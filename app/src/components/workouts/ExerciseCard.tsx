@@ -63,9 +63,17 @@ export function ExerciseCard({
     </>
   );
 
+  // Rótulo agregado p/ leitor de tela: nome, séries×reps e descanso numa frase.
+  const a11yLabel = `${name}, ${sets} séries de ${reps}, descanso ${restSeconds}s`;
+
   if (onPress) {
     return (
-      <Pressable accessibilityRole="button" onPress={onPress} style={styles.card}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={a11yLabel}
+        onPress={onPress}
+        style={styles.card}
+      >
         {content}
       </Pressable>
     );

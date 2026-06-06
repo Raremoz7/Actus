@@ -70,7 +70,7 @@ export function ExerciseEditRow({
         <AppText variant="metaSmall" color="tertiary">
           {`${position.toString().padStart(2, '0')}`}
         </AppText>
-        <AppText variant="h3" numberOfLines={2} style={styles.name}>
+        <AppText variant="h4" numberOfLines={2} style={styles.name}>
           {name}
         </AppText>
         <View style={styles.chips}>
@@ -122,9 +122,7 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     gap: theme.spacing.xs,
   },
-  name: {
-    fontSize: 17,
-  },
+  name: {},
   chips: {
     flexDirection: 'row',
     gap: theme.spacing.xs,

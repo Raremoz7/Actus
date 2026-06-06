@@ -91,7 +91,7 @@ describe('PersonalDesafiosScreen', () => {
       isError: false,
     });
     render(<PersonalDesafiosScreen />);
-    expect(screen.getByText('Nenhum desafio criado ainda.')).toBeTruthy();
+    expect(screen.getByText('Nenhum desafio ainda')).toBeTruthy();
   });
 
   it('mostra estado de erro discreto', () => {
@@ -101,6 +101,7 @@ describe('PersonalDesafiosScreen', () => {
       isError: true,
     });
     render(<PersonalDesafiosScreen />);
-    expect(screen.getByText('Não foi possível carregar agora.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar')).toBeTruthy();
+    expect(screen.getByText('Tentar de novo')).toBeTruthy();
   });
 });

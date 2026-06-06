@@ -35,4 +35,22 @@ describe('ChallengeListCard', () => {
     fireEvent.press(screen.getByText('Aceitar'));
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
+
+  it('durante "accepting" o toque em Aceitar não dispara de novo (botão travado)', () => {
+    const onAccept = jest.fn();
+    render(
+      <ChallengeListCard
+        name="Desafio do agachamento"
+        dayProgress={{ day: 0, total: 21 }}
+        status="active"
+        participantStatus="invited"
+        onPress={jest.fn()}
+        onAccept={onAccept}
+        onDecline={jest.fn()}
+        accepting
+      />,
+    );
+    fireEvent.press(screen.getByText('Aceitar'));
+    expect(onAccept).not.toHaveBeenCalled();
+  });
 });

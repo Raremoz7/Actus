@@ -58,9 +58,7 @@ function StepRow({ step, index, isLast }: { step: Step; index: number; isLast: b
         {step.num}
       </AppText>
       <View style={styles.stepBody}>
-        <AppText variant="h3" style={styles.stepTitle}>
-          {step.title}
-        </AppText>
+        <AppText variant="bodyLg">{step.title}</AppText>
         <AppText variant="bodySm" color="tertiary" style={styles.stepDetail}>
           {step.detail}
         </AppText>
@@ -135,16 +133,11 @@ const styles = StyleSheet.create((theme) => ({
     borderBottomColor: theme.colors.outlineVariant,
   },
   stepNum: {
-    fontSize: 13,
     lineHeight: 24,
   },
   stepBody: {
     flex: 1,
     gap: 2,
-  },
-  stepTitle: {
-    fontSize: 16,
-    lineHeight: 20,
   },
   stepDetail: {
     marginTop: 2,

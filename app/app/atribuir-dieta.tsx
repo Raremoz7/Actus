@@ -15,7 +15,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { ForkKnife, Check, CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -162,9 +162,16 @@ export default function AtribuirDietaScreen() {
               Não foi possível carregar suas dietas.
             </AppText>
           ) : isEmpty ? (
-            <AppText variant="bodySm" color="tertiary">
-              Nenhuma dieta criada ainda. Monte uma dieta antes de atribuir.
-            </AppText>
+            <View style={styles.emptyBlock}>
+              <AppText variant="bodySm" color="tertiary">
+                Nenhuma dieta criada ainda. Monte uma dieta antes de atribuir.
+              </AppText>
+              <Button
+                variant="secondary"
+                label="Montar dieta"
+                onPress={() => router.push('/montar-dieta' as Href)}
+              />
+            </View>
           ) : (
             <View style={styles.list}>
               {templates.map((t) => (
@@ -229,6 +236,9 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.md,
   },
   list: {
+    gap: theme.spacing.md,
+  },
+  emptyBlock: {
     gap: theme.spacing.md,
   },
   card: {

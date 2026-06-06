@@ -82,7 +82,7 @@ describe('PersonalTreinosScreen', () => {
       isError: false,
     });
     render(<PersonalTreinosScreen />);
-    expect(screen.getByText('Nenhum treino criado ainda.')).toBeTruthy();
+    expect(screen.getByText('Nenhum treino ainda')).toBeTruthy();
   });
 
   it('mostra estado de erro discreto', () => {
@@ -92,6 +92,7 @@ describe('PersonalTreinosScreen', () => {
       isError: true,
     });
     render(<PersonalTreinosScreen />);
-    expect(screen.getByText('Não foi possível carregar agora.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar')).toBeTruthy();
+    expect(screen.getByText('Tentar de novo')).toBeTruthy();
   });
 });

@@ -24,6 +24,14 @@ const { motion, colors } = darkTheme;
 // Modos do player: tudo num fluxo só, dirigido por estado local.
 type PlayerMode = 'overview' | 'logging' | 'resting';
 
+// Descanso em mm:ss (mono) — nunca número cru.
+function formatRest(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const mm = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+}
+
 export default function SessaoPlayerScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? (params.id[0] ?? '') : (params.id ?? '');
@@ -276,7 +284,10 @@ function Overview({
           <Pressable
             key={e.workout_exercise_id}
             accessibilityRole="button"
-            accessibilityLabel={`${e.name_snapshot}, ${e.sets} por ${e.reps}`}
+            accessibilityLabel={`${e.name_snapshot}, ${e.sets} por ${e.reps}, ${
+              e.completed ? 'concluído' : isCurrent ? 'em andamento' : 'pendente'
+            }`}
+            accessibilityState={{ disabled: !isCurrent, selected: isCurrent }}
             disabled={!isCurrent}
             onPress={isCurrent ? () => onPressCurrent(e) : undefined}
             style={[styles.exRow, isCurrent ? styles.exRowCurrent : null]}
@@ -421,7 +432,7 @@ function Resting({
           Descanso
         </AppText>
         <AppText variant="dataBig" color="neon" style={styles.timer}>
-          {restLeft}
+          {formatRest(restLeft)}
         </AppText>
         <View style={styles.dots}>
           {Array.from({ length: exercise.sets }).map((_, i) => (
@@ -562,7 +573,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   bigInput: {
     fontFamily: theme.fontFamily.mono,
-    fontSize: 40,
+    fontSize: theme.typeScale.inputHero,
     color: theme.colors.textPrimary,
     textAlign: 'center',
     minWidth: 80,
@@ -571,8 +582,8 @@ const styles = StyleSheet.create((theme) => ({
 
   // Resting
   timer: {
-    fontSize: 88,
-    lineHeight: 96,
+    fontSize: theme.typeScale.timerHero,
+    lineHeight: Math.round(theme.typeScale.timerHero * 1.1),
     marginVertical: theme.spacing.md,
   },
   dots: {

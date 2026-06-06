@@ -76,7 +76,7 @@ describe('NutriDietasScreen', () => {
       isError: false,
     });
     render(<NutriDietasScreen />);
-    expect(screen.getByText('Nenhuma dieta criada ainda.')).toBeTruthy();
+    expect(screen.getByText('Nenhuma dieta ainda')).toBeTruthy();
   });
 
   it('mostra estado de erro discreto', () => {
@@ -86,6 +86,7 @@ describe('NutriDietasScreen', () => {
       isError: true,
     });
     render(<NutriDietasScreen />);
-    expect(screen.getByText('Não foi possível carregar agora.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar')).toBeTruthy();
+    expect(screen.getByText('Tentar de novo')).toBeTruthy();
   });
 });

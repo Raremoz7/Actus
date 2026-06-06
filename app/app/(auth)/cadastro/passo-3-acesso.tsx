@@ -232,14 +232,18 @@ export default function Passo3AcessoScreen() {
                   />
                 )}
               />
-              <AppText
-                variant="metaSmall"
-                color={passwordMeetsLength ? 'neon' : 'tertiary'}
-                uppercase
-                style={styles.hint}
-              >
-                {passwordMeetsLength ? '✓ 8+ caracteres' : 'Mínimo de 8 caracteres'}
-              </AppText>
+              <View style={styles.hint}>
+                {passwordMeetsLength ? (
+                  <Check size={12} weight="bold" color={colors.neon} />
+                ) : null}
+                <AppText
+                  variant="metaSmall"
+                  color={passwordMeetsLength ? 'neon' : 'tertiary'}
+                  uppercase
+                >
+                  {passwordMeetsLength ? '8+ caracteres' : 'Mínimo de 8 caracteres'}
+                </AppText>
+              </View>
             </View>
 
             <Controller
@@ -273,7 +277,7 @@ export default function Passo3AcessoScreen() {
               accessibilityRole="checkbox"
               accessibilityState={{ checked: consent }}
               accessibilityLabel="Li e aceito os termos de uso e a política de privacidade"
-              hitSlop={8}
+              hitSlop={11}
               onPress={toggleConsent}
               style={[
                 styles.checkbox,
@@ -290,6 +294,8 @@ export default function Passo3AcessoScreen() {
               Li e aceito os{' '}
               <RNText
                 style={styles.consentLink}
+                accessibilityRole="link"
+                accessibilityLabel="Abrir termos de uso"
                 onPress={() => void Linking.openURL(TERMS_URL)}
               >
                 termos de uso
@@ -297,6 +303,8 @@ export default function Passo3AcessoScreen() {
               e a{' '}
               <RNText
                 style={styles.consentLink}
+                accessibilityRole="link"
+                accessibilityLabel="Abrir política de privacidade"
                 onPress={() => void Linking.openURL(PRIVACY_URL)}
               >
                 política de privacidade
@@ -367,9 +375,11 @@ const styles = StyleSheet.create((theme) => ({
     alignSelf: 'stretch',
   },
   hint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
     marginTop: theme.spacing.xs,
     marginLeft: 2,
-    letterSpacing: 1,
   },
   consent: {
     flexDirection: 'row',
