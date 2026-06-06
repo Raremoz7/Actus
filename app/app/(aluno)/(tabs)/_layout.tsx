@@ -1,4 +1,4 @@
-import { HouseIcon, BarbellIcon, TrophyIcon, UserIcon, PlayIcon } from 'phosphor-react-native';
+import { HouseIcon, BarbellIcon, TrophyIcon, UserIcon } from 'phosphor-react-native';
 import { Tabs } from 'expo-router';
 
 import { ActusTabBar, type TabSpec } from '@/components/navigation/ActusTabBar';
@@ -33,19 +33,7 @@ export default function AlunoTabsLayout() {
   return (
     <Tabs
       screenOptions={{ headerShown: false }}
-      tabBar={(props) => (
-        <ActusTabBar
-          {...props}
-          tabs={TABS}
-          center={{
-            accessibilityLabel: 'Iniciar treino do dia',
-            renderIcon: (color) => <PlayIcon size={28} color={color} weight="duotone" />,
-            onPress: () => {
-              // TODO Bloco 4: iniciar treino do dia
-            },
-          }}
-        />
-      )}
+      tabBar={(props) => <ActusTabBar {...props} tabs={TABS} />}
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="treinos" />
