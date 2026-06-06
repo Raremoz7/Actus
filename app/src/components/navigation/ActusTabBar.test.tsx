@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import { HouseIcon } from 'phosphor-react-native';
 import { ActusTabBar, type TabSpec } from './ActusTabBar';
@@ -22,14 +23,14 @@ describe('ActusTabBar', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('renderiza os labels de todas as abas', () => {
-    render(<ActusTabBar {...(makeProps(0) as never)} tabs={TABS} />);
+    render(<ActusTabBar {...(makeProps(0) as unknown as BottomTabBarProps)} tabs={TABS} />);
     expect(screen.getByText('HOJE')).toBeTruthy();
     expect(screen.getByText('TREINOS')).toBeTruthy();
   });
 
   it('toque em aba não-ativa navega e dispara haptic', () => {
     const props = makeProps(0);
-    render(<ActusTabBar {...(props as never)} tabs={TABS} />);
+    render(<ActusTabBar {...(props as unknown as BottomTabBarProps)} tabs={TABS} />);
     fireEvent.press(screen.getByLabelText('TREINOS'));
     expect(props.navigation.navigate).toHaveBeenCalledWith('treinos');
     expect(Haptics.selectionAsync).toHaveBeenCalled();
@@ -37,7 +38,7 @@ describe('ActusTabBar', () => {
 
   it('toque na aba ativa não navega', () => {
     const props = makeProps(0);
-    render(<ActusTabBar {...(props as never)} tabs={TABS} />);
+    render(<ActusTabBar {...(props as unknown as BottomTabBarProps)} tabs={TABS} />);
     fireEvent.press(screen.getByLabelText('HOJE'));
     expect(props.navigation.navigate).not.toHaveBeenCalled();
   });
