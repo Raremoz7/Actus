@@ -30,6 +30,13 @@ jest.mock('react-native-reanimated', () => {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
+    Easing: {
+      bezier: () => (t) => t,
+      linear: (t) => t,
+      out: (fn) => fn,
+      inOut: (fn) => fn,
+      cubic: (t) => t,
+    },
     withSpring,
     withRepeat,
     withSequence,
@@ -80,7 +87,8 @@ jest.mock('phosphor-react-native', () => {
 
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),
-  ImpactFeedbackStyle: { Light: 'light' },
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium' },
 }));
 
 // expo-linear-gradient — nativo; no jest retorna View simples.
