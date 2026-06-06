@@ -6,7 +6,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Drop, NotePencil } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -16,6 +16,7 @@ import { useStudentDietDetail } from '@/hooks/useStudentDietDetail';
 import { parseDietBody, type Meal } from '@/types/diets';
 import { dietTotals, hasAnyMacro } from '@/lib/diet';
 import { shortDateBr } from '@/lib/format';
+import { goBackOr } from '@/lib/nav';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -91,7 +92,7 @@ export default function DietaDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr('/(aluno)/(tabs)')}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />

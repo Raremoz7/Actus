@@ -1,12 +1,36 @@
-import { Pressable, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Play, MoonStars, CaretRight, Check } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
+import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { darkTheme } from '@/theme';
 import type { TodayWorkoutSummary } from '@/types/workouts';
 
-const { colors } = darkTheme;
+const { colors, gradients, cardPhotoScrimLocations } = darkTheme;
+
+// Foto do grupo muscular bem soft ao fundo do card (full-bleed), com scrim surface1
+// que a deixa discreta no topo e some na base — meta e CTA ficam sobre fundo limpo.
+// [MOCK — imagem ilustrativa por grupo muscular; real virá do Wger]
+function SoftPhoto({ muscleGroups }: { muscleGroups: string }) {
+  return (
+    <>
+      <Image
+        accessible={false}
+        source={{ uri: exerciseImageUrl(muscleGroups, 800) }}
+        resizeMode="cover"
+        style={[StyleSheet.absoluteFill, styles.photo]}
+      />
+      <LinearGradient
+        pointerEvents="none"
+        colors={gradients.cardPhotoScrim}
+        locations={cardPhotoScrimLocations}
+        style={StyleSheet.absoluteFill}
+      />
+    </>
+  );
+}
 
 type Props = {
   summary: TodayWorkoutSummary;
@@ -38,6 +62,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
     if (done) {
       return (
         <View style={styles.card}>
+          <SoftPhoto muscleGroups={w.muscle_groups} />
           <AppText variant="eyebrow" color="neon">
             Treino de hoje
           </AppText>
@@ -56,6 +81,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
 
     return (
       <View style={styles.card}>
+        <SoftPhoto muscleGroups={w.muscle_groups} />
         <AppText variant="eyebrow" color="neon">
           Treino de hoje
         </AppText>
@@ -120,7 +146,11 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
     padding: theme.spacing.xl,
+    // Clipa a foto full-bleed ao raio do card.
+    overflow: 'hidden',
   },
+  // Foto de fundo bem soft — discreta, no espírito quiet luxury.
+  photo: { opacity: 0.16 },
   // Herói: título grande (h1) com respiro generoso acima.
   hero: {
     marginTop: theme.spacing.md,

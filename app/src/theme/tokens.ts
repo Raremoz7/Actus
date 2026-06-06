@@ -46,7 +46,22 @@ export const palette = {
 export const gradients = {
   brand: ['#CBFE00', '#A2CB00'],
   streak: ['#F97316', '#EF4444'],
+  // Scrim do hero do exercício: bgBase (#1A343F = cor do corpo da tela) em alphas
+  // crescentes, de cima (transparente) p/ baixo (100% sólido). Termina exatamente na
+  // cor do corpo → a foto dissolve na cor sólida sem emenda (sem corte seco). Também
+  // garante leitura do título/eyebrow. Vertical; pareado com heroScrimLocations.
+  heroScrim: ['rgba(26, 52, 63, 0)', 'rgba(26, 52, 63, 0)', 'rgba(26, 52, 63, 0.55)', 'rgba(26, 52, 63, 1)'],
+  // Scrim do card de treino com foto soft: surface1 (#203F4B) transparente no topo →
+  // sólido na base, p/ a foto aparecer discreta em cima e meta/CTA ficarem sobre fundo
+  // limpo embaixo. Vertical (topo→base); pareado com cardPhotoScrimLocations.
+  cardPhotoScrim: ['rgba(32, 63, 75, 0)', 'rgba(32, 63, 75, 0.55)', 'rgba(32, 63, 75, 1)'],
 } as const;
+
+// Paradas (0–1) do heroScrim — foto nítida até 30%, ramp gradual e sólido total na base.
+export const heroScrimLocations = [0, 0.3, 0.68, 1] as const;
+
+// Paradas do cardPhotoScrim — transparente no topo, sólido a partir de ~86%.
+export const cardPhotoScrimLocations = [0, 0.48, 0.86] as const;
 
 // Espaçamento (base 4pt)
 export const spacing = {

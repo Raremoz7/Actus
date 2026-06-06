@@ -17,6 +17,7 @@ import { useMe } from '@/hooks/useMe';
 import { calcAge, formatCheckInDate } from '@/lib/student';
 import type { CheckIn, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
+import { goBackOr } from '@/lib/nav';
 import { studentInitials } from './StudentRow';
 import { CheckInHeatmap } from './CheckInHeatmap';
 import {
@@ -120,7 +121,7 @@ export function StudentDetailScreen({ id }: Props) {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr()}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />

@@ -1,4 +1,4 @@
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Play } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -30,20 +30,28 @@ export function NextWorkoutCard({
     estMinutes > 0
       ? `${exerciseCount} exercícios · ~${estMinutes} min`
       : `${exerciseCount} exercícios`;
+  // Card não-interativo: a área de texto (abrir) e o CTA (iniciar) são IRMÃOS, nunca
+  // aninhados — Pressable vira <button> no web e button-dentro-de-button é DOM inválido.
   return (
-    <Pressable style={styles.card} onPress={onOpen} accessibilityRole="button">
-      <AppText variant="eyebrow" color="neon">
-        {isToday ? 'Próximo · hoje' : 'Próximo treino'}
-      </AppText>
-      <AppText variant="h2" style={styles.title}>
-        {title}
-      </AppText>
-      <AppText variant="bodySm" color="secondary" style={styles.metaTight}>
-        {meta}
-      </AppText>
-      <AppText variant="metaSmall" color="tertiary" style={styles.meta}>
-        {lastCompletedLabel ?? ''}
-      </AppText>
+    <View style={styles.card}>
+      <Pressable
+        onPress={onOpen}
+        accessibilityRole="button"
+        accessibilityLabel={`Abrir treino ${title}`}
+      >
+        <AppText variant="eyebrow" color="neon">
+          {isToday ? 'Próximo · hoje' : 'Próximo treino'}
+        </AppText>
+        <AppText variant="h2" style={styles.title}>
+          {title}
+        </AppText>
+        <AppText variant="bodySm" color="secondary" style={styles.metaTight}>
+          {meta}
+        </AppText>
+        <AppText variant="metaSmall" color="tertiary" style={styles.meta}>
+          {lastCompletedLabel ?? ''}
+        </AppText>
+      </Pressable>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Iniciar treino"
@@ -55,7 +63,7 @@ export function NextWorkoutCard({
           Iniciar treino
         </AppText>
       </Pressable>
-    </Pressable>
+    </View>
   );
 }
 

@@ -10,6 +10,7 @@ import { AppText } from '@/components/ui';
 import { WorkoutDetailHeader, ExerciseCard, WorkoutHistory } from '@/components/workouts';
 import { aggregatedMuscleGroups, planValidityLabel } from '@/components/workouts/workoutMeta';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
+import { goBackOr } from '@/lib/nav';
 import { useCreateSession } from '@/hooks/useCreateSession';
 import { estimatedMinutes } from '@/lib/duration';
 import { darkTheme } from '@/theme';
@@ -58,7 +59,7 @@ export default function TreinoDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr('/(aluno)/(tabs)/treinos')}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />

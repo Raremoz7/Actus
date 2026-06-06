@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { goBackOr } from '@/lib/nav';
 import { CaretLeft, Check, FlagCheckered, Info, PencilSimple, SkipForward } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -221,7 +222,7 @@ export default function SessaoPlayerScreen() {
 
   function handleBack() {
     if (mode === 'overview') {
-      router.back();
+      goBackOr('/(aluno)/(tabs)');
     } else {
       setActiveExerciseId(null);
       setMode('overview');

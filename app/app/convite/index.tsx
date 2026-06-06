@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
 import { CaretLeft, Plus, Ticket } from 'phosphor-react-native';
+import { goBackOr } from '@/lib/nav';
 import * as Clipboard from 'expo-clipboard';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -101,7 +102,7 @@ export default function ConvitesScreen() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr()}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />

@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { CaretLeft, CaretRight, FilmSlate, Note as NoteIcon } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Tag } from '@/components/ui';
+import { AppText } from '@/components/ui';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
+import { goBackOr } from '@/lib/nav';
 import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { darkTheme } from '@/theme';
 
-const { motion, colors } = darkTheme;
+const { motion, colors, gradients, heroScrimLocations } = darkTheme;
 
 function parseIntOr(v: string | undefined, fallback: number): number {
   const n = Number(v);
@@ -53,6 +55,12 @@ export default function ExercicioDemoScreen() {
   const prev = idx > 0 ? exercises[idx - 1] : null;
   const next = idx >= 0 && idx < exercises.length - 1 ? exercises[idx + 1] : null;
 
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  // Hero cinematográfico: ~42% da tela, com piso/teto p/ não exagerar em telas
+  // muito baixas/altas. O título e o eyebrow ficam ancorados na base, sobre o scrim.
+  const heroHeight = Math.min(Math.max(height * 0.42, 300), 440);
+
   const opacity = useSharedValue(0);
   useEffect(() => {
     opacity.value = 0;
@@ -61,6 +69,8 @@ export default function ExercicioDemoScreen() {
   const revealStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const title = name || 'Exercício';
+  // Grupo muscular + equipamento viram um eyebrow único sobre a foto (sem repetir o nome).
+  const heroMeta = [muscle, equipment].filter(Boolean).join(' · ');
 
   function goTo(sibling: NonNullable<typeof next>) {
     router.replace({
@@ -80,192 +90,190 @@ export default function ExercicioDemoScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Voltar"
-          hitSlop={12}
-          onPress={() => router.back()}
-          style={styles.back}
-        >
-          <CaretLeft size={20} weight="bold" color={colors.textSecondary} />
-        </Pressable>
-        <AppText variant="eyebrow" color="tertiary" numberOfLines={1}>
-          {title}
-        </AppText>
-      </View>
-
+    <View style={styles.safe}>
       <Animated.View style={[styles.flex, revealStyle]}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 96 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Hero cinematográfico full-bleed (sob a status bar). */}
           {/* [MOCK — imagem ilustrativa por grupo muscular; real virá do Wger] */}
-          <View style={styles.heroWrap}>
+          <View style={[styles.hero, { height: heroHeight }]}>
             <Image
               accessible={false}
               source={{ uri: exerciseImageUrl(muscle, 1200) }}
               resizeMode="cover"
-              style={styles.hero}
+              style={StyleSheet.absoluteFill}
             />
-            <View pointerEvents="none" style={styles.heroVeil} />
-          </View>
+            {/* Scrim de baixo p/ cima — garante leitura do título sobre qualquer foto. */}
+            <LinearGradient
+              pointerEvents="none"
+              colors={gradients.heroScrim}
+              locations={heroScrimLocations}
+              style={StyleSheet.absoluteFill}
+            />
 
-          <AppText variant="h2">
-            {title}
-          </AppText>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Voltar"
+              hitSlop={12}
+              onPress={() => goBackOr('/(aluno)/(tabs)/treinos')}
+              style={[styles.back, { top: insets.top + darkTheme.spacing.sm }]}
+            >
+              <CaretLeft size={20} weight="bold" color={colors.textPrimary} />
+            </Pressable>
 
-          {muscle ? (
-            <View style={styles.tagRow}>
-              <Tag label={muscle} />
-            </View>
-          ) : null}
-
-          {equipment ? (
-            <AppText variant="metaSmall" color="secondary" style={styles.equipment}>
-              {equipment}
-            </AppText>
-          ) : null}
-
-          {/* Prescrição factual em mono — o conteúdo de maior valor da tela. */}
-          {hasPrescription || hasRest ? (
-            <View style={styles.prescription}>
-              {hasPrescription ? (
-                <View style={styles.presItem}>
-                  <AppText variant="eyebrow" color="tertiary">
-                    Séries × reps
-                  </AppText>
-                  <AppText variant="dataBig" color="neon">
-                    {`${sets}×${reps}`}
-                  </AppText>
-                </View>
+            <View style={styles.heroText}>
+              {heroMeta ? (
+                <AppText variant="eyebrow" color="neon" numberOfLines={1} style={styles.heroEyebrow}>
+                  {heroMeta}
+                </AppText>
               ) : null}
-              {hasRest ? (
-                <View style={styles.presItem}>
-                  <AppText variant="eyebrow" color="tertiary">
-                    Descanso
-                  </AppText>
-                  <AppText variant="dataBig">
-                    {`${rest}s`}
-                  </AppText>
-                </View>
-              ) : null}
-            </View>
-          ) : null}
-
-          {/* Nota do personal para este exercício. */}
-          {note ? (
-            <View style={styles.noteCard}>
-              <NoteIcon size={16} weight="duotone" color={colors.textSecondary} />
-              <AppText variant="bodySm" color="secondary" style={styles.noteText}>
-                {note}
+              <AppText variant="h1" numberOfLines={2}>
+                {title}
               </AppText>
             </View>
-          ) : null}
-
-          {/* [MOCK — sem endpoint na API v1: descrição/vídeo do Wger] */}
-          <View style={styles.demo}>
-            <View style={styles.demoIcon}>
-              <FilmSlate size={22} weight="duotone" color={colors.textSecondary} />
-            </View>
-            <AppText variant="bodySm" color="tertiary" style={styles.demoText}>
-              Demonstração em vídeo ainda não disponível para este exercício.
-            </AppText>
           </View>
 
-          {/* Navegação entre exercícios do mesmo treino. */}
-          {prev || next ? (
-            <View style={styles.nav}>
-              {prev ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Anterior: ${prev.name_snapshot}`}
-                  style={[styles.navBtn, styles.navPrev]}
-                  onPress={() => goTo(prev)}
-                >
-                  <CaretLeft size={16} weight="bold" color={colors.textSecondary} />
-                  <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
-                    {prev.name_snapshot}
-                  </AppText>
-                </Pressable>
-              ) : (
-                <View style={styles.navSpacer} />
-              )}
-              {next ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Próximo: ${next.name_snapshot}`}
-                  style={[styles.navBtn, styles.navNext]}
-                  onPress={() => goTo(next)}
-                >
-                  <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
-                    {next.name_snapshot}
-                  </AppText>
-                  <CaretRight size={16} weight="bold" color={colors.textSecondary} />
-                </Pressable>
-              ) : (
-                <View style={styles.navSpacer} />
-              )}
+          <View style={styles.body}>
+            {/* Prescrição factual em mono — o conteúdo de maior valor da tela. */}
+            {hasPrescription || hasRest ? (
+              <View style={styles.prescription}>
+                {hasPrescription ? (
+                  <View style={styles.presMain}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Séries × reps
+                    </AppText>
+                    <AppText variant="dataBig">
+                      {`${sets}×${reps}`}
+                    </AppText>
+                  </View>
+                ) : null}
+                {hasPrescription && hasRest ? <View style={styles.presDivider} /> : null}
+                {hasRest ? (
+                  <View style={styles.presSide}>
+                    <AppText variant="eyebrow" color="tertiary">
+                      Descanso
+                    </AppText>
+                    <AppText variant="dataBig">
+                      {`${rest}s`}
+                    </AppText>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+
+            {/* Nota do personal para este exercício. */}
+            {note ? (
+              <View style={styles.noteCard}>
+                <NoteIcon size={16} weight="duotone" color={colors.textSecondary} />
+                <AppText variant="bodySm" color="secondary" style={styles.noteText}>
+                  {note}
+                </AppText>
+              </View>
+            ) : null}
+
+            {/* [MOCK — sem endpoint na API v1: descrição/vídeo do Wger] */}
+            <View style={styles.demo}>
+              <View style={styles.demoIcon}>
+                <FilmSlate size={22} weight="duotone" color={colors.textSecondary} />
+              </View>
+              <AppText variant="bodySm" color="tertiary" style={styles.demoText}>
+                Demonstração em vídeo ainda não disponível para este exercício.
+              </AppText>
             </View>
-          ) : null}
+
+            {/* Navegação entre exercícios do mesmo treino. */}
+            {prev || next ? (
+              <View style={styles.nav}>
+                {prev ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Anterior: ${prev.name_snapshot}`}
+                    style={[styles.navBtn, styles.navPrev]}
+                    onPress={() => goTo(prev)}
+                  >
+                    <CaretLeft size={16} weight="bold" color={colors.textSecondary} />
+                    <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
+                      {prev.name_snapshot}
+                    </AppText>
+                  </Pressable>
+                ) : (
+                  <View style={styles.navSpacer} />
+                )}
+                {next ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Próximo: ${next.name_snapshot}`}
+                    style={[styles.navBtn, styles.navNext]}
+                    onPress={() => goTo(next)}
+                  >
+                    <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
+                      {next.name_snapshot}
+                    </AppText>
+                    <CaretRight size={16} weight="bold" color={colors.textSecondary} />
+                  </Pressable>
+                ) : (
+                  <View style={styles.navSpacer} />
+                )}
+              </View>
+            ) : null}
+          </View>
         </ScrollView>
       </Animated.View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
   safe: { flex: 1, backgroundColor: theme.colors.bgBase },
   flex: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+  scroll: {},
+  // Hero cinematográfico full-bleed (altura definida inline pelo tamanho da tela).
+  hero: {
+    backgroundColor: theme.colors.surface2,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
   },
   back: {
-    width: 34,
-    height: 34,
+    position: 'absolute',
+    left: theme.spacing.lg,
+    width: 38,
+    height: 38,
     borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.surface1,
+    backgroundColor: theme.colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 96 },
-  // Hero reduzido (16/9) e full-bleed: protagonismo vai p/ a prescrição factual.
-  heroWrap: {
-    marginHorizontal: -theme.spacing.lg,
-    marginBottom: theme.spacing.xl,
-    aspectRatio: 16 / 9,
-    backgroundColor: theme.colors.surface2,
-    overflow: 'hidden',
+  heroText: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
   },
-  hero: { width: '100%', height: '100%' },
-  heroVeil: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.veil,
-  },
-  tagRow: { marginTop: theme.spacing.md },
-  equipment: { marginTop: theme.spacing.sm },
+  heroEyebrow: { marginBottom: theme.spacing.sm },
+  body: { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg },
+  // Prescrição: métrica dominante (séries×reps) + secundária (descanso), divididas.
   prescription: {
     flexDirection: 'row',
-    gap: theme.spacing.xl,
-    marginTop: theme.spacing.xl,
+    alignItems: 'center',
     backgroundColor: theme.colors.surface1,
     borderWidth: 1,
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
     padding: theme.spacing.lg,
   },
-  presItem: { gap: theme.spacing.xs },
+  presMain: { flex: 1.5, gap: theme.spacing.xs },
+  presSide: { flex: 1, gap: theme.spacing.xs },
+  presDivider: {
+    width: 1,
+    alignSelf: 'stretch',
+    marginHorizontal: theme.spacing.lg,
+    backgroundColor: theme.colors.outlineVariant,
+  },
   noteCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: theme.spacing.sm,
-    marginTop: theme.spacing.md,
+    marginTop: theme.spacing.lg,
     backgroundColor: theme.colors.surface1,
     borderLeftWidth: 2,
     borderLeftColor: theme.colors.neon,

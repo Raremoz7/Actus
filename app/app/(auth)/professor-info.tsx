@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, ScreenHero } from '@/components/ui';
+import { goBackOr } from '@/lib/nav';
 import { darkTheme } from '@/theme';
 
 const { motion } = darkTheme;
@@ -75,7 +76,7 @@ export default function ProfessorInfoScreen() {
         eyebrow="Acesso de professor"
         title={'Credenciamento\nActus'}
         titleSize={30}
-        onBack={() => router.back()}
+        onBack={() => goBackOr('/(auth)/escolha-perfil')}
       />
 
       <View style={styles.body}>

@@ -21,6 +21,8 @@ jest.mock('expo-router', () => ({
   router: {
     push: (...args: unknown[]) => mockPush(...args),
     back: () => mockBack(),
+    canGoBack: () => true,
+    replace: () => {},
   },
 }));
 jest.mock('expo-clipboard', () => ({

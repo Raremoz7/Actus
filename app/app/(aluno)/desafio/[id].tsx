@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { CaretLeft, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -10,6 +10,7 @@ import { AppText, ListState } from '@/components/ui';
 import { MyPositionCard, RankingRow } from '@/components/challenges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeRanking } from '@/hooks/useChallengeRanking';
+import { goBackOr } from '@/lib/nav';
 import { useMe } from '@/hooks/useMe';
 import { challengeDayProgress, challengeStatusLabel } from '@/lib/challenge';
 import { formatDateLocal, shortDateBr } from '@/lib/format';
@@ -88,7 +89,7 @@ export default function DesafioDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr('/(aluno)/(tabs)/desafios')}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />
@@ -187,7 +188,7 @@ export default function DesafioDetailScreen() {
               title="Desafio indisponível"
               message="Não foi possível carregar este desafio."
               actionLabel="Voltar"
-              onAction={() => router.back()}
+              onAction={() => goBackOr('/(aluno)/(tabs)/desafios')}
             />
           )}
         </ScrollView>

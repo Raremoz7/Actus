@@ -14,7 +14,7 @@ jest.mock('@/hooks/usePatchMe', () => ({
   usePatchMe: () => ({ mutate: mockMutate, isPending: false }),
 }));
 jest.mock('expo-router', () => ({
-  router: { back: () => mockBack() },
+  router: { back: () => mockBack(), canGoBack: () => true, replace: () => {} },
 }));
 
 describe('EditarPerfilScreen', () => {

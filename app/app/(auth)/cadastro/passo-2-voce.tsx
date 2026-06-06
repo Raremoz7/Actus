@@ -14,6 +14,7 @@ import {
 } from '@/components/molecules';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 import { type CadastroForm, PASSO_2_FIELDS } from '@/features/auth/cadastroForm';
+import { goBackOr } from '@/lib/nav';
 import type { Gender } from '@/types/auth';
 
 // [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
@@ -55,7 +56,7 @@ export default function Passo2VoceScreen() {
         title="Quem treina"
         titleSize={28}
         compact
-        onBack={() => router.back()}
+        onBack={() => goBackOr('/(auth)/cadastro/passo-1-convite')}
       />
 
       <KeyboardAvoidingView

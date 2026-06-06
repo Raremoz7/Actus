@@ -18,6 +18,7 @@ import { FormErrorBanner, MaskedField, WizardProgress } from '@/components/molec
 import { useRegisterMutation } from '@/features/auth/hooks';
 import { authErrorMessage } from '@/features/auth/errors';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
+import { goBackOr } from '@/lib/nav';
 import { isApiError } from '@/api/errors';
 import {
   buildRegisterBody,
@@ -149,7 +150,7 @@ export default function Passo3AcessoScreen() {
         title="Seu acesso"
         titleSize={28}
         compact
-        onBack={() => router.back()}
+        onBack={() => goBackOr('/(auth)/cadastro/passo-2-voce')}
       />
 
       <KeyboardAvoidingView

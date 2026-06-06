@@ -20,7 +20,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import { goBackOr } from '@/lib/nav';
 import { CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -104,7 +104,7 @@ export default function EditarPerfilScreen() {
     }
     patchMe.mutate(parsed.data, {
       onSuccess: () => {
-        router.back();
+        goBackOr('/(aluno)/(tabs)/perfil');
       },
       onError: () => {
         setSaveError('Não foi possível salvar. Tente de novo.');
@@ -119,7 +119,7 @@ export default function EditarPerfilScreen() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => goBackOr('/(aluno)/(tabs)/perfil')}
           style={styles.back}
         >
           <CaretLeft size={20} weight="bold" color={colors.textSecondary} />

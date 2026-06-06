@@ -1,6 +1,8 @@
 import {
   palette,
   gradients,
+  heroScrimLocations,
+  cardPhotoScrimLocations,
   spacing,
   radius,
   fontFamily,
@@ -12,6 +14,8 @@ import {
 export const darkTheme = {
   colors: palette,
   gradients,
+  heroScrimLocations,
+  cardPhotoScrimLocations,
   spacing,
   radius,
   fontFamily,
