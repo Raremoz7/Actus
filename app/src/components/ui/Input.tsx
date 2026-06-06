@@ -20,6 +20,8 @@ import { AppText } from './Text';
 type InputProps = TextInputProps & {
   label?: string;
   error?: string;
+  // Pinta a borda de erro SEM renderizar linha de mensagem (a msg vive no banner do form).
+  invalid?: boolean;
   // Habilita o botão de mostrar/ocultar senha (Eye/EyeSlash duotone).
   secureToggle?: boolean;
 };
@@ -27,7 +29,7 @@ type InputProps = TextInputProps & {
 const { motion, colors } = darkTheme;
 
 export const Input = forwardRef<TextInput, InputProps>(function Input(
-  { label, error, secureToggle = false, onFocus, onBlur, style, ...rest },
+  { label, error, invalid = false, secureToggle = false, onFocus, onBlur, style, ...rest },
   ref,
 ) {
   // Estado de senha oculta (só relevante quando secureToggle).
@@ -36,7 +38,9 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   // Progresso de foco (0 → 1) para a transição da borda em 150ms.
   const focusProgress = useSharedValue(0);
 
-  const hasError = Boolean(error);
+  // Mensagem só quando há texto real; `invalid` pinta a borda sem ocupar linha.
+  const errorText = error && error.trim().length > 0 ? error : null;
+  const hasError = errorText != null || invalid;
 
   const borderStyle = useAnimatedStyle(() => {
     // Erro tem prioridade sobre o estado de foco.
@@ -73,6 +77,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
       <Animated.View style={[styles.field, borderStyle]}>
         <TextInput
           ref={ref}
+          accessibilityLabel={label}
+          aria-invalid={hasError || undefined}
           style={[styles.input, style]}
           placeholderTextColor={colors.textTertiary}
           secureTextEntry={secureToggle ? hidden : rest.secureTextEntry}
@@ -98,10 +104,12 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
         ) : null}
       </Animated.View>
 
-      {hasError ? (
-        <AppText variant="bodySm" color="error" style={styles.error}>
-          {error}
-        </AppText>
+      {errorText ? (
+        <View accessibilityLiveRegion="polite">
+          <AppText variant="bodySm" color="error" style={styles.error}>
+            {errorText}
+          </AppText>
+        </View>
       ) : null}
     </View>
   );

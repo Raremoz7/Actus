@@ -13,6 +13,18 @@ export function formatDateLocal(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+// Data curta PT a partir de YYYY-MM-DD, por componentes (sem new Date(iso) — fuso).
+// Ex.: "2026-06-01" → "01 jun". Retorna a string original se o formato não casar.
+const MESES_CURTOS = [
+  'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+  'jul', 'ago', 'set', 'out', 'nov', 'dez',
+];
+export function shortDateBr(dateOnly: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (!m) return dateOnly;
+  return `${m[3]} ${MESES_CURTOS[Number(m[2]) - 1] ?? ''}`.trim();
+}
+
 // Máscara progressiva de CPF: 000.000.000-00.
 // Aplica a pontuação conforme os dígitos chegam, sem exigir o valor completo.
 export function maskCpf(v: string): string {

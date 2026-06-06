@@ -10,6 +10,7 @@ export type AppTextVariant =
   | 'h1'
   | 'h2'
   | 'h3'
+  | 'h4'
   | 'label'
   | 'dataBig'
   | 'dataMed'
@@ -78,39 +79,48 @@ const VARIANTS: Record<AppTextVariant, VariantSpec> = {
     letterSpacing: 0,
     forceUppercase: true,
   },
+  // Título compacto de item de lista (display). lineHeight justo p/ linhas densas.
+  h4: {
+    fontFamily: fontFamily.displayExtraBold,
+    fontSize: typeScale.h4,
+    lineHeight: Math.round(typeScale.h4 * 1.15),
+    letterSpacing: 0,
+    forceUppercase: true,
+  },
+  // Tracking dos rótulos/dados segue o design.md: label 18%, mono 8–15%, eyebrow 30%.
   label: {
     fontFamily: fontFamily.displayExtraBold,
     fontSize: typeScale.label,
     lineHeight: Math.round(typeScale.label * 1.2),
-    letterSpacing: 0.5,
+    letterSpacing: Math.round(typeScale.label * 0.18 * 10) / 10,
     forceUppercase: true,
   },
   dataBig: {
     fontFamily: fontFamily.mono,
     fontSize: typeScale.dataBig,
     lineHeight: Math.round(typeScale.dataBig * 1.05),
-    letterSpacing: 0,
+    letterSpacing: Math.round(typeScale.dataBig * 0.08 * 10) / 10,
     forceUppercase: false,
   },
   dataMed: {
     fontFamily: fontFamily.mono,
     fontSize: typeScale.dataMed,
     lineHeight: Math.round(typeScale.dataMed * 1.2),
-    letterSpacing: 0,
+    letterSpacing: Math.round(typeScale.dataMed * 0.12 * 10) / 10,
     forceUppercase: false,
   },
   metaSmall: {
     fontFamily: fontFamily.mono,
     fontSize: typeScale.metaSmall,
     lineHeight: Math.round(typeScale.metaSmall * 1.3),
-    letterSpacing: 0.5,
+    letterSpacing: Math.round(typeScale.metaSmall * 0.15 * 10) / 10,
     forceUppercase: false,
   },
   eyebrow: {
     fontFamily: fontFamily.mono,
     fontSize: typeScale.eyebrow,
     lineHeight: Math.round(typeScale.eyebrow * 1.4),
-    letterSpacing: 1.5,
+    letterSpacing: Math.round(typeScale.eyebrow * 0.3 * 10) / 10,
     forceUppercase: true,
   },
   bodyLg: {

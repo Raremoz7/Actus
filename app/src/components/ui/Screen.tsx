@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
 type ScreenProps = {
@@ -9,13 +9,16 @@ type ScreenProps = {
   padded?: boolean;
   // scroll → conteúdo em ScrollView (keyboardShouldPersistTaps='handled').
   scroll?: boolean;
+  // Bordas de safe area aplicadas. Em telas dentro das tabs, use ['top'] para não
+  // contar o inset inferior duas vezes (a tab bar já adiciona o seu).
+  edges?: readonly Edge[];
 };
 
-export function Screen({ children, padded = false, scroll = false }: ScreenProps) {
+export function Screen({ children, padded = false, scroll = false, edges }: ScreenProps) {
   styles.useVariants({ padded });
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={edges}>
       {scroll ? (
         <ScrollView
           style={styles.scroll}

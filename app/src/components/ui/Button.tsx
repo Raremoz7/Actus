@@ -64,7 +64,8 @@ export function Button({
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pressScale.value }],
-    opacity: variant === 'primary' && loading ? loadingPulse.value : 1,
+    // Pulso de opacidade em QUALQUER variante durante loading (regra: nunca spinner).
+    opacity: loading ? loadingPulse.value : 1,
   }));
 
   const ghostBgStyle = useAnimatedStyle(() => {

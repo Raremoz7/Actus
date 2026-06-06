@@ -1,5 +1,7 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
+
+import { AppText, type AppTextColor } from './Text';
 
 export type TagTone = 'neutral' | 'active' | 'success';
 
@@ -8,14 +10,21 @@ type TagProps = {
   tone?: TagTone;
 };
 
+// Cor do texto por tom: neutral sobre surface escura; active/success sobre fundo claro.
+const TONE_TEXT: Record<TagTone, AppTextColor> = {
+  neutral: 'secondary',
+  active: 'inverse',
+  success: 'inverse',
+};
+
 export function Tag({ label, tone = 'neutral' }: TagProps) {
   styles.useVariants({ tone });
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label} numberOfLines={1}>
+      <AppText variant="eyebrow" color={TONE_TEXT[tone]} numberOfLines={1}>
         {label}
-      </Text>
+      </AppText>
     </View>
   );
 }
@@ -31,21 +40,6 @@ const styles = StyleSheet.create((theme) => ({
         neutral: { backgroundColor: theme.colors.surface2 },
         active: { backgroundColor: theme.colors.neon },
         success: { backgroundColor: theme.colors.success },
-      },
-    },
-  },
-  label: {
-    fontFamily: theme.fontFamily.mono,
-    fontSize: 10,
-    lineHeight: 12,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    variants: {
-      tone: {
-        neutral: { color: theme.colors.textSecondary },
-        // textInverse (#141414) é o token de texto sobre fundos claros (neon/success).
-        active: { color: theme.colors.textInverse },
-        success: { color: theme.colors.textInverse },
       },
     },
   },

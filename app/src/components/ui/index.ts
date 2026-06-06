@@ -15,6 +15,8 @@ export type { TagTone } from './Tag';
 export { Screen } from './Screen';
 export { ScreenHero } from './ScreenHero';
 
+export { ListState } from './ListState';
+
 // Logo é criado por outro agente (Onda 1), mas reexportado aqui por conveniência.
 export { Logo } from './Logo';
 export type { LogoVariant, LogoColor } from './Logo';

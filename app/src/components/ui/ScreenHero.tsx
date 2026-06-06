@@ -74,7 +74,7 @@ export function ScreenHero({
             hitSlop={12}
             onPress={onBack}
           >
-            <CaretLeft size={24} weight="duotone" color={colors.textPrimary} />
+            <CaretLeft size={24} weight="bold" color={colors.textPrimary} />
           </Pressable>
         ) : (
           <Logo variant="symbol" color="neon" width={28} />
@@ -128,7 +128,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   eyebrow: {
     marginBottom: theme.spacing.xs,
-    letterSpacing: 2,
   },
   title: {},
 }));

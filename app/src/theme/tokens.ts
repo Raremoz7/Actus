@@ -37,6 +37,9 @@ export const palette = {
   // overlay = bgLowest a 70% — escurece o conteúdo atrás do sheet.
   overlay: 'rgba(16, 37, 45, 0.7)',
   shadow: '#000000',
+  // Véu sobre imagens (thumb/hero de exercício) — bgLowest a 28%, escurece a foto
+  // para o texto/ícone por cima manter contraste sem apagar a imagem.
+  veil: 'rgba(16, 37, 45, 0.28)',
 } as const;
 
 // Gradientes (135deg no design; consumir os stops com expo-linear-gradient)
@@ -62,6 +65,8 @@ export const radius = {
   input: 12,
   modal: 24,
   pill: 100,
+  // Miniatura de imagem (thumb de exercício) — entre tag e card.
+  thumb: 8,
 } as const;
 
 // Famílias tipográficas (nomes exatos dos pesos do @expo-google-fonts)
@@ -89,6 +94,11 @@ export const typeScale = {
   bodyLg: 18,
   bodyMd: 15,
   bodySm: 13,
+  // Título compacto de item de lista (display) — preenche o gap entre h3 (22) e label (14).
+  h4: 18,
+  // Números-herói da sessão de treino — intencionalmente fora da escala de corpo.
+  timerHero: 88,
+  inputHero: 40,
 } as const;
 
 // Movimento — screen 300ms, micro 150ms, easing cubic-bezier(0.4,0,0.2,1)
