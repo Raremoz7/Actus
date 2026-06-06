@@ -30,7 +30,7 @@ export function ExerciseCard({
 }: Props) {
   const content = (
     <>
-      <ExerciseThumb size={56} />
+      <ExerciseThumb size={56} muscleGroup={muscleGroup} />
       <View style={styles.left}>
         <AppText variant="h3" numberOfLines={2}>
           {name}

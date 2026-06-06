@@ -9,6 +9,8 @@ import { TokensResponseSchema } from '@/types/auth';
 import { ApiError } from './errors';
 import { tokenStorage } from './storage';
 import { endpoints } from './endpoints';
+import { DEV_BYPASS_AUTH } from '@/lib/devAuth';
+import { installDevMockAdapter } from './devMocks';
 
 // Estende a config do axios com o guard de retry (evita refresh em loop na mesma request).
 declare module 'axios' {
@@ -44,6 +46,11 @@ export const api: AxiosInstance = axios.create({
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// [DEV — bypass de auth] Popula as telas com dados fake sem backend.
+if (DEV_BYPASS_AUTH) {
+  installDevMockAdapter(api);
+}
 
 // Instância CRUA, sem interceptors — usada só para o refresh, evitando recursão.
 const rawAxios: AxiosInstance = axios.create({

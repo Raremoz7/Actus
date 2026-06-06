@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -7,7 +7,7 @@ import { CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Tag } from '@/components/ui';
-import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
+import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -50,8 +50,14 @@ export default function ExercicioDemoScreen() {
 
       <Animated.View style={[styles.flex, revealStyle]}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={styles.thumbWrap}>
-            <ExerciseThumb size={260} />
+          {/* [MOCK — imagem ilustrativa por grupo muscular; real virá do Wger] */}
+          <View style={styles.heroWrap}>
+            <Image
+              source={{ uri: exerciseImageUrl(muscle, 1200) }}
+              resizeMode="cover"
+              style={styles.hero}
+            />
+            <View pointerEvents="none" style={styles.heroVeil} />
           </View>
 
           <AppText variant="h1" style={styles.title}>
@@ -99,10 +105,22 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 96 },
-  thumbWrap: {
-    alignItems: 'center',
-    marginTop: theme.spacing.lg,
+  // Hero full-bleed: margens negativas cancelam o padding lateral do scroll.
+  heroWrap: {
+    marginHorizontal: -theme.spacing.lg,
     marginBottom: theme.spacing.xl,
+    aspectRatio: 4 / 3,
+    backgroundColor: theme.colors.surface2,
+    overflow: 'hidden',
+  },
+  hero: { width: '100%', height: '100%' },
+  heroVeil: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(16, 37, 45, 0.28)',
   },
   title: { fontSize: 32, lineHeight: 32 },
   tagRow: { marginTop: theme.spacing.md },
