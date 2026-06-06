@@ -6,7 +6,14 @@ import {
 import { api } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
 import { parseApi } from '@/api/parseApi';
-import { WorkoutSessionSchema, type WorkoutSession, type SessionSet } from '@/types/sessions';
+import {
+  WorkoutSessionSchema,
+  WorkoutFinishResponseSchema,
+  type WorkoutSession,
+  type WorkoutFinishResponse,
+  type WorkoutFinishSummary,
+  type SessionSet,
+} from '@/types/sessions';
 import { sessionQueryKey } from './useSession';
 
 // Entrada para logar séries de um exercício. weight_kg/reps_done/rest_seconds_actual
@@ -31,7 +38,9 @@ export interface FinishVars {
 export interface SessionMutations {
   markExercise: UseMutationResult<WorkoutSession, unknown, string>;
   logSets: UseMutationResult<WorkoutSession, unknown, LogSetsVars>;
-  finish: UseMutationResult<WorkoutSession, unknown, FinishVars>;
+  // O finish entrega a sessão completa + o `summary` rico (duração, calorias,
+  // volume, load_evolution/PR, branding do personal e DTO `share`) para a UI.
+  finish: UseMutationResult<WorkoutFinishResponse, unknown, FinishVars>;
 }
 
 // Mutations da sessão de treino. Toda resposta é o payload completo da sessão —
@@ -69,16 +78,22 @@ export function useSessionMutations(sessionId: string): SessionMutations {
   });
 
   // POST .../finish { early_finish, with_check_in } → finaliza a sessão.
+  // A resposta traz a sessão completa + `summary` rico (irmão de session/exercises).
   // Finish grava check-in → afeta o streak; invalida a weekly-overview.
   const finish = useMutation({
-    mutationFn: async ({ early_finish, with_check_in }: FinishVars): Promise<WorkoutSession> => {
+    mutationFn: async ({
+      early_finish,
+      with_check_in,
+    }: FinishVars): Promise<WorkoutFinishResponse> => {
       const { data } = await api.post(
         `${endpoints.me.workouts}/sessions/${sessionId}/finish`,
         { early_finish, with_check_in },
       );
-      return parseApi(WorkoutSessionSchema, data);
+      return parseApi(WorkoutFinishResponseSchema, data);
     },
-    onSuccess: (parsed: WorkoutSession): void => {
+    onSuccess: (parsed: WorkoutFinishResponse): void => {
+      // O cache da sessão guarda só a sessão (sem o summary efêmero); a UI lê o
+      // summary do resultado do mutation (mutation.data.summary).
       writeSession(parsed);
       // Finish grava check-in (streak) e conclui o treino do dia: revalida a
       // visão da semana e tudo de /me/workouts (lista + treino do dia/last_completed).
@@ -90,4 +105,4 @@ export function useSessionMutations(sessionId: string): SessionMutations {
   return { markExercise, logSets, finish };
 }
 
-export type { SessionSet };
+export type { SessionSet, WorkoutFinishResponse, WorkoutFinishSummary };

@@ -32,17 +32,35 @@ describe('schemas do lado profissional', () => {
     expect(v.students[1]?.birth_date).toBeNull();
   });
 
-  it('parseia check-ins de um aluno (item tolera campos extras)', () => {
+  it('parseia check-ins de um aluno (com source/created_at/workout_session_id)', () => {
     const v = CheckInsResponseSchema.parse({
       student_id: '11111111-1111-1111-1111-111111111111',
       check_ins: [
-        { check_in_date: '2026-06-05', mood: 'great' },
-        { check_in_date: '2026-06-04' },
+        {
+          id: '33333333-3333-3333-3333-333333333333',
+          check_in_date: '2026-06-05',
+          source: 'workout',
+          created_at: '2026-06-05T18:30:00.000Z',
+          workout_session_id: '44444444-4444-4444-4444-444444444444',
+          mood: 'great',
+        },
+        {
+          id: '55555555-5555-5555-5555-555555555555',
+          check_in_date: '2026-06-04',
+          source: 'manual',
+          created_at: '2026-06-04T07:00:00.000Z',
+          workout_session_id: null,
+        },
       ],
     });
 
     expect(v.check_ins).toHaveLength(2);
     expect(v.check_ins[0]?.check_in_date).toBe('2026-06-05');
+    expect(v.check_ins[0]?.source).toBe('workout');
+    expect(v.check_ins[0]?.workout_session_id).toBe(
+      '44444444-4444-4444-4444-444444444444',
+    );
+    expect(v.check_ins[1]?.workout_session_id).toBeNull();
     // .passthrough() preserva campos extras do item.
     expect((v.check_ins[0] as { mood?: string }).mood).toBe('great');
   });

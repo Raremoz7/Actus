@@ -4,6 +4,7 @@ import {
   DietBodySchema,
   DietTemplateDetailSchema,
   DietTemplatesResponseSchema,
+  MealSchema,
   parseDietBody,
 } from './diets';
 
@@ -52,6 +53,40 @@ describe('schemas de dieta (pro)', () => {
     });
     expect(v.meals[0]?.protein).toBe(40);
     expect(v.notes).toBe('Beber 3L de água');
+  });
+
+  it('MealSchema aceita horário opcional (time)', () => {
+    const v = MealSchema.parse({ name: 'Café da manhã', time: '08:00' });
+    expect(v.time).toBe('08:00');
+    const semHorario = MealSchema.parse({ name: 'Almoço' });
+    expect(semHorario.time).toBeUndefined();
+  });
+
+  it('DietBodySchema aceita metas opcionais e água', () => {
+    const v = DietBodySchema.parse({
+      meals: [{ name: 'Café', time: '07:30', foods: 'Ovos' }],
+      target_kcal: 2000,
+      target_protein: 150,
+      target_carbs: 200,
+      target_fat: 60,
+      water: 3000,
+    });
+    expect(v.target_kcal).toBe(2000);
+    expect(v.target_protein).toBe(150);
+    expect(v.water).toBe(3000);
+    expect(v.meals[0]?.time).toBe('07:30');
+  });
+
+  it('DietBodySchema permite omitir todas as metas (continuam opcionais)', () => {
+    const v = DietBodySchema.parse({ meals: [{ name: 'Almoço' }] });
+    expect(v.target_kcal).toBeUndefined();
+    expect(v.water).toBeUndefined();
+  });
+
+  it('DietBodySchema rejeita meta de água negativa', () => {
+    expect(() =>
+      DietBodySchema.parse({ meals: [{ name: 'X' }], water: -1 }),
+    ).toThrow();
   });
 
   it('DietBodySchema rejeita refeição sem nome', () => {

@@ -35,12 +35,19 @@ export const ChallengesResponseSchema = z.object({
 export type ChallengesResponse = z.infer<typeof ChallengesResponseSchema>;
 
 // Linha do ranking — shape REAL de GET /me/challenges/:id/ranking.
+// Campos verificados no backend (services/challengeStats.ts → RankRow):
+// position, student_id, display_name, active_days, streak_current_in_challenge,
+// streak_best_in_challenge, last_activity_date.
 export const RankingRowSchema = z.object({
   position: z.number().int(),
   student_id: z.string().uuid(),
   display_name: z.string().nullable(),
   streak_current_in_challenge: z.number().int().nonnegative(),
+  // Melhor sequência DENTRO do desafio (não a streak global do aluno).
+  streak_best_in_challenge: z.number().int().nonnegative(),
   active_days: z.number().int().nonnegative(),
+  // Data (YYYY-MM-DD) da última atividade no intervalo do desafio; null se nenhuma.
+  last_activity_date: dateOnly.nullable(),
 });
 export type RankingRow = z.infer<typeof RankingRowSchema>;
 
@@ -149,6 +156,44 @@ export const AddParticipantsResponseSchema = z.object({
 export type AddParticipantsResponse = z.infer<
   typeof AddParticipantsResponseSchema
 >;
+
+// ── Relatório do desafio (lado PRO) — GET /professional/challenges/:id/report ─
+// Shape REAL verificado no backend (routes/professionalChallenges.ts).
+// O backend responde res.json(payload) com `ok: true` incluído, além dos campos.
+// NOTA: não existe `last_activity_date` no nível do relatório — ele é por
+// participante. `average_*` são floats (não inteiros). `streak_broken_hint` é
+// por participante (true quando active_days>0, streak atual=0 e há última atividade,
+// com o desafio 'active').
+
+// Participante no relatório (derivado do ranking, sem streak_best aqui).
+export const ProChallengeReportParticipantSchema = z.object({
+  student_id: z.string().uuid(),
+  display_name: z.string().nullable(),
+  active_days: z.number().int().nonnegative(),
+  streak_current_in_challenge: z.number().int().nonnegative(),
+  last_activity_date: dateOnly.nullable(),
+  streak_broken_hint: z.boolean(),
+});
+export type ProChallengeReportParticipant = z.infer<
+  typeof ProChallengeReportParticipantSchema
+>;
+
+export const ProChallengeReportSchema = z
+  .object({
+    ok: z.literal(true),
+    challenge_id: z.string().uuid(),
+    invited_count: z.number().int().nonnegative(),
+    active_count: z.number().int().nonnegative(),
+    declined_count: z.number().int().nonnegative(),
+    // Médias (floats) sobre participantes ativos.
+    average_active_days: z.number().nonnegative(),
+    average_adherence_ratio: z.number().nonnegative(),
+    // Quantidade de dias do desafio (inclusivo, mínimo 1).
+    challenge_day_span: z.number().int().positive(),
+    participants: z.array(ProChallengeReportParticipantSchema),
+  })
+  .passthrough();
+export type ProChallengeReport = z.infer<typeof ProChallengeReportSchema>;
 
 // ── Teaser FICTÍCIO do HOJE (Bloco 2) ───────────────────────────────────────
 

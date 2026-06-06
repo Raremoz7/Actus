@@ -27,10 +27,19 @@ export const StudentsResponseSchema = z.object({
 export type StudentsResponse = z.infer<typeof StudentsResponseSchema>;
 
 // Check-in de um aluno — shape REAL de GET /professional/students/:id/check-ins.
-// .passthrough() tolera campos extras do item além de check_in_date.
+// Campos verificados no backend (studentCheckInsQuery.ts → CheckInListItem):
+// id, check_in_date, source, created_at, workout_session_id.
+// `workout_session_id` é null quando o check-in não veio de um treino (ex.: manual).
+// .passthrough() tolera campos extras eventuais do item.
 export const CheckInSchema = z
   .object({
+    id: z.string().uuid(),
     check_in_date: dateOnly,
+    // Origem do check-in (ex.: 'workout', 'manual'). Mantido como string livre
+    // para não quebrar caso o backend adicione novas fontes.
+    source: z.string(),
+    created_at: z.string(),
+    workout_session_id: z.string().uuid().nullable(),
   })
   .passthrough();
 export type CheckIn = z.infer<typeof CheckInSchema>;

@@ -34,8 +34,11 @@ export type StudentDietDetail = z.infer<typeof StudentDietDetailSchema>;
 
 // Uma refeição: nome obrigatório + alimentos em texto livre multi-linha.
 // Macros são OPCIONAIS (não inventar dados; >= 0 quando presentes).
+// `time` é o horário sugerido da refeição (texto livre, ex.: '08:00'); opcional.
 export const MealSchema = z.object({
   name: z.string().min(1),
+  // Horário sugerido (texto livre, ex.: '08:00' ou 'Pós-treino'). Opcional.
+  time: z.string().optional(),
   foods: z.string().optional(),
   kcal: z.number().nonnegative().optional(),
   protein: z.number().nonnegative().optional(),
@@ -44,9 +47,18 @@ export const MealSchema = z.object({
 });
 export type Meal = z.infer<typeof MealSchema>;
 
-// Corpo completo da dieta: refeições + observações livres.
+// Corpo completo da dieta: refeições + metas opcionais + observações livres.
+// As metas (target_*) e `water` são OPCIONAIS — só aparecem na UI quando o
+// nutricionista as preencheu. `water` é a meta diária de água em mililitros.
 export const DietBodySchema = z.object({
   meals: z.array(MealSchema),
+  // Metas diárias opcionais (>= 0 quando presentes).
+  target_kcal: z.number().nonnegative().optional(),
+  target_protein: z.number().nonnegative().optional(),
+  target_carbs: z.number().nonnegative().optional(),
+  target_fat: z.number().nonnegative().optional(),
+  // Meta de água do dia, em mililitros (ex.: 3000 = 3L).
+  water: z.number().nonnegative().optional(),
   notes: z.string().optional(),
 });
 export type DietBody = z.infer<typeof DietBodySchema>;

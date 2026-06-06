@@ -52,20 +52,27 @@ describe('schemas reais de desafio', () => {
           student_id: '44444444-4444-4444-4444-444444444444',
           display_name: 'Ana',
           streak_current_in_challenge: 12,
+          streak_best_in_challenge: 15,
           active_days: 20,
+          last_activity_date: '2026-06-05',
         },
         {
           position: 2,
           student_id: '55555555-5555-5555-5555-555555555555',
           display_name: null,
           streak_current_in_challenge: 0,
+          streak_best_in_challenge: 0,
           active_days: 0,
+          last_activity_date: null,
         },
       ],
     });
     expect(v.ranking).toHaveLength(2);
     expect(v.ranking[0]?.position).toBe(1);
+    expect(v.ranking[0]?.streak_best_in_challenge).toBe(15);
+    expect(v.ranking[0]?.last_activity_date).toBe('2026-06-05');
     expect(v.ranking[1]?.display_name).toBeNull();
+    expect(v.ranking[1]?.last_activity_date).toBeNull();
   });
 
   it('rejeita participant_status inválido', () => {

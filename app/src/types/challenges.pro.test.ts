@@ -2,6 +2,7 @@ import {
   AddParticipantsBodySchema,
   CreateChallengeBodySchema,
   ProChallengeDetailSchema,
+  ProChallengeReportSchema,
   ProChallengesResponseSchema,
 } from './challenges';
 
@@ -167,5 +168,42 @@ describe('schemas de desafio — visão do profissional', () => {
     expect(() =>
       AddParticipantsBodySchema.parse({ student_ids: ['nao-eh-uuid'] }),
     ).toThrow();
+  });
+
+  it('relatório do desafio (GET /professional/challenges/:id/report)', () => {
+    const v = ProChallengeReportSchema.parse({
+      ok: true,
+      challenge_id: '11111111-1111-1111-1111-111111111111',
+      invited_count: 3,
+      active_count: 2,
+      declined_count: 1,
+      average_active_days: 8.5,
+      average_adherence_ratio: 0.4250000000000001,
+      challenge_day_span: 20,
+      participants: [
+        {
+          student_id: '44444444-4444-4444-4444-444444444444',
+          display_name: 'Ana',
+          active_days: 12,
+          streak_current_in_challenge: 0,
+          last_activity_date: '2026-06-04',
+          streak_broken_hint: true,
+        },
+        {
+          student_id: '55555555-5555-5555-5555-555555555555',
+          display_name: null,
+          active_days: 0,
+          streak_current_in_challenge: 0,
+          last_activity_date: null,
+          streak_broken_hint: false,
+        },
+      ],
+    });
+    expect(v.ok).toBe(true);
+    expect(v.invited_count).toBe(3);
+    expect(v.average_active_days).toBeCloseTo(8.5);
+    expect(v.challenge_day_span).toBe(20);
+    expect(v.participants[0]?.streak_broken_hint).toBe(true);
+    expect(v.participants[1]?.last_activity_date).toBeNull();
   });
 });
