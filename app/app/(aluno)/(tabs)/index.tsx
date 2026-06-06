@@ -161,9 +161,10 @@ export default function AlunoHojeScreen() {
     void challenges.refetch();
   }
 
-  // Carregando pela primeira vez (nenhuma fonte resolveu ainda) → skeleton.
+  // Carregando pela primeira vez: enquanto QUALQUER fonte ainda carrega, skeleton —
+  // evita piscar "Plano em preparo" quando só as fontes rápidas resolveram (OR, não AND).
   const initialLoading =
-    workouts.isLoading && week.isLoading && diet.isLoading && challenges.isLoading;
+    workouts.isLoading || week.isLoading || diet.isLoading || challenges.isLoading;
 
   // Qualquer fonte em erro mostra o retry (antes era AND — escondia falhas parciais).
   const anyError =

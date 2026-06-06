@@ -22,15 +22,17 @@ type Props = {
 };
 
 // Converte 'YYYY-MM-DD' em número ordinal de dias (UTC puro só p/ contar, não exibir).
+// Retorna NaN se a string não casar o formato (defensivo contra dado malformado).
 function dayNumber(dateOnly: string): number {
-  const [y, m, d] = dateOnly.split('-').map(Number);
-  return Math.floor(Date.UTC(y!, m! - 1, d!) / 86_400_000);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (!m) return NaN;
+  return Math.floor(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) / 86_400_000);
 }
 
 // Rótulo relativo curto da última atividade ('ativo hoje' / 'ontem' / 'há N dias').
 function lastActivityLabel(lastActivityDate: string, today: string): string | null {
   const diff = dayNumber(today) - dayNumber(lastActivityDate);
-  if (diff < 0) return null;
+  if (Number.isNaN(diff) || diff < 0) return null;
   if (diff === 0) return 'ativo hoje';
   if (diff === 1) return 'ativo ontem';
   return `há ${diff} dias`;

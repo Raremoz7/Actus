@@ -136,6 +136,8 @@ export default function SessaoPlayerScreen() {
   }
 
   function doFinish() {
+    // Guarda contra reentrância (o Alert de parcial chama doFinish direto).
+    if (mutations.finish.isPending) return;
     mutations.finish.mutate({ early_finish: !sessionComplete, with_check_in: true });
   }
 
@@ -186,12 +188,21 @@ export default function SessaoPlayerScreen() {
             setRestLeft(exercise.rest_seconds);
             setMode('resting');
           } else {
-            // Última série → marca o exercício e volta ao overview.
-            mutations.markExercise.mutate(exercise.workout_exercise_id);
-            setWeight('');
-            setReps('');
-            setActiveExerciseId(null);
-            setMode('overview');
+            // Última série → marca o exercício; só volta ao overview se marcar deu certo.
+            mutations.markExercise.mutate(exercise.workout_exercise_id, {
+              onSuccess: () => {
+                setWeight('');
+                setReps('');
+                setActiveExerciseId(null);
+                setMode('overview');
+              },
+              onError: () => {
+                Alert.alert(
+                  'Não foi possível concluir',
+                  'A série foi salva, mas não deu para marcar o exercício como concluído. Tente de novo.',
+                );
+              },
+            });
           }
         },
       },

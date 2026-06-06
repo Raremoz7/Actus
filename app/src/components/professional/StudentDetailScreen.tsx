@@ -10,7 +10,7 @@ import { router, type Href } from 'expo-router';
 import { Barbell, CaretLeft, HandTap, Info } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, KpiNumber } from '@/components/ui';
+import { AppText, Button, KpiNumber, ListState } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import { useStudentCheckIns } from '@/hooks/useStudentCheckIns';
 import { useMe } from '@/hooks/useMe';
@@ -170,34 +170,37 @@ export function StudentDetailScreen({ id }: Props) {
                 </View>
               </View>
 
-              {/* Bloco de aderência: total + recência + mini-trilha de 4 semanas. */}
-              <View style={styles.adherenceCard}>
-                <View style={styles.adherenceTop}>
-                  <View style={styles.adherenceKpi}>
-                    <AppText variant="eyebrow" color="tertiary">
-                      Check-ins
-                    </AppText>
-                    <KpiNumber value={checkInList.length} size="big" />
+              {/* Bloco de aderência: total + recência + mini-trilha de 4 semanas.
+                  Enquanto carrega (sem dado prévio), skeleton — não mostrar zeros falsos. */}
+              {checkIns.isLoading && !checkIns.data ? (
+                <ListState kind="loading" skeletonCount={1} />
+              ) : (
+                <View style={styles.adherenceCard}>
+                  <View style={styles.adherenceTop}>
+                    <View style={styles.adherenceKpi}>
+                      <AppText variant="eyebrow" color="tertiary">
+                        Check-ins
+                      </AppText>
+                      <KpiNumber value={checkInList.length} size="big" />
+                    </View>
+                    <View style={styles.adherenceKpi}>
+                      <AppText variant="eyebrow" color="tertiary">
+                        Ativos · 4 sem
+                      </AppText>
+                      <KpiNumber value={activeDays} size="big" />
+                    </View>
                   </View>
-                  <View style={styles.adherenceKpi}>
-                    <AppText variant="eyebrow" color="tertiary">
-                      Ativos · 4 sem
-                    </AppText>
-                    <KpiNumber value={activeDays} size="big" />
-                  </View>
+
+                  <AppText
+                    variant="dataMed"
+                    color={sinceLast !== null && sinceLast <= 1 ? 'neon' : 'secondary'}
+                  >
+                    {lastCheckInLabel(sinceLast)}
+                  </AppText>
+
+                  {checkIns.isError ? null : <CheckInHeatmap cells={heatmap} />}
                 </View>
-
-                <AppText
-                  variant="dataMed"
-                  color={sinceLast !== null && sinceLast <= 1 ? 'neon' : 'secondary'}
-                >
-                  {lastCheckInLabel(sinceLast)}
-                </AppText>
-
-                {checkIns.isError ? null : (
-                  <CheckInHeatmap cells={heatmap} />
-                )}
-              </View>
+              )}
 
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Atividade recente
