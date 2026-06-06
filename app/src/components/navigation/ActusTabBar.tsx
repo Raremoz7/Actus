@@ -1,12 +1,19 @@
-import { Fragment, type ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
 import { darkTheme } from '@/theme';
+import { underlineTranslateX } from './underline';
 
 // Descrição de cada aba: rótulo (mono UPPERCASE) + ícone que recebe a cor (ativo/inativo).
 export type TabSpec = {
@@ -15,34 +22,55 @@ export type TabSpec = {
   renderIcon: (color: string) => ReactNode;
 };
 
-// Botão central opcional (ex.: "iniciar treino do dia" do aluno).
-export type CenterAction = {
-  renderIcon: (color: string) => ReactNode;
-  onPress: () => void;
-  accessibilityLabel: string;
-};
-
 type ActusTabBarProps = BottomTabBarProps & {
   tabs: readonly TabSpec[];
-  // Quando presente, insere um botão circular flutuante no centro da tab bar.
-  center?: CenterAction;
 };
 
-const { colors } = darkTheme;
+const { colors, motion } = darkTheme;
 
-export function ActusTabBar({
-  state,
-  navigation,
-  tabs,
-  center,
-}: ActusTabBarProps) {
+// Sublinhado neon: largura fixa e duração do deslize (a única animação da barra).
+const UNDERLINE_WIDTH = 30;
+const SLIDE_MS = 200;
+
+export function ActusTabBar({ state, navigation, tabs }: ActusTabBarProps) {
   const insets = useSafeAreaInsets();
 
   // Mapa rota→spec para casar a ordem real do navigator com a config declarada.
   const specByName = new Map(tabs.map((t) => [t.name, t]));
 
-  // Índice onde injetar o botão central: no meio das abas.
-  const centerSlot = center ? Math.floor(state.routes.length / 2) : -1;
+  const [barWidth, setBarWidth] = useState(0);
+  const tx = useSharedValue(0);
+  const firstRef = useRef(true);
+
+  // Move o sublinhado para a aba ativa. Na 1ª medição posiciona direto (sem
+  // deslizar do canto); nas trocas seguintes anima com withTiming.
+  useEffect(() => {
+    if (barWidth <= 0) return;
+    const target = underlineTranslateX(
+      state.index,
+      barWidth,
+      state.routes.length,
+      UNDERLINE_WIDTH,
+    );
+    if (firstRef.current) {
+      tx.value = target;
+      firstRef.current = false;
+    } else {
+      tx.value = withTiming(target, {
+        duration: SLIDE_MS,
+        easing: Easing.bezier(
+          motion.easing[0],
+          motion.easing[1],
+          motion.easing[2],
+          motion.easing[3],
+        ),
+      });
+    }
+  }, [state.index, barWidth, state.routes.length, tx]);
+
+  const underlineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tx.value }],
+  }));
 
   function handlePress(routeName: string, routeKey: string, focused: boolean) {
     void Haptics.selectionAsync();
@@ -56,108 +84,78 @@ export function ActusTabBar({
     }
   }
 
-  function handleCenterPress() {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    center?.onPress();
+  function onRowLayout(e: LayoutChangeEvent) {
+    setBarWidth(e.nativeEvent.layout.width);
   }
 
   return (
     <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
-      {state.routes.map((route, index) => {
-        const spec = specByName.get(route.name);
-        // Rotas sem spec (não deveriam existir) são puladas silenciosamente.
-        const tabButton = spec ? renderTab(spec, index) : null;
+      <View style={styles.row} onLayout={onRowLayout}>
+        {state.routes.map((route, index) => {
+          const spec = specByName.get(route.name);
+          // Rotas sem spec (não deveriam existir) são puladas silenciosamente.
+          if (!spec) return null;
+          const focused = state.index === index;
+          const color = focused ? colors.neon : colors.textTertiary;
 
-        // Injeta o botão central como COLUNA própria antes da aba do meio,
-        // para que todas as colunas (abas + central) dividam a largura igualmente.
-        const injectCenter = center && index === centerSlot;
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={focused ? { selected: true } : {}}
+              accessibilityLabel={spec.label}
+              onPress={() => handlePress(route.name, route.key, focused)}
+              style={styles.tab}
+            >
+              {spec.renderIcon(color)}
+              <AppText
+                variant="eyebrow"
+                color={focused ? 'neon' : 'tertiary'}
+                numberOfLines={1}
+                style={styles.label}
+              >
+                {spec.label}
+              </AppText>
+            </Pressable>
+          );
+        })}
 
-        return (
-          <Fragment key={route.key}>
-            {injectCenter ? renderCenter() : null}
-            {tabButton}
-          </Fragment>
-        );
-      })}
+        {barWidth > 0 ? (
+          <Animated.View style={[styles.underline, underlineStyle]} />
+        ) : null}
+      </View>
     </View>
   );
-
-  function renderTab(spec: TabSpec, index: number): ReactNode {
-    const focused = state.index === index;
-    const route = state.routes[index];
-    if (!route) return null;
-    const color = focused ? colors.neon : colors.textTertiary;
-
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={focused ? { selected: true } : {}}
-        accessibilityLabel={spec.label}
-        onPress={() => handlePress(route.name, route.key, focused)}
-        style={styles.tab}
-      >
-        {spec.renderIcon(color)}
-        <AppText
-          variant="eyebrow"
-          color={focused ? 'neon' : 'tertiary'}
-          numberOfLines={1}
-          style={styles.label}
-        >
-          {spec.label}
-        </AppText>
-      </Pressable>
-    );
-  }
-
-  function renderCenter(): ReactNode {
-    if (!center) return null;
-    return (
-      <View style={styles.centerSlot}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={center.accessibilityLabel}
-          onPress={handleCenterPress}
-          style={styles.centerButton}
-        >
-          {center.renderIcon(colors.textInverse)}
-        </Pressable>
-      </View>
-    );
-  }
 }
 
 const styles = StyleSheet.create((theme) => ({
   bar: {
-    flexDirection: 'row',
     backgroundColor: theme.colors.surface1,
     borderTopWidth: 1,
     borderTopColor: theme.colors.outlineVariant,
+  },
+  // Linha de conteúdo medida (largura) e âncora do sublinhado absoluto.
+  row: {
+    flexDirection: 'row',
+    position: 'relative',
+    paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.sm,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.spacing.xs,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xs,
   },
-  label: {
-    marginTop: 2,
-  },
-  // Coluna do botão central: mesma largura (flex:1) das abas, mantendo simetria.
-  centerSlot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  // Círculo neon de 56pt. SEM sombra/glow por decisão de design.
-  centerButton: {
-    width: 56,
-    height: 56,
-    borderRadius: theme.radius.pill,
+  label: { marginTop: 2 },
+  // Sublinhado neon: acima da área segura (paddingBottom da barra fica por fora).
+  underline: {
+    position: 'absolute',
+    left: 0,
+    bottom: theme.spacing.xs,
+    width: UNDERLINE_WIDTH,
+    height: 3,
+    borderRadius: 2,
     backgroundColor: theme.colors.neon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: theme.spacing.sm,
   },
 }));
