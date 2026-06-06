@@ -25,7 +25,7 @@ import { pickNextWorkout } from '@/lib/nextWorkout';
 import { challengeDayProgress } from '@/lib/challenge';
 import { greetingForHour } from '@/lib/greeting';
 import { formatDateLocal } from '@/lib/format';
-import { nextMealMock } from '@/mocks/home';
+import { parseDietBody } from '@/types/diets';
 import type { TodayWorkoutSummary, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 
@@ -110,6 +110,12 @@ export default function AlunoHojeScreen() {
       )
     : null;
 
+  // Dieta em destaque: a ativa (fallback p/ a primeira); "próxima refeição" = 1ª refeição real.
+  const activeDiet = diet.data?.diets.find((d) => d.is_active) ?? diet.data?.diets[0] ?? null;
+  const firstMeal = activeDiet
+    ? (parseDietBody(activeDiet.template_body).meals[0]?.name ?? null)
+    : null;
+
   // Abrir o treino do dia (detalhe → onde "Iniciar treino" cria a sessão).
   function openTodayWorkout() {
     if (picked.next) router.push(`/(aluno)/treino/${picked.next.id}` as Href);
@@ -143,11 +149,11 @@ export default function AlunoHojeScreen() {
         ) : null}
 
         <View style={styles.row}>
-          {diet.data ? (
+          {activeDiet ? (
             <DietCard
-              title={diet.data.title}
-              nextMealTime={nextMealMock.time}
-              onPress={() => router.push('/(aluno)/(tabs)/treinos' as Href)}
+              title={activeDiet.template_name}
+              nextMealTime={firstMeal}
+              onPress={() => router.push(`/(aluno)/dieta/${activeDiet.id}` as Href)}
             />
           ) : null}
           {activeChallenge && challengeProgress ? (

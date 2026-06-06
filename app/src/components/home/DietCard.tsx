@@ -7,11 +7,13 @@ import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
 
-type Props = { title: string; nextMealTime: string; onPress: () => void };
+// onPress é opcional: sem tela de dieta do aluno (builder é do nutri), o card
+// fica informativo em vez de navegar para o lugar errado.
+type Props = { title: string; nextMealTime: string | null; onPress?: () => void };
 
 export function DietCard({ title, nextMealTime, onPress }: Props) {
-  return (
-    <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
+  const inner = (
+    <>
       <View style={styles.head}>
         <ForkKnife size={14} weight="duotone" color={colors.textTertiary} />
         <AppText variant="eyebrow" color="tertiary">
@@ -21,11 +23,23 @@ export function DietCard({ title, nextMealTime, onPress }: Props) {
       <AppText variant="h3" style={styles.name}>
         {title}
       </AppText>
-      <AppText variant="metaSmall" color="tertiary">
-        {`Almoço · ${nextMealTime}`}
-      </AppText>
-    </Pressable>
+      {nextMealTime ? (
+        <AppText variant="metaSmall" color="tertiary">
+          {nextMealTime}
+        </AppText>
+      ) : null}
+    </>
   );
+
+  if (onPress) {
+    return (
+      <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
+        {inner}
+      </Pressable>
+    );
+  }
+
+  return <View style={styles.card}>{inner}</View>;
 }
 
 const styles = StyleSheet.create((theme) => ({

@@ -3,18 +3,30 @@ import { z } from 'zod';
 // Data no formato YYYY-MM-DD (string + regex, nunca z.date()).
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
-// ── Visão do ALUNO (resumo da dieta atribuída) ──────────────────────────────
-
-// Identidade mínima de uma dieta atribuída ao aluno.
+// ── Visão do ALUNO (dieta atribuída) ────────────────────────────────────────
+// Shape REAL de GET /me/diets — a lista já traz template_name + template_body.
+// (template_body é jsonb livre → estrutura via parseDietBody, abaixo.)
 export const StudentDietSchema = z.object({
   id: z.string().uuid(),
-  title: z.string(),
+  diet_template_id: z.string().uuid(),
+  start_date: dateOnly,
+  is_active: z.boolean(),
+  created_at: z.string(),
+  template_name: z.string(),
+  template_body: z.unknown(),
 });
-export type StudentDiet = z.infer<typeof StudentDietSchema>;
+export type StudentDietItem = z.infer<typeof StudentDietSchema>;
 
-// [Bloco 2] Resumo da dieta para o card do HOJE. Detalhe = builder do profissional.
-export const StudentDietSummarySchema = StudentDietSchema;
-export type StudentDietSummary = z.infer<typeof StudentDietSummarySchema>;
+export const StudentDietsResponseSchema = z.object({
+  diets: z.array(StudentDietSchema),
+});
+export type StudentDietsResponse = z.infer<typeof StudentDietsResponseSchema>;
+
+// GET /me/diets/:id → mesmo item + updated_at.
+export const StudentDietDetailSchema = StudentDietSchema.extend({
+  updated_at: z.string(),
+});
+export type StudentDietDetail = z.infer<typeof StudentDietDetailSchema>;
 
 // ── Estrutura do BODY da dieta (jsonb LIVRE definido PELO APP) ──────────────
 // O backend aceita `body` como jsonb arbitrário (api/src/routes/dietTemplates.ts

@@ -1,6 +1,5 @@
 import { TodayWorkoutSummarySchema } from './workouts';
 import { ChallengeTeaserSchema } from './challenges';
-import { StudentDietSummarySchema } from './diets';
 
 describe('schemas-resumo do HOJE', () => {
   it('TodayWorkoutSummary: dia com treino', () => {
@@ -36,14 +35,6 @@ describe('schemas-resumo do HOJE', () => {
       progress_total: 30,
     });
     expect(v.progress_total).toBe(30);
-  });
-
-  it('StudentDietSummary', () => {
-    const v = StudentDietSummarySchema.parse({
-      id: '33333333-3333-3333-3333-333333333333',
-      title: 'Cutting',
-    });
-    expect(v.title).toBe('Cutting');
   });
 
   it('rejeita exercise_count negativo', () => {
