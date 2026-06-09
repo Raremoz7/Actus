@@ -69,6 +69,24 @@ Legenda de prioridade: 🔴 bloqueia feature · 🟡 degrada UX · ⚪ cosmétic
 - **Hoje:** não existe na API v1 → tela `professor-info` é informativa ("fluxo futuro"); profissionais entram por seed/admin.
 - **App:** `app/(auth)/professor-info.tsx`.
 
+### B5. 🔴 Par-Q (questionário de prontidão) — persistência no servidor
+- **Precisa:** três endpoints (branch de erro sempre no campo `error`, padrão da API):
+  - `POST /students/:student_id/par-q` — aluno autenticado envia as 7 respostas (sim/não);
+    servidor carimba `answered_at`, deriva `any_yes` e calcula `valid_until` (+12 meses).
+  - `GET /me/par-q` — aluno lê o próprio status/respostas.
+  - `GET /professional/students/:student_id/par-q` — profissional vinculado lê status/respostas.
+- **Hoje:** front **100% pronto** rodando sobre mock local (`src/mocks/parq.ts`, persistido em
+  SecureStore no aparelho). **Limitação real: o dado não trafega entre devices** — o personal só
+  vê selo/respostas no mesmo aparelho (vale para demo/dev). Em produção, sem esses endpoints o
+  Par-Q respondido pelo aluno **não chega** ao profissional.
+- **Contrato:** schema Zod pronto em `src/types/parq.ts` (`ParqSubmissionSchema`: `student_id`,
+  `answers[7]{question_id 1-7, value bool}`, `any_yes`, `answered_at`, `valid_until` — datas
+  `YYYY-MM-DD`). Migração no app = trocar o store por `useQuery` + `parseApi` sobre o mesmo
+  schema, zero refator de telas.
+- **App:** `app/(aluno)/par-q.tsx` (questionário), `src/components/parq/` (átomos),
+  `ParqSection` no detalhe do aluno, selo na lista de alunos, banner no atribuir-treino,
+  card na Home do aluno.
+
 ### B3. ⚪ Preferências de notificação
 - **Precisa:** GET/PATCH de preferências de notificação.
 - **Hoje:** linha "Notificações" aparece como "em breve" (sem navegação morta).
@@ -126,6 +144,7 @@ Legenda de prioridade: 🔴 bloqueia feature · 🟡 degrada UX · ⚪ cosmétic
 | # | Item | Prioridade |
 |---|------|-----------|
 | A1 | GET treinos atribuídos do aluno (pro) | 🔴 |
+| B5 | Par-Q — persistência no servidor (3 endpoints) | 🔴 |
 | E1 | Migrations de triggers no dev | 🔴 |
 | C0 | Manter `wger_exercise_id` = id da exercise-base Wger (sem trabalho; só não quebrar) | 🔴 |
 | A3 | GET preview do convite (já consumido pelo app) | 🟡 |

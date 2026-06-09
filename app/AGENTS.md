@@ -54,3 +54,4 @@ npx expo-doctor      # sanidade das deps
 - `Gegola.otf` (fonte de marca) — aguardando o designer; usar actus.svg como marca
 - Endpoint `GET /invites/:code/preview` — solicitado ao backend (card do convidador é [MOCK] até existir)
 - Reset de senha — não existe na API → `[fluxo futuro]`, não criar link "Esqueci a senha"
+- Par-Q — sem endpoint na API v1; front pronto sobre `src/mocks/parq.ts`. Endpoints solicitados: ver `docs/backend-pendencias.md` (item B5)
