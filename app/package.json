@@ -54,6 +54,7 @@
     "prettier": "^3.8.3",
     "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "^19.2.0",
+    "sharp": "^0.34.5",
     "typescript": "~5.9.2"
   },
   "scripts": {
@@ -64,6 +65,8 @@
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "doctor": "expo-doctor",
+    "cors-proxy": "node scripts/cors-proxy.mjs",
+    "wger:snapshot": "node scripts/build-wger-snapshot.mjs",
     "prebuild": "node ./node_modules/expo/bin/cli prebuild --clean",
     "test": "jest"
   },
