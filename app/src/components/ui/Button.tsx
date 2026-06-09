@@ -116,6 +116,7 @@ export function Button({
     >
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={label}
         accessibilityState={{ disabled: !isInteractive, busy: loading }}
         disabled={!isInteractive}
         onPress={handlePress}
