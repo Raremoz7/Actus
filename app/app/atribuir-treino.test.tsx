@@ -16,6 +16,8 @@ let mockList: { data: unknown; isLoading: boolean; isError: boolean } = {
 };
 let mockAssignState = { mutate: mockAssign, isPending: false };
 let mockStudents: { data: unknown } = { data: undefined };
+// Submissão do Par-Q do aluno-alvo (null = sem resposta) — controla o banner de atenção.
+let mockParqSub: unknown = null;
 
 jest.mock('expo-router', () => ({
   router: {
@@ -42,6 +44,10 @@ jest.mock('@/hooks/useStudents', () => ({
   useStudents: () => mockStudents,
 }));
 
+jest.mock('@/mocks/parq', () => ({
+  useParqSubmission: () => mockParqSub,
+}));
+
 const STUDENT_ID = '11111111-1111-1111-1111-111111111111';
 
 const workouts = [
@@ -65,6 +71,7 @@ beforeEach(() => {
   mockAssign.mockReset();
   mockBack.mockReset();
   mockReplace.mockReset();
+  mockParqSub = null;
   mockParams = { student: STUDENT_ID };
   mockList = { data: { workouts }, isLoading: false, isError: false };
   mockAssignState = { mutate: mockAssign, isPending: false };
@@ -156,5 +163,46 @@ describe('AtribuirTreinoScreen', () => {
     expect(
       screen.getByText('Nenhum treino criado ainda. Monte um treino antes de atribuir.'),
     ).toBeTruthy();
+  });
+});
+
+// Helper: submissão de Par-Q válida (12 meses a partir de hoje) para o aluno-alvo.
+function parqSubmission(anyYes: boolean) {
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const dateOnly = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const until = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+  return {
+    student_id: STUDENT_ID,
+    answers: [1, 2, 3, 4, 5, 6, 7].map((id) => ({ question_id: id, value: anyYes && id === 1 })),
+    any_yes: anyYes,
+    answered_at: dateOnly(today),
+    valid_until: dateOnly(until),
+  };
+}
+
+describe('AtribuirTreinoScreen · gating do Par-Q (aviso brando)', () => {
+  it('mostra o banner quando o aluno marcou atenção — e NÃO bloqueia a atribuição', () => {
+    mockParqSub = parqSubmission(true);
+    render(<AtribuirTreinoScreen />);
+    expect(screen.getByText(/avaliação médica/i)).toBeTruthy();
+
+    // O fluxo segue liberado: seleciona template + dia e atribui normalmente.
+    fireEvent.press(screen.getByLabelText('Treino A'));
+    fireEvent.press(screen.getByLabelText('Segunda'));
+    fireEvent.press(screen.getByText('Atribuir'));
+    expect(mockAssign).toHaveBeenCalledTimes(1);
+  });
+
+  it('não mostra o banner quando o Par-Q está ok', () => {
+    mockParqSub = parqSubmission(false);
+    render(<AtribuirTreinoScreen />);
+    expect(screen.queryByText(/avaliação médica/i)).toBeNull();
+  });
+
+  it('não mostra o banner quando o aluno ainda não respondeu', () => {
+    mockParqSub = null;
+    render(<AtribuirTreinoScreen />);
+    expect(screen.queryByText(/avaliação médica/i)).toBeNull();
   });
 });

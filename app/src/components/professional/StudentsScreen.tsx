@@ -12,7 +12,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import { useParqMap } from '@/mocks/parq';
-import { parqStatus } from '@/lib/parq';
+import { parqStatus, type ParqStatus } from '@/lib/parq';
 import type { ProfessionalRole, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
 import { StudentRow } from './StudentRow';
@@ -35,6 +35,12 @@ const ROLE_LABEL: Record<ProfessionalRole, string> = {
 // Contador no eyebrow: "1 aluno" / "N alunos".
 function countLabel(n: number): string {
   return n === 1 ? '1 aluno' : `${n} alunos`;
+}
+
+// Na LISTA, só "Atenção" e "Par-Q pendente" viram selo (decisão do spec: ok/expirado
+// não ganham ruído aqui — o estado completo, incl. expirado, vive no detalhe do aluno).
+function listParqStatus(status: ParqStatus): ParqStatus | undefined {
+  return status === 'attention' || status === 'not_started' ? status : undefined;
 }
 
 // Tela compartilhada de alunos (personal + nutricionista). A lista da API não traz
@@ -143,7 +149,7 @@ export function StudentsScreen() {
               since={linkedSinceLabel(s.linked_at)}
               roleLabel={mixedRoles ? ROLE_LABEL[s.professional_role] : null}
               isNew={isNewLink(s.linked_at, now)}
-              parqStatus={parqStatus(parqMap[s.id] ?? null, now)}
+              parqStatus={listParqStatus(parqStatus(parqMap[s.id] ?? null, now))}
               onPress={() => openStudent(s.id)}
             />
           ))}

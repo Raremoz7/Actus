@@ -1,8 +1,9 @@
 // app/(aluno)/par-q.tsx
 // Par-Q do aluno — lista única (scroll) com 7 toggles Sim/Não. O envio só habilita
 // com as 7 respondidas. Persistência via mock store (sem endpoint na API v1).
+// Com submissão anterior, a tela abre em modo REVISÃO (respostas pré-preenchidas).
 // 1 momento de motion por tela: reveal de entrada.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -16,7 +17,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button } from '@/components/ui';
 import { ParqQuestionRow } from '@/components/parq';
 import { useMe } from '@/hooks/useMe';
-import { submitParq } from '@/mocks/parq';
+import { submitParq, useParqSubmission } from '@/mocks/parq';
 import { deriveAnyYes } from '@/lib/parq';
 import { goBackOr } from '@/lib/nav';
 import { PARQ_QUESTIONS, type ParqAnswer, type ParqQuestionId } from '@/types/parq';
@@ -24,14 +25,35 @@ import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
 
+// Fallback de navegação: home do aluno (nunca '/', que é ambígua — ver authRoutes).
+const HOME_ALUNO = '/(aluno)/(tabs)';
+
 export default function ParqScreen() {
   const me = useMe();
   const studentId = me.data?.id;
+  const existing = useParqSubmission(studentId);
 
   const [values, setValues] = useState<Partial<Record<ParqQuestionId, boolean>>>({});
   const [done, setDone] = useState(false);
   const [doneAnyYes, setDoneAnyYes] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Modo revisão: pré-preenche com a submissão anterior, no máximo uma vez e só
+  // enquanto o aluno ainda não tocou em nada (a hidratação do store é assíncrona).
+  const isReview = existing !== null;
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (!existing || seeded.current) return;
+    seeded.current = true;
+    setValues((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+      const next: Partial<Record<ParqQuestionId, boolean>> = {};
+      for (const a of existing.answers) {
+        next[a.question_id as ParqQuestionId] = a.value;
+      }
+      return next;
+    });
+  }, [existing]);
 
   const opacity = useSharedValue(0);
   useEffect(() => {
@@ -70,10 +92,10 @@ export default function ParqScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Voltar"
-          onPress={() => goBackOr('/')}
+          onPress={() => goBackOr(HOME_ALUNO)}
           hitSlop={12}
         >
-          <CaretLeft size={24} weight="bold" color={colors.textPrimary} />
+          <CaretLeft size={20} weight="bold" color={colors.textSecondary} />
         </Pressable>
       </View>
 
@@ -91,14 +113,20 @@ export default function ParqScreen() {
                 Tudo certo. Seu profissional já pode montar seus treinos.
               </AppText>
             )}
-            <Button label="Concluir" onPress={() => goBackOr('/')} />
+            <Button label="Concluir" onPress={() => goBackOr(HOME_ALUNO)} />
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-            <AppText variant="eyebrow" color="neon">PAR-Q · PRONTIDÃO</AppText>
-            <AppText variant="h2" style={styles.title}>Antes de começar</AppText>
+            <AppText variant="eyebrow" color="neon">
+              {isReview ? 'PAR-Q · REVISÃO' : 'PAR-Q · PRONTIDÃO'}
+            </AppText>
+            <AppText variant="h2" style={styles.title}>
+              {isReview ? 'Suas respostas' : 'Antes de começar'}
+            </AppText>
             <AppText variant="bodyMd" color="secondary" style={styles.intro}>
-              Sete perguntas rápidas sobre sua saúde. Leva cerca de dois minutos e ajuda seu profissional a montar treinos seguros para você.
+              {isReview
+                ? 'Estas são as respostas do seu último Par-Q. Atualize o que mudou e reenvie.'
+                : 'Sete perguntas rápidas sobre sua saúde. Leva cerca de dois minutos e ajuda seu profissional a montar treinos seguros para você.'}
             </AppText>
             <View style={styles.list}>
               {PARQ_QUESTIONS.map((q) => (
@@ -111,7 +139,7 @@ export default function ParqScreen() {
               ))}
             </View>
             <Button
-              label="Enviar respostas"
+              label={isReview ? 'Atualizar respostas' : 'Enviar respostas'}
               onPress={onSubmit}
               disabled={!allAnswered || saving}
               loading={saving}

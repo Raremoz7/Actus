@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Tag } from '@/components/ui';
 import { ParqStatusBadge } from '@/components/parq';
 import { useParqSubmission } from '@/mocks/parq';
 import { parqStatus } from '@/lib/parq';
@@ -23,7 +23,15 @@ export function ParqSection({ studentId }: Props) {
       </View>
 
       {!sub ? (
-        <AppText variant="bodyMd" color="tertiary">Aguardando resposta do aluno.</AppText>
+        <>
+          <AppText variant="bodyMd" color="tertiary">Aguardando resposta do aluno.</AppText>
+          {/* [fluxo futuro: push] Lembrete ao aluno — linha informativa, sem navegação morta
+              (mesma convenção do AccountScreen para recursos ainda sem API). */}
+          <View style={styles.remind}>
+            <AppText variant="label" color="tertiary">Lembrar aluno</AppText>
+            <Tag label="em breve" />
+          </View>
+        </>
       ) : (
         <>
           <AppText variant="metaSmall" color="tertiary">
@@ -54,6 +62,12 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.sm,
   },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  remind: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
+  },
   list: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
   q: { flex: 1 },

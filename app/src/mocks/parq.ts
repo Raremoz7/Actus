@@ -59,15 +59,31 @@ interface ParqMockState {
   submit: (studentId: string, answers: ParqAnswer[]) => Promise<ParqSubmission>;
 }
 
+// Promise in-flight do hydrate: evita dois loadRaw simultâneos e, pior, um hydrate
+// tardio sobrescrevendo um submit já aplicado em memória com o snapshot velho do disco.
+let hydrating: Promise<void> | null = null;
+
 export const useParqMock = create<ParqMockState>((set, get) => ({
   byStudent: {},
   hydrated: false,
   hydrate: async () => {
     if (get().hydrated) return;
-    const map = parseMap(await loadRaw());
-    set({ byStudent: map, hydrated: true });
+    if (!hydrating) {
+      hydrating = (async () => {
+        const map = parseMap(await loadRaw());
+        // Merge: o que já está em memória (submit antes do hydrate) vence o disco.
+        set({ byStudent: { ...map, ...get().byStudent }, hydrated: true });
+      })().finally(() => {
+        hydrating = null;
+      });
+    }
+    return hydrating;
   },
   submit: async (studentId, answers) => {
+    // Garante o mapa do disco antes de gravar por cima — sem isso, um submit em
+    // store frio (deep link/cold start direto em /par-q) salvaria um mapa de uma
+    // entrada só, apagando submissões persistidas de outros alunos.
+    await get().hydrate();
     const sub = buildSubmission(studentId, answers, new Date());
     const next = { ...get().byStudent, [studentId]: sub };
     set({ byStudent: next });
@@ -98,4 +114,10 @@ export function useParqMap(): ParqMap {
 export function useParqSubmission(studentId: string | undefined): ParqSubmission | null {
   const map = useParqMap();
   return studentId ? (map[studentId] ?? null) : null;
+}
+
+// Hook: o mapa já foi reidratado do storage? Use para não pintar estado default
+// ("não respondido") antes de saber a verdade — ex.: CTA da Home.
+export function useParqHydrated(): boolean {
+  return useParqMock((s) => s.hydrated);
 }

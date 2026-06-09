@@ -26,7 +26,7 @@ import { useChallenges } from '@/hooks/useChallenges';
 import { pickNextWorkout } from '@/lib/nextWorkout';
 import { challengeDayProgress } from '@/lib/challenge';
 import { greetingForHour } from '@/lib/greeting';
-import { useParqSubmission } from '@/mocks/parq';
+import { useParqHydrated, useParqSubmission } from '@/mocks/parq';
 import { parqStatus } from '@/lib/parq';
 import { formatDateLocal } from '@/lib/format';
 import { parseDietBody } from '@/types/diets';
@@ -59,7 +59,11 @@ function estimateMinutes(exerciseCount: number): number {
 export default function AlunoHojeScreen() {
   const me = useMe();
   const parqSub = useParqSubmission(me.data?.id);
+  const parqHydrated = useParqHydrated();
   const parqState = parqStatus(parqSub, new Date());
+  // Só pinta o card depois do /me e da hidratação do mock — sem isso, todo cold start
+  // mostraria o CTA neon "Responda" por alguns frames para quem já respondeu.
+  const parqReady = parqHydrated && Boolean(me.data?.id);
   const week = useWeeklyOverview();
   const workouts = useStudentWorkouts();
   const diet = useStudentDiet();
@@ -209,11 +213,15 @@ export default function AlunoHojeScreen() {
 
           {initialLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
-          <ParqPromptCard
-            status={parqState}
-            validUntil={parqSub?.valid_until ?? null}
-            onPress={() => router.push('/par-q' as Href)}
-          />
+          {parqReady ? (
+            <View style={styles.parqCard}>
+              <ParqPromptCard
+                status={parqState}
+                validUntil={parqSub?.valid_until ?? null}
+                onPress={() => router.push('/par-q' as Href)}
+              />
+            </View>
+          ) : null}
 
           {/* HERÓI: o treino do dia ocupa o topo, com o maior peso visual. */}
           {todaySummary ? (
@@ -286,6 +294,8 @@ const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
   // Espaço MAIOR entre seções (hierarquia/respiro); o interior de cada bloco é justo.
   section: { marginTop: theme.spacing.xl },
+  // Card do Par-Q: respiro próprio entre o header e o herói (que não usam .section).
+  parqCard: { marginBottom: theme.spacing.md },
   retry: { marginTop: theme.spacing.xl, alignItems: 'center' },
   row: { flexDirection: 'row', gap: theme.spacing.md },
 }));

@@ -1,10 +1,10 @@
 import { Pressable, View } from 'react-native';
-import { ClipboardText } from 'phosphor-react-native';
+import { CaretRight, ClipboardText } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
 import { shortDateBr } from '@/lib/format';
-import type { ParqStatus } from '@/lib/parq';
+import { isParqPending, type ParqStatus } from '@/lib/parq';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -15,20 +15,29 @@ type Props = {
   onPress: () => void;
 };
 
-// Card do Par-Q na Home. Pendente/expirado → CTA. Em dia/atenção → estado discreto.
+// Card do Par-Q na Home. Pendente/expirado → CTA neon. Em dia/atenção → card discreto,
+// ainda pressable: é a porta do aluno para REVISAR/REFAZER as respostas (ex.: saúde mudou).
 export function ParqPromptCard({ status, validUntil, onPress }: Props) {
-  const pending = status === 'not_started' || status === 'expired';
-
-  if (!pending) {
+  if (!isParqPending(status)) {
     const valid = validUntil ? `Em dia · válido até ${shortDateBr(validUntil)}` : 'Em dia';
     return (
-      <View style={styles.cardMuted}>
-        <View style={styles.head}>
-          <ClipboardText size={14} weight="duotone" color={colors.textTertiary} />
-          <AppText variant="eyebrow" color="tertiary">Par-Q</AppText>
+      <Pressable
+        style={styles.cardMuted}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel="Par-Q em dia. Toque para revisar suas respostas."
+      >
+        <View style={styles.mutedRow}>
+          <View style={styles.mutedText}>
+            <View style={styles.head}>
+              <ClipboardText size={14} weight="duotone" color={colors.textTertiary} />
+              <AppText variant="eyebrow" color="tertiary">Par-Q</AppText>
+            </View>
+            <AppText variant="bodyMd" color="secondary">{valid}</AppText>
+          </View>
+          <CaretRight size={16} weight="bold" color={colors.textTertiary} />
         </View>
-        <AppText variant="bodyMd" color="secondary">{valid}</AppText>
-      </View>
+      </Pressable>
     );
   }
 
@@ -59,5 +68,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
   },
+  mutedRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  mutedText: { flex: 1 },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs, marginBottom: 2 },
 }));

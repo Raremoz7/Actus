@@ -266,7 +266,9 @@ export function StudentDetailScreen({ id }: Props) {
                 </View>
               )}
 
-              <ParqSection studentId={id} />
+              <View style={styles.parqWrap}>
+                <ParqSection studentId={id} />
+              </View>
 
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Atividade recente
@@ -487,6 +489,8 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.sm,
   },
   secLabel: { marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
+  // ParqSection: mesmo respiro de seção dos secLabel (cards surface1 não podem encostar).
+  parqWrap: { marginTop: theme.spacing.xl },
   timeline: {
     gap: theme.spacing.md,
   },

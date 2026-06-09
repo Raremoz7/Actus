@@ -1,4 +1,7 @@
 // src/mocks/parq.test.ts
+import { useParqMock, submitParq } from './parq';
+import type { ParqAnswer } from '@/types/parq';
+
 // Mock de SecureStore em memória (o store persiste via expo-secure-store).
 jest.mock('expo-secure-store', () => {
   const store = new Map<string, string>();
@@ -8,9 +11,6 @@ jest.mock('expo-secure-store', () => {
     deleteItemAsync: jest.fn(async (k: string) => void store.delete(k)),
   };
 });
-
-import { useParqMock, submitParq } from './parq';
-import type { ParqAnswer } from '@/types/parq';
 
 function answers(yesIds: number[] = []): ParqAnswer[] {
   return [1, 2, 3, 4, 5, 6, 7].map((id) => ({ question_id: id, value: yesIds.includes(id) }));
@@ -29,5 +29,24 @@ describe('mock parq store', () => {
     useParqMock.setState({ byStudent: {}, hydrated: false });
     await useParqMock.getState().hydrate();
     expect(useParqMock.getState().byStudent['aluno-2']).toBeTruthy();
+  });
+
+  it('submit em store frio NÃO apaga submissões persistidas de outros alunos', async () => {
+    // aluno-1 e aluno-2 já estão no "disco" (testes acima). Esfria o store em memória
+    // (cold start: deep link direto na tela do Par-Q, nada hidratou ainda)…
+    useParqMock.setState({ byStudent: {}, hydrated: false });
+    // …e o submit de um terceiro aluno deve hidratar antes de persistir por cima.
+    await submitParq('aluno-3', answers([1]));
+
+    const map = useParqMock.getState().byStudent;
+    expect(map['aluno-3']?.any_yes).toBe(true);
+    expect(map['aluno-1']).toBeTruthy();
+    expect(map['aluno-2']).toBeTruthy();
+
+    // E o que foi salvo no disco também contém os três.
+    useParqMock.setState({ byStudent: {}, hydrated: false });
+    await useParqMock.getState().hydrate();
+    const rehydrated = useParqMock.getState().byStudent;
+    expect(Object.keys(rehydrated).sort()).toEqual(['aluno-1', 'aluno-2', 'aluno-3']);
   });
 });
