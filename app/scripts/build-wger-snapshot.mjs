@@ -13,6 +13,7 @@
 //
 // Uso: npm run wger:snapshot
 
+/* global Buffer */
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -154,7 +155,6 @@ async function main() {
   console.log('Baixando e comprimindo imagens (~400px webp)...');
   const byId = new Map(exercises.map((e) => [e.id, e]));
   const CONCURRENCY = 6;
-  let okImages = 0;
   let failImages = 0;
   let done = 0;
 
@@ -169,7 +169,6 @@ async function main() {
           .resize({ width: 400, withoutEnlargement: true })
           .webp({ quality: 72 })
           .toFile(join(IMG_DIR, `${id}.webp`));
-        okImages += 1;
       } catch (err) {
         failImages += 1;
         const ex = byId.get(id);

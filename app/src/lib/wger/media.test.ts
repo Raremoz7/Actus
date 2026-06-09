@@ -1,5 +1,9 @@
-jest.mock('../../../assets/wger/images', () => ({ WGER_IMAGES: { 101: { uri: 'mock-101' } } }), { virtual: true });
 import { wgerImageSource } from './media';
+
+// jest.mock é içado para o topo do módulo pelo Jest — fica acima do import em runtime.
+jest.mock('../../../assets/wger/images', () => ({ WGER_IMAGES: { 101: { uri: 'mock-101' } } }), {
+  virtual: true,
+});
 
 describe('wgerImageSource', () => {
   it('devolve a source quando há imagem', () => {
