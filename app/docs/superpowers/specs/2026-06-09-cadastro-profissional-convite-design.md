@@ -1,4 +1,8 @@
-# Cadastro Profissional + Convite do Aluno Logado — Design (Sub-projetos MVP/V1)
+# [SUBSTITUÍDO] Cadastro Profissional + Convite do Aluno Logado — Design
+
+> **SUBSTITUÍDO em 2026-06-09** por `2026-06-09-onboarding-design.md` (história de usuário do
+> onboarding do aluno + PDF do fluxo do professor redefiniram os dois fluxos). O consume/
+> usar-convite e a infraestrutura de wizard deste spec foram absorvidos pelo novo.
 
 Data: 2026-06-09 · Cards do Miro: "Fluxo de Cadastro (personal)" + "Fluxo de Cadastro (aluno)" · Prioridade: Critical
 Worktree: `feat/cadastro` (isolado — Par-Q e Banco de Treinos correm em paralelo em outros worktrees)
