@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -12,6 +12,14 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Screen, AppText, Button, ListState, TopBar } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
 import type { ProWorkoutListItem } from '@/types/workouts';
+import {
+  WorkoutScopeToggle,
+  type WorkoutScope,
+  ObjetivoChips,
+  LibraryWorkoutCard,
+} from '@/components/library';
+import { getWorkoutLibrary } from '@/data/workoutLibrary';
+import type { Objetivo } from '@/types/workoutLibrary';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
@@ -69,6 +77,9 @@ function ProWorkoutCard({ workout, onPress }: CardProps) {
 // (/montar-treino), criando ou editando (?id=).
 export default function PersonalTreinosScreen() {
   const list = useProWorkouts();
+  // Escopo da aba: "meus" (templates do personal) ou "banco" (biblioteca gratuita).
+  const [scope, setScope] = useState<WorkoutScope>('meus');
+  const [objetivo, setObjetivo] = useState<Objetivo | null>(null);
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
   const opacity = useSharedValue(0);
@@ -84,6 +95,12 @@ export default function PersonalTreinosScreen() {
 
   const workouts = useMemo(() => list.data?.workouts ?? [], [list.data]);
 
+  // Biblioteca filtrada pelo objetivo selecionado (null = todos).
+  const library = useMemo(
+    () => getWorkoutLibrary().filter((w) => !objetivo || w.objetivo === objetivo),
+    [objetivo],
+  );
+
   function openBuilder() {
     router.push('/montar-treino' as Href);
   }
@@ -92,53 +109,81 @@ export default function PersonalTreinosScreen() {
     router.push(('/montar-treino?id=' + id) as Href);
   }
 
+  function openLibraryWorkout(id: string) {
+    router.push(('/banco-treino/' + id) as Href);
+  }
+
   const isEmpty = !list.isLoading && !list.isError && workouts.length === 0;
 
   return (
     <Screen edges={['top']}>
-      <TopBar title="Treinos" eyebrow={countLabel(workouts.length)} />
+      <TopBar
+        title="Treinos"
+        eyebrow={scope === 'meus' ? countLabel(workouts.length) : countLabel(library.length)}
+      />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
       <Animated.View style={revealStyle}>
-        <View style={styles.newBtn}>
-          <Button
-            variant="primary"
-            label="Novo treino"
-            icon={<Plus size={18} weight="bold" color={colors.textInverse} />}
-            onPress={openBuilder}
-          />
+        <View style={styles.toggle}>
+          <WorkoutScopeToggle value={scope} onChange={setScope} />
         </View>
 
-        <View style={styles.list}>
-          {workouts.map((w) => (
-            <ProWorkoutCard key={w.id} workout={w} onPress={() => openWorkout(w.id)} />
-          ))}
-        </View>
+        {scope === 'meus' ? (
+          <>
+            <View style={styles.newBtn}>
+              <Button
+                variant="primary"
+                label="Novo treino"
+                icon={<Plus size={18} weight="bold" color={colors.textInverse} />}
+                onPress={openBuilder}
+              />
+            </View>
 
-        {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
+            <View style={styles.list}>
+              {workouts.map((w) => (
+                <ProWorkoutCard key={w.id} workout={w} onPress={() => openWorkout(w.id)} />
+              ))}
+            </View>
 
-        {isEmpty ? (
-          <ListState
-            kind="empty"
-            icon={Barbell}
-            title="Nenhum treino ainda"
-            message="Monte seu primeiro template para atribuir aos alunos"
-            actionLabel="Novo treino"
-            onAction={openBuilder}
-          />
-        ) : null}
+            {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
-        {list.isError ? (
-          <ListState
-            kind="error"
-            title="Não foi possível carregar"
-            message="Verifique sua conexão e tente novamente."
-            actionLabel="Tentar de novo"
-            onAction={() => void list.refetch()}
-          />
-        ) : null}
+            {isEmpty ? (
+              <ListState
+                kind="empty"
+                icon={Barbell}
+                title="Nenhum treino ainda"
+                message="Monte seu primeiro template para atribuir aos alunos"
+                actionLabel="Novo treino"
+                onAction={openBuilder}
+              />
+            ) : null}
+
+            {list.isError ? (
+              <ListState
+                kind="error"
+                title="Não foi possível carregar"
+                message="Verifique sua conexão e tente novamente."
+                actionLabel="Tentar de novo"
+                onAction={() => void list.refetch()}
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <ObjetivoChips selected={objetivo} onChange={setObjetivo} />
+            <View style={styles.list}>
+              {library.map((w) => (
+                <LibraryWorkoutCard
+                  key={w.id}
+                  workout={w}
+                  onPress={() => openLibraryWorkout(w.id)}
+                />
+              ))}
+            </View>
+          </>
+        )}
       </Animated.View>
       </ScrollView>
     </Screen>
@@ -147,6 +192,9 @@ export default function PersonalTreinosScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
+  toggle: {
+    marginBottom: theme.spacing.lg,
+  },
   newBtn: {
     marginBottom: theme.spacing.xl,
   },
