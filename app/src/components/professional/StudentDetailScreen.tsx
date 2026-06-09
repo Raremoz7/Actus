@@ -24,6 +24,7 @@ import { darkTheme } from '@/theme';
 import { goBackOr } from '@/lib/nav';
 import { studentInitials } from './StudentRow';
 import { CheckInHeatmap } from './CheckInHeatmap';
+import { ParqSection } from './ParqSection';
 import {
   activeDaysInWindow,
   buildHeatmap,
@@ -264,6 +265,8 @@ export function StudentDetailScreen({ id }: Props) {
                   {checkIns.isError ? null : <CheckInHeatmap cells={heatmap} />}
                 </View>
               )}
+
+              <ParqSection studentId={id} />
 
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Atividade recente
