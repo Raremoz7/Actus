@@ -5,7 +5,7 @@ import { router, type Href } from 'expo-router';
 import { Barbell } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, ListState } from '@/components/ui';
+import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { NextWorkoutCard, WorkoutListRow, WeekStrip } from '@/components/workouts';
 import {
   lastCompletedLabel,
@@ -57,6 +57,7 @@ export default function AlunoTreinosScreen() {
 
   return (
     <Screen edges={['top']}>
+      <TopBar title="Treinos" />
       <Animated.ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -70,10 +71,6 @@ export default function AlunoTreinosScreen() {
         }
       >
       <Animated.View style={revealStyle}>
-        <AppText variant="h2" style={styles.title}>
-          Treinos
-        </AppText>
-
         {items.length > 0 ? (
           <View style={styles.strip}>
             <WeekStrip workouts={items} today={today} />
@@ -152,7 +149,6 @@ export default function AlunoTreinosScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
-  title: { marginBottom: theme.spacing.lg },
   strip: { marginBottom: theme.spacing.lg },
   block: { marginTop: theme.spacing.lg },
   restLabel: { marginBottom: theme.spacing.sm },

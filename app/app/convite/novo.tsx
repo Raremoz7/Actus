@@ -16,7 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
-import * as Clipboard from 'expo-clipboard';
+import { copyText } from '@/lib/clipboard';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Tag } from '@/components/ui';
@@ -119,7 +119,7 @@ export default function NovoConviteScreen() {
   }
 
   async function handleCopy(code: string) {
-    await Clipboard.setStringAsync(inviteDeepLink(code));
+    await copyText(inviteDeepLink(code));
   }
 
   function handleBack() {

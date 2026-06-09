@@ -39,7 +39,7 @@ export function WeekStrip({ overview, plannedWeekdays }: Props) {
     <View>
       <View style={styles.header}>
         <View style={styles.kpi}>
-          <Flame size={22} weight="duotone" color={colors.neon} />
+          <Flame size={22} weight="duotone" color={colors.flame} />
           <AppText variant="dataBig" color="neon">
             {String(overview.streak_current)}
           </AppText>
@@ -49,7 +49,7 @@ export function WeekStrip({ overview, plannedWeekdays }: Props) {
             Sequência
           </AppText>
           <AppText variant="metaSmall" color="secondary">
-            {`Atual ${overview.streak_current} · Recorde ${overview.streak_best}`}
+            {`Recorde ${overview.streak_best}`}
           </AppText>
         </View>
       </View>

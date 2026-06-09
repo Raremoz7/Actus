@@ -5,30 +5,15 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Logo } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
-import type { UserTipo } from '@/types/me';
+import { AUTH_ENTRY, PASSWORD_GATE, homeForTipo } from '@/lib/authRoutes';
 
 const { motion } = darkTheme;
-
-// Rota inicial por tipo de usuário autenticado.
-function homeForTipo(tipo: UserTipo): string {
-  switch (tipo) {
-    case 'aluno':
-      return '/(aluno)/(tabs)';
-    case 'personal':
-      return '/(personal)/(tabs)';
-    case 'nutricionista':
-      return '/(nutri)/(tabs)';
-    // staff nunca chega aqui (não aparece em /me); fallback seguro para a escolha de perfil.
-    default:
-      return '/(auth)/escolha-perfil';
-  }
-}
 
 export default function SplashScreenRoute() {
   const status = useAuthStore((s) => s.status);
@@ -53,17 +38,15 @@ export default function SplashScreenRoute() {
     if (status === 'hydrating') return;
 
     if (status === 'unauthenticated') {
-      router.replace('/(auth)/escolha-perfil');
+      router.replace(AUTH_ENTRY);
       return;
     }
     if (status === 'must_change_password') {
-      router.replace('/(auth)/trocar-senha');
+      router.replace(PASSWORD_GATE);
       return;
     }
     if (status === 'authenticated' && user) {
-      // Cast: as áreas (aluno)/(personal)/(nutri) ainda não existem como rotas (Bloco 1),
-      // então não estão na união de rotas tipadas do expo-router. Seguro em runtime.
-      router.replace(homeForTipo(user.tipo) as Href);
+      router.replace(homeForTipo(user.tipo));
     }
   }, [status, user]);
 

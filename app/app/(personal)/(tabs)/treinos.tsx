@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { Barbell, CaretRight, Plus } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, Button, ListState } from '@/components/ui';
+import { Screen, AppText, Button, ListState, TopBar } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
 import type { ProWorkoutListItem } from '@/types/workouts';
 import { darkTheme } from '@/theme';
@@ -95,17 +95,13 @@ export default function PersonalTreinosScreen() {
   const isEmpty = !list.isLoading && !list.isError && workouts.length === 0;
 
   return (
-    <Screen scroll padded>
+    <Screen edges={['top']}>
+      <TopBar title="Treinos" eyebrow={countLabel(workouts.length)} />
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
       <Animated.View style={revealStyle}>
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <AppText variant="eyebrow" color="tertiary">
-              {countLabel(workouts.length)}
-            </AppText>
-            <AppText variant="h2">Treinos</AppText>
-          </View>
-        </View>
-
         <View style={styles.newBtn}>
           <Button
             variant="primary"
@@ -144,21 +140,13 @@ export default function PersonalTreinosScreen() {
           />
         ) : null}
       </Animated.View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.lg,
-  },
-  headerText: {
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
+  scroll: { padding: theme.spacing.lg },
   newBtn: {
     marginBottom: theme.spacing.xl,
   },

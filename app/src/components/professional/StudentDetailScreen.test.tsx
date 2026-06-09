@@ -5,6 +5,7 @@ import { StudentDetailScreen } from './StudentDetailScreen';
 // determinístico. Prefixo `mock` é exigido pelo hoisting do jest.mock.
 const mockUseStudents = jest.fn();
 const mockUseCheckIns = jest.fn();
+const mockUseProWorkouts = jest.fn();
 const mockUseMe = jest.fn();
 const mockPush = jest.fn();
 const mockBack = jest.fn();
@@ -14,6 +15,12 @@ jest.mock('@/hooks/useStudents', () => ({
 }));
 jest.mock('@/hooks/useStudentCheckIns', () => ({
   useStudentCheckIns: () => mockUseCheckIns(),
+}));
+jest.mock('@/hooks/useProStudentWorkouts', () => ({
+  useProStudentWorkouts: () => mockUseProWorkouts(),
+}));
+jest.mock('@/hooks/useUpdateStudentWorkout', () => ({
+  useUpdateStudentWorkout: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 jest.mock('@/hooks/useMe', () => ({
   useMe: () => mockUseMe(),
@@ -41,9 +48,17 @@ const student = {
 beforeEach(() => {
   mockUseStudents.mockReset();
   mockUseCheckIns.mockReset();
+  mockUseProWorkouts.mockReset();
   mockUseMe.mockReset();
   mockPush.mockReset();
   mockBack.mockReset();
+
+  // Padrão: sem treinos atribuídos (estado vazio). Testes específicos sobrescrevem.
+  mockUseProWorkouts.mockReturnValue({
+    data: { student_workouts: [] },
+    isLoading: false,
+    isError: false,
+  });
 
   mockUseStudents.mockReturnValue({
     data: { students: [student] },
@@ -100,6 +115,47 @@ describe('StudentDetailScreen', () => {
     render(<StudentDetailScreen id={STUDENT_ID} />);
     fireEvent.press(screen.getByText('Atribuir dieta'));
     expect(mockPush).toHaveBeenCalledWith('/atribuir-dieta?student=' + STUDENT_ID);
+  });
+
+  it('personal sem treinos vê o estado vazio do programa', () => {
+    render(<StudentDetailScreen id={STUDENT_ID} />);
+    expect(
+      screen.getByText(/Nenhum treino atribuído ainda/),
+    ).toBeTruthy();
+  });
+
+  it('lista treino atribuído e "Editar" navega em modo edição (com assignment e dias)', () => {
+    mockUseProWorkouts.mockReturnValue({
+      data: {
+        student_workouts: [
+          {
+            id: 'sw-1',
+            student_id: STUDENT_ID,
+            workout_id: 'wk-9',
+            weekdays: [1, 3, 5],
+            start_date: '2026-05-01',
+            end_date: null,
+            display_order: 0,
+            is_active: true,
+            created_at: '2026-05-01T00:00:00.000Z',
+            workout_name: 'Treino A — Peito',
+            workout_notes: null,
+            exercise_count: 4,
+            last_completed_date: null,
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+    render(<StudentDetailScreen id={STUDENT_ID} />);
+    expect(screen.getByText('Treino A — Peito')).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('Editar Treino A — Peito'));
+    expect(mockPush).toHaveBeenCalledWith(
+      '/atribuir-treino?student=' +
+        STUDENT_ID +
+        '&assignment=sw-1&workout=wk-9&weekdays=1,3,5&start=2026-05-01',
+    );
   });
 
   it('mostra fallback discreto quando o aluno não está no cache (deep link)', () => {

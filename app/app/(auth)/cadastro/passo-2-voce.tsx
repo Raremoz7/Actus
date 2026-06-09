@@ -159,7 +159,6 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.lg,
   },
   cta: {
-    marginTop: 'auto',
-    paddingTop: theme.spacing.xl,
+    marginTop: theme.spacing.xl,
   },
 }));

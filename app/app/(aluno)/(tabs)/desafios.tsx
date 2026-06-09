@@ -6,7 +6,7 @@ import { Trophy } from 'phosphor-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, ListState } from '@/components/ui';
+import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { ChallengeListCard, ChallengeSectionHeader } from '@/components/challenges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeActions } from '@/hooks/useChallengeActions';
@@ -111,6 +111,7 @@ export default function AlunoDesafiosScreen() {
 
   return (
     <Screen edges={['top']}>
+      <TopBar title="Desafios" eyebrow="Seus desafios" />
       <Animated.ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -124,13 +125,6 @@ export default function AlunoDesafiosScreen() {
         }
       >
         <Animated.View style={revealStyle}>
-          <AppText variant="eyebrow" color="tertiary">
-            Seus desafios
-          </AppText>
-          <AppText variant="h2" style={styles.title}>
-            Desafios
-          </AppText>
-
           {invited.length > 0 ? (
             <View style={styles.section}>
               <ChallengeSectionHeader
@@ -176,7 +170,6 @@ export default function AlunoDesafiosScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   scroll: { padding: theme.spacing.lg },
-  title: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
   section: { marginBottom: theme.spacing.lg },
   cardWrap: { marginBottom: theme.spacing.md },
   cardError: { marginTop: theme.spacing.xs },

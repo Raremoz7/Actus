@@ -1,44 +1,32 @@
-import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, TopBar } from '@/components/ui';
 import type { Greeting } from '@/lib/greeting';
 
 type Props = {
   greeting: Greeting;
   name: string | null;
   dateLabel: string;
-  // Frase de estado do dia (heroína do header): "Treino de pernas hoje",
-  // "Você está em dia", "Descanso programado". Promovida a H2.
-  headline: string;
 };
 
-export function HomeHeader({ greeting, name, dateLabel, headline }: Props) {
-  // Saudação recua a eyebrow secundária — o estado do dia é o que importa.
-  const eyebrow = name ? `${greeting}, ${name}` : greeting;
+// Top bar fixa da Home: data (eyebrow) + saudação. O estado do dia NÃO vive mais aqui —
+// o card de treino logo abaixo já é a heroína, então o antigo headline era redundante.
+export function HomeHeader({ greeting, name, dateLabel }: Props) {
+  const greet = name ? `${greeting}, ${name}` : greeting;
   return (
-    <View style={styles.root}>
+    <TopBar>
       <AppText variant="eyebrow" color="tertiary">
         {dateLabel}
       </AppText>
-      <AppText variant="metaSmall" color="secondary" style={styles.greet} numberOfLines={1}>
-        {eyebrow}
+      <AppText variant="bodyLg" color="primary" style={styles.greet} numberOfLines={1}>
+        {greet}
       </AppText>
-      <AppText variant="h2" style={styles.headline} numberOfLines={2}>
-        {headline}
-      </AppText>
-    </View>
+    </TopBar>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  root: {
-    marginBottom: theme.spacing.xl,
-  },
   greet: {
     marginTop: theme.spacing.xs,
-  },
-  headline: {
-    marginTop: theme.spacing.sm,
   },
 }));

@@ -1,21 +1,25 @@
 import { useEffect, useMemo } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { Barbell, CaretLeft, HandTap, Info } from 'phosphor-react-native';
+import { Barbell, CaretLeft, HandTap, Info, PencilSimple, Trash } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, KpiNumber, ListState } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import { useStudentCheckIns } from '@/hooks/useStudentCheckIns';
+import { useProStudentWorkouts } from '@/hooks/useProStudentWorkouts';
+import { useUpdateStudentWorkout } from '@/hooks/useUpdateStudentWorkout';
 import { useMe } from '@/hooks/useMe';
 import { calcAge, formatCheckInDate } from '@/lib/student';
+import { weekdayLetter } from '@/lib/weekday';
 import type { CheckIn, Student } from '@/types/professional';
+import type { StudentWorkout, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 import { goBackOr } from '@/lib/nav';
 import { studentInitials } from './StudentRow';
@@ -29,7 +33,7 @@ import {
   linkedSinceLabel,
 } from './studentPulse';
 
-const { colors, motion } = darkTheme;
+const { colors, motion, spacing } = darkTheme;
 
 // Quantos check-ins listar na timeline (a KPI mostra o total real).
 const RECENT_LIMIT = 8;
@@ -46,6 +50,13 @@ function byDateDesc(a: CheckIn, b: CheckIn): number {
   return a.check_in_date < b.check_in_date ? 1 : -1;
 }
 
+// Dias da semana na ordem ISO (1=segunda … 7=domingo) — trilha read-only no card.
+const WEEKDAYS: Weekday[] = [1, 2, 3, 4, 5, 6, 7];
+
+function exerciseLabel(n: number): string {
+  return n === 1 ? '1 exercício' : `${n} exercícios`;
+}
+
 type Props = {
   // id do aluno (vem de useLocalSearchParams na rota; injetado aqui para testabilidade).
   id: string;
@@ -59,6 +70,9 @@ export function StudentDetailScreen({ id }: Props) {
   const list = useStudents();
   const checkIns = useStudentCheckIns(id || undefined);
   const me = useMe();
+  // Inset inferior aplicado MANUALMENTE: a barra de CTA é position:absolute e o padding
+  // do SafeAreaView não alcança filhos absolutos (no Android o botão ficava sob a nav bar).
+  const insets = useSafeAreaInsets();
 
   // 1 momento de motion por tela: reveal de entrada (opacity, 300ms).
   const opacity = useSharedValue(0);
@@ -96,11 +110,59 @@ export function StudentDetailScreen({ id }: Props) {
   );
 
   const role = me.data?.tipo;
+  const isPersonal = role === 'personal';
   const sinceLabel = student ? linkedSinceLabel(student.linked_at) : null;
+
+  // [Pro] Treinos atribuídos ao aluno (só personal). GET ainda inexistente na API →
+  // erro/empty viram o mesmo estado vazio (ver useProStudentWorkouts).
+  const proWorkouts = useProStudentWorkouts(isPersonal && id ? id : undefined);
+  const updateWorkout = useUpdateStudentWorkout();
+  const assignments = useMemo(
+    () =>
+      (proWorkouts.data?.student_workouts ?? [])
+        .filter((w) => w.is_active)
+        .sort((a, b) => a.display_order - b.display_order),
+    [proWorkouts.data],
+  );
 
   function goAssignWorkout() {
     if (!id) return;
     router.push(('/atribuir-treino?student=' + id) as Href);
+  }
+
+  // Editar = reabrir a tela de atribuição em modo edição (dias/início via PATCH).
+  function editWorkout(sw: StudentWorkout) {
+    if (!id) return;
+    const q = [
+      'student=' + encodeURIComponent(id),
+      'assignment=' + encodeURIComponent(sw.id),
+      'workout=' + encodeURIComponent(sw.workout_id),
+      'weekdays=' + sw.weekdays.join(','),
+      'start=' + sw.start_date,
+    ].join('&');
+    router.push(('/atribuir-treino?' + q) as Href);
+  }
+
+  // Remover = soft-disable (is_active:false) — a API não tem DELETE de atribuição.
+  function removeWorkout(sw: StudentWorkout) {
+    if (!id) return;
+    Alert.alert(
+      'Remover treino',
+      `Remover "${sw.workout_name}" do programa${name ? ' de ' + name : ''}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Remover',
+          style: 'destructive',
+          onPress: () =>
+            updateWorkout.mutate({
+              studentId: id,
+              studentWorkoutId: sw.id,
+              body: { is_active: false },
+            }),
+        },
+      ],
+    );
   }
 
   function goAssignDiet() {
@@ -115,7 +177,7 @@ export function StudentDetailScreen({ id }: Props) {
   const programLabel = role === 'nutricionista' ? 'dieta' : 'treino';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"
@@ -133,7 +195,7 @@ export function StudentDetailScreen({ id }: Props) {
 
       <Animated.View style={[styles.flex, revealStyle]}>
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { paddingBottom: 112 + insets.bottom }]}
           showsVerticalScrollIndicator={false}
         >
           {student ? (
@@ -245,18 +307,98 @@ export function StudentDetailScreen({ id }: Props) {
                 </AppText>
               )}
 
-              {/* Programa atual: sem GET de atribuições do lado pro, sinalizamos
-                  honestamente onde o programa aparece (para o aluno). */}
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Programa atual
               </AppText>
-              <View style={styles.programCard}>
-                <Info size={18} weight="duotone" color={colors.textTertiary} />
-                <AppText variant="bodySm" color="secondary" style={styles.programText}>
-                  {`O ${programLabel} atribuído aparece para o aluno no app dele. `}
-                  {`Use o botão abaixo para enviar ou trocar o ${programLabel}.`}
-                </AppText>
-              </View>
+
+              {isPersonal ? (
+                // Lista os treinos atribuídos (editar/remover). GET ainda inexistente →
+                // erro vira o mesmo estado vazio; "Atribuir treino" (rodapé) adiciona.
+                proWorkouts.isLoading && !proWorkouts.data ? (
+                  <ListState kind="loading" skeletonCount={1} />
+                ) : assignments.length > 0 ? (
+                  <View style={styles.assignList}>
+                    {assignments.map((sw) => (
+                      <View key={sw.id} style={styles.assignCard}>
+                        <View style={styles.assignTop}>
+                          <View style={styles.assignIcon}>
+                            <Barbell size={20} weight="duotone" color={colors.neon} />
+                          </View>
+                          <View style={styles.assignText}>
+                            <AppText variant="h3" numberOfLines={1} uppercase={false}>
+                              {sw.workout_name}
+                            </AppText>
+                            <AppText variant="metaSmall" color="tertiary">
+                              {exerciseLabel(sw.exercise_count)}
+                            </AppText>
+                          </View>
+                        </View>
+
+                        <View style={styles.weekRow}>
+                          {WEEKDAYS.map((wd) => {
+                            const on = sw.weekdays.includes(wd);
+                            return (
+                              <View
+                                key={wd}
+                                style={[styles.weekDot, on && styles.weekDotOn]}
+                              >
+                                <AppText
+                                  variant="metaSmall"
+                                  color={on ? 'inverse' : 'tertiary'}
+                                >
+                                  {weekdayLetter(wd)}
+                                </AppText>
+                              </View>
+                            );
+                          })}
+                        </View>
+
+                        <View style={styles.assignActions}>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Editar ${sw.workout_name}`}
+                            onPress={() => editWorkout(sw)}
+                            style={styles.assignAction}
+                          >
+                            <PencilSimple size={16} weight="bold" color={colors.textSecondary} />
+                            <AppText variant="label" color="secondary">
+                              Editar
+                            </AppText>
+                          </Pressable>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Remover ${sw.workout_name}`}
+                            disabled={updateWorkout.isPending}
+                            onPress={() => removeWorkout(sw)}
+                            style={styles.assignAction}
+                          >
+                            <Trash size={16} weight="bold" color={colors.error} />
+                            <AppText variant="label" color="error">
+                              Remover
+                            </AppText>
+                          </Pressable>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.programCard}>
+                    <Info size={18} weight="duotone" color={colors.textTertiary} />
+                    <AppText variant="bodySm" color="secondary" style={styles.programText}>
+                      Nenhum treino atribuído ainda. Use “Atribuir treino” abaixo para enviar o primeiro.
+                    </AppText>
+                  </View>
+                )
+              ) : (
+                // Nutricionista: a dieta atribuída aparece no app do aluno (sem listagem aqui).
+                <View style={styles.programCard}>
+                  <Info size={18} weight="duotone" color={colors.textTertiary} />
+                  <AppText variant="bodySm" color="secondary" style={styles.programText}>
+                    {`A ${programLabel} atribuída aparece para o aluno no app dele. `}
+                    {`Use o botão abaixo para enviar ou trocar a ${programLabel}.`}
+                  </AppText>
+                </View>
+              )}
             </>
           ) : list.isLoading ? (
             <AppText variant="bodySm" color="tertiary">
@@ -272,13 +414,13 @@ export function StudentDetailScreen({ id }: Props) {
       </Animated.View>
 
       {student && role === 'personal' ? (
-        <View style={styles.ctaBar}>
+        <View style={[styles.ctaBar, { paddingBottom: insets.bottom + spacing.lg }]}>
           <Button label="Atribuir treino" onPress={goAssignWorkout} />
         </View>
       ) : null}
 
       {student && role === 'nutricionista' ? (
-        <View style={styles.ctaBar}>
+        <View style={[styles.ctaBar, { paddingBottom: insets.bottom + spacing.lg }]}>
           <Button label="Atribuir dieta" onPress={goAssignDiet} />
         </View>
       ) : null}
@@ -371,12 +513,71 @@ const styles = StyleSheet.create((theme) => ({
   programText: {
     flex: 1,
   },
+  assignList: {
+    gap: theme.spacing.md,
+  },
+  assignCard: {
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.md,
+  },
+  assignTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  assignIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  assignText: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  weekRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  weekDot: {
+    width: 28,
+    height: 28,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  weekDotOn: {
+    backgroundColor: theme.colors.neon,
+    borderColor: theme.colors.neon,
+  },
+  assignActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.outlineVariant,
+    paddingTop: theme.spacing.md,
+  },
+  assignAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
   ctaBar: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    padding: theme.spacing.lg,
+    // paddingBottom é aplicado inline (= inset + lg) para limpar a nav bar do Android.
+    paddingTop: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
     backgroundColor: theme.colors.bgBase,
     borderTopWidth: 1,
     borderTopColor: theme.colors.outlineVariant,

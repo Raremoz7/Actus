@@ -53,6 +53,13 @@ export const StudentWorkoutsResponseSchema = z.object({
 });
 export type StudentWorkoutsResponse = z.infer<typeof StudentWorkoutsResponseSchema>;
 
+// [Pro] Treinos atribuídos a UM aluno, vistos pelo profissional —
+// CONTRATO PROPOSTO de GET /students/:student_id/workouts. O backend v1 ainda NÃO
+// expõe este GET (só POST/PATCH); a forma espelha /me/student/workouts para o time do
+// backend implementar de forma consistente. Enquanto não existir, a lista vem vazia.
+export const ProStudentWorkoutsResponseSchema = StudentWorkoutsResponseSchema;
+export type ProStudentWorkoutsResponse = StudentWorkoutsResponse;
+
 // [Bloco Treinos] Detalhe — shape REAL de GET /me/workouts/:id.
 export const WorkoutExerciseSchema = z.object({
   id: z.string().uuid(),

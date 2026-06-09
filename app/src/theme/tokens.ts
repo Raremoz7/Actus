@@ -17,6 +17,13 @@ export const palette = {
   neonTransparent: 'rgba(203, 254, 0, 0)',
   secondary: '#4DE082',
   surfaceTint: '#ABD600',
+  // Azul-névoa (dusty blue) — coadjuvante de dados/estrutura: categorias/abas secundárias,
+  // eyebrows e valores secundários, gráficos, divisórias com cor. NÃO usar como ação (isso é
+  // do neon) nem como aviso (isso é do `info`); convive com o `info` por ter saturação/função
+  // distintas (névoa = estrutura/dados; info = aviso pontual).
+  accentMuted: '#7BA0BC',
+  // Fill suave da névoa para chips/tags/badges secundários (evita hardcode de rgba em componente).
+  accentMutedSurface: 'rgba(123, 160, 188, 0.16)',
 
   // Texto & outlines
   textPrimary: '#FFFFFF',
@@ -32,6 +39,9 @@ export const palette = {
   warning: '#FBBF24',
   error: '#F87171',
   info: '#60A5FA',
+  // Cor de fogo do ícone de streak (chama) — EXCEÇÃO consciente ao neon-da-marca:
+  // o fogo só vive no símbolo de sequência. Mesmo matiz quente do gradients.streak.
+  flame: '#F97316',
 
   // Overlay/scrim (fundo de modais e bottom sheets) e cor de sombra.
   // overlay = bgLowest a 70% — escurece o conteúdo atrás do sheet.

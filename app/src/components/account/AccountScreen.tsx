@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { useEffect, type ReactNode } from 'react';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -16,11 +16,13 @@ import {
 } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, KpiNumber, Tag, ListState } from '@/components/ui';
+import { Screen, AppText, KpiNumber, Tag, ListState, TopBar } from '@/components/ui';
 import { useMe } from '@/hooks/useMe';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
 import { useLogoutMutation } from '@/features/auth/hooks';
 import type { UserTipo } from '@/types/me';
+import { useAuthStore } from '@/store/authStore';
+import { DEV_BYPASS_AUTH, reloadApp } from '@/lib/devAuth';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
@@ -39,6 +41,14 @@ const TIPO_LABEL: Record<UserTipo, string> = {
   actus_admin: 'Equipe Actus',
   actus_suporte: 'Suporte Actus',
 };
+
+// [DEV] Áreas alternáveis pelo switcher — só as que têm rota própria (aluno/personal/
+// nutri). admin/suporte não têm área, então ficam de fora.
+const DEV_TIPOS: { tipo: UserTipo; label: string }[] = [
+  { tipo: 'aluno', label: 'Aluno' },
+  { tipo: 'personal', label: 'Personal' },
+  { tipo: 'nutricionista', label: 'Nutri' },
+];
 
 // Inicial do display_name para o avatar placeholder.
 function initialOf(name: string | null | undefined): string {
@@ -95,6 +105,22 @@ function ActionRow({
   );
 }
 
+// Casca da tela de conta: top bar fixa "Perfil" + conteúdo rolável. Também envolve os
+// estados de loading/erro para a barra nunca "piscar" entre transições.
+function PerfilShell({ children }: { children: ReactNode }) {
+  return (
+    <Screen edges={['top']}>
+      <TopBar title="Perfil" />
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+      </ScrollView>
+    </Screen>
+  );
+}
+
 export function AccountScreen({ showStreak = false }: Props) {
   const me = useMe();
   const week = useWeeklyOverview();
@@ -123,21 +149,31 @@ export function AccountScreen({ showStreak = false }: Props) {
     ]);
   }
 
+  // [DEV] Troca de área: persiste o tipo e REINICIA o app. Trocar in-app não funciona —
+  // as 3 áreas (aluno/personal/nutri) compartilham as mesmas URLs (grupos são invisíveis
+  // na rota), então o router não troca o navegador já montado e a tela "não sai do lugar".
+  // O reload deixa o dispatcher (app/index) montar só a área alvo, do zero.
+  function switchDevTipo(next: UserTipo) {
+    if (next === tipo) return;
+    useAuthStore.getState().devSetTipo(next);
+    reloadApp();
+  }
+
   // Loading/erro antes do reveal: a identidade depende de /me e o streak de
   // weekly-overview. Skeleton enquanto carrega; aviso discreto com retry se a
   // busca do perfil falhar.
   const isLoading = me.isLoading || (showStreak && week.isLoading);
   if (isLoading) {
     return (
-      <Screen scroll padded>
+      <PerfilShell>
         <ListState kind="loading" skeletonCount={3} />
-      </Screen>
+      </PerfilShell>
     );
   }
 
   if (me.isError) {
     return (
-      <Screen scroll padded>
+      <PerfilShell>
         <ListState
           kind="error"
           icon={UserCircle}
@@ -146,12 +182,12 @@ export function AccountScreen({ showStreak = false }: Props) {
           actionLabel="Tentar de novo"
           onAction={() => void me.refetch()}
         />
-      </Screen>
+      </PerfilShell>
     );
   }
 
   return (
-    <Screen scroll padded>
+    <PerfilShell>
       <Animated.View style={revealStyle}>
         {/* Card de identidade. Avatar real é [MOCK — sem endpoint na API v1]: o GET /me
             só devolve { id, tipo, display_name } — avatar_url é write-only via PATCH /me
@@ -223,12 +259,43 @@ export function AccountScreen({ showStreak = false }: Props) {
             onPress={confirmLogout}
           />
         </View>
+
+        {/* [DEV — bypass de auth] Atalho de QA: pular entre as áreas sem login real.
+            Só aparece com o bypass ligado. */}
+        {DEV_BYPASS_AUTH ? (
+          <View style={styles.devBlock}>
+            <AppText variant="eyebrow" color="tertiary" style={styles.devLabel}>
+              DEV · Trocar área
+            </AppText>
+            <View style={styles.devRow}>
+              {DEV_TIPOS.map(({ tipo: t, label }) => {
+                const active = t === tipo;
+                return (
+                  <Pressable
+                    key={t}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Mudar para ${label}`}
+                    accessibilityState={{ selected: active }}
+                    onPress={() => switchDevTipo(t)}
+                    style={[styles.devPill, active && styles.devPillActive]}
+                  >
+                    <AppText variant="metaSmall" color={active ? 'inverse' : 'secondary'}>
+                      {label}
+                    </AppText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
       </Animated.View>
-    </Screen>
+    </PerfilShell>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  // Conteúdo rolável abaixo da top bar fixa (a barra tem respiro próprio).
+  scroll: { padding: theme.spacing.lg },
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -298,5 +365,29 @@ const styles = StyleSheet.create((theme) => ({
   },
   rowLabel: {
     flex: 1,
+  },
+  // [DEV] Switcher de área — bloco discreto abaixo das ações.
+  devBlock: {
+    marginTop: theme.spacing.xl,
+  },
+  devLabel: {
+    marginBottom: theme.spacing.sm,
+  },
+  devRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  devPill: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+  },
+  devPillActive: {
+    backgroundColor: theme.colors.neon,
+    borderColor: theme.colors.neon,
   },
 }));

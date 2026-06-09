@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { MagnifyingGlass, UserPlus, Users } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, ListState } from '@/components/ui';
+import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import type { ProfessionalRole, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
@@ -92,16 +92,14 @@ export function StudentsScreen() {
     !list.isLoading && !list.isError && students.length > 0 && filtered.length === 0;
 
   return (
-    <Screen scroll padded>
-      <Animated.View style={revealStyle}>
+    <Screen edges={['top']}>
+      <TopBar>
         <View style={styles.header}>
           <View style={styles.headerText}>
             <AppText variant="eyebrow" color="tertiary">
               {countLabel(students.length)}
             </AppText>
-            <AppText variant="h2" style={styles.title}>
-              Alunos
-            </AppText>
+            <AppText variant="h2">Alunos</AppText>
           </View>
           <Pressable
             accessibilityRole="button"
@@ -112,7 +110,13 @@ export function StudentsScreen() {
             <UserPlus size={22} weight="duotone" color={colors.textInverse} />
           </Pressable>
         </View>
-
+      </TopBar>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+      <Animated.View style={revealStyle}>
         <View style={styles.search}>
           <MagnifyingGlass size={18} weight="duotone" color={colors.textTertiary} />
           <TextInput
@@ -170,22 +174,22 @@ export function StudentsScreen() {
           />
         ) : null}
       </Animated.View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  scroll: { padding: theme.spacing.lg },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing.lg,
   },
   headerText: {
     flex: 1,
     gap: theme.spacing.xs,
   },
-  title: {},
   inviteBtn: {
     width: 44,
     height: 44,

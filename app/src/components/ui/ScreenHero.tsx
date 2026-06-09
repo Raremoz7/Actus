@@ -73,8 +73,9 @@ export function ScreenHero({
             accessibilityLabel="Voltar"
             hitSlop={12}
             onPress={onBack}
+            style={styles.backBtn}
           >
-            <CaretLeft size={24} weight="bold" color={colors.textPrimary} />
+            <CaretLeft size={22} weight="bold" color={colors.textPrimary} />
           </Pressable>
         ) : (
           <Logo variant="symbol" color="neon" width={28} />
@@ -119,6 +120,16 @@ const styles = StyleSheet.create((theme) => ({
   top: {
     position: 'absolute',
     left: theme.spacing.lg,
+  },
+  // Botão voltar com scrim circular: garante contraste do caret branco sobre qualquer
+  // foto (sem o fundo, o caret some em fotos claras — ver telas de auth).
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   caption: {
     position: 'absolute',

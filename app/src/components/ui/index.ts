@@ -14,6 +14,7 @@ export type { TagTone } from './Tag';
 
 export { Screen } from './Screen';
 export { ScreenHero } from './ScreenHero';
+export { TopBar } from './TopBar';
 
 export { ListState } from './ListState';
 

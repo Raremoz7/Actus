@@ -7,11 +7,22 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button, Input, ScreenHero } from '@/components/ui';
 import { FormErrorBanner, WizardProgress } from '@/components/molecules';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
+import { useInvitePreview } from '@/hooks/useInvitePreview';
 import { authErrorMessage } from '@/features/auth/errors';
+import { isApiError } from '@/api/errors';
 import { type CadastroForm, PASSO_1_FIELDS } from '@/features/auth/cadastroForm';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
+
+// Códigos de erro que invalidam o convite — bloqueiam o avanço no passo 1 (os demais
+// erros, ex.: endpoint indisponível/rede, degradam e deixam o register validar depois).
+const INVITE_ERROR_CODES = new Set([
+  'invalid_invite',
+  'invite_expired',
+  'invite_exhausted',
+  'invalid_invite_professional',
+]);
 
 // [ASSET TEMPORÁRIO] placeholder Unsplash até as fotos curadas chegarem.
 const PASSO1_PHOTO = {
@@ -27,12 +38,17 @@ export default function Passo1ConviteScreen() {
   const {
     control,
     trigger,
+    getValues,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useFormContext<CadastroForm>();
 
   const inviteFromLink = useCadastroDraftStore((s) => s.inviteCode);
   const lastInviteError = useCadastroDraftStore((s) => s.lastInviteError);
   const setLastInviteError = useCadastroDraftStore((s) => s.setLastInviteError);
+
+  const preview = useInvitePreview();
 
   const inviteError = lastInviteError ? authErrorMessage(lastInviteError) : null;
 
@@ -45,10 +61,23 @@ export default function Passo1ConviteScreen() {
   }
 
   async function handleContinue() {
+    // 1) formato (zod) — barra antes de qualquer ida à rede.
     const ok = await trigger([...PASSO_1_FIELDS]);
-    if (ok) {
-      router.push('/(auth)/cadastro/passo-2-voce');
+    if (!ok) return;
+
+    // 2) validação do convite JÁ NO PASSO 1 (não no fim do cadastro): consulta o preview.
+    //    Convite inválido/expirado/esgotado → erro inline, sem avançar. Qualquer outro
+    //    erro (endpoint pendente no backend, rede) degrada: segue e o register valida.
+    const code = getValues('invite_code').trim();
+    try {
+      await preview.mutateAsync(code);
+    } catch (err) {
+      if (isApiError(err) && INVITE_ERROR_CODES.has(err.code)) {
+        setError('invite_code', { message: authErrorMessage(err.code) });
+        return;
+      }
     }
+    router.push('/(auth)/cadastro/passo-2-voce');
   }
 
   const fieldErrorMessage = errors.invite_code?.message;
@@ -106,8 +135,9 @@ export default function Passo1ConviteScreen() {
                   label="Código do convite"
                   value={value}
                   onChangeText={(text) => {
-                    // Editar o campo limpa o erro de convite vindo da rede.
+                    // Editar o campo limpa os erros de convite (banner da rede + inline da validação).
                     if (lastInviteError) setLastInviteError(null);
+                    clearErrors('invite_code');
                     onChange(text);
                   }}
                   onBlur={onBlur}
@@ -138,7 +168,12 @@ export default function Passo1ConviteScreen() {
           </AppText>
 
           <View style={styles.cta}>
-            <Button variant="primary" label="Usar meu convite" onPress={handleContinue} />
+            <Button
+              variant="primary"
+              label="Usar meu convite"
+              loading={preview.isPending}
+              onPress={handleContinue}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -206,7 +241,6 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.spacing.md,
   },
   cta: {
-    marginTop: 'auto',
-    paddingTop: theme.spacing.xl,
+    marginTop: theme.spacing.xl,
   },
 }));

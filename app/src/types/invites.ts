@@ -43,3 +43,9 @@ export const CreatedInviteSchema = z.object({
   }),
 });
 export type CreatedInvite = z.infer<typeof CreatedInviteSchema>;
+
+// Resposta de GET /invites/:code/preview — valida o código no passo 1 do cadastro.
+// Mínimo necessário (só sinaliza que o convite é válido); passthrough preserva campos
+// futuros (ex.: nome do convidador, quando o backend implementar o endpoint).
+export const InvitePreviewSchema = z.object({ ok: z.literal(true) }).passthrough();
+export type InvitePreview = z.infer<typeof InvitePreviewSchema>;

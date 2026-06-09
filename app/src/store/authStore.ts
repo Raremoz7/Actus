@@ -5,8 +5,8 @@ import { tokenStorage } from '@/api/storage';
 import { parseApi } from '@/api/parseApi';
 import { isApiError } from '@/api/errors';
 import { TokensResponseSchema, type LoginBody, type RegisterBody } from '@/types/auth';
-import { MeSchema, type Me } from '@/types/me';
-import { DEV_BYPASS_AUTH, DEV_USER } from '@/lib/devAuth';
+import { MeSchema, type Me, type UserTipo } from '@/types/me';
+import { DEV_BYPASS_AUTH, DEV_USER, setDevTipo, hydrateDevTipo } from '@/lib/devAuth';
 
 // 4 estados, conforme contrato — nunca há um quinto.
 // 'hydrating'   → boot, ainda decidindo se há sessão válida
@@ -28,6 +28,9 @@ export interface AuthState {
   logout: () => Promise<void>;
   completePasswordChange: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  // [DEV — bypass de auth] Troca o tipo do usuário falso em runtime (switcher de área
+  // no perfil). Inerte fora do bypass. Atualiza o store e o mock de /me (via setDevTipo).
+  devSetTipo: (tipo: UserTipo) => void;
 }
 
 // GET /me validado — fonte única do usuário autenticado.
@@ -60,9 +63,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   // Boot da app: decide a partir do refresh_token persistido + /me.
   async hydrate() {
-    // [DEV — bypass de auth] Sessão falsa: nunca toca na rede, cai direto na área do DEV_TIPO.
+    // [DEV — bypass de auth] Sessão falsa: nunca toca na rede, cai direto na área persistida
+    // pelo switcher (ou no DEV_TIPO do env). hydrateDevTipo cobre o native, onde a leitura
+    // do tipo persistido é assíncrona.
     if (DEV_BYPASS_AUTH) {
-      set({ status: 'authenticated', user: DEV_USER });
+      const tipo = await hydrateDevTipo();
+      set({ status: 'authenticated', user: { ...DEV_USER, tipo } });
       return;
     }
 
@@ -137,5 +143,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (get().status !== 'authenticated') return;
     const user = await fetchMe();
     set({ user });
+  },
+
+  // [DEV — bypass de auth] Só faz sentido com sessão falsa. Atualiza o tipo do mock de
+  // /me e o user do store; o roteamento por tipo (app/index) leva à área correspondente.
+  devSetTipo(tipo) {
+    if (!DEV_BYPASS_AUTH) return;
+    setDevTipo(tipo);
+    const u = get().user ?? DEV_USER;
+    set({ user: { ...u, tipo } });
   },
 }));

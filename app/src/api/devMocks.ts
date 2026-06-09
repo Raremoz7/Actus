@@ -3,8 +3,13 @@
 // fake no formato EXATO dos schemas Zod (senão parseApi rejeita). Cobre a área ALUNO,
 // incluindo o fluxo treino → iniciar → sessão.
 // Para remover: apague este arquivo e a chamada installDevMockAdapter em client.ts.
-import axios, { type AxiosAdapter, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
-import { DEV_TIPO } from '@/lib/devAuth';
+import axios, {
+  AxiosError,
+  type AxiosAdapter,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { getDevTipo } from '@/lib/devAuth';
 
 // ── Helpers de data (rodam no runtime do app — new Date() disponível) ──────────
 function ymd(d: Date): string {
@@ -118,7 +123,7 @@ function weekdayForOffset(offset: number): number {
 
 // ── Geração dos mocks por endpoint ─────────────────────────────────────────────
 function mockMe() {
-  return { id: ID.me, tipo: DEV_TIPO, display_name: 'Davi' };
+  return { id: ID.me, tipo: getDevTipo(), display_name: 'Davi' };
 }
 
 function mockWeeklyOverview() {
@@ -252,9 +257,118 @@ function mockChallenges() {
   };
 }
 
+// ── [DEV] Convites em memória (create/list/revoke/preview) ─────────────────────
+// O backend real não responde no bypass; um store local deixa o fluxo de convites do
+// profissional funcionar de ponta a ponta (criar → listar → revogar) e o onboarding
+// validar o código já no passo 1 (GET /invites/:code/preview).
+type MockInvite = {
+  id: string;
+  code: string;
+  expires_at: string;
+  max_uses: number;
+  used_count: number;
+  created_at: string;
+};
+
+function genHex(n: number): string {
+  let s = '';
+  for (let i = 0; i < n; i++) s += '0123456789abcdef'[Math.floor(Math.random() * 16)];
+  return s;
+}
+
+// UUID v4 válido (versão 4 + variante 8) — satisfaz z.string().uuid().
+function genUuid(): string {
+  return `${genHex(8)}-${genHex(4)}-4${genHex(3)}-8${genHex(3)}-${genHex(12)}`;
+}
+
+// Código curto legível no formato aceito pelo cadastro (base64url, 3–200 chars).
+function genCode(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return s;
+}
+
+function inviteActive(inv: MockInvite): boolean {
+  const notExpired = new Date(inv.expires_at).getTime() > new Date().getTime();
+  return notExpired && inv.used_count < inv.max_uses;
+}
+
+// Seed: um convite ativo pronto para QA (aparece na lista e valida no passo 1: ACTUSDEMO).
+const devInvites: MockInvite[] = [
+  {
+    id: genUuid(),
+    code: 'ACTUSDEMO',
+    expires_at: addDays(new Date(), 14).toISOString(),
+    max_uses: 5,
+    used_count: 1,
+    created_at: addDays(new Date(), -1).toISOString(),
+  },
+];
+
+function mockInvitesList() {
+  return { invites: devInvites.map((inv) => ({ ...inv, active: inviteActive(inv) })) };
+}
+
+function mockCreateInvite(body: { expires_at?: string; max_uses?: number }) {
+  const inv: MockInvite = {
+    id: genUuid(),
+    code: genCode(),
+    expires_at: body.expires_at ?? addDays(new Date(), 7).toISOString(),
+    max_uses: typeof body.max_uses === 'number' ? body.max_uses : 1,
+    used_count: 0,
+    created_at: new Date().toISOString(),
+  };
+  devInvites.unshift(inv);
+  return { invite: { id: inv.id, code: inv.code } };
+}
+
+function mockRevokeInvite(id: string, body: { expires_at?: string }) {
+  const inv = devInvites.find((i) => i.id === id);
+  if (inv && body.expires_at) inv.expires_at = body.expires_at;
+  return { ok: true };
+}
+
+// Validação do passo 1: sucesso → { ok: true }; convite inválido/expirado/esgotado →
+// erro simulado (mesma branch por `error` do backend real).
+function mockInvitePreview(code: string) {
+  const inv = devInvites.find((i) => i.code === code);
+  if (!inv) throw new MockHttpError(404, 'invalid_invite');
+  if (new Date(inv.expires_at).getTime() <= new Date().getTime()) {
+    throw new MockHttpError(409, 'invite_expired');
+  }
+  if (inv.used_count >= inv.max_uses) throw new MockHttpError(409, 'invite_exhausted');
+  return { ok: true };
+}
+
+// Erro HTTP simulado: o adapter o converte num AxiosError com body { error } para o
+// interceptor de resposta seguir a mesma branch por `error` do backend real.
+class MockHttpError {
+  constructor(
+    readonly status: number,
+    readonly errorCode: string,
+  ) {}
+}
+
+// Body da request já passou pelo transformRequest do axios → string JSON. Parse defensivo.
+function parseBody(config: InternalAxiosRequestConfig): Record<string, unknown> {
+  const d = config.data;
+  if (typeof d === 'string') {
+    try {
+      return JSON.parse(d) as Record<string, unknown>;
+    } catch {
+      return {};
+    }
+  }
+  return (d as Record<string, unknown>) ?? {};
+}
+
 // ── Roteamento (method + path) ─────────────────────────────────────────────────
 // Ordem importa: rotas mais específicas primeiro.
-type Matcher = { test: (method: string, url: string) => string[] | null; build: (m: string[]) => unknown };
+type Matcher = {
+  test: (method: string, url: string) => string[] | null;
+  build: (m: string[], config: InternalAxiosRequestConfig) => unknown;
+};
 
 const MATCHERS: Matcher[] = [
   // GET /me/workouts/sessions/:id  (antes do detalhe, que casaria também)
@@ -280,6 +394,25 @@ const MATCHERS: Matcher[] = [
   { test: (m, u) => (m === 'get' && /\/me\/workouts$/.test(u) ? [] : null), build: mockWorkoutsList },
   { test: (m, u) => (m === 'get' && /\/me\/diets$/.test(u) ? [] : null), build: mockDiet },
   { test: (m, u) => (m === 'get' && /\/me\/challenges$/.test(u) ? [] : null), build: mockChallenges },
+  // GET /invites/:code/preview  (antes da lista — valida o código no passo 1 do cadastro)
+  {
+    test: (m, u) => (m === 'get' ? u.match(/\/invites\/([^/]+)\/preview$/) : null),
+    build: (mm) => mockInvitePreview(mm[1] as string),
+  },
+  // GET /invites  (lista de convites do profissional)
+  { test: (m, u) => (m === 'get' && /\/invites$/.test(u) ? [] : null), build: mockInvitesList },
+  // POST /invites  (criar convite)
+  {
+    test: (m, u) => (m === 'post' && /\/invites$/.test(u) ? [] : null),
+    build: (_m, config) =>
+      mockCreateInvite(parseBody(config) as { expires_at?: string; max_uses?: number }),
+  },
+  // PATCH /invites/:id  (revogar → expira agora)
+  {
+    test: (m, u) => (m === 'patch' ? u.match(/\/invites\/([^/]+)$/) : null),
+    build: (mm, config) =>
+      mockRevokeInvite(mm[1] as string, parseBody(config) as { expires_at?: string }),
+  },
   { test: (m, u) => (m === 'get' && /\/me$/.test(u) ? [] : null), build: mockMe },
 ];
 
@@ -288,7 +421,7 @@ function matchMock(config: InternalAxiosRequestConfig): unknown | null {
   const url = ((config.url ?? '').split('?')[0] ?? '');
   for (const m of MATCHERS) {
     const captures = m.test(method, url);
-    if (captures) return m.build(captures);
+    if (captures) return m.build(captures, config);
   }
   return null;
 }
@@ -300,7 +433,24 @@ export function installDevMockAdapter(instance: { defaults: { adapter?: unknown 
     (instance.defaults.adapter as AxiosAdapter | undefined) ?? axios.defaults.adapter,
   );
   instance.defaults.adapter = async (config: InternalAxiosRequestConfig): Promise<AxiosResponse> => {
-    const data = matchMock(config);
+    let data: unknown;
+    try {
+      data = matchMock(config);
+    } catch (err) {
+      // Erro simulado de um mock (ex.: convite inválido) → AxiosError com body { error },
+      // pro interceptor de resposta seguir a mesma branch por `error` do backend real.
+      if (err instanceof MockHttpError) {
+        const response = {
+          data: { error: err.errorCode },
+          status: err.status,
+          statusText: 'Error',
+          headers: {},
+          config,
+        } as AxiosResponse;
+        throw new AxiosError(err.errorCode, String(err.status), config, undefined, response);
+      }
+      throw err;
+    }
     if (data !== null) {
       return { data, status: 200, statusText: 'OK', headers: {}, config } as AxiosResponse;
     }

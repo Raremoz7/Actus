@@ -16,6 +16,7 @@ import { LoginBodySchema, type LoginBody } from '@/types/auth';
 import { useLoginMutation } from '@/features/auth/hooks';
 import { authErrorMessage } from '@/features/auth/errors';
 import { isApiError } from '@/api/errors';
+import { goBackOr } from '@/lib/nav';
 import { darkTheme } from '@/theme';
 
 const { motion } = darkTheme;
@@ -78,7 +79,13 @@ export default function LoginScreen() {
   return (
     <View style={styles.root}>
       <Animated.View style={heroStyle}>
-        <ScreenHero photo={LOGIN_PHOTO} eyebrow="Acesso" title="Entrar" titleSize={44} />
+        <ScreenHero
+          photo={LOGIN_PHOTO}
+          eyebrow="Acesso"
+          title="Entrar"
+          titleSize={44}
+          onBack={() => goBackOr('/(auth)/escolha-perfil')}
+        />
       </Animated.View>
 
       <KeyboardAvoidingView
@@ -197,9 +204,8 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.spacing.xs,
   },
   footer: {
-    marginTop: 'auto',
     alignItems: 'center',
-    paddingTop: theme.spacing.xl,
+    paddingTop: theme.spacing.lg,
   },
   footerText: {
     textAlign: 'center',

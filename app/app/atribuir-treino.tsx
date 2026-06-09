@@ -22,6 +22,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
 import { useAssignWorkout } from '@/hooks/useAssignWorkout';
+import { useUpdateStudentWorkout } from '@/hooks/useUpdateStudentWorkout';
 import { useStudents } from '@/hooks/useStudents';
 import { weekdayLetter } from '@/lib/weekday';
 import { formatDateLocal } from '@/lib/format';
@@ -128,12 +129,32 @@ function WeekdaySelector({ selected, onToggle }: WeekdaySelectorProps) {
   );
 }
 
+// Parseia "1,3,5" → [1,3,5] (apenas dias ISO válidos, ordenados).
+function parseWeekdayParam(s: string | undefined): Weekday[] {
+  if (!s) return [];
+  return s
+    .split(',')
+    .map((n) => Number(n))
+    .filter((n): n is Weekday => Number.isInteger(n) && n >= 1 && n <= 7)
+    .sort((a, b) => a - b);
+}
+
 export default function AtribuirTreinoScreen() {
-  const params = useLocalSearchParams<{ student?: string }>();
+  const params = useLocalSearchParams<{
+    student?: string;
+    // Modo edição: id da atribuição + dados pré-preenchidos (vindos da lista do aluno).
+    assignment?: string;
+    workout?: string;
+    weekdays?: string;
+    start?: string;
+  }>();
   const studentId = typeof params.student === 'string' ? params.student : undefined;
+  const assignmentId = typeof params.assignment === 'string' ? params.assignment : undefined;
+  const isEdit = Boolean(assignmentId);
 
   const list = useProWorkouts();
   const assign = useAssignWorkout();
+  const update = useUpdateStudentWorkout();
   const students = useStudents();
 
   // Aluno-alvo resolvido do cache de useStudents (id chega por param; nome vem do cache).
@@ -145,11 +166,18 @@ export default function AtribuirTreinoScreen() {
     ? (student.full_name?.trim() || student.email)
     : null;
 
-  const [workoutId, setWorkoutId] = useState<string | null>(null);
-  const [weekdays, setWeekdays] = useState<Weekday[]>([]);
-  // Data de início (ISO local). Default = hoje; o DateField devolve null se inválida.
+  // Em modo edição, os campos vêm pré-preenchidos pelos params (a lista do aluno passa o
+  // estado atual da atribuição). O template é fixo na edição (PATCH não troca workout_id).
   const today = useMemo(() => formatDateLocal(new Date()), []);
-  const [startDate, setStartDate] = useState<string | null>(today);
+  const [workoutId, setWorkoutId] = useState<string | null>(
+    typeof params.workout === 'string' ? params.workout : null,
+  );
+  const [weekdays, setWeekdays] = useState<Weekday[]>(() =>
+    parseWeekdayParam(typeof params.weekdays === 'string' ? params.weekdays : undefined),
+  );
+  const [startDate, setStartDate] = useState<string | null>(
+    typeof params.start === 'string' ? params.start : today,
+  );
   const [error, setError] = useState<string | undefined>(undefined);
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
@@ -163,6 +191,11 @@ export default function AtribuirTreinoScreen() {
   }));
 
   const workouts = useMemo(() => list.data?.workouts ?? [], [list.data]);
+  // Na edição, o template é fixo: resolve pelo id (do cache de templates) para exibir.
+  const selectedTemplate = useMemo(
+    () => workouts.find((w) => w.id === workoutId) ?? null,
+    [workouts, workoutId],
+  );
 
   function toggleWeekday(wd: Weekday) {
     if (error) setError(undefined);
@@ -184,13 +217,27 @@ export default function AtribuirTreinoScreen() {
     }
   }
 
-  // "Atribuir" só habilita com template + ao menos um dia + data válida + aluno conhecido.
-  const canAssign =
+  // Habilita com template + ao menos um dia + data válida + aluno conhecido.
+  const canSubmit =
     Boolean(studentId) && workoutId !== null && weekdays.length > 0 && startDate !== null;
+  const isPending = isEdit ? update.isPending : assign.isPending;
 
-  function handleAssign() {
+  function handleSubmit() {
     if (!studentId || !workoutId || weekdays.length === 0 || !startDate) return;
     setError(undefined);
+
+    if (isEdit && assignmentId) {
+      // Edição: PATCH só dias/início (workout_id não muda na atribuição).
+      update.mutate(
+        { studentId, studentWorkoutId: assignmentId, body: { weekdays, start_date: startDate } },
+        {
+          onSuccess: () => handleBack(),
+          onError: () => setError('Não foi possível salvar. Tente novamente.'),
+        },
+      );
+      return;
+    }
+
     assign.mutate(
       {
         studentId,
@@ -226,7 +273,7 @@ export default function AtribuirTreinoScreen() {
           <AppText variant="eyebrow" color="tertiary">
             Aluno
           </AppText>
-          <AppText variant="h2">Atribuir treino</AppText>
+          <AppText variant="h2">{isEdit ? 'Editar treino' : 'Atribuir treino'}</AppText>
         </View>
       </View>
 
@@ -242,7 +289,18 @@ export default function AtribuirTreinoScreen() {
             Treino
           </AppText>
 
-          {list.isLoading ? (
+          {isEdit ? (
+            // Edição: template fixo, exibido em read-only (não dá pra trocar via PATCH).
+            <View style={styles.list}>
+              {selectedTemplate ? (
+                <TemplateCard workout={selectedTemplate} selected onPress={() => {}} />
+              ) : (
+                <AppText variant="bodySm" color="tertiary">
+                  Carregando treino…
+                </AppText>
+              )}
+            </View>
+          ) : list.isLoading ? (
             <AppText variant="bodySm" color="tertiary">
               Carregando treinos…
             </AppText>
@@ -302,10 +360,10 @@ export default function AtribuirTreinoScreen() {
       <View style={styles.footer}>
         <Button
           variant="primary"
-          label="Atribuir"
-          loading={assign.isPending}
-          disabled={!canAssign}
-          onPress={handleAssign}
+          label={isEdit ? 'Salvar' : 'Atribuir'}
+          loading={isPending}
+          disabled={!canSubmit}
+          onPress={handleSubmit}
         />
       </View>
     </SafeAreaView>

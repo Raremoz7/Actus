@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { CaretRight, Plus, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, Button, Tag, ListState, type TagTone } from '@/components/ui';
+import { Screen, AppText, Button, Tag, ListState, TopBar, type TagTone } from '@/components/ui';
 import {
   challengeTimingLabel,
   deriveChallengeTiming,
@@ -126,17 +126,13 @@ export default function PersonalDesafiosScreen() {
   const isEmpty = !list.isLoading && !list.isError && challenges.length === 0;
 
   return (
-    <Screen scroll padded>
+    <Screen edges={['top']}>
+      <TopBar title="Desafios" eyebrow={countLabel(challenges.length)} />
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
       <Animated.View style={revealStyle}>
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <AppText variant="eyebrow" color="tertiary">
-              {countLabel(challenges.length)}
-            </AppText>
-            <AppText variant="h2">Desafios</AppText>
-          </View>
-        </View>
-
         <View style={styles.newBtn}>
           <Button
             variant="primary"
@@ -179,21 +175,13 @@ export default function PersonalDesafiosScreen() {
           />
         ) : null}
       </Animated.View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.lg,
-  },
-  headerText: {
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
+  scroll: { padding: theme.spacing.lg },
   newBtn: {
     marginBottom: theme.spacing.xl,
   },

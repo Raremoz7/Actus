@@ -5,6 +5,8 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
+import { WorkoutCardPhoto } from './WorkoutCardPhoto';
+
 const { colors } = darkTheme;
 
 type Props = {
@@ -34,6 +36,7 @@ export function NextWorkoutCard({
   // aninhados — Pressable vira <button> no web e button-dentro-de-button é DOM inválido.
   return (
     <View style={styles.card}>
+      <WorkoutCardPhoto hint={title} />
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
@@ -45,7 +48,7 @@ export function NextWorkoutCard({
         <AppText variant="h2" style={styles.title}>
           {title}
         </AppText>
-        <AppText variant="bodySm" color="secondary" style={styles.metaTight}>
+        <AppText variant="bodySm" color="accentMuted" style={styles.metaTight}>
           {meta}
         </AppText>
         <AppText variant="metaSmall" color="tertiary" style={styles.meta}>
@@ -74,6 +77,8 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
     padding: theme.spacing.lg,
+    // Clipa a foto soft full-bleed ao raio do card.
+    overflow: 'hidden',
   },
   title: { marginTop: theme.spacing.sm },
   metaTight: { marginTop: theme.spacing.xs },

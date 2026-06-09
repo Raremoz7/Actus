@@ -14,7 +14,7 @@ import Animated, {
 import { router, type Href } from 'expo-router';
 import { CaretLeft, Plus, Ticket } from 'phosphor-react-native';
 import { goBackOr } from '@/lib/nav';
-import * as Clipboard from 'expo-clipboard';
+import { copyText } from '@/lib/clipboard';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, ListState } from '@/components/ui';
@@ -77,7 +77,7 @@ export default function ConvitesScreen() {
   }
 
   async function handleCopy(code: string) {
-    await Clipboard.setStringAsync(inviteDeepLink(code));
+    await copyText(inviteDeepLink(code));
   }
 
   function handleRevoke(id: string) {

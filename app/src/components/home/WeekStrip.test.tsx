@@ -25,6 +25,6 @@ describe('WeekStrip', () => {
   it('consolida o streak num KPI único com atual e recorde', () => {
     render(<WeekStrip overview={overview} plannedWeekdays={[1, 3, 5]} />);
     expect(screen.getByText('Sequência')).toBeTruthy();
-    expect(screen.getByText('Atual 7 · Recorde 21')).toBeTruthy();
+    expect(screen.getByText('Recorde 21')).toBeTruthy();
   });
 });

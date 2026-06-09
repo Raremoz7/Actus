@@ -26,6 +26,7 @@ export type AppTextColor =
   | 'tertiary'
   | 'inverse'
   | 'neon'
+  | 'accentMuted'
   | 'onSurface'
   | 'error';
 
@@ -152,6 +153,7 @@ const COLOR_TOKEN: Record<AppTextColor, string> = {
   tertiary: colors.textTertiary,
   inverse: colors.textInverse,
   neon: colors.neon,
+  accentMuted: colors.accentMuted,
   onSurface: colors.onSurface,
   error: colors.error,
 };

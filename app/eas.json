@@ -15,6 +15,11 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://glaciered-unswervingly-courtney.ngrok-free.dev",
+        "EXPO_PUBLIC_DEV_BYPASS_AUTH": "0",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
     "production": {

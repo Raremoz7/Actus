@@ -22,6 +22,8 @@ export const endpoints = {
       `/professional/students/${studentId}/check-ins`,
   },
   invites: '/invites',
+  // Validação de um código de convite antes do cadastro (passo 1). [pendente no backend]
+  invitePreview: (code: string) => `/invites/${code}/preview`,
   health: '/health',
   // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
   workouts: '/workouts',

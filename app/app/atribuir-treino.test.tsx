@@ -34,6 +34,10 @@ jest.mock('@/hooks/useAssignWorkout', () => ({
   useAssignWorkout: () => mockAssignState,
 }));
 
+jest.mock('@/hooks/useUpdateStudentWorkout', () => ({
+  useUpdateStudentWorkout: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
 jest.mock('@/hooks/useStudents', () => ({
   useStudents: () => mockStudents,
 }));

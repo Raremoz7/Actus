@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import axios, {
   AxiosError,
   type AxiosInstance,
@@ -38,13 +39,27 @@ function emit(event: 'onLogout' | 'onMustChangePassword'): void {
   }
 }
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? '';
+// No navegador (Expo web) o backend sem CORS bloqueia chamadas diretas; por isso o web
+// pode apontar para o proxy CORS local (EXPO_PUBLIC_API_BASE_URL_WEB → scripts/cors-proxy.mjs).
+// Se a var web não estiver setada, cai na URL normal (e bateria em CORS). Nativo ignora isso.
+const BASE_URL =
+  (Platform.OS === 'web' ? process.env.EXPO_PUBLIC_API_BASE_URL_WEB : undefined) ??
+  process.env.EXPO_PUBLIC_API_BASE_URL ??
+  '';
+
+// Túnel ngrok (usado em builds de QA contra o backend local): sem este header o
+// ngrok-free intercepta a request e devolve uma página de aviso em HTML em vez de
+// repassar pro backend. Inofensivo fora do ngrok — por isso condicionado à base URL.
+const baseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+if (BASE_URL.includes('ngrok')) {
+  baseHeaders['ngrok-skip-browser-warning'] = 'true';
+}
 
 // Instância principal — todas as chamadas da app passam por aqui.
 export const api: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { ...baseHeaders },
 });
 
 // [DEV — bypass de auth] Popula as telas com dados fake sem backend.
@@ -56,7 +71,7 @@ if (DEV_BYPASS_AUTH) {
 const rawAxios: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { ...baseHeaders },
 });
 
 // Paths de auth que NÃO recebem Bearer (o token ainda não existe ou está sendo trocado).
