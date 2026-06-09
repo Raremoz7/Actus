@@ -20,6 +20,7 @@ type Props = {
   notes?: string | null;
   // Posição (1-based) p/ numerar exercícios em treinos longos. Omitido → sem número.
   position?: number;
+  wgerExerciseId?: number | null;
   onPress?: () => void;
 };
 
@@ -32,11 +33,12 @@ export function ExerciseCard({
   equipment,
   notes,
   position,
+  wgerExerciseId,
   onPress,
 }: Props) {
   const content = (
     <>
-      <ExerciseThumb size={56} muscleGroup={muscleGroup} />
+      <ExerciseThumb size={56} wgerExerciseId={wgerExerciseId} muscleGroup={muscleGroup} />
       <View style={styles.left}>
         <AppText variant="h3" numberOfLines={2}>
           {position ? `${position}. ${name}` : name}

@@ -103,6 +103,7 @@ export default function TreinoDetailScreen() {
                   muscleGroup={e.muscle_group}
                   notes={e.notes}
                   position={numbered ? i + 1 : undefined}
+                  wgerExerciseId={e.wger_exercise_id}
                   onPress={() =>
                     router.push({
                       pathname: '/(aluno)/exercicio/[id]',
