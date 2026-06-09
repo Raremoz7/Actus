@@ -32,6 +32,32 @@ jest.mock('@/hooks/useWorkoutMutations', () => ({
   }),
 }));
 
+// Catálogo Wger mockado: 'sup' devolve Supino reto (id 101, categoria Chest → Peito).
+jest.mock('@/lib/wger/catalog', () => ({
+  exerciseName: (ex: { name_pt: string | null; name_en: string | null }) =>
+    ex.name_pt ?? ex.name_en ?? '',
+  wgerCatalog: () => ({
+    search: (t: string) =>
+      t.toLowerCase().includes('sup')
+        ? [
+            {
+              id: 101,
+              name_pt: 'Supino reto',
+              name_en: 'Bench',
+              category: 'Chest',
+              equipment: ['Barra'],
+              muscles: [],
+              description_pt: null,
+              description_en: null,
+              hasImage: true,
+              hasVideo: false,
+            },
+          ]
+        : [],
+    getExercise: () => null,
+  }),
+}));
+
 beforeEach(() => {
   mockCreate.mockReset();
   mockUpdate.mockReset();
@@ -55,9 +81,10 @@ describe('MontarTreinoScreen — criar', () => {
     fireEvent.changeText(screen.getByLabelText('Nome do treino'), 'Treino A');
     fireEvent.press(screen.getByText('Continuar'));
 
-    // Passo 2 — adiciona exercício via sheet
+    // Passo 2 — busca no catálogo Wger, escolhe e adiciona via sheet
     fireEvent.press(screen.getByText('Adicionar exercício'));
-    fireEvent.changeText(screen.getByLabelText('Exercício'), 'Supino reto');
+    fireEvent.changeText(screen.getByLabelText('Buscar exercício'), 'sup');
+    fireEvent.press(screen.getByText('Supino reto'));
     fireEvent.press(screen.getByText('Adicionar'));
 
     // De volta ao passo 2, exercício listado
@@ -73,7 +100,7 @@ describe('MontarTreinoScreen — criar', () => {
     expect(body.exercises).toHaveLength(1);
     expect(body.exercises[0]).toMatchObject({
       position: 1,
-      wger_exercise_id: 1,
+      wger_exercise_id: 101,
       name_snapshot: 'Supino reto',
       sets: 3,
       reps: 10,

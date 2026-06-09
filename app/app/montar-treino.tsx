@@ -4,10 +4,8 @@
 // Wizard de 3 passos ao criar (1 nome/foco · 2 exercícios · 3 revisar). Ao editar,
 // pula direto para o passo 2 (lista editável), de onde se chega ao 3 (revisar).
 //
-// NOTA WGER: a API exige `wger_exercise_id` (int>=1) e NÃO há busca de catálogo
-// Wger na v1. Cada exercício é um FORMULÁRIO manual (nome digitado em name_snapshot)
-// com wger_exercise_id=1 como placeholder.
-// [MOCK — sem busca Wger na API v1: id placeholder; nome digitado manualmente]
+// Cada exercício é escolhido no catálogo Wger (busca no ExerciseFormSheet); o id
+// real viaja em wger_exercise_id (não mais placeholder).
 
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
@@ -30,33 +28,15 @@ import {
 } from '@/components/builder';
 import { useProWorkoutDetail } from '@/hooks/useProWorkoutDetail';
 import { useWorkoutMutations } from '@/hooks/useWorkoutMutations';
-import type { CreateWorkoutExercise } from '@/types/workouts';
+import { toApiExercises } from '@/features/builder/toApiExercises';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
-
-// [MOCK — sem busca Wger na API v1: id placeholder; nome digitado manualmente]
-const WGER_PLACEHOLDER_ID = 1;
 
 // Exercício no estado local do builder (sem position — derivada da ordem do array).
 type DraftExercise = ExerciseFormValue;
 
 type Step = 1 | 2 | 3;
-
-// Converte o estado local em exercises[] do corpo da API (position 1-based
-// sequencial + placeholder Wger). Mesma forma para create e PATCH (full replace).
-function toApiExercises(drafts: DraftExercise[]): CreateWorkoutExercise[] {
-  return drafts.map((d, i) => ({
-    position: i + 1,
-    wger_exercise_id: WGER_PLACEHOLDER_ID,
-    name_snapshot: d.name,
-    sets: d.sets,
-    reps: d.reps,
-    rest_seconds: d.restSeconds,
-    notes: d.notes ?? undefined,
-    muscle_group: d.muscleGroup ?? undefined,
-  }));
-}
 
 // Tempo estimado do treino (min). Modelo simples: por série, ~40s de execução +
 // o descanso configurado. Some tudo e arredonde para minutos (mínimo 1 se houver
@@ -117,6 +97,7 @@ export default function MontarTreinoScreen() {
         .sort((a, b) => a.position - b.position)
         .map((e) => ({
           name: e.name_snapshot,
+          wgerExerciseId: e.wger_exercise_id,
           sets: e.sets,
           reps: e.reps,
           restSeconds: e.rest_seconds,
