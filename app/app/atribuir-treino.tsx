@@ -26,6 +26,9 @@ import { useUpdateStudentWorkout } from '@/hooks/useUpdateStudentWorkout';
 import { useStudents } from '@/hooks/useStudents';
 import { weekdayLetter } from '@/lib/weekday';
 import { formatDateLocal } from '@/lib/format';
+import { ParqAttentionBanner } from '@/components/parq';
+import { useParqSubmission } from '@/mocks/parq';
+import { parqStatus } from '@/lib/parq';
 import type { ProWorkoutListItem, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';
@@ -166,6 +169,10 @@ export default function AtribuirTreinoScreen() {
     ? (student.full_name?.trim() || student.email)
     : null;
 
+  // Aviso brando do Par-Q: alerta quando o aluno marcou "sim", sem bloquear a atribuição.
+  const parqSub = useParqSubmission(studentId);
+  const showParqWarning = parqStatus(parqSub, new Date()) === 'attention';
+
   // Em modo edição, os campos vêm pré-preenchidos pelos params (a lista do aluno passa o
   // estado atual da atribuição). O template é fixo na edição (PATCH não troca workout_id).
   const today = useMemo(() => formatDateLocal(new Date()), []);
@@ -284,6 +291,8 @@ export default function AtribuirTreinoScreen() {
           showsVerticalScrollIndicator={false}
         >
           <StudentTargetHeader name={studentName} email={student?.email} />
+
+          {showParqWarning ? <ParqAttentionBanner /> : null}
 
           <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
             Treino
