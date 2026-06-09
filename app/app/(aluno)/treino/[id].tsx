@@ -117,6 +117,7 @@ export default function TreinoDetailScreen() {
                         reps: String(e.reps),
                         rest: String(e.rest_seconds),
                         note: e.notes ?? '',
+                        wgerId: String(e.wger_exercise_id),
                       },
                     } as Href)
                   }

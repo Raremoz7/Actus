@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
-import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { CaretLeft, CaretRight, FilmSlate, Note as NoteIcon } from 'phosphor-react-native';
+import { CaretLeft, CaretRight, FilmSlate, Note as NoteIcon, Play } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
 import { goBackOr } from '@/lib/nav';
 import { exerciseImageUrl } from '@/lib/exerciseImage';
+import { wgerCatalog, exerciseDescription } from '@/lib/wger/catalog';
+import { wgerImageSource, wgerVideoUrl } from '@/lib/wger/media';
 import { darkTheme } from '@/theme';
 
 const { motion, colors, gradients, heroScrimLocations } = darkTheme;
@@ -32,6 +34,7 @@ export default function ExercicioDemoScreen() {
     reps?: string;
     rest?: string;
     note?: string;
+    wgerId?: string;
   }>();
   const name = typeof params.name === 'string' ? params.name : '';
   const muscle = typeof params.muscle === 'string' ? params.muscle : '';
@@ -45,6 +48,13 @@ export default function ExercicioDemoScreen() {
   const rest = Number(params.rest);
   const hasRest = Number.isFinite(rest) && rest >= 0;
   const hasPrescription = sets > 0 && reps > 0;
+
+  // Dados reais do Wger: imagem local, descrição e URL de vídeo.
+  const wgerId = Number(params.wgerId);
+  const ex = Number.isFinite(wgerId) && wgerId > 0 ? wgerCatalog().getExercise(wgerId) : null;
+  const heroSource = wgerImageSource(wgerId) ?? { uri: exerciseImageUrl(muscle, 1200) };
+  const description = ex ? exerciseDescription(ex) : null;
+  const videoUrl = wgerVideoUrl(wgerId);
 
   // Reaproveita o cache do detalhe do treino p/ navegar entre exercícios irmãos.
   const detail = useWorkoutDetail(workoutId);
@@ -85,6 +95,7 @@ export default function ExercicioDemoScreen() {
         reps: String(sibling.reps),
         rest: String(sibling.rest_seconds),
         note: sibling.notes ?? '',
+        wgerId: String(sibling.wger_exercise_id),
       },
     } as Href);
   }
@@ -97,11 +108,10 @@ export default function ExercicioDemoScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Hero cinematográfico full-bleed (sob a status bar). */}
-          {/* [MOCK — imagem ilustrativa por grupo muscular; real virá do Wger] */}
           <View style={[styles.hero, { height: heroHeight }]}>
             <Image
               accessible={false}
-              source={{ uri: exerciseImageUrl(muscle, 1200) }}
+              source={heroSource}
               resizeMode="cover"
               style={StyleSheet.absoluteFill}
             />
@@ -173,15 +183,42 @@ export default function ExercicioDemoScreen() {
               </View>
             ) : null}
 
-            {/* [MOCK — sem endpoint na API v1: descrição/vídeo do Wger] */}
-            <View style={styles.demo}>
-              <View style={styles.demoIcon}>
-                <FilmSlate size={22} weight="duotone" color={colors.textSecondary} />
+            {/* Como executar: descrição real do Wger quando disponível. */}
+            {description ? (
+              <>
+                <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>Como executar</AppText>
+                <AppText variant="bodySm" color="secondary">{description}</AppText>
+              </>
+            ) : null}
+
+            {/* Demonstração em vídeo: botão neon quando há URL, aviso honesto quando não há. */}
+            {videoUrl ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Ver demonstração em vídeo"
+                style={styles.videoBtn}
+                onPress={() => void Linking.openURL(videoUrl)}
+              >
+                <View style={styles.videoPlay}>
+                  <Play size={16} weight="fill" color={colors.textInverse} />
+                </View>
+                <AppText variant="label">Ver demonstração em vídeo</AppText>
+              </Pressable>
+            ) : (
+              <View style={styles.demo}>
+                <View style={styles.demoIcon}>
+                  <FilmSlate size={22} weight="duotone" color={colors.textSecondary} />
+                </View>
+                <AppText variant="bodySm" color="tertiary" style={styles.demoText}>
+                  Demonstração em vídeo ainda não disponível para este exercício.
+                </AppText>
               </View>
-              <AppText variant="bodySm" color="tertiary" style={styles.demoText}>
-                Demonstração em vídeo ainda não disponível para este exercício.
-              </AppText>
-            </View>
+            )}
+
+            {/* Crédito de licença Wger. */}
+            {ex ? (
+              <AppText variant="metaSmall" color="tertiary" style={styles.credit}>Wger · CC-BY-SA</AppText>
+            ) : null}
 
             {/* Navegação entre exercícios do mesmo treino. */}
             {prev || next ? (
@@ -302,6 +339,27 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   demoText: { flex: 1 },
+  secLabel: { marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
+  videoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.md,
+  },
+  videoPlay: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.neon,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  credit: { marginTop: theme.spacing.lg },
   nav: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
