@@ -13,5 +13,5 @@ export function wgerVideoUrl(wgerId: number | null | undefined): string | null {
   if (wgerId == null) return null;
   const ex = wgerCatalog().getExercise(wgerId);
   if (!ex?.hasVideo) return null;
-  return `https://wger.de/en/exercise/${wgerId}/view/`;
+  return `https://wger.de/pt/exercise/${wgerId}/view/`;
 }

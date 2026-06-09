@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { ExerciseFormSheet } from './ExerciseFormSheet';
 
+// O thumb do resultado usa wgerImageSource → evita carregar o require-map real de imagens.
+jest.mock('@/lib/wger/media', () => ({ wgerImageSource: () => null }));
+
 jest.mock('@/lib/wger/catalog', () => ({
   exerciseName: (ex: { name_pt: string | null; name_en: string | null }) => ex.name_pt ?? ex.name_en ?? '',
   wgerCatalog: () => ({

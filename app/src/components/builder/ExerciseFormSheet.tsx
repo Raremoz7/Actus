@@ -19,6 +19,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button, Input } from '@/components/ui';
 import { exerciseName, wgerCatalog } from '@/lib/wger/catalog';
 import type { WgerExercise } from '@/lib/wger/types';
+import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
@@ -324,7 +325,7 @@ export function ExerciseFormSheet({
                         onPress={() => choose(ex)}
                         style={styles.resultRow}
                       >
-                        <View style={styles.resultThumb} />
+                        <ExerciseThumb size={40} wgerExerciseId={ex.id} muscleGroup={ex.muscles[0] ?? null} />
                         <View style={styles.resultText}>
                           <AppText variant="bodyMd" numberOfLines={1}>
                             {exerciseName(ex)}
@@ -474,12 +475,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.spacing.sm,
     paddingVertical: theme.spacing.sm,
-  },
-  resultThumb: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.radius.thumb,
-    backgroundColor: theme.colors.surface2,
   },
   resultText: {
     flex: 1,
