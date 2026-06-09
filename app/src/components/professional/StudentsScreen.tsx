@@ -11,6 +11,8 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
+import { useParqMap } from '@/mocks/parq';
+import { parqStatus } from '@/lib/parq';
 import type { ProfessionalRole, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
 import { StudentRow } from './StudentRow';
@@ -39,6 +41,7 @@ function countLabel(n: number): string {
 // status/atividade — mostramos só identificação (nome + e-mail).
 export function StudentsScreen() {
   const list = useStudents();
+  const parqMap = useParqMap();
   const [query, setQuery] = useState('');
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
@@ -140,6 +143,7 @@ export function StudentsScreen() {
               since={linkedSinceLabel(s.linked_at)}
               roleLabel={mixedRoles ? ROLE_LABEL[s.professional_role] : null}
               isNew={isNewLink(s.linked_at, now)}
+              parqStatus={parqStatus(parqMap[s.id] ?? null, now)}
               onPress={() => openStudent(s.id)}
             />
           ))}

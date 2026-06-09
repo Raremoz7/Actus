@@ -18,6 +18,28 @@ describe('StudentRow', () => {
   });
 });
 
+describe('StudentRow · selo Par-Q', () => {
+  it('mostra "Atenção" quando parqStatus=attention', () => {
+    render(
+      <StudentRow
+        name="Maria"
+        subtitle="maria@x.com"
+        parqStatus="attention"
+        onPress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('Atenção')).toBeTruthy();
+  });
+
+  it('não mostra selo quando parqStatus=clear', () => {
+    render(
+      <StudentRow name="Ana" subtitle="ana@x.com" parqStatus="clear" onPress={jest.fn()} />,
+    );
+    expect(screen.queryByText('Par-Q pendente')).toBeNull();
+    expect(screen.queryByText('Atenção')).toBeNull();
+  });
+});
+
 describe('studentInitials', () => {
   it('usa as iniciais do primeiro e do último nome', () => {
     expect(studentInitials('Maria Silva')).toBe('MS');

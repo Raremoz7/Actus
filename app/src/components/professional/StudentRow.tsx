@@ -3,6 +3,8 @@ import { CaretRight } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
+import { ParqStatusBadge } from '@/components/parq';
+import type { ParqStatus } from '@/lib/parq';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -17,6 +19,8 @@ type Props = {
   roleLabel?: string | null;
   // Selo "Novo" para vínculos recentes.
   isNew?: boolean;
+  // Status do Par-Q do aluno (opcional). 'clear' não renderiza selo.
+  parqStatus?: ParqStatus;
   onPress: () => void;
 };
 
@@ -33,7 +37,7 @@ export function studentInitials(name: string): string {
 // Linha-pulso do aluno: avatar com INICIAIS reais + nome + e-mail mono + "Desde DD/MM".
 // Quando a lista mistura papéis, mostra um micro-rótulo (Personal/Nutri). Vínculos
 // recentes ganham o selo "Novo". Sem ponto de status — a lista não traz atividade.
-export function StudentRow({ name, subtitle, since, roleLabel, isNew, onPress }: Props) {
+export function StudentRow({ name, subtitle, since, roleLabel, isNew, parqStatus, onPress }: Props) {
   const initials = studentInitials(name);
   const a11y = roleLabel ? `${name}, ${roleLabel}` : name;
   return (
@@ -83,6 +87,7 @@ export function StudentRow({ name, subtitle, since, roleLabel, isNew, onPress }:
             ) : null}
           </View>
         ) : null}
+        {parqStatus ? <ParqStatusBadge status={parqStatus} /> : null}
       </View>
       <CaretRight size={16} weight="bold" color={colors.textTertiary} />
     </Pressable>
