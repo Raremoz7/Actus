@@ -54,3 +54,4 @@ npx expo-doctor      # sanidade das deps
 - `Gegola.otf` (fonte de marca) — aguardando o designer; usar actus.svg como marca
 - Endpoint `GET /invites/:code/preview` — solicitado ao backend (card do convidador é [MOCK] até existir)
 - Reset de senha — não existe na API → `[fluxo futuro]`, não criar link "Esqueci a senha"
+- Banco de Treinos (biblioteca gratuita) — sem endpoint na API v1. Front roda sobre o seed editorial `src/data/workoutLibrary.ts` (exercícios reais do catálogo Wger). Solicitado ao backend: `GET /workouts/library` (programas curados públicos). O clone reusa `POST /workouts` (já existe).
