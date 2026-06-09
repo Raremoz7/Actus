@@ -1,4 +1,6 @@
 import type { WgerExercise } from './types';
+import { WgerCatalogSchema } from './types';
+import catalogJson from '../../../assets/wger/catalog.json';
 
 // Baixa a caixa e remove acentos PT — base da busca e do match.
 function normalize(s: string): string {
@@ -55,4 +57,14 @@ export function createCatalog(exercises: WgerExercise[]): Catalog {
     search,
     getExercise: (id) => byId.get(id) ?? null,
   };
+}
+
+// Catálogo empacotado (lido uma vez). Se o asset faltar/for inválido, cai num
+// catálogo vazio (as telas degradam para o placeholder; o app não quebra).
+let _catalog: Catalog | null = null;
+export function wgerCatalog(): Catalog {
+  if (_catalog) return _catalog;
+  const parsed = WgerCatalogSchema.safeParse(catalogJson);
+  _catalog = createCatalog(parsed.success ? parsed.data.exercises : []);
+  return _catalog;
 }
