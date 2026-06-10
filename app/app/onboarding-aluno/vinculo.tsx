@@ -55,6 +55,10 @@ export default function VinculoScreen() {
     consume.mutate(trimmed, {
       onSuccess: () => void markAndGo('linked'),
       onError: (err) => {
+        if (isApiError(err) && err.code === 'already_has_active_professional_for_role') {
+          setError('Você já tem um profissional ativo deste tipo. Fale com ele antes de trocar.');
+          return;
+        }
         setError(isApiError(err) ? authErrorMessage(err.code) : authErrorMessage('unknown'));
       },
     });

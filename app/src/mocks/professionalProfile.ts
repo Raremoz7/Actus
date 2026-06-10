@@ -86,6 +86,8 @@ export const useProfessionalProfileMock = create<ProfessionalProfileState>((set,
     set({ byUser: map, hydrated: true });
   },
   save: async (userId, partial) => {
+    // Hidrata antes de sobrescrever (ver nota em studentOnboarding.save).
+    if (!get().hydrated) await get().hydrate();
     const merged = ProfessionalProfileSchema.parse({
       ...(get().byUser[userId] ?? {}),
       ...partial,

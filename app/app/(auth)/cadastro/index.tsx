@@ -89,7 +89,8 @@ export default function ContaAlunoScreen() {
       return;
     }
     const target = registerErrorField(err.code, err.extras);
-    if (target.campo) {
+    // invite_code não tem input visível nesta tela (vem do deep link) → banner.
+    if (target.campo && target.campo !== 'invite_code') {
       setError(target.campo, {
         message: target.fieldMessage ?? authErrorMessage(err.code),
       });

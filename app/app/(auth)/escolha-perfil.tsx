@@ -12,6 +12,7 @@ import { CaretRight } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Logo } from '@/components/ui';
+import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -45,6 +46,9 @@ export default function EscolhaPerfilScreen() {
 
   function go(path: '/(auth)/cadastro' | '/(auth)/cadastro-pro' | '/(auth)/login') {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Cadastro de aluno começa do zero: descarta convite obsoleto de um deep link
+    // anterior — senão um cadastro manual herdaria o vínculo do personal errado.
+    if (path === '/(auth)/cadastro') useCadastroDraftStore.getState().clear();
     router.push(path);
   }
 
@@ -81,7 +85,7 @@ export default function EscolhaPerfilScreen() {
           <ChoiceCard
             variant="primary"
             title="Sou aluno"
-            description="Recebi um convite do meu treinador"
+            description="Com ou sem convite de um treinador"
             accessibilityLabel="Sou aluno, com convite"
             onPress={() => go('/(auth)/cadastro')}
           />

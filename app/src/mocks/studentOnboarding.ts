@@ -86,6 +86,9 @@ export const useStudentOnboardingMock = create<StudentOnboardingState>((set, get
     set({ byStudent: parseMap(await loadRaw()), hydrated: true });
   },
   save: async (studentId, partial) => {
+    // Hidrata antes de sobrescrever — senão o 1º save de uma sessão nova zeraria
+    // respostas já persistidas (o blob inteiro é regravado).
+    if (!get().hydrated) await get().hydrate();
     const current = get().byStudent[studentId] ?? {};
     const merged = StudentAnswersSchema.parse({ ...current, ...partial });
     const next = { ...get().byStudent, [studentId]: merged };

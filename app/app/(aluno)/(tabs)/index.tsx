@@ -171,14 +171,10 @@ export default function AlunoHojeScreen() {
   const anyError =
     me.isError || week.isError || workouts.isError || diet.isError || challenges.isError;
 
-  // Nenhuma seção montada e nada carregando/em erro → plano ainda não montado.
-  const allEmpty =
-    !initialLoading &&
-    !anyError &&
-    todaySummary == null &&
-    !week.data &&
-    activeDiet == null &&
-    activeChallenge == null;
+  // Sem treino atribuído (nenhuma atribuição ativa) → card de status por vínculo.
+  // NÃO depende de week.data (o weekly-overview vem sempre populado) nem de dieta/
+  // desafio: o aluno pode ter dieta da nutri e ainda não ter treino do personal.
+  const noWorkoutYet = !initialLoading && !anyError && todaySummary == null;
 
   const refreshing =
     me.isRefetching ||
@@ -263,7 +259,7 @@ export default function AlunoHojeScreen() {
             </View>
           ) : null}
 
-          {allEmpty ? (
+          {noWorkoutYet ? (
             answers?.link_status === 'none' ? (
               <View style={[styles.section, styles.statusCard]}>
                 <AppText variant="bodyMd" color="secondary">
