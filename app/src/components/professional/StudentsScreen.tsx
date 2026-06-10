@@ -11,7 +11,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, ListState, TopBar } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
-import { useParqMap } from '@/mocks/parq';
+import { useParqMap } from '@/hooks/useParq';
 import { parqStatus, type ParqStatus } from '@/lib/parq';
 import type { ProfessionalRole, Student } from '@/types/professional';
 import { darkTheme } from '@/theme';

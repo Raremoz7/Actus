@@ -13,6 +13,10 @@ const mockBack = jest.fn();
 jest.mock('@/hooks/useStudents', () => ({
   useStudents: () => mockUseStudents(),
 }));
+// ParqSection usa hook de query; aqui não testamos o Par-Q → sem submissão.
+jest.mock('@/hooks/useParq', () => ({
+  useParqSubmission: () => null,
+}));
 jest.mock('@/hooks/useStudentCheckIns', () => ({
   useStudentCheckIns: () => mockUseCheckIns(),
 }));

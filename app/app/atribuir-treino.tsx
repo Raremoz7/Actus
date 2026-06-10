@@ -27,7 +27,7 @@ import { useStudents } from '@/hooks/useStudents';
 import { weekdayLetter } from '@/lib/weekday';
 import { formatDateLocal } from '@/lib/format';
 import { ParqAttentionBanner } from '@/components/parq';
-import { useParqSubmission } from '@/mocks/parq';
+import { useParqSubmission } from '@/hooks/useParq';
 import type { ProWorkoutListItem, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';

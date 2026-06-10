@@ -17,7 +17,12 @@ import studentWorkoutsRoutes from "./routes/studentWorkouts.js";
 import dietTemplatesRoutes from "./routes/dietTemplates.js";
 import studentDietsRoutes from "./routes/studentDiets.js";
 // [ACTUS-NEW] Par-Q (B5): três routers (aluno envia / aluno lê / profissional lê).
-import { studentParqRouter, meParqRouter, professionalParqRouter } from "./routes/parq.js";
+import {
+  studentParqRouter,
+  meParqRouter,
+  professionalParqRouter,
+  professionalParqListRouter,
+} from "./routes/parq.js";
 import { requireAuth } from "./middleware/requireAuth.js";
 import { requireStudent } from "./middleware/requireStudent.js";
 import { requireStaff } from "./middleware/requireStaff.js";
@@ -100,6 +105,8 @@ export function createApp() {
   app.use("/admin/links/students", requireStaff, adminStudentLinksRoutes);
   app.use("/admin/staff", requireStaff, adminStaffRoutes);
   app.use("/invites", requireAuth, invitesRoutes);
+  // [ACTUS-NEW] Par-Q em massa — ANTES do mount amplo p/ não cair em :student_id.
+  app.use("/professional/students/par-q", requireAuth, professionalParqListRouter);
   app.use("/professional/students", requireAuth, professionalStudentsRoutes);
   app.use("/professional/challenges", requireAuth, requirePersonal, professionalChallengesRoutes);
   app.use("/workouts", requireAuth, workoutsRoutes);
