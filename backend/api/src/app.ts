@@ -2,6 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import authRoutes from "./routes/auth.js";
 import invitesRoutes from "./routes/invites.js";
+import invitePreviewRouter from "./routes/invitePreview.js"; // [ACTUS-NEW] A3
 import meRoutes from "./routes/me.js";
 import meStudentProgramRoutes from "./routes/meStudentProgram.js";
 import meGamificationRoutes from "./routes/meGamification.js";
@@ -104,6 +105,9 @@ export function createApp() {
   app.use("/admin/professionals", requireStaff, adminProfessionalsRoutes);
   app.use("/admin/links/students", requireStaff, adminStudentLinksRoutes);
   app.use("/admin/staff", requireStaff, adminStaffRoutes);
+  // [ACTUS-NEW] A3 — preview PÚBLICO de convite, registrado ANTES do /invites protegido
+  // (mais específico + sem requireAuth: é usado no passo 1 do cadastro, sem sessão).
+  app.use("/invites/:code/preview", invitePreviewRouter);
   app.use("/invites", requireAuth, invitesRoutes);
   // [ACTUS-NEW] Par-Q em massa — ANTES do mount amplo p/ não cair em :student_id.
   app.use("/professional/students/par-q", requireAuth, professionalParqListRouter);
