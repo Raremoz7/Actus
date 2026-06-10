@@ -15,9 +15,11 @@ const isWeb = Platform.OS === 'web';
 
 type ParqMap = Record<string, ParqSubmission>;
 
+// Falha de persistência NUNCA quebra o fluxo — vale para os DOIS branches: no web,
+// o próprio acesso a localStorage lança SecurityError com storage bloqueado.
 async function loadRaw(): Promise<string | null> {
-  if (isWeb) return globalThis.localStorage?.getItem(KEY) ?? null;
   try {
+    if (isWeb) return globalThis.localStorage?.getItem(KEY) ?? null;
     return await SecureStore.getItemAsync(KEY);
   } catch {
     return null;
@@ -25,14 +27,14 @@ async function loadRaw(): Promise<string | null> {
 }
 
 async function saveRaw(value: string): Promise<void> {
-  if (isWeb) {
-    globalThis.localStorage?.setItem(KEY, value);
-    return;
-  }
   try {
+    if (isWeb) {
+      globalThis.localStorage?.setItem(KEY, value);
+      return;
+    }
     await SecureStore.setItemAsync(KEY, value);
   } catch {
-    // Mock: falha de persistência não pode quebrar o fluxo.
+    // Mock: melhor perder a persistência do que o envio do aluno.
   }
 }
 
@@ -73,9 +75,15 @@ export const useParqMock = create<ParqMockState>((set, get) => ({
         const map = parseMap(await loadRaw());
         // Merge: o que já está em memória (submit antes do hydrate) vence o disco.
         set({ byStudent: { ...map, ...get().byStudent }, hydrated: true });
-      })().finally(() => {
-        hydrating = null;
-      });
+      })()
+        .catch(() => {
+          // Storage indisponível ≠ travar a UI: marca hidratado com o que há em
+          // memória (o gate da Home espera `hydrated` — não pode esperar para sempre).
+          set({ hydrated: true });
+        })
+        .finally(() => {
+          hydrating = null;
+        });
     }
     return hydrating;
   },

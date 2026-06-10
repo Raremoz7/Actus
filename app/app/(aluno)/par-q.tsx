@@ -37,6 +37,7 @@ export default function ParqScreen() {
   const [done, setDone] = useState(false);
   const [doneAnyYes, setDoneAnyYes] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Modo revisão: pré-preenche com a submissão anterior, no máximo uma vez e só
   // enquanto o aluno ainda não tocou em nada (a hidratação do store é assíncrona).
@@ -73,6 +74,7 @@ export default function ParqScreen() {
   async function onSubmit() {
     if (!allAnswered || !studentId || saving) return;
     setSaving(true);
+    setSubmitError(null);
     const answers: ParqAnswer[] = PARQ_QUESTIONS.map((q) => ({
       question_id: q.id,
       value: values[q.id] as boolean,
@@ -81,6 +83,9 @@ export default function ParqScreen() {
       await submitParq(studentId, answers);
       setDoneAnyYes(deriveAnyYes(answers));
       setDone(true);
+    } catch {
+      // Hoje o mock só falha em storage bloqueado (web); amanhã, a API real.
+      setSubmitError('Não foi possível enviar. Tente novamente.');
     } finally {
       setSaving(false);
     }
@@ -141,9 +146,14 @@ export default function ParqScreen() {
             <Button
               label={isReview ? 'Atualizar respostas' : 'Enviar respostas'}
               onPress={onSubmit}
-              disabled={!allAnswered || saving}
+              disabled={!allAnswered || !studentId || saving}
               loading={saving}
             />
+            {submitError ? (
+              <AppText variant="bodySm" color="error" style={styles.error}>
+                {submitError}
+              </AppText>
+            ) : null}
           </ScrollView>
         )}
       </Animated.View>
@@ -159,6 +169,7 @@ const styles = StyleSheet.create((theme) => ({
   title: { marginTop: theme.spacing.xs },
   intro: { marginTop: theme.spacing.sm, marginBottom: theme.spacing.md },
   list: { marginBottom: theme.spacing.lg },
+  error: { marginTop: theme.spacing.sm, textAlign: 'center' },
   doneWrap: { flex: 1, padding: theme.spacing.lg, gap: theme.spacing.md, justifyContent: 'center' },
   doneTitle: {},
   doneNote: { marginBottom: theme.spacing.md },

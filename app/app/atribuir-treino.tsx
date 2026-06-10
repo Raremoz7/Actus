@@ -28,7 +28,6 @@ import { weekdayLetter } from '@/lib/weekday';
 import { formatDateLocal } from '@/lib/format';
 import { ParqAttentionBanner } from '@/components/parq';
 import { useParqSubmission } from '@/mocks/parq';
-import { parqStatus } from '@/lib/parq';
 import type { ProWorkoutListItem, Weekday } from '@/types/workouts';
 import { darkTheme } from '@/theme';
 import { StudentTargetHeader } from '@/components/professional/StudentTargetHeader';
@@ -170,8 +169,10 @@ export default function AtribuirTreinoScreen() {
     : null;
 
   // Aviso brando do Par-Q: alerta quando o aluno marcou "sim", sem bloquear a atribuição.
+  // Condicionado ao any_yes da SUBMISSÃO (spec §3) — um Par-Q vencido com "sim" continua
+  // sinalizando; é exatamente quando o dado fica velho que o aviso mais importa.
   const parqSub = useParqSubmission(studentId);
-  const showParqWarning = parqStatus(parqSub, new Date()) === 'attention';
+  const showParqWarning = parqSub?.any_yes === true;
 
   // Em modo edição, os campos vêm pré-preenchidos pelos params (a lista do aluno passa o
   // estado atual da atribuição). O template é fixo na edição (PATCH não troca workout_id).

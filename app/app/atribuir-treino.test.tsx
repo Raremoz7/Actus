@@ -200,6 +200,16 @@ describe('AtribuirTreinoScreen · gating do Par-Q (aviso brando)', () => {
     expect(screen.queryByText(/avaliação médica/i)).toBeNull();
   });
 
+  it('mantém o banner quando o Par-Q com atenção está EXPIRADO (any_yes manda)', () => {
+    mockParqSub = {
+      ...parqSubmission(true),
+      answered_at: '2024-01-01',
+      valid_until: '2025-01-01',
+    };
+    render(<AtribuirTreinoScreen />);
+    expect(screen.getByText(/avaliação médica/i)).toBeTruthy();
+  });
+
   it('não mostra o banner quando o aluno ainda não respondeu', () => {
     mockParqSub = null;
     render(<AtribuirTreinoScreen />);

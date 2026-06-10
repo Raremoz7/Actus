@@ -84,8 +84,9 @@ export function StudentsScreen() {
     });
   }, [students, query]);
 
-  // "Agora" estável por render — base para "Desde" e selo "Novo".
-  const now = useMemo(() => new Date(), []);
+  // "Agora" recalculado a cada render — base para "Desde", selo "Novo" e status do
+  // Par-Q. (Memorizar por montagem congelava a data: tabs ficam montadas por dias.)
+  const now = new Date();
 
   // Rota criada em outro bloco (forward ref) — convite do profissional.
   function openInvite() {
