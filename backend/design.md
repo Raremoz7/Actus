@@ -1,275 +1,213 @@
-# Actus Design System · v1.0
+# Actus Design System · v2.0
 
-> **The System behind the movement.**
-> A complete design language built around **premium athleisure, quiet luxury, and high-performance tech.** Inspired by the fluid, modern architectural curves of Oscar Niemeyer, every token, component, and rule is documented so the product scales with elegance and AI-driven precision.
-> *Version 1.0 · Released 2026*
+> **Versão definitiva** — reflete o visual **implementado** do app (fonte de verdade do
+> código: `app/src/theme/tokens.ts` + os componentes em `app/src/components/`). Onde o
+> v1.0 divergia do que foi construído, esta versão alinha à realidade do produto.
+> Restrições anti-AI-slop obrigatórias: ver `SOMO_DESIGN_CONSTRAINTS.md`.
+>
+> **Regra de ouro de implementação:** nada de hex/valor solto em componente — sempre
+> importar de `tokens.ts` (consumido via Unistyles 3 + o átomo `AppText`).
 
-**System Meta:**
-
-* **Colors:** 30+ Core & Semantic Tokens
-* **Typography:** Barlow Condensed, Share Tech Mono & Barlow
-* **Components:** 20+ Building Blocks (React/Vite ready)
-* **Grid:** 4pt Base
-
----
-
-## 01 · Foundations
-
-Every interface decision traces back to a token. Color, type, spacing, fluid radius — defined once, used everywhere. The constraint is the product.
-
-### 1.1 Color Palette
-
-#### Brand & Accent
-
-| Role               | Name         | Value     | Notes                                       |
-|:------------------ |:------------ |:--------- |:------------------------------------------- |
-| **Brand Accent**   | Brand Neon   | `#CBFE00` | Primary action points, energetic highlights |
-| **Primary Base**   | Primary      | `#FFFFFF` | Core structural highlights                  |
-| **Secondary Base** | Secondary    | `#4DE082` | Progress and secondary actions              |
-| **Tertiary Base**  | Tertiary     | `#FFFFFF` | Soft structural elements                    |
-| **Surface Tint**   | Surface Tint | `#ABD600` | Subtle brand glows                          |
-
-#### Background & Surfaces (Quiet Luxury Dark Mode)
-
-The dark mode background moves from pure charcoal to a deep blue-green base, using `#1A343F` as the primary canvas while preserving the Actus brand/accent colors. Surfaces step gradually lighter to create depth without breaking the quiet luxury direction.
-
-| Role              | Name                   | Value     | Notes                                      |
-|:----------------- |:---------------------- |:--------- |:------------------------------------------ |
-| **Base / Lowest** | Background / Lowest    | `#10252D` | Deepest app layer, behind the main canvas  |
-| **Base Canvas**   | BG Base                | `#1A343F` | Primary dark mode background               |
-| **Surface 1**     | BG Surface 1 / Low     | `#203F4B` | Standard cards and containers              |
-| **Surface 2**     | BG Surface 2 / Mid     | `#294B58` | Hover states and elevated cards            |
-| **Surface 3**     | BG Surface 3 / High    | `#345867` | Modals, sheets, floating elements          |
-| **Surface 4**     | BG Surface 4 / Highest | `#406575` | Maximum elevation and active containers    |
-
-#### Text & Outlines
-
-| Role               | Name              | Value                       | Notes                                    |
-|:------------------ |:----------------- |:--------------------------- |:---------------------------------------- |
-| **Text Primary**   | Text Primary      | `#FFFFFF`                   | Main typography, headings                |
-| **Text Secondary** | Text Secondary    | `rgba(255, 255, 255, 0.70)` | Body copy, supporting text               |
-| **Text Tertiary**  | Text Tertiary     | `rgba(255, 255, 255, 0.50)` | Meta, timestamps, disabled               |
-| **Text Inverse**   | Text Inverse      | `#141414`                   | Text on neon/light backgrounds           |
-| **On-Surface**     | On-Surface        | `#E2E4CF`                   | Variant for subtle text on dark surfaces |
-| **Outlines**       | Outline / Variant | `#8E9379` / `#444933`       | Borders and dividers                     |
-
-#### Semantic & Feedback
-
-| Role        | Name    | Value     | Notes                                 |
-|:----------- |:------- |:--------- |:------------------------------------- |
-| **Success** | Success | `#4ADE80` | Completed goals, positive AI feedback |
-| **Warning** | Warning | `#FBBF24` | Alerts, caution states                |
-| **Error**   | Error   | `#F87171` | Destructive actions, form errors      |
-| **Info**    | Info    | `#60A5FA` | System messages, tooltips             |
-
-#### Gradients
-
-* **Gradient Brand:** `linear-gradient(135deg, #CBFE00 0%, #A2CB00 100%)` — Used for premium callouts and AI-generated insight cards.
-* **Gradient Streak:** `linear-gradient(135deg, #F97316 0%, #EF4444 100%)` — Used for high-intensity achievements and continuous activity tracking.
-
-#### CSS Color Tokens Recommendation
-
-```css
-:root {
-  --bg-lowest: #10252D;
-  --bg-base: #1A343F;
-  --bg-surface-1: #203F4B;
-  --bg-surface-2: #294B58;
-  --bg-surface-3: #345867;
-  --bg-surface-4: #406575;
-
-  --brand-neon: #CBFE00;
-  --secondary: #4DE082;
-  --surface-tint: #ABD600;
-
-  --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.70);
-  --text-tertiary: rgba(255, 255, 255, 0.50);
-  --text-inverse: #141414;
-}
-```
-
-
-### 1.2 Typography System
-
-The typography follows the **PulseX rule** while preserving the Actus color palette. The system is built around three distinct typographic jobs: **condensed impact**, **technical precision**, and **clear narrative reading**.
-
-#### Font Import
-
-```html
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-```
-
-#### Family 01: Barlow Condensed
-
-* **Usage:** Display, Brand Headings, Hero Numbers, Primary Buttons, Screen Titles, KPI Highlights.
-* **Role:** Creates a strong, athletic, high-performance feeling. Use it when the information needs visual impact before detailed reading.
-* **Rules:**
-  * Use uppercase for major headings, CTAs, section labels, and hero metrics.
-  * Prefer heavier weights: **800–900** for display and key actions.
-  * Keep tracking tight in large sizes and wider in small labels.
-* **Scale:**
-  * **D1 (Display):** 72px / 0.9 line-height / -1% letter-spacing / 900 weight / uppercase
-  * **H1 (Heading):** 48px / 0.95 line-height / -0.5% letter-spacing / 900 weight / uppercase
-  * **H2 (Heading):** 32px / 1 line-height / -0.2% letter-spacing / 900 weight / uppercase
-  * **H3 (Heading):** 22px / 1.1 line-height / 0% letter-spacing / 800–900 weight / uppercase
-  * **L1 (Label / CTA):** 14px / 1 line-height / 18% letter-spacing / 800 weight / uppercase
-
-#### Family 02: Share Tech Mono
-
-* **Usage:** Data, Metrics, Counters, Timestamps, Technical Labels, Eyebrows, Build/Version Information.
-* **Role:** Communicates precision. Use it when the information should feel exact, trackable, or system-generated.
-* **Rules:**
-  * Use for short, structured information — not long paragraphs.
-  * Use Actus accent colors for emphasis, especially `Brand Neon (#CBFE00)` for active or positive technical states.
-  * Avoid using mono for emotional, instructional, or brand-led copy.
-* **Scale:**
-  * **Data Big:** 36px / 1 line-height / 8% letter-spacing / 400 weight
-  * **Data Medium:** 18px / 1.2 line-height / 12% letter-spacing / 400 weight
-  * **Meta Small:** 11px / 1.4 line-height / 15% letter-spacing / 400 weight
-  * **Eyebrow XS:** 10px / 1.5 line-height / 30% letter-spacing / 400 weight / uppercase
-
-#### Family 03: Barlow
-
-* **Usage:** Body Copy, Product Descriptions, AI Assistant Responses, Form Values, Helper Text, Empty States.
-* **Role:** Handles narrative, instruction, and readability. This is the default font for anything the user needs to read calmly.
-* **Rules:**
-  * Use for any text longer than 8 words.
-  * Use **400–500** for standard body and **600–700** for emphasis.
-  * Keep long-form reading in `Text Secondary` or `On-Surface` depending on surface contrast.
-* **Scale:**
-  * **LG (Body):** 18px / 1.55 line-height / 0% letter-spacing
-  * **MD (Body):** 15px / 1.6 line-height / 0% letter-spacing
-  * **SM (Body / Meta):** 13px / 1.65 line-height / 0% letter-spacing
-
-#### Typography Usage Map
-
-| Typeface             | Use When                     | Examples                                      | Avoid For                            |
-|:-------------------- |:---------------------------- |:--------------------------------------------- |:------------------------------------ |
-| **Barlow Condensed** | The content needs impact     | Hero titles, main KPIs, CTAs, section titles  | Long paragraphs, helper text         |
-| **Share Tech Mono**  | The content needs precision  | Data points, timestamps, counters, meta tags  | Emotional copy, instructions         |
-| **Barlow**           | The content needs reading    | Body copy, descriptions, forms, AI responses  | Hero metrics, expressive headlines   |
-
-#### CSS Token Recommendation
-
-```css
-:root {
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body: 'Barlow', sans-serif;
-  --font-mono: 'Share Tech Mono', monospace;
-}
-
-.heading-display {
-  font-family: var(--font-display);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-}
-
-.data-label {
-  font-family: var(--font-mono);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.body-copy {
-  font-family: var(--font-body);
-  line-height: 1.6;
-}
-```
-
-#### Color Rule for Typography
-
-The typography must inherit the **Actus color system**, not the PulseX palette.
-
-* **Headings:** `Text Primary (#FFFFFF)`
-* **Body Copy:** `Text Secondary (rgba(255, 255, 255, 0.70))`
-* **Meta / Technical Labels:** `Text Tertiary (rgba(255, 255, 255, 0.50))`
-* **Active Data / Accent Labels:** `Brand Neon (#CBFE00)`
-* **Text on Neon CTAs:** `Text Inverse (#141414)`
-
-### 1.3 Spacing, Grid & Architectural Radius
-
-#### Spacing Scale (4pt Base)
-
-* **XS (4px) - SM (8px):** Tight groups, inline chip padding.
-* **MD (12px) - LG (16px):** Form field padding, standard card padding.
-* **XL (24px) - 2XL (32px):** Section spacing, major block separation.
-
-#### Border Radius (Fluid Geometry)
-
-Embracing Niemeyer's philosophy, corners are rarely sharp, favoring organic curves.
-
-* **4px (XS):** Data tags, micro-components.
-* **12px (MD):** Standard cards, form inputs.
-* **24px (LG):** Modals, featured AI insight containers.
-* **100px (Full):** Primary action buttons, chips, avatars.
+Estética: **Quiet Luxury, Dark Mode único**. Calmo, premium, orientado a dados. Inspiração
+arquitetônica (curvas, profundidade por camadas de superfície), neon como única cor de ação.
 
 ---
 
-## 02 · Components
+## 01 · Fundações
 
-### 2.1 Buttons
+### 1.1 Paleta de cores
 
-* **Primary (Go Action):** BG `Brand Neon (#CBFE00)`, Text `Text Inverse (#141414)`, Padding 16px, Radius 100px. Barlow Condensed 800–900, uppercase.
-* **Secondary (Soft Action):** Transparent BG, 1px solid `Outline (#8E9379)`, Text `Text Primary`.
-* **Ghost:** No border, Text `Text Secondary`, subtle hover state using `Surface 2`.
+**Fundos & superfícies** (escuro → claro, profundidade gradual):
+| Token | Hex | Uso |
+|---|---|---|
+| `bgLowest` | `#10252D` | Fundo da tela (splash, base) |
+| `bgBase` | `#1A343F` | Corpo de conteúdo |
+| `surface1` | `#203F4B` | Cards padrão, inputs |
+| `surface2` | `#294B58` | Card elevado, chip neutro, ícone-bolha |
+| `surface3` | `#345867` | Camada intermediária |
+| `surface4` | `#406575` | Borda de toggle/realce sutil |
 
-### 2.2 Form Fields & Inputs
+**Marca & acento:**
+| Token | Hex | Uso |
+|---|---|---|
+| `neon` | `#CBFE00` | **Única cor de ação** — CTA primário, estado ativo, foco, KPI |
+| `secondary` | `#4DE082` | Sucesso/positivo discreto |
+| `surfaceTint` | `#ABD600` | Glow de foco do input |
+| `accentMuted` | `#7BA0BC` | **Azul-névoa** — dados/estrutura: eyebrows, abas/valores secundários, divisórias. **Nunca** como ação (isso é do neon) nem aviso (isso é do `info`) |
+| `accentMutedSurface` | `rgba(123,160,188,0.16)` | Fill de chip/badge secundário |
 
-* **Default:** BG `BG Surface 1 (#203F4B)`, 1px solid `Outline Variant (#444933)`, Radius 12px.
-* **Focused:** BG `BG Surface 1 (#203F4B)`, 1px solid `Brand Neon (#CBFE00)`, soft outer glow using `Surface Tint`.
-* **AI Assist Input:** Features an integrated spark icon in `Brand Neon` to indicate generative capabilities or smart completions.
+**Texto & contornos:**
+| Token | Valor | Uso |
+|---|---|---|
+| `textPrimary` | `#FFFFFF` | Texto principal |
+| `textSecondary` | `rgba(255,255,255,0.70)` | Texto de apoio |
+| `textTertiary` | `rgba(255,255,255,0.50)` | Meta/legenda |
+| `textInverse` | `#141414` | Texto sobre neon/fundo claro |
+| `onSurface` | `#E2E4CF` | Texto sobre superfícies tonais específicas |
+| `outline` | `#8E9379` | Borda de botão secundário |
+| `outlineVariant` | `#444933` | Borda de card/input/divisória |
+
+**Semânticas / feedback:**
+| Token | Hex | Uso |
+|---|---|---|
+| `success` | `#4ADE80` | Confirmação |
+| `warning` | `#FBBF24` | **Atenção** (ex.: selo de Par-Q com "sim") |
+| `error` | `#F87171` | Erro |
+| `info` | `#60A5FA` | Aviso pontual informativo |
+| `flame` | `#F97316` | **Exceção consciente ao neon:** só no símbolo de streak (chama) |
+
+**Overlays:** `overlay` `rgba(16,37,45,0.7)` (scrim de modal/sheet) · `veil`
+`rgba(16,37,45,0.28)` (véu sobre foto de exercício) · `shadow` `#000000`.
+
+### 1.2 Gradientes (135°, via expo-linear-gradient)
+
+- `brand`: `#CBFE00 → #A2CB00` — realces de marca.
+- `streak`: `#F97316 → #EF4444` — sequência/chama.
+- `heroScrim` + `heroScrimLocations [0,0.3,0.68,1]` — foto do hero do exercício dissolve na
+  cor do corpo (`bgBase`) sem corte seco, garantindo leitura do título.
+- `cardPhotoScrim` + `cardPhotoScrimLocations [0,0.48,0.86]` — foto discreta no topo do card,
+  meta/CTA sobre base sólida (`surface1`).
+
+### 1.3 Espaçamento, raio e tipografia
+
+**Espaçamento (base 4pt):** `xs 4` · `sm 8` · `md 12` · `lg 16` · `xl 24` · `xxl 32`.
+
+**Raio (geometria fluida):** `tag 4` · `thumb 8` (miniatura de exercício) · `card 12` ·
+`input 12` · `modal 24` · `pill 100` (botões, chips, avatares, toggles).
+
+**Famílias:**
+- **Barlow Condensed** (display): `800 ExtraBold`, `900 Black` — títulos e rótulos, **caixa alta**.
+- **Barlow** (corpo): `400/500/600/700` — texto corrido.
+- **Share Tech Mono** (dados): `400` — números, eyebrows, metadados.
+- Proibido: Inter / Roboto / Poppins.
+
+**Escala tipográfica** (variantes do átomo `AppText` — família · tamanho · caixa):
+| Variante | Família | px | Caixa | Uso |
+|---|---|---|---|---|
+| `d1` | Condensed Black | 72 | UPPER | Display hero |
+| `h1` | Condensed Black | 48 | UPPER | Título de tela grande |
+| `h2` | Condensed ExtraBold | 32 | UPPER | Título de tela |
+| `h3` | Condensed ExtraBold | 22 | UPPER | Título de card |
+| `h4` | Condensed ExtraBold | 18 | UPPER | Item de lista (denso) |
+| `label` | Condensed ExtraBold | 14 (tracking 18%) | UPPER | Rótulos, abas |
+| `dataBig` | Mono | 36 (tracking 8%) | — | KPI grande |
+| `dataMed` | Mono | 18 (tracking 12%) | — | KPI médio |
+| `metaSmall` | Mono | 11 (tracking 15%) | — | Meta/legenda |
+| `eyebrow` | Mono | 10 (tracking 30%) | UPPER | Sobre-título |
+| `bodyLg/Md/Sm` | Barlow | 18 / 15 / 13 | — | Corpo |
+
+Fora da escala (números-herói): `timerHero 88`, `inputHero 40`.
+
+**Motion:** transição de tela `300ms`, micro-interação `150ms`, easing
+`cubic-bezier(0.4, 0, 0.2, 1)`.
+
+---
+
+## 02 · Componentes
+
+### 2.1 Botões (`Button`)
+- **Primary:** BG `neon`, texto `textInverse`, **Barlow Condensed 800 UPPER**, radius `pill`,
+  padding 16. Press: scale `0.98` + haptic. **Loading = opacidade sobre o próprio fill neon**
+  (sem spinner, sem gradiente).
+- **Secondary:** transparente, 1px `outline`, texto `textPrimary`, radius `12` (shape distinto do primário).
+- **Ghost:** sem borda, texto `textSecondary`.
+
+### 2.2 Campos (`Input`)
+- Default: BG `surface1`, 1px `outlineVariant`, radius `12`.
+- Foco: borda `neon` + glow externo sutil (`surfaceTint`) — **único glow do app**.
+- Toggle de senha: Phosphor `Eye/EyeSlash` duotone.
 
 ### 2.3 Cards
+- **Neutro:** BG `surface1`, 1px `outlineVariant`, radius `card`. Padrão de listas e blocos.
+- **Elevado:** BG `surface2` + sombra sutil — insight/IA, "dado confiável".
+- **Com foto:** `cardPhotoScrim` sobre a imagem; meta/CTA sobre base sólida.
+- **Hero (`ScreenHero`):** imagem + `heroScrim` dissolvendo em `bgBase`.
+- **Sombra só em** modal, sheet, dropdown e card elevado — nunca em card neutro.
 
-* **Neutral Card:** BG `BG Surface 1 (#203F4B)`, Border none or 1px `Outline Variant`.
-* **Elevated Card:** BG `BG Surface 2 (#294B58)`, subtle drop shadow.
-* **Highlight/Streak Card:** Uses `Gradient Streak` as a top border or subtle background tint.
+### 2.4 Tags, Chips & Selos (`Tag` / badges)
+Tons (token de fundo · texto):
+- **`neutral`:** `surface2` · `textSecondary`.
+- **`active`:** **`neon`** · `textInverse` (estado selecionado — supersede o "Primary Container" do v1.0).
+- **`success`:** `success` · `textInverse`.
+- **`warning`:** `warning` · `textInverse` — **selo de Atenção** (ex.: Par-Q com "sim").
+- Secundário de dados (névoa): `accentMutedSurface` · `accentMuted`.
+- Radius `tag` (4) para tags de dado; `pill` (100) para chips de filtro/seleção.
 
-### 2.4 Tags & Chips
+### 2.5 Dados (`KpiNumber`)
+Número em **Share Tech Mono** (`dataBig 36` / `dataMed 18`), cor `neon` ou `primary`, unidade
+opcional em `metaSmall`/`tertiary`. Compõe o **KPI card** (número + rótulo em card neutro).
 
-* **Neutral:** BG `BG Surface 2 (#294B58)`, Text `Text Secondary`.
-* **Active:** BG `Primary Container (#C3F400)`, Text `On-Primary Container (#556D00)`.
-* **Success:** BG `Success (#4ADE80)`, Text `#000000`.
+### 2.6 Navegação (`ActusTabBar`)
+- **Aluno:** 4 abas (HOJE · TREINOS · DESAFIOS · PERFIL) + **botão central neon sólido** que inicia o treino do dia (sem glow/halo/sombra).
+- **Personal:** 5 abas (INÍCIO · ALUNOS · TREINOS · DESAFIOS · PERFIL).
+- **Nutri:** 4 abas (INÍCIO · ALUNOS · DIETAS · PERFIL).
+- Ícones **Phosphor duotone**; rótulo `label` (Condensed 800 UPPER). Aba ativa em `neon`.
 
----
+### 2.7 Controles compostos (padrões reutilizáveis do produto)
+- **Segmented control** (ex.: "Meus | Banco"): trilho `surface1` radius `pill`, segmento ativo `neon`/`textInverse`, inativo `textSecondary`.
+- **Chips de filtro** (ex.: objetivo do Banco): linha horizontal de pills; ativo `neon`, inativo `surface2`.
+- **Quick action** (Dashboard): card neutro com ícone duotone em bolha `surface2` + rótulo `label`.
+- **Toggle Sim/Não** (Par-Q): par de pills; selecionado `neon`/`inverse`.
+- **Miniatura/Card de exercício:** thumb radius `thumb` (8) com `veil` sobre a foto.
 
-## 03 · Patterns
-
-### 3.1 Screen Layout (Minimalist Focus)
-
-**Rule: One primary intention per screen.**
-
-1. **Header:** Clean, distraction-free. Brand + nav.
-2. **Primary Zone:** Hero card answering the main user objective (e.g., today's wellness target).
-3. **Primary CTA:** High contrast `Brand Neon`, drawing the eye immediately.
-4. **Secondary Data:** Supporting metrics in `Text Secondary` on `BG Surface 1`.
-
-### 3.2 State & Feedback
-
-* **Data Zones:** Raw data is presented in monospaced or structured tables; "Trusted" or AI-processed insights are presented in elevated `Surface 2` cards with natural language text.
-* **Loading/Processing:** Instead of standard spinners, use a subtle, sweeping opacity animation over the `Gradient Brand`.
-
----
-
-## 04 · Voice & Motion
-
-### 4.1 Voice & Tone
-
-1. **Quiet Luxury:** Communication is composed, premium, and unobtrusive. We guide, we don't shout.
-2. **Intelligent & Adaptive:** Feedback feels personalized and data-driven.
-3. **Refined Motivation:** Celebrate milestones elegantly. (e.g., *"Target achieved. Form maintained."* instead of *"🎉 AWESOME JOB! 💪"*)
-
-### 4.2 Motion Principles
-
-* **Fluid Transitions (300ms):** Page and screen transitions use smooth easing `cubic-bezier(0.4, 0.0, 0.2, 1)`, mimicking natural physical momentum.
-* **Micro-interactions (150ms):** Buttons and toggles respond instantly but smoothly, never abruptly.
-* **Generative Reveals:** When AI assists or generates content (like workout adjustments or styling suggestions), elements fade in softly from the bottom up, indicating creation.
+### 2.8 Estados de lista (`ListState`)
+- **Loading:** varredura suave de opacidade (não spinner).
+- **Empty:** ícone duotone + título + mensagem + CTA opcional.
+- **Error:** discreto, com "Tentar de novo".
 
 ---
 
-### ◆ THE GOLDEN RULE
+## 03 · Padrões
 
-**Elegance through performance.**
-Every component in the Actus Design System must not only look premium but render with absolute efficiency. The aesthetic is calm, but the underlying architecture is relentlessly fast.
+### 3.1 Layout de tela
+**Regra geral: uma intenção primária por tela.**
+1. Header limpo (marca + nav).
+2. Zona primária (hero card que responde ao objetivo principal).
+3. CTA primário em `neon`, alto contraste.
+4. Dados secundários em `textSecondary` sobre `surface1`.
+
+### 3.2 Arquétipo "Painel" (exceção consciente)
+A landing do profissional (aba **Início**) é um **dashboard multi-bloco** — saudação + KPIs +
+ações rápidas + recentes — e **relaxa intencionalmente** a regra "uma intenção por tela". É o
+único arquétipo de visão-resumo; demais telas seguem o foco único.
+
+### 3.3 Dados vs. Insight
+Dado bruto em **mono**/tabelas estruturadas; insight processado/IA em **card elevado**
+(`surface2`) com linguagem natural.
+
+### 3.4 Formulários & wizards
+Cadastro e builders usam passos guiados com `WizardProgress` (rótulos mono `01 / CONVITE`).
+Validação inline; erros roteados ao passo de origem.
+
+---
+
+## 04 · Voz & Movimento
+
+### 4.1 Voz & tom
+1. **Quiet Luxury:** composto, premium, sem gritar. Guiamos, não alardeamos.
+2. **Inteligente & adaptativo:** feedback personalizado, orientado a dados.
+3. **Motivação refinada:** *"Meta atingida. Postura mantida."* — nunca *"🎉 ARRASOU! 💪"*.
+4. Copy específica, sem buzzword, sem "Comece agora"/"Saiba mais", **sem emoji em bullet**.
+
+### 4.2 Movimento
+- **Um único momento de motion por tela** (regra operacional). Geralmente o **reveal de entrada**
+  (opacity, às vezes + translateY 12px, `300ms`).
+- Micro-interações `150ms` (press de botão, toggle) — nunca abruptas.
+- **Reveal generativo:** conteúdo de IA surge suave de baixo para cima.
+- Ícones sempre **Phosphor duotone** — nunca Lucide/Heroicons.
+
+---
+
+### ◆ A REGRA DE OURO
+
+**Elegância através de performance.** Todo componente deve parecer premium **e** renderizar com
+eficiência absoluta. A estética é calma; a arquitetura por baixo é implacavelmente rápida.
+
+---
+
+> **Changelog v2.0** (vs v1.0): paleta completa (surfaces 1–4, `accentMuted`/azul-névoa,
+> `flame`, `info`, overlays e scrims); gradientes hero/card; escala tipográfica completa com
+> mapeamento por variante do `AppText`; raio `thumb`; tom de tag **`warning`/Atenção**;
+> chip ativo oficializado em **neon** (era "Primary Container"); navegação real por papel
+> (aba **Início** no personal/nutri); arquétipo **Painel**; controles compostos
+> (segmented, chips de filtro, quick action, toggle Sim/Não). Doc em pt-BR.
