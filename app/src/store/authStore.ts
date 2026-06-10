@@ -4,7 +4,12 @@ import { endpoints } from '@/api/endpoints';
 import { tokenStorage } from '@/api/storage';
 import { parseApi } from '@/api/parseApi';
 import { isApiError } from '@/api/errors';
-import { TokensResponseSchema, type LoginBody, type RegisterBody } from '@/types/auth';
+import {
+  TokensResponseSchema,
+  type LoginBody,
+  type RegisterBody,
+  type RegisterProfessionalBody,
+} from '@/types/auth';
 import { MeSchema, type Me, type UserTipo } from '@/types/me';
 import { DEV_BYPASS_AUTH, DEV_USER, setDevTipo, hydrateDevTipo } from '@/lib/devAuth';
 
@@ -25,6 +30,7 @@ export interface AuthState {
   hydrate: () => Promise<void>;
   login: (email: string, senha: string) => Promise<void>;
   register: (body: RegisterBody) => Promise<void>;
+  registerProfessional: (body: RegisterProfessionalBody) => Promise<void>;
   logout: () => Promise<void>;
   completePasswordChange: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -113,6 +119,15 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   // POST /auth/register → tokens → /me. Mesmo fluxo atômico do login.
   async register(body) {
     const { data } = await api.post(endpoints.auth.register, body);
+    const tokens = parseApi(TokensResponseSchema, data);
+    await tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
+    await resolveSessionStatus(set);
+  },
+
+  // POST /auth/register-professional → tokens → /me. Mesmo fluxo atômico do register.
+  // [pendente no backend] — em dev bypass, o devMocks responde.
+  async registerProfessional(body) {
+    const { data } = await api.post(endpoints.auth.registerProfessional, body);
     const tokens = parseApi(TokensResponseSchema, data);
     await tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
     await resolveSessionStatus(set);

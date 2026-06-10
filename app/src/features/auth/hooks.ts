@@ -8,6 +8,7 @@ import {
   type ChangePasswordBody,
   type LoginBody,
   type RegisterBody,
+  type RegisterProfessionalBody,
 } from '@/types/auth';
 import { useAuthStore } from '@/store/authStore';
 
@@ -26,6 +27,17 @@ export function useRegisterMutation(): UseMutationResult<void, unknown, Register
   return useMutation({
     mutationFn: (body: RegisterBody): Promise<void> =>
       useAuthStore.getState().register(body),
+  });
+}
+
+export function useRegisterProfessionalMutation(): UseMutationResult<
+  void,
+  unknown,
+  RegisterProfessionalBody
+> {
+  return useMutation({
+    mutationFn: (body: RegisterProfessionalBody): Promise<void> =>
+      useAuthStore.getState().registerProfessional(body),
   });
 }
 
