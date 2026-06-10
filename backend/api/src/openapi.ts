@@ -977,6 +977,41 @@ export const openapi: OpenAPIV3.Document = {
         },
       },
     },
+    // [ACTUS-NEW] A4 — perfil rico (read-back). Ver backend/CHANGES-FROM-PRODUCTION.md
+    "/me/profile": {
+      get: {
+        tags: ["Perfil"],
+        summary: "[ACTUS] Perfil rico do usuário logado (profiles + user_basic_info) p/ editar-perfil",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Perfil rico (campos student vêm null para profissional)",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["id", "tipo", "display_name"],
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    tipo: { type: "string" },
+                    display_name: { type: "string", nullable: true },
+                    avatar_url: { type: "string", nullable: true },
+                    timezone: { type: "string", nullable: true },
+                    full_name: { type: "string", nullable: true },
+                    phone: { type: "string", nullable: true },
+                    gender: { type: "string", nullable: true },
+                    body_weight_kg: { type: "number", nullable: true },
+                    birth_date: { type: "string", format: "date", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+          "404": { description: "Perfil não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+        },
+      },
+    },
     "/me/workouts": {
       get: {
         tags: ["Aluno — programa"],
