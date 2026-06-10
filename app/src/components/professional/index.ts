@@ -3,3 +3,4 @@ export { StudentRow, studentInitials } from './StudentRow';
 export { StudentsScreen } from './StudentsScreen';
 export { StudentDetailScreen } from './StudentDetailScreen';
 export { ParqSection } from './ParqSection';
+export { PreferencesSection } from './PreferencesSection';

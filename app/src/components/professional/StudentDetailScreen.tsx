@@ -25,6 +25,7 @@ import { goBackOr } from '@/lib/nav';
 import { studentInitials } from './StudentRow';
 import { CheckInHeatmap } from './CheckInHeatmap';
 import { ParqSection } from './ParqSection';
+import { PreferencesSection } from './PreferencesSection';
 import {
   activeDaysInWindow,
   buildHeatmap,
@@ -269,6 +270,8 @@ export function StudentDetailScreen({ id }: Props) {
               <View style={styles.parqWrap}>
                 <ParqSection studentId={id} />
               </View>
+
+              <PreferencesSection studentId={id} />
 
               <AppText variant="eyebrow" color="tertiary" style={styles.secLabel}>
                 Atividade recente

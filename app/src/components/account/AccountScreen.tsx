@@ -12,6 +12,7 @@ import {
   BellSimple,
   ShieldCheck,
   SignOut,
+  Ticket,
   UserCircle,
 } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -245,6 +246,13 @@ export function AccountScreen({ showStreak = false }: Props) {
             label="Editar perfil"
             onPress={() => router.push('/editar-perfil' as Href)}
           />
+          {tipo === 'aluno' ? (
+            <ActionRow
+              icon={<Ticket size={20} weight="duotone" color={colors.onSurface} />}
+              label="Usar convite"
+              onPress={() => router.push('/usar-convite' as Href)}
+            />
+          ) : null}
           {/* [MOCK — sem endpoint na API v1]: preferências de notificação ainda não existem.
               Linha informativa (sem navegação morta) com eyebrow "em breve". */}
           <ActionRow

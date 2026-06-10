@@ -6,10 +6,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { router, type Href } from 'expo-router';
-import { Barbell } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, ListState } from '@/components/ui';
+import { Screen, AppText, Button, ListState } from '@/components/ui';
 import {
   HomeHeader,
   WeekStrip,
@@ -28,6 +27,7 @@ import { challengeDayProgress } from '@/lib/challenge';
 import { greetingForHour } from '@/lib/greeting';
 import { useParqHydrated, useParqSubmission } from '@/hooks/useParq';
 import { parqStatus } from '@/lib/parq';
+import { useStudentAnswers } from '@/mocks/studentOnboarding';
 import { formatDateLocal } from '@/lib/format';
 import { parseDietBody } from '@/types/diets';
 import type { TodayWorkoutSummary, Weekday } from '@/types/workouts';
@@ -64,6 +64,8 @@ export default function AlunoHojeScreen() {
   // Só pinta o card depois do /me e da hidratação do mock — sem isso, todo cold start
   // mostraria o CTA neon "Responda" por alguns frames para quem já respondeu.
   const parqReady = parqHydrated && Boolean(me.data?.id);
+  // Status de vínculo do onboarding (mock) — decide a copy do estado vazio da Home.
+  const answers = useStudentAnswers(me.data?.id);
   const week = useWeeklyOverview();
   const workouts = useStudentWorkouts();
   const diet = useStudentDiet();
@@ -262,14 +264,24 @@ export default function AlunoHojeScreen() {
           ) : null}
 
           {allEmpty ? (
-            <View style={styles.section}>
-              <ListState
-                kind="empty"
-                icon={Barbell}
-                title="Plano em preparo"
-                message="Seu personal ainda não montou seu plano."
-              />
-            </View>
+            answers?.link_status === 'none' ? (
+              <View style={[styles.section, styles.statusCard]}>
+                <AppText variant="bodyMd" color="secondary">
+                  Você ainda não tem um personal vinculado.
+                </AppText>
+                <Button
+                  variant="secondary"
+                  label="Usar convite"
+                  onPress={() => router.push('/usar-convite' as Href)}
+                />
+              </View>
+            ) : (
+              <View style={[styles.section, styles.statusCard]}>
+                <AppText variant="bodyMd" color="secondary">
+                  Seu personal já recebeu suas informações e poderá preparar seu treino.
+                </AppText>
+              </View>
+            )
           ) : null}
 
           {anyError ? (
@@ -296,6 +308,12 @@ const styles = StyleSheet.create((theme) => ({
   section: { marginTop: theme.spacing.xl },
   // Card do Par-Q: respiro próprio entre o header e o herói (que não usam .section).
   parqCard: { marginBottom: theme.spacing.md },
+  statusCard: {
+    backgroundColor: theme.colors.surface1,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.md,
+    gap: theme.spacing.md,
+  },
   retry: { marginTop: theme.spacing.xl, alignItems: 'center' },
   row: { flexDirection: 'row', gap: theme.spacing.md },
 }));

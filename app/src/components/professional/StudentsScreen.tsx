@@ -9,7 +9,7 @@ import { router, type Href } from 'expo-router';
 import { MagnifyingGlass, UserPlus, Users } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, ListState, TopBar } from '@/components/ui';
+import { Screen, AppText, Button, ListState, TopBar } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import { useParqMap } from '@/hooks/useParq';
 import { parqStatus, type ParqStatus } from '@/lib/parq';
@@ -159,14 +159,23 @@ export function StudentsScreen() {
         {list.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
 
         {isEmpty ? (
-          <ListState
-            kind="empty"
-            icon={Users}
-            title="Nenhum aluno ainda"
-            message="Convide alguém para começar a acompanhar o progresso"
-            actionLabel="Convidar aluno"
-            onAction={openInvite}
-          />
+          <View>
+            <ListState
+              kind="empty"
+              icon={Users}
+              title="Nenhum aluno ainda"
+              message="Comece convidando um aluno ou criando seu primeiro treino"
+              actionLabel="Convidar aluno"
+              onAction={openInvite}
+            />
+            <View style={styles.emptyCtas}>
+              <Button
+                variant="secondary"
+                label="Criar primeiro treino"
+                onPress={() => router.push('/montar-treino' as Href)}
+              />
+            </View>
+          </View>
         ) : null}
 
         {noMatches ? (
@@ -229,6 +238,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   list: {},
   note: {
+    marginTop: theme.spacing.lg,
+  },
+  emptyCtas: {
+    gap: theme.spacing.md,
     marginTop: theme.spacing.lg,
   },
 }));
