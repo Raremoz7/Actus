@@ -1,4 +1,4 @@
-import { UsersIcon, ForkKnifeIcon, UserIcon } from 'phosphor-react-native';
+import { HouseIcon, UsersIcon, ForkKnifeIcon, UserIcon } from 'phosphor-react-native';
 import { Tabs } from 'expo-router';
 
 import { ActusTabBar, type TabSpec } from '@/components/navigation/ActusTabBar';
@@ -7,6 +7,11 @@ const ICON_SIZE = 24;
 
 // Abas do nutricionista — sem botão central.
 const TABS: readonly TabSpec[] = [
+  {
+    name: 'inicio',
+    label: 'INÍCIO',
+    renderIcon: (color) => <HouseIcon size={ICON_SIZE} color={color} weight="duotone" />,
+  },
   {
     name: 'alunos',
     label: 'ALUNOS',
@@ -30,6 +35,7 @@ export default function NutriTabsLayout() {
       screenOptions={{ headerShown: false }}
       tabBar={(props) => <ActusTabBar {...props} tabs={TABS} />}
     >
+      <Tabs.Screen name="inicio" />
       <Tabs.Screen name="alunos" />
       <Tabs.Screen name="dietas" />
       <Tabs.Screen name="perfil" />

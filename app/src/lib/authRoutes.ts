@@ -11,16 +11,16 @@ export const AUTH_ENTRY = '/(auth)/escolha-perfil' as Href;
 // Gate de senha provisória.
 export const PASSWORD_GATE = '/(auth)/trocar-senha' as Href;
 
-// Home por tipo de usuário autenticado. Personal e nutri NÃO têm index.tsx nas suas (tabs)
-// — só o aluno tem — então apontamos para a 1ª aba real; o grupo nu cairia no +not-found.
+// Home por tipo de usuário autenticado. Aluno cai no index das suas (tabs); personal e
+// nutri têm a aba "inicio" (dashboard) como landing dedicada.
 export function homeForTipo(tipo: UserTipo): Href {
   switch (tipo) {
     case 'aluno':
       return '/(aluno)/(tabs)' as Href;
     case 'personal':
-      return '/(personal)/(tabs)/alunos' as Href;
+      return '/(personal)/(tabs)/inicio' as Href;
     case 'nutricionista':
-      return '/(nutri)/(tabs)/alunos' as Href;
+      return '/(nutri)/(tabs)/inicio' as Href;
     // staff não tem área (não aparece em /me); fallback seguro para a escolha de perfil.
     default:
       return AUTH_ENTRY;
