@@ -52,6 +52,20 @@ describe('POST /auth/register-professional', () => {
     expect(me.status, JSON.stringify(me.body)).toBe(200);
     expect(me.body.tipo).toBe('personal');
     expect(me.body.display_name).toBe('Personal Novo');
+
+    // O phone informado no cadastro é LEGÍVEL no perfil rico (profiles.phone via coalesce).
+    const profile = await request(app)
+      .get('/me/profile')
+      .set('Authorization', `Bearer ${reg.body.access_token as string}`);
+    expect(profile.status, JSON.stringify(profile.body)).toBe(200);
+    expect(profile.body.phone).toBe(body.phone);
+
+    // Refresh do token emitido funciona (sessão real).
+    const refreshed = await request(app)
+      .post('/auth/refresh')
+      .send({ refresh_token: reg.body.refresh_token as string });
+    expect(refreshed.status, JSON.stringify(refreshed.body)).toBe(200);
+    expect(typeof refreshed.body.access_token).toBe('string');
   });
 
   it('e-mail duplicado → 409 email_already_in_use', async () => {

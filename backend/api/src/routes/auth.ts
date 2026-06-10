@@ -13,6 +13,30 @@ function normalizeCpf(input: string): string {
   return input.replace(/\D/g, "");
 }
 
+// Emite uma sessão (access + refresh persistido) para um usuário recém-criado.
+// Compartilhado por /register e /register-professional — fonte única do trio de tokens.
+async function issueSession(
+  userId: string,
+): Promise<{ access_token: string; access_token_expires_in: number; refresh_token: string }> {
+  const claimsBundle = await withTx(async (client) => loadSessionClaims(client, userId));
+  const { token: access_token, expiresInSeconds } = signAccessToken({
+    userId,
+    roles: claimsBundle.roles,
+    must_change_password: claimsBundle.must_change_password,
+  });
+  const refresh_token = randomToken(32);
+  const refresh_hash = sha256(refresh_token);
+  const refreshTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
+  const expiresAt = new Date(Date.now() + refreshTtlDays * 24 * 60 * 60 * 1000);
+  await withTx(async (client) => {
+    await client.query(
+      `insert into public.refresh_tokens (id, user_id, token_hash, expires_at) values ($1, $2, $3, $4)`,
+      [uuid(), userId, refresh_hash, expiresAt.toISOString()],
+    );
+  });
+  return { access_token, access_token_expires_in: expiresInSeconds, refresh_token };
+}
+
 const registerSchema = z.object({
   invite_code: z.string().min(3).max(200),
   email: z.string().email().max(320),
@@ -147,34 +171,7 @@ router.post("/register", async (req, res) => {
 
     if (!created.ok) return res.status(400).json({ error: created.error });
 
-    const claimsBundle = await withTx(async (client) => loadSessionClaims(client, created.userId));
-    const { token: access_token, expiresInSeconds } = signAccessToken({
-      userId: created.userId,
-      roles: claimsBundle.roles,
-      must_change_password: claimsBundle.must_change_password,
-    });
-    const refresh_token = randomToken(32);
-    const refresh_hash = sha256(refresh_token);
-
-    const refreshTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
-    const expiresAt = new Date(Date.now() + refreshTtlDays * 24 * 60 * 60 * 1000);
-
-    await withTx(async (client) => {
-      const id = uuid();
-      await client.query(
-        `
-        insert into public.refresh_tokens (id, user_id, token_hash, expires_at)
-        values ($1, $2, $3, $4)
-        `,
-        [id, created.userId, refresh_hash, expiresAt.toISOString()],
-      );
-    });
-
-    return res.status(201).json({
-      access_token,
-      access_token_expires_in: expiresInSeconds,
-      refresh_token,
-    });
+    return res.status(201).json(await issueSession(created.userId));
   } catch (e: any) {
     const msg = String(e?.message ?? "");
     if (msg.includes("app_users_email_key") || msg.includes("duplicate key")) {
@@ -202,10 +199,10 @@ router.post("/register", async (req, res) => {
 // 'personal' — o contrato do app não envia role; CREF/CRN e nutri vêm no onboarding/futuro.
 // Ver backend/CHANGES-FROM-PRODUCTION.md]
 const registerProfessionalSchema = z.object({
-  email: z.string().email().max(320),
+  email: z.string().trim().email().max(320),
   password: z.string().min(8).max(200),
-  full_name: z.string().min(3).max(200),
-  phone: z.string().min(6).max(40),
+  full_name: z.string().trim().min(3).max(200),
+  phone: z.string().trim().min(6).max(40),
   lgpd_consent: z.literal(true).optional().default(true),
   policy_version: z.string().min(1).max(100).optional().default("v1"),
 });
@@ -236,25 +233,8 @@ router.post("/register-professional", async (req, res) => {
       return { userId };
     });
 
-    // Mesma emissão de sessão do /register (conta ativa imediata).
-    const claimsBundle = await withTx(async (client) => loadSessionClaims(client, created.userId));
-    const { token: access_token, expiresInSeconds } = signAccessToken({
-      userId: created.userId,
-      roles: claimsBundle.roles,
-      must_change_password: claimsBundle.must_change_password,
-    });
-    const refresh_token = randomToken(32);
-    const refresh_hash = sha256(refresh_token);
-    const refreshTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
-    const expiresAt = new Date(Date.now() + refreshTtlDays * 24 * 60 * 60 * 1000);
-    await withTx(async (client) => {
-      await client.query(
-        `insert into public.refresh_tokens (id, user_id, token_hash, expires_at) values ($1, $2, $3, $4)`,
-        [uuid(), created.userId, refresh_hash, expiresAt.toISOString()],
-      );
-    });
-
-    return res.status(201).json({ access_token, access_token_expires_in: expiresInSeconds, refresh_token });
+    // Conta ativa imediata — mesma emissão de sessão do /register.
+    return res.status(201).json(await issueSession(created.userId));
   } catch (e: any) {
     const msg = String(e?.message ?? "");
     if (msg.includes("app_users_email_key") || msg.includes("duplicate key")) {

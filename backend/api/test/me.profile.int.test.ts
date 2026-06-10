@@ -59,16 +59,36 @@ describe('GET /me/profile', () => {
     const id = crypto.randomUUID();
     const hash = await bcrypt.hash('propass', 12);
     await pool.query(`insert into public.app_users (id, email, password_hash) values ($1, 'p.profile@ex.com', $2)`, [id, hash]);
-    await pool.query(`insert into public.profiles (id, tipo, display_name) values ($1, 'personal', 'Personal P')`, [id]);
+    // Profissional auto-cadastrado: phone em profiles.phone, sem user_basic_info.
+    await pool.query(`insert into public.profiles (id, tipo, display_name, phone) values ($1, 'personal', 'Personal P', '+5531988887777')`, [id]);
 
     const token = await login(app, 'p.profile@ex.com', 'propass');
     const res = await request(app).get('/me/profile').set('Authorization', `Bearer ${token}`);
     expect(res.status, JSON.stringify(res.body)).toBe(200);
     expect(res.body.tipo).toBe('personal');
     expect(res.body.display_name).toBe('Personal P');
-    expect(res.body.full_name).toBeNull();
+    // coalesce: phone de profiles.phone; full_name cai pro display_name (sem user_basic_info).
+    expect(res.body.phone).toBe('+5531988887777');
+    expect(res.body.full_name).toBe('Personal P');
     expect(res.body.body_weight_kg).toBeNull();
     expect(res.body.birth_date).toBeNull();
+  });
+
+  it('profissional edita o próprio telefone via PATCH /me → grava em profiles.phone (não 400)', async () => {
+    const id = crypto.randomUUID();
+    const hash = await bcrypt.hash('propass', 12);
+    await pool.query(`insert into public.app_users (id, email, password_hash) values ($1, 'p.edit@ex.com', $2)`, [id, hash]);
+    await pool.query(`insert into public.profiles (id, tipo, display_name, phone) values ($1, 'personal', 'Pro Edit', '+5511111111111')`, [id]);
+
+    const token = await login(app, 'p.edit@ex.com', 'propass');
+    const patch = await request(app)
+      .patch('/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ phone: '+5599999999999' });
+    expect(patch.status, JSON.stringify(patch.body)).toBe(200);
+
+    const res = await request(app).get('/me/profile').set('Authorization', `Bearer ${token}`);
+    expect(res.body.phone).toBe('+5599999999999');
   });
 
   it('sem token → 401', async () => {

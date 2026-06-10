@@ -24,13 +24,18 @@ export type Me = z.infer<typeof MeSchema>;
 // PATCH /me → pelo menos 1 campo deve ser enviado.
 export const PatchMeBodySchema = z
   .object({
-    display_name: z.string(),
+    // Limites espelham o backend (patchMeSchema) → erro pego no cliente, sem 400 genérico.
+    display_name: z.string().min(1).max(200),
     avatar_url: z.union([z.string().url(), z.literal('')]),
-    timezone: z.string(),
-    full_name: z.string(),
-    phone: z.string().nullable(),
+    timezone: z.string().min(1).max(64),
+    full_name: z.string().min(3).max(200),
+    phone: z.string().min(6).max(40).nullable(),
     gender: GenderSchema,
-    body_weight_kg: z.number().min(20).max(400).nullable(),
+    body_weight_kg: z
+      .number()
+      .min(20, 'Peso deve estar entre 20 e 400 kg')
+      .max(400, 'Peso deve estar entre 20 e 400 kg')
+      .nullable(),
   })
   .partial()
   .refine((body) => Object.keys(body).length > 0, {

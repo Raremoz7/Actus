@@ -61,8 +61,12 @@ router.get("/profile", async (req, res) => {
         body_weight_kg: string | number | null;
         birth_date: unknown;
       }>(
+        // coalesce: aluno guarda full_name/phone em user_basic_info; profissional (sem
+        // user_basic_info) guarda em profiles (display_name/phone). Lê os dois.
         `select p.id, p.tipo::text as tipo, p.display_name, p.avatar_url, p.timezone,
-                i.full_name, i.phone, i.gender::text as gender, i.body_weight_kg, i.birth_date
+                coalesce(i.full_name, p.display_name) as full_name,
+                coalesce(i.phone, p.phone) as phone,
+                i.gender::text as gender, i.body_weight_kg, i.birth_date
          from public.profiles p
          left join public.user_basic_info i on i.user_id = p.id
          where p.id = $1`,
@@ -103,8 +107,28 @@ router.patch("/", async (req, res) => {
 
   const { display_name, avatar_url, timezone, full_name, phone, gender, body_weight_kg } = parsed.data;
 
+  const hasInfoFields =
+    full_name !== undefined || phone !== undefined || gender !== undefined || body_weight_kg !== undefined;
+
   try {
     const me = await withTx(async (client) => {
+      // tipo decide ONDE phone/full_name moram: aluno → user_basic_info; profissional
+      // (sem user_basic_info) → profiles (phone/display_name); staff → não tem onde.
+      const tQ = await client.query<{ tipo: string }>(`select tipo::text as tipo from public.profiles where id = $1`, [userId]);
+      const tipo = tQ.rows[0]?.tipo ?? null;
+      if (!tipo) return { ok: false as const, status: 404, error: "profile_not_found" as const };
+      const isProfessional = tipo === "personal" || tipo === "nutricionista";
+
+      // Checa cedo (antes de qualquer UPDATE) → sem commit parcial no caminho de erro.
+      let hasInfo = false;
+      if (hasInfoFields) {
+        const infoQ = await client.query(`select 1 from public.user_basic_info where user_id = $1`, [userId]);
+        hasInfo = infoQ.rows.length > 0;
+        if (!hasInfo && !isProfessional) {
+          return { ok: false as const, status: 400, error: "user_basic_info_not_found" as const };
+        }
+      }
+
       const profFields: string[] = [];
       const profVals: unknown[] = [];
       let i = 1;
@@ -120,6 +144,17 @@ router.patch("/", async (req, res) => {
         profFields.push(`timezone = $${i++}`);
         profVals.push(timezone);
       }
+      // Profissional: phone → profiles.phone; full_name → profiles.display_name (se não veio display_name).
+      if (isProfessional && !hasInfo) {
+        if (phone !== undefined) {
+          profFields.push(`phone = $${i++}`);
+          profVals.push(phone);
+        }
+        if (full_name !== undefined && display_name === undefined) {
+          profFields.push(`display_name = $${i++}`);
+          profVals.push(full_name);
+        }
+      }
       if (profFields.length) {
         profVals.push(userId);
         await client.query(
@@ -128,11 +163,9 @@ router.patch("/", async (req, res) => {
         );
       }
 
-      if (full_name !== undefined || phone !== undefined || gender !== undefined || body_weight_kg !== undefined) {
-        const infoQ = await client.query(`select 1 from public.user_basic_info where user_id = $1`, [userId]);
-        if (!infoQ.rowCount) {
-          return { ok: false as const, error: "user_basic_info_not_found" as const };
-        }
+      // user_basic_info (aluno com a linha). gender/body_weight_kg de profissional não têm
+      // casa (sem user_basic_info) → ignorados de propósito.
+      if (hasInfoFields && hasInfo) {
         const uFields: string[] = [];
         const uVals: unknown[] = [];
         let j = 1;
@@ -152,11 +185,13 @@ router.patch("/", async (req, res) => {
           uFields.push(`body_weight_kg = $${j++}`);
           uVals.push(body_weight_kg);
         }
-        uVals.push(userId);
-        await client.query(
-          `update public.user_basic_info set ${uFields.join(", ")} where user_id = $${j}`,
-          uVals,
-        );
+        if (uFields.length) {
+          uVals.push(userId);
+          await client.query(
+            `update public.user_basic_info set ${uFields.join(", ")} where user_id = $${j}`,
+            uVals,
+          );
+        }
       }
 
       const q = await client.query<{ id: string; tipo: string; display_name: string | null }>(
@@ -166,7 +201,7 @@ router.patch("/", async (req, res) => {
       return { ok: true as const, row: q.rows[0] ?? null };
     });
 
-    if (!me.ok) return res.status(400).json({ error: me.error });
+    if (!me.ok) return res.status(me.status).json({ error: me.error });
     if (!me.row) return res.status(404).json({ error: "profile_not_found" });
     return res.json(me.row);
   } catch {

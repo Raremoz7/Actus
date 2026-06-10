@@ -10,10 +10,10 @@ import { MeSchema, PatchMeBodySchema, type Me, type PatchMeBody } from '@/types/
 import { meQueryKey } from './useMe';
 
 // PATCH /me → atualiza o perfil. O body é validado por PatchMeBodySchema antes do
-// request (pelo menos 1 campo). A resposta devolve só a identidade mínima
-// ({ id, tipo, display_name } — MeSchema): os demais campos são write-only e não
-// voltam em nenhum GET. No sucesso, grava o resultado no cache de meQueryKey e
-// invalida para revalidar.
+// request (pelo menos 1 campo). A resposta devolve a identidade mínima
+// ({ id, tipo, display_name } — MeSchema); os campos ricos (full_name/phone/gênero/peso)
+// são lidos de volta por GET /me/profile (useMyProfile), não aqui. No sucesso, grava o
+// resultado no cache de meQueryKey e invalida para revalidar.
 export function usePatchMe(): UseMutationResult<Me, unknown, PatchMeBody> {
   const queryClient = useQueryClient();
 

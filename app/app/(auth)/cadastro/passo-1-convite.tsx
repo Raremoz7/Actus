@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Controller, useFormContext } from 'react-hook-form';
 import { router } from 'expo-router';
@@ -29,10 +30,8 @@ const PASSO1_PHOTO = {
   uri: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1080&q=70&auto=format&fit=crop',
 };
 
-// [MOCK — sem endpoint na API v1: GET /invites/:code/preview]
-// O nome de quem convidou não existe na API. Enquanto o endpoint não existir,
-// exibimos um card NEUTRO e honesto (sem nome/avatar falso). O nome real só
-// aparecerá quando GET /invites/:code/preview for implementado.
+// Comprimento mínimo do código para consultar o preview (resolve o convidador no card).
+const MIN_PREVIEW_LEN = 3;
 
 export default function Passo1ConviteScreen() {
   const {
@@ -49,6 +48,14 @@ export default function Passo1ConviteScreen() {
   const setLastInviteError = useCadastroDraftStore((s) => s.setLastInviteError);
 
   const preview = useInvitePreview();
+
+  // Deep link: o código já chega preenchido (caminho principal). Resolve o convidador
+  // no card já na montagem, sem esperar o blur. Fire-and-forget; erro degrada.
+  useEffect(() => {
+    const code = getValues('invite_code').trim();
+    if (code.length >= MIN_PREVIEW_LEN) preview.mutate(code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const inviteError = lastInviteError ? authErrorMessage(lastInviteError) : null;
 
@@ -151,7 +158,7 @@ export default function Passo1ConviteScreen() {
                     onBlur();
                     // Resolve o convidador pro card (fire-and-forget; erro degrada em silêncio).
                     const code = value.trim();
-                    if (code.length >= 6) preview.mutate(code);
+                    if (code.length >= MIN_PREVIEW_LEN) preview.mutate(code);
                   }}
                   autoCapitalize="none"
                   autoCorrect={false}

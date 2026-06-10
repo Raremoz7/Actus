@@ -64,17 +64,21 @@ export default function EditarPerfilScreen() {
     [p],
   );
 
-  // Semeia os campos UMA vez, quando o perfil chega (não sobrescreve o que o usuário digitou).
+  // Semeia os campos UMA vez, quando o perfil chega. Se o usuário já digitou antes do
+  // perfil carregar (rede lenta), NÃO sobrescreve o que ele escreveu.
   const seeded = useRef(false);
   useEffect(() => {
     if (!p || seeded.current) return;
     seeded.current = true;
+    const userTyped =
+      displayName !== '' || fullName !== '' || phone !== '' || weight !== '' || gender !== undefined;
+    if (userTyped) return;
     setDisplayName(remote.display_name);
     setFullName(remote.full_name);
     setPhone(remote.phone);
     setGender(remote.gender);
     setWeight(remote.weight);
-  }, [p, remote]);
+  }, [p, remote, displayName, fullName, phone, weight, gender]);
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);
@@ -107,6 +111,11 @@ export default function EditarPerfilScreen() {
 
   function handleSave() {
     setSaveError(null);
+    // Peso preenchido mas não-numérico → erro explícito (não limpa o valor em silêncio).
+    if (weight.trim() !== '' && parseWeight(weight) === null) {
+      setSaveError('Peso inválido. Use só números, ex.: 82,5.');
+      return;
+    }
     // Valida antes de enviar (pelo menos 1 campo, peso 20–400, etc.).
     const parsed = PatchMeBodySchema.safeParse(body);
     if (!parsed.success) {
@@ -158,6 +167,23 @@ export default function EditarPerfilScreen() {
               Atualize o que quiser. Campos em branco ficam como estão.
             </AppText>
 
+            {profile.isLoading && !profile.data ? (
+              <AppText variant="bodySm" color="tertiary" style={styles.stateRow}>
+                Carregando seu perfil…
+              </AppText>
+            ) : profile.isError && !profile.data ? (
+              <View style={styles.stateRow}>
+                <AppText variant="bodySm" color="error">
+                  Não foi possível carregar seu perfil.
+                </AppText>
+                <Pressable onPress={() => profile.refetch()} accessibilityRole="button" hitSlop={8}>
+                  <AppText variant="label" color="neon">
+                    Tentar de novo
+                  </AppText>
+                </Pressable>
+              </View>
+            ) : null}
+
             <View style={styles.form}>
               <Input
                 label="Nome de exibição"
@@ -169,7 +195,6 @@ export default function EditarPerfilScreen() {
                 accessibilityLabel="Nome de exibição"
               />
 
-              {/* full_name é write-only: sem pré-preenchimento (placeholder vazio). */}
               <Input
                 label="Nome completo · opcional"
                 value={fullName}
@@ -182,7 +207,6 @@ export default function EditarPerfilScreen() {
                 accessibilityLabel="Nome completo"
               />
 
-              {/* phone é write-only: sem pré-preenchimento (placeholder vazio). */}
               <Input
                 label="Telefone · opcional"
                 value={phone}
@@ -194,10 +218,8 @@ export default function EditarPerfilScreen() {
                 accessibilityLabel="Telefone"
               />
 
-              {/* gender é write-only: nada vem selecionado por padrão. */}
               <GenderChips label="Gênero · opcional" value={gender} onChange={setGender} />
 
-              {/* body_weight_kg é write-only: sem pré-preenchimento. */}
               <Input
                 label="Peso (kg) · opcional"
                 value={weight}
@@ -262,6 +284,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   subtitle: {
     marginBottom: theme.spacing.xl,
+  },
+  stateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
   },
   form: {
     gap: theme.spacing.lg,
