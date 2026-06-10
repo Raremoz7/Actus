@@ -7,6 +7,8 @@ export const endpoints = {
     refresh: '/auth/refresh',
     logout: '/auth/logout',
     changePassword: '/auth/change-password',
+    // Auto-cadastro de professor (personal). [pendente no backend]
+    registerProfessional: '/auth/register-professional',
   },
   me: {
     root: '/me',
@@ -24,6 +26,8 @@ export const endpoints = {
   invites: '/invites',
   // Validação de um código de convite antes do cadastro (passo 1). [pendente no backend]
   invitePreview: (code: string) => `/invites/${code}/preview`,
+  // Aluno logado consome convite para vincular novo profissional (endpoint REAL).
+  invitesConsume: '/invites/consume',
   health: '/health',
   // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
   workouts: '/workouts',

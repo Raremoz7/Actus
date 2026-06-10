@@ -11,13 +11,18 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Logo } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import { AUTH_ENTRY, PASSWORD_GATE, homeForTipo } from '@/lib/authRoutes';
+import { onboardingEntry } from '@/lib/onboardingRoutes';
 
 const { motion } = darkTheme;
 
 export default function SplashScreenRoute() {
   const status = useAuthStore((s) => s.status);
   const user = useAuthStore((s) => s.user);
+  const obHydrated = useOnboardingStore((s) => s.hydrated);
+  const obHydrate = useOnboardingStore((s) => s.hydrate);
+  const isOnboardingDone = useOnboardingStore((s) => s.isDone);
 
   // ÚNICA animação da tela: reveal do símbolo (opacity 0→1 + scale 0.96→1).
   const opacity = useSharedValue(0);
@@ -46,9 +51,19 @@ export default function SplashScreenRoute() {
       return;
     }
     if (status === 'authenticated' && user) {
+      // Gate de onboarding: espera o store local hidratar antes de decidir.
+      if (!obHydrated) {
+        void obHydrate();
+        return;
+      }
+      const entry = onboardingEntry(user.tipo);
+      if (entry && !isOnboardingDone(user.id)) {
+        router.replace(entry);
+        return;
+      }
       router.replace(homeForTipo(user.tipo));
     }
-  }, [status, user]);
+  }, [status, user, obHydrated, obHydrate, isOnboardingDone]);
 
   return (
     <View style={styles.container}>

@@ -77,6 +77,7 @@ const rawAxios: AxiosInstance = axios.create({
 // Paths de auth que NÃO recebem Bearer (o token ainda não existe ou está sendo trocado).
 const NO_AUTH_PATHS: readonly string[] = [
   endpoints.auth.register,
+  endpoints.auth.registerProfessional,
   endpoints.auth.login,
   endpoints.auth.refresh,
 ];

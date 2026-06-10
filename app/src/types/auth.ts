@@ -26,7 +26,9 @@ export type Gender = z.infer<typeof GenderSchema>;
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD');
 
 export const RegisterBodySchema = z.object({
-  invite_code: z.string().min(3).max(200),
+  // [proposto ao backend: tornar opcional — cadastro sem vínculo] Hoje o register
+  // real EXIGE invite_code; sem ele o submit só funciona via devMocks.
+  invite_code: z.string().min(3).max(200).optional(),
   email: z.string().email().max(320),
   password: z.string().min(8).max(200),
   full_name: z.string().min(3).max(200),
@@ -53,3 +55,17 @@ export const ChangePasswordBodySchema = z.object({
 });
 
 export type ChangePasswordBody = z.infer<typeof ChangePasswordBodySchema>;
+
+// ─── Auto-cadastro de professor (personal) ───
+// [pendente no backend: POST /auth/register-professional]
+// Contrato PROPOSTO, fiel ao PDF de onboarding: conta enxuta (sem nascimento, sem CREF
+// no cadastro — perfil profissional vem depois, no onboarding). Conta ativa + tokens.
+export const RegisterProfessionalBodySchema = z.object({
+  email: z.string().email().max(320),
+  password: z.string().min(8).max(200),
+  full_name: z.string().min(3).max(200),
+  phone: z.string().min(6).max(40),
+  lgpd_consent: z.literal(true).optional(),
+  policy_version: z.string().optional(),
+});
+export type RegisterProfessionalBody = z.infer<typeof RegisterProfessionalBodySchema>;

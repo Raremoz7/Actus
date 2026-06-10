@@ -9,7 +9,7 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { getDevTipo } from '@/lib/devAuth';
+import { getDevTipo, setDevTipo } from '@/lib/devAuth';
 
 // ── Helpers de data (rodam no runtime do app — new Date() disponível) ──────────
 function ymd(d: Date): string {
@@ -372,6 +372,29 @@ type Matcher = {
 };
 
 const MATCHERS: Matcher[] = [
+  // POST /auth/register-professional  [MOCK — sem endpoint na API v1]
+  // Alinha o tipo dev para o /me do bypass devolver 'personal' (QA entra no papel certo).
+  {
+    test: (m, u) => (m === 'post' && /\/auth\/register-professional$/.test(u) ? [] : null),
+    build: () => {
+      setDevTipo('personal');
+      return mockRegisterTokens('pro');
+    },
+  },
+  // POST /auth/register  [bypass: o backend real não responde; cobre o cadastro
+  // sem convite (contrato proposto) e com convite no QA]
+  {
+    test: (m, u) => (m === 'post' && /\/auth\/register$/.test(u) ? [] : null),
+    build: () => {
+      setDevTipo('aluno');
+      return mockRegisterTokens('aluno');
+    },
+  },
+  // POST /invites/consume (endpoint REAL; mock p/ QA no bypass)
+  {
+    test: (m, u) => (m === 'post' && /\/invites\/consume$/.test(u) ? [] : null),
+    build: (_m, config) => mockConsumeInvite(parseBody(config) as { code?: string }),
+  },
   // GET /me/workouts/sessions/:id  (antes do detalhe, que casaria também)
   {
     test: (m, u) => (m === 'get' ? (u.match(/\/me\/workouts\/sessions\/([^/]+)$/)) : null),
@@ -458,3 +481,41 @@ export function installDevMockAdapter(instance: { defaults: { adapter?: unknown 
     return fallback(config);
   };
 }
+
+// ── [DEV] Registers + consume (onboarding) ─────────────────────────────────────
+
+// [MOCK] Tokens de register (aluno/pro) — mesmo shape de TokensResponseSchema.
+function mockRegisterTokens(kind: string) {
+  return {
+    access_token: `dev-access-${kind}`,
+    access_token_expires_in: 900,
+    refresh_token: `dev-refresh-${kind}`,
+  };
+}
+
+// Consome convite do store local. Distingue expiração de esgotamento;
+// segundo consume do mesmo código → note already_linked.
+const consumedCodes = new Set<string>();
+function mockConsumeInvite(body: { code?: string }) {
+  const code = body.code ?? '';
+  const inv = devInvites.find((i) => i.code === code);
+  if (!inv) throw new MockHttpError(404, 'invalid_invite');
+  if (new Date(inv.expires_at).getTime() <= new Date().getTime()) {
+    throw new MockHttpError(409, 'invite_expired');
+  }
+  if (inv.used_count >= inv.max_uses) throw new MockHttpError(409, 'invite_exhausted');
+  if (consumedCodes.has(code)) {
+    return {
+      ok: true,
+      professional_id: genUuid(),
+      professional_role: 'personal',
+      note: 'already_linked',
+    };
+  }
+  consumedCodes.add(code);
+  inv.used_count += 1;
+  return { ok: true, professional_id: genUuid(), professional_role: 'personal' };
+}
+
+// Exposto só para teste de contrato (não usar em runtime).
+export const __testables = { mockRegisterTokens };

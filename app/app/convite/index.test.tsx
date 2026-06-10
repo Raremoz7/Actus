@@ -72,7 +72,7 @@ describe('ConvitesScreen', () => {
     render(<ConvitesScreen />);
     // Header e CTA de rodapé expõem o mesmo label (o Button ganhou accessibilityLabel);
     // o primeiro na árvore é o do header — ambos navegam para /convite/novo.
-    fireEvent.press(screen.getAllByLabelText('Novo convite')[0]);
+    fireEvent.press(screen.getAllByLabelText('Novo convite')[0]!);
     expect(mockPush).toHaveBeenCalledWith('/convite/novo');
   });
 
