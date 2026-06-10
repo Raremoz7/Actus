@@ -1,0 +1,24 @@
+import { Redirect, Stack } from 'expo-router';
+
+import { useAuthStore } from '@/store/authStore';
+import { AUTH_ENTRY, homeForTipo } from '@/lib/authRoutes';
+
+// Onboarding pós-cadastro do professor (personal). Raiz, com guard próprio.
+export default function OnboardingProfessorLayout() {
+  const status = useAuthStore((s) => s.status);
+  const user = useAuthStore((s) => s.user);
+
+  if (status !== 'authenticated' || !user) return <Redirect href={AUTH_ENTRY} />;
+  if (user.tipo !== 'personal') return <Redirect href={homeForTipo(user.tipo)} />;
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        animationDuration: 300,
+        gestureEnabled: false,
+      }}
+    />
+  );
+}
