@@ -36,16 +36,14 @@ describe('schemas de convites (lado profissional)', () => {
     expect(v.invites[1]?.active).toBe(false);
   });
 
-  it('parseia resposta de criação (POST /invites) — só id + code', () => {
+  it('parseia resposta de criação (POST /invites) — id + code flat', () => {
     const v = CreatedInviteSchema.parse({
-      invite: {
-        id: '33333333-3333-3333-3333-333333333333',
-        code: 'NEW001',
-      },
+      id: '33333333-3333-3333-3333-333333333333',
+      code: 'NEW001',
     });
 
-    expect(v.invite.id).toBe('33333333-3333-3333-3333-333333333333');
-    expect(v.invite.code).toBe('NEW001');
+    expect(v.id).toBe('33333333-3333-3333-3333-333333333333');
+    expect(v.code).toBe('NEW001');
   });
 
   it('rejeita max_uses menor que 1', () => {
@@ -64,9 +62,7 @@ describe('schemas de convites (lado profissional)', () => {
 
   it('rejeita id que não é uuid', () => {
     expect(() =>
-      CreatedInviteSchema.parse({
-        invite: { id: 'not-a-uuid', code: 'NEW001' },
-      }),
+      CreatedInviteSchema.parse({ id: 'not-a-uuid', code: 'NEW001' }),
     ).toThrow();
   });
 });

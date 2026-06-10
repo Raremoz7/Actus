@@ -12,7 +12,7 @@ export const WeeklyOverviewDaySchema = z.object({
 });
 export type WeeklyOverviewDay = z.infer<typeof WeeklyOverviewDaySchema>;
 
-// GET /me/weekly-overview → visão da semana atual com streak.
+// GET /me/gamification/weekly-overview → visão da semana atual com streak.
 export const WeeklyOverviewSchema = z.object({
   week_start: dateOnly,
   week_end: dateOnly,

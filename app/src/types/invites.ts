@@ -35,12 +35,11 @@ export const InvitesResponseSchema = z.object({
 });
 export type InvitesResponse = z.infer<typeof InvitesResponseSchema>;
 
-// Resposta de POST /invites — só id + code do convite recém-criado.
+// Resposta de POST /invites — o backend devolve o convite recém-criado FLAT
+// (201 com { id, code }, sem wrapper).
 export const CreatedInviteSchema = z.object({
-  invite: z.object({
-    id: z.string().uuid(),
-    code: z.string(),
-  }),
+  id: z.string().uuid(),
+  code: z.string(),
 });
 export type CreatedInvite = z.infer<typeof CreatedInviteSchema>;
 

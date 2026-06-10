@@ -320,7 +320,8 @@ function mockCreateInvite(body: { expires_at?: string; max_uses?: number }) {
     created_at: new Date().toISOString(),
   };
   devInvites.unshift(inv);
-  return { invite: { id: inv.id, code: inv.code } };
+  // Shape REAL do 201: o backend devolve o convite flat (res.json(created.invite)).
+  return { id: inv.id, code: inv.code };
 }
 
 function mockRevokeInvite(id: string, body: { expires_at?: string }) {
@@ -390,7 +391,7 @@ const MATCHERS: Matcher[] = [
     },
     build: (m) => mockWorkoutDetail(m[1] as string),
   },
-  { test: (m, u) => (m === 'get' && /\/me\/weekly-overview$/.test(u) ? [] : null), build: mockWeeklyOverview },
+  { test: (m, u) => (m === 'get' && /\/me\/gamification\/weekly-overview$/.test(u) ? [] : null), build: mockWeeklyOverview },
   { test: (m, u) => (m === 'get' && /\/me\/workouts$/.test(u) ? [] : null), build: mockWorkoutsList },
   { test: (m, u) => (m === 'get' && /\/me\/diets$/.test(u) ? [] : null), build: mockDiet },
   { test: (m, u) => (m === 'get' && /\/me\/challenges$/.test(u) ? [] : null), build: mockChallenges },

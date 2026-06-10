@@ -13,7 +13,7 @@ export const endpoints = {
     workouts: '/me/workouts',
     checkIns: '/me/check-ins',
     diets: '/me/diets',
-    weeklyOverview: '/me/weekly-overview',
+    weeklyOverview: '/me/gamification/weekly-overview',
     challenges: '/me/challenges',
   },
   professional: {

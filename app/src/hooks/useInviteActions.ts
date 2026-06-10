@@ -39,7 +39,7 @@ export function useInviteActions(): InviteActions {
     queryClient.invalidateQueries({ queryKey: invitesListQueryKey });
   };
 
-  // POST /invites { expires_at, max_uses } → { invite: { id, code } }.
+  // POST /invites { expires_at, max_uses } → 201 { id, code } (flat).
   const create = useMutation({
     mutationFn: async ({
       expiresAt,
@@ -49,8 +49,7 @@ export function useInviteActions(): InviteActions {
         expires_at: expiresAt,
         max_uses: maxUses,
       });
-      const parsed = parseApi(CreatedInviteSchema, data);
-      return parsed.invite;
+      return parseApi(CreatedInviteSchema, data);
     },
     onSuccess: invalidateList,
   });
