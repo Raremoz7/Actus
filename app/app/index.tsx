@@ -1,0 +1,84 @@
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { router } from 'expo-router';
+import { StyleSheet } from 'react-native-unistyles';
+
+import { Logo } from '@/components/ui';
+import { darkTheme } from '@/theme';
+import { useAuthStore } from '@/store/authStore';
+import type { UserTipo } from '@/types/me';
+
+const { motion } = darkTheme;
+
+// Rota inicial por tipo de usuário autenticado.
+function homeForTipo(tipo: UserTipo): string {
+  switch (tipo) {
+    case 'aluno':
+      return '/(aluno)/(tabs)';
+    case 'personal':
+      return '/(personal)/(tabs)';
+    case 'nutricionista':
+      return '/(nutri)/(tabs)';
+    // staff nunca chega aqui (não aparece em /me); fallback seguro para a escolha de perfil.
+    default:
+      return '/(auth)/escolha-perfil';
+  }
+}
+
+export default function SplashScreenRoute() {
+  const status = useAuthStore((s) => s.status);
+  const user = useAuthStore((s) => s.user);
+
+  // ÚNICA animação da tela: reveal do símbolo (opacity 0→1 + scale 0.96→1).
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.96);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: motion.screenMs });
+    scale.value = withTiming(1, { duration: motion.screenMs });
+  }, [opacity, scale]);
+
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  // Dispatch: assim que o hydrate decide o estado, roteia para o destino certo.
+  useEffect(() => {
+    if (status === 'hydrating') return;
+
+    if (status === 'unauthenticated') {
+      router.replace('/(auth)/escolha-perfil');
+      return;
+    }
+    if (status === 'must_change_password') {
+      router.replace('/(auth)/trocar-senha');
+      return;
+    }
+    if (status === 'authenticated' && user) {
+      router.replace(homeForTipo(user.tipo));
+    }
+  }, [status, user]);
+
+  return (
+    <View style={styles.container}>
+      <Animated.View style={logoStyle}>
+        <Logo variant="symbol" color="neon" width={96} />
+      </Animated.View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.bgLowest,
+  },
+}));

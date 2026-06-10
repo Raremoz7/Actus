@@ -1,0 +1,26 @@
+import { z } from 'zod';
+
+// TODO Bloco 6: schemas completos de gamificação (XP, badges, streaks detalhados).
+
+const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+// Dia individual dentro do resumo semanal.
+export const WeeklyOverviewDaySchema = z.object({
+  date: dateOnly,
+  weekday: z.number().int().min(1).max(7),
+  completed: z.boolean(),
+});
+export type WeeklyOverviewDay = z.infer<typeof WeeklyOverviewDaySchema>;
+
+// GET /me/weekly-overview → visão da semana atual com streak.
+export const WeeklyOverviewSchema = z.object({
+  week_start: dateOnly,
+  week_end: dateOnly,
+  today_date: dateOnly,
+  today_weekday: z.number().int().min(1).max(7),
+  timezone: z.string(),
+  streak_current: z.number().int().min(0),
+  streak_best: z.number().int().min(0),
+  days: z.array(WeeklyOverviewDaySchema),
+});
+export type WeeklyOverview = z.infer<typeof WeeklyOverviewSchema>;
