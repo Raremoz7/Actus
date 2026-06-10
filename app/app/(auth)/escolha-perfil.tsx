@@ -43,7 +43,7 @@ export default function EscolhaPerfilScreen() {
     transform: [{ translateY: blockY.value }],
   }));
 
-  function go(path: '/(auth)/cadastro' | '/(auth)/professor-info' | '/(auth)/login') {
+  function go(path: '/(auth)/cadastro' | '/(auth)/cadastro-pro' | '/(auth)/login') {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(path);
   }
@@ -88,9 +88,9 @@ export default function EscolhaPerfilScreen() {
           <ChoiceCard
             variant="secondary"
             title="Sou professor"
-            description="Gerencio meus alunos"
+            description="Crio minha conta e convido meus alunos"
             accessibilityLabel="Sou professor"
-            onPress={() => go('/(auth)/professor-info')}
+            onPress={() => go('/(auth)/cadastro-pro')}
           />
 
           <View style={styles.spacer} />
