@@ -1,0 +1,308 @@
+import { newDb, DataType } from "pg-mem";
+import crypto from "node:crypto";
+
+export function createInMemoryPg() {
+  const db = newDb({ autoCreateForeignKeyIndices: true });
+  // Funções utilitárias usadas em migrações/queries
+  db.public.registerFunction({
+    name: "now",
+    returns: "timestamptz",
+    implementation: () => new Date(),
+  });
+
+  db.public.registerFunction({
+    name: "gen_random_uuid",
+    returns: "uuid",
+    implementation: () => crypto.randomUUID(),
+  });
+
+  db.public.registerFunction({
+    name: "timezone",
+    args: [DataType.text, DataType.timestamptz],
+    returns: DataType.timestamp,
+    implementation: (_zone: string, i: Date) => i,
+  });
+
+  const { Pool } = db.adapters.createPg();
+  const pool = new Pool();
+  return { db, pool };
+}
+
+export const minimalSchemaSql = `
+create type public.user_role as enum ('personal', 'nutricionista', 'aluno', 'actus_admin', 'actus_suporte');
+create type public.link_status as enum ('active', 'revoked');
+create type public.professional_role as enum ('personal', 'nutricionista');
+create type public.user_gender as enum ('masculino', 'feminino', 'nao_informar', 'outro');
+
+create table public.app_users (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  password_hash text not null,
+  must_change_password boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.profiles (
+  id uuid primary key references public.app_users (id) on delete cascade,
+  tipo public.user_role not null default 'aluno',
+  display_name text,
+  avatar_url text,
+  timezone text not null default 'America/Sao_Paulo',
+  total_workouts_completed integer not null default 0,
+  streak_current integer not null default 0,
+  streak_best integer not null default 0,
+  last_activity_date date,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.refresh_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.app_users (id) on delete cascade,
+  token_hash text not null unique,
+  issued_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  revoked_at timestamptz,
+  replaced_by uuid
+);
+
+create table public.invites (
+  id uuid primary key default gen_random_uuid(),
+  professional_id uuid not null references public.profiles (id) on delete cascade,
+  code text not null unique,
+  expires_at timestamptz not null,
+  max_uses integer not null default 1,
+  used_count integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table public.student_professional_links (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  professional_id uuid not null references public.profiles (id) on delete cascade,
+  professional_role public.professional_role not null,
+  status public.link_status not null default 'active',
+  linked_at timestamptz not null default now(),
+  constraint student_professional_links_unique_pair unique (student_id, professional_id)
+);
+
+create unique index student_professional_links_one_active_per_role_idx
+  on public.student_professional_links (student_id, professional_role)
+  where status = 'active';
+
+-- ---------------------------------------------------------------------------
+-- Treinos (templates) + exercícios + atribuição
+-- ---------------------------------------------------------------------------
+create table public.workouts (
+  id uuid primary key default gen_random_uuid(),
+  owner_personal_id uuid not null references public.profiles (id) on delete cascade,
+  name text not null,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.workout_exercises (
+  id uuid primary key default gen_random_uuid(),
+  workout_id uuid not null references public.workouts (id) on delete cascade,
+  position integer not null,
+  wger_exercise_id integer not null,
+  name_snapshot text not null,
+  sets integer not null default 3,
+  reps integer not null default 10,
+  rest_seconds integer not null default 60,
+  notes text,
+  muscle_group text,
+  constraint workout_exercises_unique_position unique (workout_id, position)
+);
+
+create table public.student_workouts (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  workout_id uuid not null references public.workouts (id) on delete cascade,
+  weekdays integer[] not null,
+  start_date date,
+  end_date date,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create type public.workout_session_status as enum ('in_progress', 'completed', 'completed_partial', 'abandoned');
+
+create table public.workout_sessions (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  student_workout_id uuid not null references public.student_workouts (id) on delete cascade,
+  scheduled_for_date date not null,
+  status public.workout_session_status not null default 'in_progress',
+  started_at timestamptz not null default now(),
+  completed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint workout_sessions_unique_day unique (student_workout_id, scheduled_for_date)
+);
+
+create table public.session_exercises (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.workout_sessions (id) on delete cascade,
+  workout_exercise_id uuid not null references public.workout_exercises (id) on delete cascade,
+  completed boolean not null default false,
+  completed_at timestamptz,
+  constraint session_exercises_unique_exercise unique (session_id, workout_exercise_id)
+);
+
+create table public.session_sets (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.workout_sessions (id) on delete cascade,
+  workout_exercise_id uuid not null references public.workout_exercises (id) on delete cascade,
+  set_index integer not null,
+  weight_kg numeric(10, 2),
+  reps_done integer,
+  rest_seconds_actual integer,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint session_sets_set_index_positive check (set_index >= 1),
+  constraint session_sets_unique_position unique (session_id, workout_exercise_id, set_index)
+);
+
+create table public.check_ins (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  check_in_date date not null,
+  source text not null default 'app',
+  workout_session_id uuid references public.workout_sessions (id) on delete set null,
+  created_at timestamptz not null default now(),
+  constraint check_ins_unique_per_day unique (student_id, check_in_date)
+);
+
+-- ---------------------------------------------------------------------------
+-- Dietas (templates) + atribuição
+-- ---------------------------------------------------------------------------
+create table public.diet_templates (
+  id uuid primary key default gen_random_uuid(),
+  owner_nutritionist_id uuid not null references public.profiles (id) on delete cascade,
+  name text not null,
+  body jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.student_diets (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  diet_template_id uuid not null references public.diet_templates (id) on delete cascade,
+  start_date date,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.user_basic_info (
+  user_id uuid primary key references public.app_users (id) on delete cascade,
+  full_name text not null,
+  cpf_normalized text,
+  cpf_hash text,
+  cpf_last4 text,
+  birth_date date not null,
+  phone text,
+  gender public.user_gender not null default 'nao_informar',
+  body_weight_kg numeric(6, 2)
+);
+
+create unique index user_basic_info_cpf_hash_key
+  on public.user_basic_info (cpf_hash)
+  where cpf_hash is not null;
+
+create table public.user_lgpd_consents (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.app_users (id) on delete cascade,
+  policy_version text not null,
+  consented_at timestamptz not null default now(),
+  source text not null default 'api'
+);
+
+create table public.app_user_roles (
+  user_id uuid not null references public.app_users (id) on delete cascade,
+  role text not null,
+  created_at timestamptz not null default now(),
+  created_by uuid references public.app_users (id),
+  constraint app_user_roles_role_allowed check (role in ('actus_admin', 'actus_suporte')),
+  primary key (user_id, role)
+);
+
+create table public.professional_info (
+  user_id uuid primary key references public.app_users (id) on delete cascade,
+  photo_url text,
+  qualifications jsonb not null default '[]'::jsonb,
+  cref_number text,
+  cref_expires_at date,
+  crn_number text,
+  crn_expires_at date,
+  documents jsonb not null default '{}'::jsonb,
+  cnpj text,
+  address jsonb not null default '{}'::jsonb,
+  office_hours jsonb not null default '{}'::jsonb,
+  specialties jsonb not null default '[]'::jsonb,
+  bio text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.professional_invite_limits (
+  professional_id uuid primary key references public.profiles (id) on delete cascade,
+  max_active_invites integer not null
+);
+
+create table public.invite_redemptions (
+  id uuid primary key default gen_random_uuid(),
+  invite_id uuid not null references public.invites (id) on delete cascade,
+  redeemed_user_id uuid not null references public.app_users (id) on delete cascade,
+  redeemed_at timestamptz not null default now(),
+  constraint invite_redemptions_unique unique (invite_id, redeemed_user_id)
+);
+
+create type public.challenge_visibility as enum ('private_ranking', 'public_among_participants');
+create type public.challenge_status as enum ('draft', 'active', 'ended');
+create type public.challenge_participant_status as enum ('invited', 'active', 'declined');
+
+create table public.challenges (
+  id uuid primary key default gen_random_uuid(),
+  owner_professional_id uuid not null references public.profiles (id) on delete cascade,
+  name text not null,
+  starts_on date not null,
+  ends_on date not null,
+  visibility public.challenge_visibility not null default 'public_among_participants',
+  status public.challenge_status not null default 'draft',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.challenge_participants (
+  challenge_id uuid not null references public.challenges (id) on delete cascade,
+  student_id uuid not null references public.profiles (id) on delete cascade,
+  status public.challenge_participant_status not null default 'invited',
+  invited_at timestamptz not null default now(),
+  responded_at timestamptz,
+  primary key (challenge_id, student_id)
+);
+
+create or replace function public.activity_dates_for_student(p_student_id uuid)
+returns table (d date)
+language sql
+stable
+as $$
+  select distinct c.check_in_date as d
+  from public.check_ins c
+  where c.student_id = p_student_id
+  union
+  select distinct ws.scheduled_for_date as d
+  from public.workout_sessions ws
+  where ws.student_id = p_student_id
+    and ws.status::text in ('completed', 'completed_partial')
+    and ws.scheduled_for_date is not null;
+$$;
+`;
+

@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: actus
+      POSTGRES_PASSWORD: actus
+      POSTGRES_DB: actus
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U actus -d actus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./api
+    env_file:
+      - ./api/.env
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      NODE_OPTIONS: --dns-result-order=ipv4first
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
