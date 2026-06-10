@@ -2,12 +2,12 @@
 
 App de gestão e engajamento para personal trainers, nutricionistas e alunos. React Native + **Expo SDK 55** (docs: https://docs.expo.dev/versions/v55.0.0/), TypeScript estrito.
 
-O backend (Node/Express + Postgres) já existe e está em produção: `/mnt/h/actutus_fit_backend-main/actutus_fit_backend-main` (referência, **nunca modificar a partir deste projeto**).
+O backend (Node/Express + Postgres) vive neste monorepo em `../backend/` — cópia editável da versão em produção. O original `/mnt/h/actutus_fit_backend-main/actutus_fit_backend-main` é só referência do que está em produção (**nunca modificar**).
 
 ## Documentos de design (LEIA antes de qualquer tela)
 
-- `../actutus_fit_backend-main/actutus_fit_backend-main/design.md` — design system Actus (tokens, tipografia, componentes)
-- `../actutus_fit_backend-main/actutus_fit_backend-main/SOMO_DESIGN_CONSTRAINTS.md` — restrições anti-AI-slop obrigatórias
+- `../backend/design.md` — design system Actus (tokens, tipografia, componentes)
+- `../backend/SOMO_DESIGN_CONSTRAINTS.md` — restrições anti-AI-slop obrigatórias
 
 ## Stack (inegociável)
 
