@@ -1,60 +1,68 @@
 # Mudanças do backend vs produção (para o Dev Back)
 
-Este `backend/` é uma **cópia editável**; a versão em **produção é a referência ("o original")**.
-Aqui ficam registradas as mudanças que ainda **não existem em produção**, para o Dev Back portar.
+Este `backend/` é uma **cópia editável**; produção é a referência ("o original").
+Aqui ficam as mudanças que ainda **não existem em produção**, para o Dev Back portar.
 
 ## Como achar tudo
 
 ```bash
-grep -rn "ACTUS" backend/                       # marcadores no código ([ACTUS-NEW], [ACTUS — ...])
-git log --oneline origin/main..origin/branch/davi -- backend/   # commits de backend desde produção
+grep -rn "ACTUS" backend/                                        # marcadores no código
+git log --oneline origin/main..origin/dev -- backend/            # commits de backend vs produção
 ```
 
-Já integrado em `branch/davi`/`dev` (changesets anteriores, marcados no código):
-- **A1** — `GET /students/:student_id/workouts` (treinos do aluno, visão do pro) — em `routes/studentWorkouts.ts`.
-- **B5 — Par-Q** — `POST /students/:id/par-q`, `GET /me/par-q`, `GET /professional/students/:id/par-q`, e o **bulk** `GET /professional/students/par-q` — em `routes/parq.ts` + migration `20260610120000_par_q.sql` (tabela `par_q_responses`).
+## Índice de changesets
+
+| # | O quê | Endpoint(s) | Migration |
+|---|---|---|---|
+| A1 | Treinos atribuídos do aluno (visão do pro) | `GET /students/:id/workouts` | — |
+| B5 | Par-Q (questionário de prontidão) | `POST /students/:id/par-q`, `GET /me/par-q`, `GET /professional/students/:id/par-q` (+ bulk) | `20260610120000_par_q.sql` (tabela `par_q_responses`) |
+| — | Auto-cadastro de profissional | `POST /auth/register-professional` | `20260610130000_actus_register_professional.sql` (`profiles.phone`) |
+| A3 | Preview público de convite | `GET /invites/:code/preview` | — |
+| A4 | Perfil rico (read-back) | `GET /me/profile` | — |
+
+> A1 e B5 já vinham integrados; os três últimos entraram nesta rodada de integração.
+> **Ordem das migrations:** `..._120000_par_q.sql` antes de `..._130000_..._register_professional.sql` (timestamps distintos, sem colisão).
 
 ---
 
-## Changeset — Auto-cadastro de profissional · branch `feat/register-professional`
+## Auto-cadastro de profissional — `POST /auth/register-professional`
 
-**Motivação:** card MVP "Fluxo de Cadastro (personal)". Em produção, profissional só nasce via
-`POST /admin/professionals` (staff). O app tem o wizard de auto-cadastro pronto, chamando
-`POST /auth/register-professional` (hoje atendido por mock de dev). Este changeset cria o endpoint real.
+Card MVP "Fluxo de Cadastro (personal)". Em produção, profissional só nasce via
+`POST /admin/professionals` (staff). Aqui o próprio se cadastra: conta **ATIVA + tokens**
+(espelha `/register`, sem convite).
 
-### Endpoint
+- **Body** (fiel ao `RegisterProfessionalBodySchema` do app): `{ email, password (min 8),
+  full_name (min 3), phone (min 6), lgpd_consent?, policy_version? }`.
+- Cria `app_users` + `profiles` (**`tipo='personal'`**, `display_name`, `phone`) + `user_lgpd_consents`.
+  Sem `user_basic_info` (student-shaped, `birth_date NOT NULL`) → `phone` no `profiles`
+  (migration aditiva `profiles.phone`).
+- Resposta `201 { access_token, access_token_expires_in, refresh_token }`. Erros no corpo:
+  `invalid_body` (400), `email_already_in_use` (409), `internal_error` (500).
+- Cria sempre `personal` (o contrato do app não envia `role`; nutri = extensão futura).
+- Arquivos: `routes/auth.ts`, migration `20260610130000_actus_register_professional.sql`,
+  `openapi.ts`, `test/auth.register-professional.int.test.ts`, `test/helpers/testDb.ts` (profiles.phone).
 
-`POST /auth/register-professional` — **público** (sem auth), espelha `POST /auth/register` (sem convite).
+## Preview público de convite — `GET /invites/:code/preview`
 
-- **Body** (fiel ao `RegisterProfessionalBodySchema` do app, `app/src/types/auth.ts`):
-  `{ email, password (min 8), full_name (min 3), phone (min 6), lgpd_consent? : true, policy_version? }`.
-- **Efeito:** cria `app_users` + `profiles` (**`tipo = 'personal'`**, `display_name = full_name`, `phone`) +
-  `user_lgpd_consents`. **Conta ativa imediata** (não usa `must_change_password`). NÃO cria
-  `user_basic_info` (tabela student-shaped, com `birth_date NOT NULL`) — o `phone` vai no `profiles`.
-- **Resposta:** `201 { access_token, access_token_expires_in, refresh_token }` (mesmo shape do register/login;
-  o app faz `setTokens` → `GET /me` → roteia por `tipo` para `(personal)`).
-- **Erros (no corpo `error`):** `invalid_body` (400), `email_already_in_use` (409), `internal_error` (500).
+Passo 1 do cadastro valida o código ANTES de logar (e devolve quem convidou).
 
-> **Papel:** cria sempre `personal` — o contrato do app não envia `role` (CREF/CRN e detalhes do
-> profissional vêm depois, no onboarding). Cadastro de **nutricionista** por conta própria ficaria
-> como extensão futura (adicionar um campo `role` ao body + ao insert).
+- **PÚBLICO** (sem auth), read-only (não consome). `200 { ok:true, professional_display_name, avatar_url }`.
+  Erros no corpo: `404 invalid_invite`/`invalid_invite_professional`, `410 invite_expired`/`invite_exhausted`.
+- Montado **antes** do `/invites` protegido (mais específico + sem `requireAuth`).
+- Sem migration (usa `invites` + `profiles`).
+- Arquivos: `routes/invitePreview.ts`, `app.ts` (mount), `openapi.ts`, `test/invites.preview.int.test.ts`.
 
-### Arquivos
+## Perfil rico (read-back) — `GET /me/profile`
 
-| Arquivo | Mudança |
-|---|---|
-| `api/src/routes/auth.ts` | NOVO handler `POST /register-professional` (+ schema). Procure `[ACTUS-NEW]`/`ACTUS`. |
-| `supabase/migrations/20260610130000_actus_register_professional.sql` | NOVO. `alter table profiles add column if not exists phone text` (aditivo, idempotente). |
-| `api/src/openapi.ts` | NOVO path `/auth/register-professional` (tags Auth; reusa `AuthTokensResponse`). |
-| `api/test/auth.register-professional.int.test.ts` | NOVO. 3 testes: cria personal ativo + login + `/me` tipo personal; e-mail duplicado → 409; corpo inválido → 400. |
-| `api/test/helpers/testDb.ts` | `profiles` ganhou `phone text` (espelho da migration) para os testes. |
+Destrava `editar-perfil` (o `PATCH /me` grava, faltava o GET).
 
-### Como aplicar em produção
+- Autenticado (serve aluno e profissional). **Não altera `GET /me`** (bootstrap/`MeSchema`).
+- LEFT JOIN `profiles` + `user_basic_info`. `200 { id, tipo, display_name, avatar_url, timezone,
+  full_name, phone, gender, body_weight_kg, birth_date }`. `body_weight_kg` numérico;
+  `birth_date` `YYYY-MM-DD` por **componentes UTC** (coluna `date` volta à meia-noite UTC —
+  locais dariam off-by-one em UTC-3). Profissional sem `user_basic_info` → campos student `null`.
+- Sem migration. Arquivos: `routes/me.ts`, `openapi.ts`, `test/me.profile.int.test.ts`.
+- Follow-up no front: `endpoints.me.profile` + hook + prefill de `editar-perfil`/avatar.
 
-1. Rodar a migration `20260610130000_actus_register_professional.sql` (coluna `profiles.phone`).
-2. Subir o handler (já registrado em `routes/auth.ts`, sob o router `/auth`).
-3. Front já pronto: ao existir o endpoint real, remover a interceptação do mock em
-   `app/src/api/devMocks.ts` (matcher de `POST /auth/register-professional`). Sem refator de tela.
-
-> **Build (`dist/`):** este changeset toca `src/`/testes/migration/doc — não inclui o JS compilado.
+> **Build (`dist/`):** os changesets tocam `src/`/testes/migration/openapi/doc — não o JS compilado.
 > Rode `npm run build` em `backend/api` antes de `npm run start`.

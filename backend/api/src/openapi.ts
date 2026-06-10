@@ -1535,6 +1535,34 @@ export const openapi: OpenAPIV3.Document = {
         },
       },
     },
+    // [ACTUS-NEW] A3 — preview PÚBLICO de convite (sem security). Ver backend/CHANGES-FROM-PRODUCTION.md
+    "/invites/{code}/preview": {
+      get: {
+        tags: ["Convites"],
+        summary: "[ACTUS] Preview público de convite (passo 1 do cadastro, sem auth)",
+        parameters: [{ name: "code", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          "200": {
+            description: "Convite válido",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["ok"],
+                  properties: {
+                    ok: { type: "boolean", enum: [true] },
+                    professional_display_name: { type: "string", nullable: true },
+                    avatar_url: { type: "string", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "`invalid_invite` / `invalid_invite_professional`", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+          "410": { description: "`invite_expired` / `invite_exhausted`", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+        },
+      },
+    },
     "/invites": {
       get: {
         tags: ["Convites"],
