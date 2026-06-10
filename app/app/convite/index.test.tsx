@@ -70,7 +70,7 @@ describe('ConvitesScreen', () => {
       isError: false,
     });
     render(<ConvitesScreen />);
-    fireEvent.press(screen.getByLabelText('Novo convite'));
+    fireEvent.press(screen.getAllByLabelText('Novo convite')[0]!);
     expect(mockPush).toHaveBeenCalledWith('/convite/novo');
   });
 
