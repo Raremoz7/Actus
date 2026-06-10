@@ -57,3 +57,11 @@ npx expo-doctor      # sanidade das deps
 - Par-Q — endpoints implementados no `backend/` do monorepo (ver `backend/docs/CHANGES-actus.md` B5); o front consome a API real via `src/hooks/useParq.ts` (mock removido). Aplicar no backend de produção.
 - Banco de Treinos (biblioteca gratuita) — sem endpoint na API v1. Front roda sobre o seed editorial `src/data/workoutLibrary.ts` (exercícios reais do catálogo Wger). Solicitado ao backend: `GET /workouts/library` (programas curados públicos). O clone reusa `POST /workouts` (já existe).
 - Dashboard profissional (aba Início) — KPIs vêm de listas reais (alunos/treinos/dietas/desafios). Engajamento agregado (adesão, check-ins recentes, inadimplência) pediria `GET /professional/overview`; hoje é o bloco "Engajamento · em breve".
+- Onboarding (história aluno + PDF professor) — sinais consolidados ao backend:
+  1. `POST /auth/register`: tornar `invite_code` e `birth_date` opcionais (cadastro sem vínculo, baixa fricção). Front pronto; sem convite só funciona via devMocks até lá.
+  2. `POST /auth/register-professional` (novo): { email, password ≥8, full_name, phone, lgpd_consent, policy_version } → cria `profiles.tipo='personal'` ATIVO + tokens (igual register). Perfil profissional vem depois (item 6).
+  3. `GET /invites/:code/preview` (reforço): incluir NOME do profissional + `professional_role` — requisito da história ("Você foi convidado por João Personal").
+  4. Upload de foto de perfil (aluno e professor) + campo no /me. Front tem o passo com `[pendente: expo-image-picker → exigirá rebuild do dev client quando entrar]`.
+  5. Preferências do aluno (interesse, experiência, dias/semana, local, altura) — persistir e expor ao profissional vinculado. Front roda sobre `src/mocks/studentOnboarding.ts`.
+  6. Perfil profissional (nome profissional, área de atuação, CREF opcional, experiência, cidade/UF, forma de uso) — persistir/expor. Front roda sobre `src/mocks/professionalProfile.ts`.
+  7. Flag de onboarding concluído no /me (hoje gate local em `src/store/onboardingStore.ts`).
