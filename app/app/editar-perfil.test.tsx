@@ -27,6 +27,13 @@ jest.mock('@/hooks/useMyProfile', () => ({
 jest.mock('@/hooks/usePatchMe', () => ({
   usePatchMe: () => ({ mutate: mockMutate, isPending: false }),
 }));
+jest.mock('@/hooks/useUploadAvatar', () => ({
+  useUploadAvatar: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(async () => ({ granted: true })),
+  launchImageLibraryAsync: jest.fn(async () => ({ canceled: true })),
+}));
 jest.mock('expo-router', () => ({
   router: { back: () => mockBack(), canGoBack: () => true, replace: () => {} },
 }));

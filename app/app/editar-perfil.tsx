@@ -7,7 +7,8 @@
 // Sucesso → router.back(). Erro discreto, sem banner pesado.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -22,6 +23,7 @@ import { AppText, Button, Input } from '@/components/ui';
 import { GenderChips } from '@/components/molecules';
 import { useMyProfile } from '@/hooks/useMyProfile';
 import { usePatchMe } from '@/hooks/usePatchMe';
+import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { PatchMeBodySchema, type PatchMeBody } from '@/types/me';
 import type { Gender } from '@/types/auth';
 import { darkTheme } from '@/theme';
@@ -40,6 +42,7 @@ function parseWeight(input: string): number | null {
 export default function EditarPerfilScreen() {
   const profile = useMyProfile();
   const patchMe = usePatchMe();
+  const uploadAvatar = useUploadAvatar();
 
   // Todos pré-preenchidos com GET /me/profile.
   const [displayName, setDisplayName] = useState('');
@@ -108,6 +111,36 @@ export default function EditarPerfilScreen() {
   }, [displayName, fullName, phone, gender, weight, remote]);
 
   const hasChanges = Object.keys(body).length > 0;
+
+  // Iniciais para o fallback do avatar (1ª letra do primeiro e do último nome).
+  const initials = useMemo(() => {
+    const parts = (remote.display_name || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    const first = parts[0]?.charAt(0) ?? '';
+    const last = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? '') : '';
+    return (first + last).toUpperCase();
+  }, [remote.display_name]);
+
+  async function pickAvatar() {
+    setSaveError(null);
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      setSaveError('Precisamos de acesso às fotos para trocar o avatar.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    const asset = result.canceled ? null : result.assets[0];
+    if (!asset) return;
+    uploadAvatar.mutate(
+      { uri: asset.uri, mimeType: asset.mimeType, fileName: asset.fileName },
+      { onError: () => setSaveError('Não foi possível enviar a foto. Tente de novo.') },
+    );
+  }
 
   function handleSave() {
     setSaveError(null);
@@ -183,6 +216,33 @@ export default function EditarPerfilScreen() {
                 </Pressable>
               </View>
             ) : null}
+
+            <View style={styles.avatarRow}>
+              <View style={styles.avatar}>
+                {profile.data?.avatar_url ? (
+                  <Image
+                    source={{ uri: profile.data.avatar_url }}
+                    style={styles.avatarImg}
+                    accessibilityLabel="Sua foto"
+                  />
+                ) : (
+                  <AppText variant="h3" color="neon">
+                    {initials}
+                  </AppText>
+                )}
+              </View>
+              <Pressable
+                onPress={pickAvatar}
+                accessibilityRole="button"
+                accessibilityLabel="Trocar foto"
+                disabled={uploadAvatar.isPending}
+                hitSlop={8}
+              >
+                <AppText variant="label" color={uploadAvatar.isPending ? 'tertiary' : 'neon'}>
+                  {uploadAvatar.isPending ? 'Enviando…' : 'Trocar foto'}
+                </AppText>
+              </Pressable>
+            </View>
 
             <View style={styles.form}>
               <Input
@@ -290,6 +350,25 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.spacing.md,
     marginBottom: theme.spacing.lg,
+  },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
   },
   form: {
     gap: theme.spacing.lg,

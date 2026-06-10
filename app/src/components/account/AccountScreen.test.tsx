@@ -7,6 +7,9 @@ import { AccountScreen } from './AccountScreen';
 // Prefixo `mock` é exigido pelo hoisting do jest.mock.
 const mockLogout = jest.fn();
 
+jest.mock('@/hooks/useMyProfile', () => ({
+  useMyProfile: () => ({ data: { id: 'x', tipo: 'aluno', display_name: 'Davi', avatar_url: null } }),
+}));
 jest.mock('@/hooks/useMe', () => ({
   useMe: () => ({ data: { id: 'x', tipo: 'aluno', display_name: 'Davi' } }),
 }));
