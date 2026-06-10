@@ -48,6 +48,7 @@ create table public.profiles (
   tipo public.user_role not null default 'aluno',
   display_name text,
   avatar_url text,
+  phone text, -- [ACTUS — register-professional] espelho da migration 20260610130000
   timezone text not null default 'America/Sao_Paulo',
   total_workouts_completed integer not null default 0,
   streak_current integer not null default 0,
