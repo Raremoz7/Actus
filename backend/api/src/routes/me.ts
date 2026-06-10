@@ -30,6 +30,66 @@ router.get("/", async (req, res) => {
   return res.json(me);
 });
 
+// [ACTUS-NEW] A4 — perfil RICO do usuário logado (read-back do que o PATCH /me grava).
+// GET /me não muda (bootstrap/MeSchema). Aqui juntamos profiles + user_basic_info para a
+// tela editar-perfil pré-preencher. user_basic_info é student-shaped: profissional não tem
+// (campos vêm null). Ver backend/CHANGES-FROM-PRODUCTION.md.
+function toDateOnly(v: unknown): string | null {
+  if (v == null) return null;
+  if (v instanceof Date) {
+    // Coluna `date` volta como Date à meia-noite UTC (node-pg e pg-mem). Extrair por
+    // componentes UTC — usar locais causaria off-by-one em fuso atrás de UTC (UTC-3).
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${v.getUTCFullYear()}-${p(v.getUTCMonth() + 1)}-${p(v.getUTCDate())}`;
+  }
+  return String(v).slice(0, 10);
+}
+
+router.get("/profile", async (req, res) => {
+  const userId = authedUserId(req);
+  try {
+    const row = await withTx(async (client) => {
+      const q = await client.query<{
+        id: string;
+        tipo: string;
+        display_name: string | null;
+        avatar_url: string | null;
+        timezone: string | null;
+        full_name: string | null;
+        phone: string | null;
+        gender: string | null;
+        body_weight_kg: string | number | null;
+        birth_date: unknown;
+      }>(
+        `select p.id, p.tipo::text as tipo, p.display_name, p.avatar_url, p.timezone,
+                i.full_name, i.phone, i.gender::text as gender, i.body_weight_kg, i.birth_date
+         from public.profiles p
+         left join public.user_basic_info i on i.user_id = p.id
+         where p.id = $1`,
+        [userId],
+      );
+      return q.rows[0] ?? null;
+    });
+
+    if (!row) return res.status(404).json({ error: "profile_not_found" });
+    return res.json({
+      id: row.id,
+      tipo: row.tipo,
+      display_name: row.display_name,
+      avatar_url: row.avatar_url,
+      timezone: row.timezone,
+      full_name: row.full_name,
+      phone: row.phone,
+      gender: row.gender,
+      // pg devolve numeric como string → number (ou null).
+      body_weight_kg: row.body_weight_kg == null ? null : Number(row.body_weight_kg),
+      birth_date: toDateOnly(row.birth_date),
+    });
+  } catch {
+    return res.status(500).json({ error: "internal_error" });
+  }
+});
+
 router.patch("/", async (req, res) => {
   const userId = authedUserId(req);
   const parsed = patchMeSchema.safeParse(req.body);
