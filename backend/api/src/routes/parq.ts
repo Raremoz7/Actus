@@ -167,3 +167,37 @@ professionalParqRouter.get("/", async (req, res) => {
     return res.status(500).json({ error: "internal_error" });
   }
 });
+
+// [ACTUS-NEW] GET /professional/students/par-q — status do Par-Q de TODOS os alunos
+// vinculados (uma chamada). Alimenta o selo "Atenção" na lista de alunos do app.
+// Retorna só os alunos que JÁ responderam; o cliente deriva o status (e "não respondido").
+export const professionalParqListRouter = Router();
+professionalParqListRouter.get("/", async (req, res) => {
+  const professionalId = authedUserId(req);
+  try {
+    const out = await withTx(async (client) => {
+      const meQ = await client.query<{ tipo: string }>(
+        `select tipo::text as tipo from public.profiles where id = $1`,
+        [professionalId],
+      );
+      const tipo = meQ.rows[0]?.tipo ?? null;
+      if (tipo !== "personal" && tipo !== "nutricionista") {
+        return { ok: false as const, error: "not_professional" as const };
+      }
+      const q = await client.query(
+        `
+        select pr.${SELECT_COLS.split(", ").join(", pr.")}
+        from public.par_q_responses pr
+        join public.student_professional_links spl on spl.student_id = pr.student_id
+        where spl.professional_id = $1 and spl.status = 'active'
+        `,
+        [professionalId],
+      );
+      return { ok: true as const, rows: q.rows };
+    });
+    if (!out.ok) return res.status(403).json({ error: out.error });
+    return res.json({ par_q: out.rows.map(mapRow) });
+  } catch {
+    return res.status(500).json({ error: "internal_error" });
+  }
+});

@@ -64,6 +64,10 @@ persistem no servidor.
 - `GET /me/par-q` — aluno lê o próprio → `200 { par_q: <record> | null }`.
 - `GET /professional/students/:student_id/par-q` — profissional **vinculado** (personal ou nutri)
   lê → `200 { par_q: <record> | null }`. Erros: `403 not_professional`, `403 student_not_linked`.
+- `GET /professional/students/par-q` — **bulk**: status do Par-Q de todos os alunos vinculados
+  numa chamada → `200 { par_q: [<record>...] }` (só quem já respondeu). Alimenta o selo "Atenção"
+  na lista de alunos. Montado ANTES do mount amplo `/professional/students` (para `par-q` não
+  ser capturado como `:student_id`).
 
 > **Nota de fuso:** `answered_at`/`valid_until` são carimbados em **componentes locais** (regra de
 > datas do projeto). Para precisão por fuso do aluno, dá para trocar por `studentLocalDateString`

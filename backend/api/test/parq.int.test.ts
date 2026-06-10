@@ -94,6 +94,18 @@ describe("Par-Q (B5)", () => {
     expect(res.body.par_q.any_yes).toBe(true);
   });
 
+  it("profissional lê o Par-Q de todos os alunos vinculados (bulk)", async () => {
+    const t = await token("p@ex.com", "propass");
+    const res = await request(app)
+      .get(`/professional/students/par-q`)
+      .set("Authorization", `Bearer ${t}`);
+    expect(res.status, JSON.stringify(res.body)).toBe(200);
+    expect(Array.isArray(res.body.par_q)).toBe(true);
+    const mine = res.body.par_q.find((r: any) => r.student_id === alunoId);
+    expect(mine).toBeTruthy();
+    expect(mine.any_yes).toBe(true);
+  });
+
   it("um usuário não pode enviar o Par-Q de outro (403)", async () => {
     const t = await token("p@ex.com", "propass");
     const res = await request(app)
