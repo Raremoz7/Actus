@@ -121,16 +121,6 @@ export default function AlunoHojeScreen() {
     new Set(items.filter((i) => i.is_active).flatMap((i) => i.weekdays)),
   ) as Weekday[];
 
-  // Frase de estado do dia — heroína do header (promovida a H2).
-  let dayHeadline = 'Tudo certo por aqui';
-  if (todaySummary?.has_workout && todaySummary.workout) {
-    dayHeadline = todayDone
-      ? 'Treino de hoje concluído'
-      : `${todaySummary.workout.muscle_groups} hoje`;
-  } else if (todaySummary && !todaySummary.has_workout) {
-    dayHeadline = 'Descanso programado';
-  }
-
   // Desafio em destaque: primeiro desafio ativo (participação ativa).
   const activeChallenge =
     challenges.data?.challenges.find(
@@ -215,7 +205,6 @@ export default function AlunoHojeScreen() {
             greeting={greeting}
             name={me.data?.display_name ?? null}
             dateLabel={dateLabelLocal(now)}
-            headline={dayHeadline}
           />
 
           {initialLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
