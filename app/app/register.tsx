@@ -6,6 +6,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Logo } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
+import { PASSWORD_GATE } from '@/lib/authRoutes';
 
 // Normaliza o param de query (pode vir como array em deep links).
 function firstParam(value: string | string[] | undefined): string | null {
@@ -20,13 +21,24 @@ export default function RegisterDeepLink() {
   const setInviteCode = useCadastroDraftStore((s) => s.setInviteCode);
 
   useEffect(() => {
-    // Usuário já autenticado não cadastra de novo — volta pro dispatch.
-    if (status === 'authenticated') {
-      router.replace('/');
+    // Cold start: espera o hydrate decidir a sessão (senão o code se perde no guard).
+    if (status === 'hydrating') return;
+
+    if (status === 'must_change_password') {
+      router.replace(PASSWORD_GATE);
       return;
     }
 
     const inviteCode = firstParam(code);
+
+    if (status === 'authenticated') {
+      // Convite não cria conta de novo — vai pro fluxo de vínculo (guarda por tipo).
+      router.replace(
+        inviteCode ? `/usar-convite?code=${encodeURIComponent(inviteCode)}` : '/',
+      );
+      return;
+    }
+
     setInviteCode(inviteCode);
     router.replace('/(auth)/cadastro');
   }, [code, status, setInviteCode]);
