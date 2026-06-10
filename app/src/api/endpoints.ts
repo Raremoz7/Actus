@@ -12,6 +12,8 @@ export const endpoints = {
   },
   me: {
     root: '/me',
+    // Perfil rico (read-back) — destrava o pré-preenchimento de editar-perfil.
+    profile: '/me/profile',
     workouts: '/me/workouts',
     checkIns: '/me/check-ins',
     diets: '/me/diets',

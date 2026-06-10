@@ -113,15 +113,22 @@ export default function Passo1ConviteScreen() {
             </View>
           ) : null}
 
-          {/* Card NEUTRO do convidador — sem nome/avatar falso (ver comentário no topo). */}
+          {/* Card do convidador: mostra o nome real quando o preview resolve (no blur do
+              código); neutro até lá. Sem nome falso. */}
           <View style={styles.inviterCard}>
             <View style={styles.inviterIcon}>
               <UserCircle size={26} weight="duotone" color={colors.neon} />
             </View>
             <View style={styles.inviterInfo}>
-              <AppText variant="h4">Convite de treinador</AppText>
+              <AppText variant="h4">
+                {preview.data?.professional_display_name
+                  ? preview.data.professional_display_name
+                  : 'Convite de profissional'}
+              </AppText>
               <AppText variant="bodySm" color="tertiary">
-                Confirmamos quem te convidou ao criar a conta.
+                {preview.data?.professional_display_name
+                  ? 'Você foi convidado por este profissional.'
+                  : 'Confirmamos quem te convidou ao criar a conta.'}
               </AppText>
             </View>
           </View>
@@ -140,7 +147,12 @@ export default function Passo1ConviteScreen() {
                     clearErrors('invite_code');
                     onChange(text);
                   }}
-                  onBlur={onBlur}
+                  onBlur={() => {
+                    onBlur();
+                    // Resolve o convidador pro card (fire-and-forget; erro degrada em silêncio).
+                    const code = value.trim();
+                    if (code.length >= 6) preview.mutate(code);
+                  }}
                   autoCapitalize="none"
                   autoCorrect={false}
                   autoComplete="off"

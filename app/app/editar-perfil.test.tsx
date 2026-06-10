@@ -7,8 +7,22 @@ import EditarPerfilScreen from './editar-perfil';
 const mockMutate = jest.fn();
 const mockBack = jest.fn();
 
-jest.mock('@/hooks/useMe', () => ({
-  useMe: () => ({ data: { id: 'x', tipo: 'aluno', display_name: 'Davi' } }),
+// Perfil rico vindo de GET /me/profile (useMyProfile) — pré-preenche a tela.
+jest.mock('@/hooks/useMyProfile', () => ({
+  useMyProfile: () => ({
+    data: {
+      id: 'x',
+      tipo: 'aluno',
+      display_name: 'Davi',
+      avatar_url: null,
+      timezone: 'America/Sao_Paulo',
+      full_name: 'Davi Machado',
+      phone: '+5531999998888',
+      gender: 'masculino',
+      body_weight_kg: 80,
+      birth_date: '2000-01-15',
+    },
+  }),
 }));
 jest.mock('@/hooks/usePatchMe', () => ({
   usePatchMe: () => ({ mutate: mockMutate, isPending: false }),
@@ -23,28 +37,29 @@ describe('EditarPerfilScreen', () => {
     mockBack.mockClear();
   });
 
-  it('pré-preenche o nome de exibição vindo de /me', () => {
+  it('pré-preenche os campos vindos de GET /me/profile', () => {
     render(<EditarPerfilScreen />);
     expect(screen.getByDisplayValue('Davi')).toBeTruthy();
+    expect(screen.getByDisplayValue('Davi Machado')).toBeTruthy();
+    expect(screen.getByDisplayValue('+5531999998888')).toBeTruthy();
+    expect(screen.getByDisplayValue('80')).toBeTruthy();
   });
 
-  it('não dispara mutação quando nada mudou (Salvar desabilitado)', () => {
+  it('não dispara mutação quando nada mudou (Salvar sem alterações)', () => {
     render(<EditarPerfilScreen />);
     fireEvent.press(screen.getByText('Salvar'));
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('envia apenas os campos preenchidos ao salvar', () => {
+  it('envia apenas o campo alterado ao salvar', () => {
     render(<EditarPerfilScreen />);
 
-    fireEvent.changeText(screen.getByLabelText('Nome completo'), 'Davi Machado');
+    // Só o peso muda; os demais permanecem iguais ao perfil → não entram no body.
     fireEvent.changeText(screen.getByLabelText('Peso em quilos'), '82.5');
-
     fireEvent.press(screen.getByText('Salvar'));
 
     expect(mockMutate).toHaveBeenCalledTimes(1);
     const [body] = mockMutate.mock.calls[0];
-    // display_name intocado (igual ao remoto) não entra no body.
-    expect(body).toEqual({ full_name: 'Davi Machado', body_weight_kg: 82.5 });
+    expect(body).toEqual({ body_weight_kg: 82.5 });
   });
 });

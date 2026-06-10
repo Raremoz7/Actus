@@ -1,18 +1,12 @@
 // Tela empilhada (raiz, fora dos grupos) de edição de perfil → PATCH /me.
 //
-// REALIDADE DE DADOS (honestidade obrigatória): o GET /me devolve SÓ
-// { id, tipo, display_name } (MeSchema). Os campos full_name / phone / gender /
-// body_weight_kg / avatar_url / timezone são WRITE-ONLY via PATCH /me — não
-// voltam em NENHUM GET. Por isso só `display_name` faz round-trip e é
-// pré-preenchido com useMe(). Os demais começam vazios (placeholder), pois não
-// há fonte de leitura — pré-preenchê-los seria inventar dado.
-// [MOCK — leitura dos campos ricos: sem endpoint na API v1 até o backend
-//  expô-los num GET.]
-//
-// Enviamos só os campos efetivamente preenchidos (pelo menos 1), validados por
-// PatchMeBodySchema. Sucesso → router.back(). Erro discreto, sem banner pesado.
+// LEITURA: GET /me/profile (useMyProfile) devolve o perfil rico — display_name,
+// full_name, phone, gender, body_weight_kg (+ avatar/timezone/nascimento). Pré-preenchemos
+// TODOS os campos editáveis com ele. No envio, mandamos só o que MUDOU em relação ao
+// perfil carregado (PATCH /me parcial), validado por PatchMeBodySchema.
+// Sucesso → router.back(). Erro discreto, sem banner pesado.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -26,7 +20,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input } from '@/components/ui';
 import { GenderChips } from '@/components/molecules';
-import { useMe } from '@/hooks/useMe';
+import { useMyProfile } from '@/hooks/useMyProfile';
 import { usePatchMe } from '@/hooks/usePatchMe';
 import { PatchMeBodySchema, type PatchMeBody } from '@/types/me';
 import type { Gender } from '@/types/auth';
@@ -44,12 +38,11 @@ function parseWeight(input: string): number | null {
 }
 
 export default function EditarPerfilScreen() {
-  const me = useMe();
+  const profile = useMyProfile();
   const patchMe = usePatchMe();
 
-  // display_name é o único campo com fonte de leitura → pré-preenchido.
+  // Todos pré-preenchidos com GET /me/profile.
   const [displayName, setDisplayName] = useState('');
-  // Demais campos: write-only, sem pré-preenchimento (placeholder vazio).
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState<Gender | undefined>(undefined);
@@ -58,11 +51,30 @@ export default function EditarPerfilScreen() {
   // Erro discreto de salvamento (string única, sem banner pesado).
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Semeia o display_name assim que o /me resolve (uma vez, quando muda o valor remoto).
-  const remoteDisplayName = me.data?.display_name ?? '';
+  // Valores remotos (baseline) para detectar o que mudou no envio.
+  const p = profile.data;
+  const remote = useMemo(
+    () => ({
+      display_name: p?.display_name ?? '',
+      full_name: p?.full_name ?? '',
+      phone: p?.phone ?? '',
+      gender: p?.gender ?? undefined,
+      weight: p?.body_weight_kg != null ? String(p.body_weight_kg) : '',
+    }),
+    [p],
+  );
+
+  // Semeia os campos UMA vez, quando o perfil chega (não sobrescreve o que o usuário digitou).
+  const seeded = useRef(false);
   useEffect(() => {
-    setDisplayName(remoteDisplayName);
-  }, [remoteDisplayName]);
+    if (!p || seeded.current) return;
+    seeded.current = true;
+    setDisplayName(remote.display_name);
+    setFullName(remote.full_name);
+    setPhone(remote.phone);
+    setGender(remote.gender);
+    setWeight(remote.weight);
+  }, [p, remote]);
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);
@@ -78,19 +90,18 @@ export default function EditarPerfilScreen() {
   // mudou em relação ao valor remoto (evita PATCH redundante quando intocado).
   const body = useMemo<PatchMeBody>(() => {
     const next: PatchMeBody = {};
-    const trimmedName = displayName.trim();
-    if (trimmedName !== '' && trimmedName !== remoteDisplayName) {
-      next.display_name = trimmedName;
-    }
-    const trimmedFull = fullName.trim();
-    if (trimmedFull !== '') next.full_name = trimmedFull;
-    const trimmedPhone = phone.trim();
-    if (trimmedPhone !== '') next.phone = trimmedPhone;
-    if (gender !== undefined) next.gender = gender;
-    const parsedWeight = parseWeight(weight);
-    if (parsedWeight !== null) next.body_weight_kg = parsedWeight;
+    const tName = displayName.trim();
+    if (tName !== '' && tName !== remote.display_name) next.display_name = tName;
+    const tFull = fullName.trim();
+    if (tFull !== '' && tFull !== remote.full_name) next.full_name = tFull;
+    const tPhone = phone.trim();
+    if (tPhone !== remote.phone) next.phone = tPhone === '' ? null : tPhone;
+    if (gender !== undefined && gender !== remote.gender) next.gender = gender;
+    const w = parseWeight(weight);
+    const remoteW = remote.weight === '' ? null : Number(remote.weight);
+    if (w !== remoteW) next.body_weight_kg = w;
     return next;
-  }, [displayName, remoteDisplayName, fullName, phone, gender, weight]);
+  }, [displayName, fullName, phone, gender, weight, remote]);
 
   const hasChanges = Object.keys(body).length > 0;
 
