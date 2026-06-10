@@ -26,7 +26,7 @@ import { useChallenges } from '@/hooks/useChallenges';
 import { pickNextWorkout } from '@/lib/nextWorkout';
 import { challengeDayProgress } from '@/lib/challenge';
 import { greetingForHour } from '@/lib/greeting';
-import { useParqHydrated, useParqSubmission } from '@/mocks/parq';
+import { useParqHydrated, useParqSubmission } from '@/hooks/useParq';
 import { parqStatus } from '@/lib/parq';
 import { formatDateLocal } from '@/lib/format';
 import { parseDietBody } from '@/types/diets';

@@ -17,7 +17,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, Button } from '@/components/ui';
 import { ParqQuestionRow } from '@/components/parq';
 import { useMe } from '@/hooks/useMe';
-import { submitParq, useParqSubmission } from '@/mocks/parq';
+import { useParqSubmission, useSubmitParq } from '@/hooks/useParq';
 import { deriveAnyYes } from '@/lib/parq';
 import { goBackOr } from '@/lib/nav';
 import { PARQ_QUESTIONS, type ParqAnswer, type ParqQuestionId } from '@/types/parq';
@@ -32,6 +32,7 @@ export default function ParqScreen() {
   const me = useMe();
   const studentId = me.data?.id;
   const existing = useParqSubmission(studentId);
+  const submit = useSubmitParq();
 
   const [values, setValues] = useState<Partial<Record<ParqQuestionId, boolean>>>({});
   const [done, setDone] = useState(false);
@@ -80,11 +81,10 @@ export default function ParqScreen() {
       value: values[q.id] as boolean,
     }));
     try {
-      await submitParq(studentId, answers);
+      await submit.mutateAsync({ studentId, answers });
       setDoneAnyYes(deriveAnyYes(answers));
       setDone(true);
     } catch {
-      // Hoje o mock só falha em storage bloqueado (web); amanhã, a API real.
       setSubmitError('Não foi possível enviar. Tente novamente.');
     } finally {
       setSaving(false);

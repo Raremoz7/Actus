@@ -42,3 +42,16 @@ export const ParqSubmissionSchema = z.object({
   valid_until: dateOnly,
 });
 export type ParqSubmission = z.infer<typeof ParqSubmissionSchema>;
+
+// Respostas da API real (validadas por parseApi).
+// GET /me/par-q e GET /professional/students/:id/par-q → { par_q: <sub> | null }.
+export const ParqGetResponseSchema = z.object({ par_q: ParqSubmissionSchema.nullable() });
+export type ParqGetResponse = z.infer<typeof ParqGetResponseSchema>;
+
+// POST /students/:id/par-q → { ok: true, par_q: <sub> }.
+export const ParqPostResponseSchema = z.object({ ok: z.literal(true), par_q: ParqSubmissionSchema });
+export type ParqPostResponse = z.infer<typeof ParqPostResponseSchema>;
+
+// GET /professional/students/par-q → { par_q: <sub>[] } (status em massa p/ a lista).
+export const ParqListResponseSchema = z.object({ par_q: z.array(ParqSubmissionSchema) });
+export type ParqListResponse = z.infer<typeof ParqListResponseSchema>;

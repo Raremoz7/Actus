@@ -9,6 +9,10 @@ const mockPush = jest.fn();
 jest.mock('@/hooks/useStudents', () => ({
   useStudents: () => mockUseStudents(),
 }));
+// Par-Q em massa (selo da lista) é hook de query; aqui não testamos o selo → mapa vazio.
+jest.mock('@/hooks/useParq', () => ({
+  useParqMap: () => ({}),
+}));
 jest.mock('expo-router', () => ({
   router: { push: (...args: unknown[]) => mockPush(...args) },
 }));

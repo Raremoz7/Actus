@@ -44,7 +44,7 @@ jest.mock('@/hooks/useStudents', () => ({
   useStudents: () => mockStudents,
 }));
 
-jest.mock('@/mocks/parq', () => ({
+jest.mock('@/hooks/useParq', () => ({
   useParqSubmission: () => mockParqSub,
 }));
 

@@ -41,4 +41,12 @@ export const endpoints = {
   // Desafios do profissional logado (GET/POST /professional/challenges,
   // GET/PATCH /professional/challenges/:id, .../participants, .../ranking).
   professionalChallenges: '/professional/challenges',
+  // Par-Q (questionário de prontidão). Aluno envia o próprio e lê em /me/par-q;
+  // profissional vinculado lê por aluno ou em massa (status da lista). [endpoint REAL]
+  parq: {
+    me: '/me/par-q',
+    student: (studentId: string) => `/students/${studentId}/par-q`,
+    professionalStudent: (studentId: string) => `/professional/students/${studentId}/par-q`,
+    professionalStatuses: '/professional/students/par-q',
+  },
 } as const;

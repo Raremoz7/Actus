@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Tag } from '@/components/ui';
 import { ParqStatusBadge } from '@/components/parq';
-import { useParqSubmission } from '@/mocks/parq';
+import { useParqSubmission } from '@/hooks/useParq';
 import { parqStatus } from '@/lib/parq';
 import { shortDateBr } from '@/lib/format';
 import { PARQ_QUESTIONS } from '@/types/parq';

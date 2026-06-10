@@ -54,6 +54,6 @@ npx expo-doctor      # sanidade das deps
 - `Gegola.otf` (fonte de marca) — aguardando o designer; usar actus.svg como marca
 - Endpoint `GET /invites/:code/preview` — solicitado ao backend (card do convidador é [MOCK] até existir)
 - Reset de senha — não existe na API → `[fluxo futuro]`, não criar link "Esqueci a senha"
-- Par-Q — sem endpoint na API v1; front pronto sobre `src/mocks/parq.ts`. Endpoints solicitados: ver `docs/backend-pendencias.md` (item B5)
+- Par-Q — endpoints implementados no `backend/` do monorepo (ver `backend/docs/CHANGES-actus.md` B5); o front consome a API real via `src/hooks/useParq.ts` (mock removido). Aplicar no backend de produção.
 - Banco de Treinos (biblioteca gratuita) — sem endpoint na API v1. Front roda sobre o seed editorial `src/data/workoutLibrary.ts` (exercícios reais do catálogo Wger). Solicitado ao backend: `GET /workouts/library` (programas curados públicos). O clone reusa `POST /workouts` (já existe).
 - Dashboard profissional (aba Início) — KPIs vêm de listas reais (alunos/treinos/dietas/desafios). Engajamento agregado (adesão, check-ins recentes, inadimplência) pediria `GET /professional/overview`; hoje é o bloco "Engajamento · em breve".
