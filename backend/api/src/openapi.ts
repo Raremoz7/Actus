@@ -848,6 +848,40 @@ export const openapi: OpenAPIV3.Document = {
         },
       },
     },
+    // [ACTUS — NOVO vs produção] auto-cadastro de profissional. Ver backend/CHANGES-FROM-PRODUCTION.md
+    "/auth/register-professional": {
+      post: {
+        tags: ["Auth"],
+        summary: "[ACTUS] Auto-cadastro de profissional (personal) — conta ativa + tokens",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email", "password", "full_name", "phone"],
+                properties: {
+                  email: { type: "string", format: "email", maxLength: 320 },
+                  password: { type: "string", minLength: 8, maxLength: 200 },
+                  full_name: { type: "string", minLength: 3, maxLength: 200 },
+                  phone: { type: "string", minLength: 6, maxLength: 40 },
+                  lgpd_consent: { type: "boolean", enum: [true] },
+                  policy_version: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Conta criada (tipo personal) + tokens",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/AuthTokensResponse" } } },
+          },
+          "400": { description: "Erro de validação (`invalid_body`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+          "409": { description: "E-mail já usado (`email_already_in_use`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+        },
+      },
+    },
     "/auth/login": {
       post: {
         tags: ["Auth"],
