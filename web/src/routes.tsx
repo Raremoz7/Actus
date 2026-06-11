@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { AlunosPage } from './pages/alunos/AlunosPage';
 import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
 import { TreinosPage } from './pages/treinos/TreinosPage';
+import { BuilderPage } from './pages/treinos/BuilderPage';
 import type { SidebarSection } from './layouts/Sidebar';
 
 const convitesSidebar: SidebarSection[] = [
@@ -39,6 +40,8 @@ export const router = createBrowserRouter([
           { path: '/alunos', element: <AlunosPage /> },
           { path: '/alunos/:id', element: <AlunoDetailPage /> },
           { path: '/treinos', element: <TreinosPage /> },
+          { path: '/treinos/novo', element: <BuilderPage /> },
+          { path: '/treinos/:id', element: <BuilderPage /> },
           {
             path: '/convites',
             element: <Placeholder title="Convites" sections={convitesSidebar} />,
