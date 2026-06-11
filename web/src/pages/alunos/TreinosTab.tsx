@@ -79,7 +79,7 @@ export function TreinosTab({ studentId }: { studentId: string }) {
         <Button
           variant="secondary"
           className="!px-4 !py-1.5 !text-xs"
-          onClick={() => navigate('/treinos')}
+          onClick={() => navigate(`/treinos?aluno=${studentId}`)}
         >
           Atribuir treino
         </Button>

@@ -9,6 +9,7 @@ import { AlunosPage } from './pages/alunos/AlunosPage';
 import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
 import { TreinosPage } from './pages/treinos/TreinosPage';
 import { BuilderPage } from './pages/treinos/BuilderPage';
+import { AtribuirPage } from './pages/treinos/AtribuirPage';
 import type { SidebarSection } from './layouts/Sidebar';
 
 const convitesSidebar: SidebarSection[] = [
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
           { path: '/treinos', element: <TreinosPage /> },
           { path: '/treinos/novo', element: <BuilderPage /> },
           { path: '/treinos/:id', element: <BuilderPage /> },
+          { path: '/treinos/:id/atribuir', element: <AtribuirPage /> },
           {
             path: '/convites',
             element: <Placeholder title="Convites" sections={convitesSidebar} />,
