@@ -948,6 +948,34 @@ export const openapi: OpenAPIV3.Document = {
         },
       },
     },
+    // [ACTUS-NEW] upload de avatar. Ver backend/CHANGES-FROM-PRODUCTION.md
+    "/me/avatar": {
+      post: {
+        tags: ["Perfil"],
+        summary: "[ACTUS] Upload do avatar (multipart) — grava em disco e seta profiles.avatar_url",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                required: ["avatar"],
+                properties: { avatar: { type: "string", format: "binary", description: "JPEG/PNG/WebP, até 5 MB" } },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Avatar salvo",
+            content: { "application/json": { schema: { type: "object", required: ["avatar_url"], properties: { avatar_url: { type: "string" } } } } },
+          },
+          "400": { description: "Imagem inválida/ausente (`invalid_image`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+          "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+        },
+      },
+    },
     "/me": {
       get: {
         tags: ["Perfil"],
