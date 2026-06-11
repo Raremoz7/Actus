@@ -5,6 +5,7 @@ import { RequireAdmin } from './components/RequireAdmin';
 import { AppLayout } from './layouts/AppLayout';
 import { Placeholder } from './pages/Placeholder';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
+import { AlunosPage } from './pages/alunos/AlunosPage';
 import type { SidebarSection } from './layouts/Sidebar';
 
 const treinosSidebar: SidebarSection[] = [
@@ -40,7 +41,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/', element: <DashboardPage /> },
-          { path: '/alunos', element: <Placeholder title="Alunos" /> },
+          { path: '/alunos', element: <AlunosPage /> },
           { path: '/treinos', element: <Placeholder title="Treinos" sections={treinosSidebar} /> },
           {
             path: '/convites',
