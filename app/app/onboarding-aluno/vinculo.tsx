@@ -2,7 +2,7 @@
 // real cria o vínculo) — aqui é o reconhecimento visual da história ("Você foi
 // convidado por…", nome real quando o preview existir). Sem convite: código manual
 // (consume REAL) ou seguir sem vínculo.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import { UserCircle } from 'phosphor-react-native';
@@ -13,6 +13,7 @@ import { OnboardingScreen } from '@/components/onboarding';
 import { useAuthStore } from '@/store/authStore';
 import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 import { useConsumeInvite } from '@/hooks/useConsumeInvite';
+import { useInvitePreview } from '@/hooks/useInvitePreview';
 import { authErrorMessage } from '@/features/auth/errors';
 import { isApiError } from '@/api/errors';
 import { saveStudentAnswers } from '@/mocks/studentOnboarding';
@@ -29,11 +30,21 @@ export default function VinculoScreen() {
   const inviteCode = useCadastroDraftStore((s) => s.inviteCode);
   const clearDraft = useCadastroDraftStore((s) => s.clear);
   const consume = useConsumeInvite();
+  const preview = useInvitePreview();
 
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const invited = Boolean(inviteCode);
+
+  // Deep link: resolve o convidador no card já na montagem ("Você foi convidado
+  // por…"). Fire-and-forget; sem endpoint/erro o card degrada para o copy neutro.
+  useEffect(() => {
+    if (inviteCode) preview.mutate(inviteCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const inviterName = preview.data?.professional_display_name ?? null;
 
   async function markAndGo(link: 'invited' | 'linked' | 'none') {
     if (user) await saveStudentAnswers(user.id, { link_status: link });
@@ -86,10 +97,12 @@ export default function VinculoScreen() {
           <UserCircle size={26} weight="duotone" color={colors.neon} />
         </View>
         <View style={styles.info}>
-          <AppText variant="h4">Convite de profissional</AppText>
+          <AppText variant="h4">{inviterName ?? 'Convite de profissional'}</AppText>
           <AppText variant="bodySm" color="tertiary">
             {invited
-              ? 'Confirmamos quem te convidou ao criar a conta.'
+              ? inviterName
+                ? 'Você foi convidado por este profissional.'
+                : 'Confirmamos quem te convidou ao criar a conta.'
               : 'O vínculo deixa seu treino visível para o profissional.'}
           </AppText>
         </View>
