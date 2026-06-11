@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
-import { StudentsResponseSchema, type CheckIn } from '../lib/schemas';
-import { checkInsQueryOptions } from './useStudentDetail';
+import { StudentsResponseSchema, type CheckIn, type StudentWorkout } from '../lib/schemas';
+import { checkInsQueryOptions, workoutsQueryOptions } from './useStudentDetail';
 
 export function useStudents() {
   return useQuery({
@@ -27,6 +27,25 @@ export function useStudentsCheckIns(studentIds: string[], days = 30) {
     queries: ids.map((id) => checkInsQueryOptions(id, days)),
     combine: (results) => {
       const byStudent = new Map<string, CheckIn[]>();
+      results.forEach((r, i) => {
+        const id = ids[i];
+        if (id && r.data) byStudent.set(id, r.data);
+      });
+      return {
+        byStudent,
+        isLoading: results.some((r) => r.isLoading),
+      };
+    },
+  });
+}
+
+/** Atribuições de treino por aluno (mesmo fan-out limitado; só para a aderência do dashboard). */
+export function useStudentsWorkouts(studentIds: string[]) {
+  const ids = studentIds.slice(0, MAX_FANOUT);
+  return useQueries({
+    queries: ids.map((id) => workoutsQueryOptions(id)),
+    combine: (results) => {
+      const byStudent = new Map<string, StudentWorkout[]>();
       results.forEach((r, i) => {
         const id = ids[i];
         if (id && r.data) byStudent.set(id, r.data);

@@ -4,19 +4,8 @@ import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { AppLayout } from './layouts/AppLayout';
 import { Placeholder } from './pages/Placeholder';
+import { DashboardPage } from './pages/dashboard/DashboardPage';
 import type { SidebarSection } from './layouts/Sidebar';
-
-const alunosSidebar: SidebarSection[] = [
-  {
-    label: 'Status',
-    items: [
-      { name: 'Todos', active: true },
-      { name: 'Ativos hoje' },
-      { name: 'Sem treino' },
-      { name: 'Inativos +7d' },
-    ],
-  },
-];
 
 const treinosSidebar: SidebarSection[] = [
   {
@@ -50,8 +39,8 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: '/', element: <Placeholder title="Dashboard" /> },
-          { path: '/alunos', element: <Placeholder title="Alunos" sections={alunosSidebar} /> },
+          { path: '/', element: <DashboardPage /> },
+          { path: '/alunos', element: <Placeholder title="Alunos" /> },
           { path: '/treinos', element: <Placeholder title="Treinos" sections={treinosSidebar} /> },
           {
             path: '/convites',
