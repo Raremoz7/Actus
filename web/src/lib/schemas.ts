@@ -16,6 +16,70 @@ export const MeSchema = z.object({
 });
 export type Me = z.infer<typeof MeSchema>;
 
+// Shape REAL de GET /professional/students (backend/api/src/routes/professionalStudents.ts)
+export const StudentSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  full_name: z.string().nullable(),
+  birth_date: z.string().nullable(),
+  professional_role: z.enum(['personal', 'nutricionista']),
+  linked_at: z.string(),
+});
+export type Student = z.infer<typeof StudentSchema>;
+
+export const StudentsResponseSchema = z.object({
+  students: z.array(StudentSchema),
+});
+
+// Shape REAL de GET /professional/students/:student_id/check-ins
+// (backend/api/src/studentCheckInsQuery.ts — workout_session_id pode faltar no fallback de schema antigo)
+export const CheckInSchema = z.object({
+  id: z.string(),
+  check_in_date: z.string(), // YYYY-MM-DD
+  source: z.string(),
+  created_at: z.string(),
+  workout_session_id: z.string().nullable().optional(),
+});
+export type CheckIn = z.infer<typeof CheckInSchema>;
+
+export const CheckInsResponseSchema = z.object({
+  student_id: z.string(),
+  check_ins: z.array(CheckInSchema),
+});
+
+// Shape REAL de GET /students/:student_id/workouts (backend/api/src/routes/studentWorkouts.ts)
+export const StudentWorkoutSchema = z.object({
+  id: z.string(),
+  student_id: z.string(),
+  workout_id: z.string(),
+  weekdays: z.array(z.number()), // 1=segunda … 7=domingo
+  start_date: z.string().nullable(),
+  end_date: z.string().nullable(),
+  display_order: z.number(),
+  is_active: z.boolean(),
+  created_at: z.string(),
+  workout_name: z.string(),
+  workout_notes: z.string().nullable(),
+  exercise_count: z.number(),
+  last_completed_date: z.string().nullable(),
+});
+export type StudentWorkout = z.infer<typeof StudentWorkoutSchema>;
+
+export const StudentWorkoutsResponseSchema = z.object({
+  student_workouts: z.array(StudentWorkoutSchema),
+});
+
+// Shape REAL do PATCH /students/:student_id/workouts/:student_workout_id —
+// só os campos estáveis (datas voltam cruas do Postgres nesse endpoint).
+export const StudentWorkoutPatchResponseSchema = z.object({
+  id: z.string(),
+  student_id: z.string(),
+  workout_id: z.string(),
+  weekdays: z.array(z.number()),
+  display_order: z.number(),
+  is_active: z.boolean(),
+});
+
 // Payload do access token JWT — roles vêm daqui (não existem no GET /me).
 const JwtPayloadSchema = z.object({
   roles: z.array(z.string()).optional(),
