@@ -80,6 +80,53 @@ export const StudentWorkoutPatchResponseSchema = z.object({
   is_active: z.boolean(),
 });
 
+// Shape REAL de GET /workouts (backend/api/src/routes/workouts.ts)
+export const WorkoutSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  notes: z.string().nullable(),
+  created_at: z.string(),
+  exercise_count: z.number(),
+});
+export type WorkoutSummary = z.infer<typeof WorkoutSummarySchema>;
+
+export const WorkoutsResponseSchema = z.object({
+  workouts: z.array(WorkoutSummarySchema),
+});
+
+// Shape REAL de GET /workouts/:id (o PATCH devolve o mesmo detalhe)
+export const WorkoutExerciseSchema = z.object({
+  id: z.string(),
+  position: z.number(),
+  wger_exercise_id: z.number(),
+  name_snapshot: z.string(),
+  sets: z.number(),
+  reps: z.number(),
+  rest_seconds: z.number(),
+  notes: z.string().nullable(),
+  muscle_group: z.string().nullable(),
+});
+export type WorkoutExercise = z.infer<typeof WorkoutExerciseSchema>;
+
+export const WorkoutDetailSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  notes: z.string().nullable(),
+  created_at: z.string(),
+  exercises: z.array(WorkoutExerciseSchema),
+});
+export type WorkoutDetail = z.infer<typeof WorkoutDetailSchema>;
+
+// POST /workouts → 201 { ok: true, workout_id }
+export const WorkoutCreateResponseSchema = z.object({
+  workout_id: z.string(),
+});
+
+// POST /students/:student_id/workouts → 201 { ok: true, student_workout_id }
+export const AssignWorkoutResponseSchema = z.object({
+  student_workout_id: z.string(),
+});
+
 // Payload do access token JWT — roles vêm daqui (não existem no GET /me).
 const JwtPayloadSchema = z.object({
   roles: z.array(z.string()).optional(),

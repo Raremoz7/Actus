@@ -7,14 +7,8 @@ import { Placeholder } from './pages/Placeholder';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { AlunosPage } from './pages/alunos/AlunosPage';
 import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
+import { TreinosPage } from './pages/treinos/TreinosPage';
 import type { SidebarSection } from './layouts/Sidebar';
-
-const treinosSidebar: SidebarSection[] = [
-  {
-    label: 'Biblioteca',
-    items: [{ name: 'Todos', active: true }, { name: 'Meus templates' }, { name: 'Biblioteca pública' }],
-  },
-];
 
 const convitesSidebar: SidebarSection[] = [
   {
@@ -44,7 +38,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <DashboardPage /> },
           { path: '/alunos', element: <AlunosPage /> },
           { path: '/alunos/:id', element: <AlunoDetailPage /> },
-          { path: '/treinos', element: <Placeholder title="Treinos" sections={treinosSidebar} /> },
+          { path: '/treinos', element: <TreinosPage /> },
           {
             path: '/convites',
             element: <Placeholder title="Convites" sections={convitesSidebar} />,
