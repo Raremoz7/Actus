@@ -1,5 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 
+import InteresseScreen from './interesse';
+import { useAuthStore } from '@/store/authStore';
+import { useStudentOnboardingMock } from '@/mocks/studentOnboarding';
+
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(async () => null),
   setItemAsync: jest.fn(async () => undefined),
@@ -9,10 +13,6 @@ const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
   router: { push: (...a: unknown[]) => mockPush(...a), replace: jest.fn() },
 }));
-
-import InteresseScreen from './interesse';
-import { useAuthStore } from '@/store/authStore';
-import { useStudentOnboardingMock } from '@/mocks/studentOnboarding';
 
 describe('onboarding aluno — quiz', () => {
   beforeEach(() => {

@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react-native';
 
+import CadastroProScreen from './cadastro-pro';
+
 jest.mock('@/features/auth/hooks', () => ({
   useRegisterProfessionalMutation: () => ({ mutate: jest.fn(), isPending: false }),
 }));
-
-import CadastroProScreen from './cadastro-pro';
 
 describe('Conta do professor', () => {
   it('renderiza os 4 campos do PDF + confirmação (sem nascimento, sem CREF)', () => {

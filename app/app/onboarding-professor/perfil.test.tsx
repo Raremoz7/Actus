@@ -1,5 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 
+import PerfilProfissionalScreen from './perfil';
+import { useAuthStore } from '@/store/authStore';
+import { useProfessionalProfileMock } from '@/mocks/professionalProfile';
+
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(async () => null),
   setItemAsync: jest.fn(async () => undefined),
@@ -9,10 +13,6 @@ const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
   router: { push: (...a: unknown[]) => mockPush(...a), replace: jest.fn() },
 }));
-
-import PerfilProfissionalScreen from './perfil';
-import { useAuthStore } from '@/store/authStore';
-import { useProfessionalProfileMock } from '@/mocks/professionalProfile';
 
 describe('onboarding professor — perfil', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react-native';
 
+import ContaAlunoScreen from './index';
+import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
+
 jest.mock('@/features/auth/hooks', () => ({
   useRegisterMutation: () => ({ mutate: jest.fn(), isPending: false }),
 }));
-
-import ContaAlunoScreen from './index';
-import { useCadastroDraftStore } from '@/store/cadastroDraftStore';
 
 describe('Conta do aluno (tela única)', () => {
   beforeEach(() => useCadastroDraftStore.getState().clear());

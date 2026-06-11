@@ -17,7 +17,7 @@ export function PreferencesSection({ studentId }: Props) {
   const answers = useStudentAnswers(studentId);
   if (!answers || Object.keys(answers).length === 0) return null;
 
-  const rows: Array<{ label: string; value: string }> = [];
+  const rows: { label: string; value: string }[] = [];
   if (answers.interesse)
     rows.push({ label: 'Interesse', value: INTERESSE_LABEL[answers.interesse] });
   if (answers.experiencia)
