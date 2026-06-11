@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AccountScreen } from './AccountScreen';
 
@@ -36,13 +35,16 @@ describe('AccountScreen', () => {
   });
 
   it('confirma antes de sair, sem deslogar direto', () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
     render(<AccountScreen showStreak />);
 
+    // Toque no item "Sair" só abre o diálogo de confirmação — não desloga direto.
     fireEvent.press(screen.getByText('Sair'));
-    expect(alertSpy).toHaveBeenCalledTimes(1);
-    // Logout só dispara via callback de confirmação, não no toque direto.
     expect(mockLogout).not.toHaveBeenCalled();
-    alertSpy.mockRestore();
+    expect(screen.getByText('Você precisará entrar de novo para continuar.')).toBeTruthy();
+
+    // Confirmar no diálogo (o "Sair" do botão, último na árvore) dispara o logout.
+    const sairLabels = screen.getAllByText('Sair');
+    fireEvent.press(sairLabels[sairLabels.length - 1]);
+    expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 });

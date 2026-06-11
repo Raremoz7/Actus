@@ -64,8 +64,24 @@ function createSwaggerUiTagsSorter(): (a: unknown, b: unknown) => number {
 
 const swaggerUiTagsSorter = createSwaggerUiTagsSorter();
 
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS ?? "http://localhost:5173").split(",").map((s) => s.trim());
+
 export function createApp() {
   const app = express();
+
+  // CORS para o painel web (dev: localhost:5173, prod: configurado via CORS_ORIGINS).
+  app.use((req, res, next) => {
+    const origin = req.headers.origin ?? "";
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+      res.setHeader("Access-Control-Max-Age", "86400");
+    }
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+    return next();
+  });
+
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/health", (_req, res) => res.json({ ok: true }));

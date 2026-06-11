@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from 'react';
-import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,7 +17,7 @@ import {
 } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Screen, AppText, KpiNumber, Tag, ListState, TopBar } from '@/components/ui';
+import { Screen, AppText, KpiNumber, Tag, ListState, TopBar, ConfirmDialog } from '@/components/ui';
 import { useMe } from '@/hooks/useMe';
 import { useMyProfile } from '@/hooks/useMyProfile';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
@@ -128,6 +128,7 @@ export function AccountScreen({ showStreak = false }: Props) {
   const profile = useMyProfile();
   const week = useWeeklyOverview();
   const logout = useLogoutMutation();
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   const displayName = me.data?.display_name ?? 'Sua conta';
   const tipo = me.data?.tipo;
@@ -146,10 +147,7 @@ export function AccountScreen({ showStreak = false }: Props) {
   }));
 
   function confirmLogout() {
-    Alert.alert('Sair da conta', 'Você precisará entrar de novo para continuar.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => logout.mutate() },
-    ]);
+    setConfirmingLogout(true);
   }
 
   // [DEV] Troca de área: persiste o tipo e REINICIA o app. Trocar in-app não funciona —
@@ -305,6 +303,20 @@ export function AccountScreen({ showStreak = false }: Props) {
           </View>
         ) : null}
       </Animated.View>
+
+      <ConfirmDialog
+        visible={confirmingLogout}
+        title="Sair da conta"
+        message="Você precisará entrar de novo para continuar."
+        confirmLabel="Sair"
+        tone="destructive"
+        loading={logout.isPending}
+        onCancel={() => setConfirmingLogout(false)}
+        onConfirm={() => {
+          setConfirmingLogout(false);
+          logout.mutate();
+        }}
+      />
     </PerfilShell>
   );
 }

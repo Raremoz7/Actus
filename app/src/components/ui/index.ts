@@ -18,6 +18,9 @@ export { TopBar } from './TopBar';
 
 export { ListState } from './ListState';
 
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';
+
 // Logo é criado por outro agente (Onda 1), mas reexportado aqui por conveniência.
 export { Logo } from './Logo';
 export type { LogoVariant, LogoColor } from './Logo';

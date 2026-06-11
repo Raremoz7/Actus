@@ -15,11 +15,11 @@ import { AppText } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { underlineTranslateX } from './underline';
 
-// Descrição de cada aba: rótulo (mono UPPERCASE) + ícone que recebe a cor (ativo/inativo).
+// Descrição de cada aba: rótulo (mono UPPERCASE) + ícone que recebe cor e tamanho.
 export type TabSpec = {
   name: string;
   label: string;
-  renderIcon: (color: string) => ReactNode;
+  renderIcon: (color: string, size: number) => ReactNode;
 };
 
 type ActusTabBarProps = BottomTabBarProps & {
@@ -32,8 +32,15 @@ const { colors, motion } = darkTheme;
 const UNDERLINE_WIDTH = 30;
 const SLIDE_MS = 200;
 
+// Limiar de abas para ativar modo compacto (ícone menor + tracking mais apertado).
+const COMPACT_THRESHOLD = 5;
+const ICON_SIZE_NORMAL = 24;
+const ICON_SIZE_COMPACT = 20;
+
 export function ActusTabBar({ state, navigation, tabs }: ActusTabBarProps) {
   const insets = useSafeAreaInsets();
+  const compact = tabs.length >= COMPACT_THRESHOLD;
+  const iconSize = compact ? ICON_SIZE_COMPACT : ICON_SIZE_NORMAL;
 
   // Mapa rota→spec para casar a ordem real do navigator com a config declarada.
   const specByName = new Map(tabs.map((t) => [t.name, t]));
@@ -107,12 +114,12 @@ export function ActusTabBar({ state, navigation, tabs }: ActusTabBarProps) {
               onPress={() => handlePress(route.name, route.key, focused)}
               style={styles.tab}
             >
-              {spec.renderIcon(color)}
+              {spec.renderIcon(color, iconSize)}
               <AppText
                 variant="eyebrow"
                 color={focused ? 'neon' : 'tertiary'}
                 numberOfLines={1}
-                style={styles.label}
+                style={compact ? styles.labelCompact : styles.label}
               >
                 {spec.label}
               </AppText>
@@ -148,6 +155,8 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing.xs,
   },
   label: { marginTop: 2 },
+  // 5+ abas: tracking apertado (0.5 em vez de 3) para "DESAFIOS"/"TREINOS" caberem.
+  labelCompact: { marginTop: 1, letterSpacing: 0.5 },
   // Sublinhado neon: acima da área segura (paddingBottom da barra fica por fora).
   underline: {
     position: 'absolute',

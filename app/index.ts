@@ -4,4 +4,7 @@
 // do _layout.tsx, então a configuração precisa acontecer aqui, antes do router.
 // Ref: https://www.unistyl.es/v3/guides/expo-router
 import './src/theme/unistyles';
+// Blindagem do DOM contra extensões de navegador (Bitwarden, Google Tradutor…) que
+// quebram o reconciliador do react-native-web ao desmontar telas. No-op em nativo.
+import './src/lib/domGuard';
 import 'expo-router/entry';

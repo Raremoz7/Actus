@@ -53,6 +53,9 @@ export function OnboardingScreen({
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      {/* View extra garante flex:1 — Animated.View pode perder estilos estáticos
+          quando Reanimated renderiza useAnimatedStyle num único objeto (web). */}
+      <View style={styles.flex}>
       <Animated.View style={[styles.flex, revealStyle]}>
         <ScrollView
           style={styles.flex}
@@ -88,6 +91,7 @@ export function OnboardingScreen({
           </View>
         </ScrollView>
       </Animated.View>
+      </View>
     </SafeAreaView>
   );
 }
