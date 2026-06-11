@@ -127,6 +127,96 @@ export const AssignWorkoutResponseSchema = z.object({
   student_workout_id: z.string(),
 });
 
+// Shape REAL de GET /invites (backend/api/src/routes/invites.ts)
+export const InviteSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  expires_at: z.string(),
+  max_uses: z.number(),
+  used_count: z.number(),
+  created_at: z.string(),
+  active: z.boolean(),
+});
+export type Invite = z.infer<typeof InviteSchema>;
+
+export const InvitesResponseSchema = z.object({
+  invites: z.array(InviteSchema),
+});
+
+// POST /invites → 201 { id, code } (somente esses dois campos)
+export const InviteCreateResponseSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+});
+
+// POST /auth/change-password — NÃO retorna refresh novo (regra crítica).
+export const ChangePasswordResponseSchema = z.object({
+  access_token: z.string(),
+  access_token_expires_in: z.number(),
+  must_change_password: z.boolean(),
+});
+
+// Shape REAL de GET /admin/staff (backend/api/src/routes/adminStaff.ts)
+// Obs.: o GET não devolve must_change_password — só o PATCH aceita o campo.
+export const StaffMemberSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  display_name: z.string().nullable(),
+  tipo: z.string(),
+  staff_roles: z.array(z.string()),
+});
+export type StaffMember = z.infer<typeof StaffMemberSchema>;
+
+export const StaffResponseSchema = z.object({
+  staff: z.array(StaffMemberSchema),
+});
+
+// PATCH /admin/staff/:user_id → { ok, id, email, tipo, staff_roles }
+export const StaffPatchResponseSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  tipo: z.string(),
+  staff_roles: z.array(z.string()),
+});
+
+// Shape REAL de GET /admin/links/students (backend/api/src/routes/adminStudentLinks.ts)
+export const StudentLinkSchema = z.object({
+  id: z.string(),
+  student: z.object({
+    id: z.string(),
+    email: z.string(),
+    full_name: z.string().nullable(),
+    birth_date: z.string().nullable(),
+  }),
+  professional: z.object({
+    id: z.string(),
+    email: z.string(),
+    display_name: z.string().nullable(),
+    tipo: z.string(),
+  }),
+  professional_role: z.enum(['personal', 'nutricionista']),
+  status: z.enum(['active', 'revoked']),
+  linked_at: z.string(),
+});
+export type StudentLink = z.infer<typeof StudentLinkSchema>;
+
+export const StudentLinksResponseSchema = z.object({
+  links: z.array(StudentLinkSchema),
+});
+
+// PATCH /admin/links/students/:link_id → { ok, link_id, status }
+export const LinkPatchResponseSchema = z.object({
+  link_id: z.string(),
+  status: z.enum(['active', 'revoked']),
+});
+
+// POST /admin/professionals → 201 { id, email, professional_role, created_by }
+export const ProfessionalCreateResponseSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  professional_role: z.enum(['personal', 'nutricionista']),
+});
+
 // Payload do access token JWT — roles vêm daqui (não existem no GET /me).
 const JwtPayloadSchema = z.object({
   roles: z.array(z.string()).optional(),

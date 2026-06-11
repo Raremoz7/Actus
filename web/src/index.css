@@ -25,6 +25,23 @@
   --font-mono: 'Share Tech Mono', monospace;
 }
 
+/* 1 momento de motion por tela: entrada de modal/toast. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-enter,
+.toast-enter {
+  animation: rise-in 180ms ease-out;
+}
+
 body {
   background: var(--color-bg-base);
   color: var(--color-text-1);

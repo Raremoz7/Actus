@@ -3,31 +3,19 @@ import { LoginPage } from './pages/login/LoginPage';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { AppLayout } from './layouts/AppLayout';
-import { Placeholder } from './pages/Placeholder';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { AlunosPage } from './pages/alunos/AlunosPage';
 import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
 import { TreinosPage } from './pages/treinos/TreinosPage';
 import { BuilderPage } from './pages/treinos/BuilderPage';
 import { AtribuirPage } from './pages/treinos/AtribuirPage';
-import type { SidebarSection } from './layouts/Sidebar';
-
-const convitesSidebar: SidebarSection[] = [
-  {
-    label: 'Status',
-    items: [{ name: 'Pendentes', active: true }, { name: 'Aceitos' }, { name: 'Expirados' }],
-  },
-];
-
-const adminSidebar: SidebarSection[] = [
-  {
-    label: 'Plataforma',
-    items: [
-      { name: 'Overview', to: '/admin' },
-      { name: 'Usuários', to: '/admin/usuarios' },
-    ],
-  },
-];
+import { ConvitesPage } from './pages/convites/ConvitesPage';
+import { ConfiguracoesPage } from './pages/configuracoes/ConfiguracoesPage';
+import { AdminLayout } from './layouts/AdminLayout';
+import { AdminOverviewPage } from './pages/admin/AdminOverviewPage';
+import { StaffPage } from './pages/admin/StaffPage';
+import { VinculosPage } from './pages/admin/VinculosPage';
+import { ProfissionaisPage } from './pages/admin/ProfissionaisPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -44,18 +32,19 @@ export const router = createBrowserRouter([
           { path: '/treinos/novo', element: <BuilderPage /> },
           { path: '/treinos/:id', element: <BuilderPage /> },
           { path: '/treinos/:id/atribuir', element: <AtribuirPage /> },
-          {
-            path: '/convites',
-            element: <Placeholder title="Convites" sections={convitesSidebar} />,
-          },
-          { path: '/configuracoes', element: <Placeholder title="Configurações" /> },
+          { path: '/convites', element: <ConvitesPage /> },
+          { path: '/configuracoes', element: <ConfiguracoesPage /> },
           {
             element: <RequireAdmin />,
             children: [
-              { path: '/admin', element: <Placeholder title="Admin" sections={adminSidebar} /> },
               {
-                path: '/admin/*',
-                element: <Placeholder title="Admin" sections={adminSidebar} />,
+                element: <AdminLayout />,
+                children: [
+                  { path: '/admin', element: <AdminOverviewPage /> },
+                  { path: '/admin/equipe', element: <StaffPage /> },
+                  { path: '/admin/vinculos', element: <VinculosPage /> },
+                  { path: '/admin/profissionais', element: <ProfissionaisPage /> },
+                ],
               },
             ],
           },
