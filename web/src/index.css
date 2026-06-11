@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg-lowest: #10252D;
+  --color-bg-base: #1A343F;
+  --color-surface-1: #203F4B;
+  --color-surface-2: #294B58;
+  --color-surface-3: #345867;
+  --color-surface-4: #406575;
+  --color-neon: #CBFE00;
+  --color-secondary: #4DE082;
+  --color-text-1: #FFFFFF;
+  --color-text-2: rgba(255,255,255,0.70);
+  --color-text-3: rgba(255,255,255,0.50);
+  --color-text-inv: #141414;
+  --color-outline: #8E9379;
+  --color-outline-v: #444933;
+  --color-on-surface: #E2E4CF;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-error: #F87171;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+body {
+  background: var(--color-bg-base);
+  color: var(--color-text-1);
+  font-family: var(--font-body);
+}
