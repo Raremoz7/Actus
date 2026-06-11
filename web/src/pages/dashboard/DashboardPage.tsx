@@ -66,7 +66,7 @@ function StudentRow({ student, checkIns }: { student: Student; checkIns: CheckIn
 
 export function DashboardPage() {
   const studentsQuery = useStudents();
-  const students = studentsQuery.data ?? [];
+  const students = useMemo(() => studentsQuery.data ?? [], [studentsQuery.data]);
   const studentIds = useMemo(() => students.map((s) => s.id), [students]);
   const checkIns = useStudentsCheckIns(studentIds, KPI_WINDOW_DAYS);
   const workouts = useStudentsWorkouts(studentIds);

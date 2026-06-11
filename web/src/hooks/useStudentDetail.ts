@@ -25,7 +25,7 @@ export function checkInsQueryOptions(studentId: string, days: number) {
 }
 
 export function useStudentCheckIns(studentId: string, days = 60) {
-  return useQuery(checkInsQueryOptions(studentId, days));
+  return useQuery({ ...checkInsQueryOptions(studentId, days), enabled: studentId !== '' });
 }
 
 export function workoutsQueryOptions(studentId: string) {

@@ -37,7 +37,7 @@ export function AlunosPage() {
   const [search, setSearch] = useState('');
 
   const studentsQuery = useStudents();
-  const students = studentsQuery.data ?? [];
+  const students = useMemo(() => studentsQuery.data ?? [], [studentsQuery.data]);
   const studentIds = useMemo(() => students.map((s) => s.id), [students]);
   const checkIns = useStudentsCheckIns(studentIds, 30);
   const loading = studentsQuery.isLoading;

@@ -6,6 +6,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { Placeholder } from './pages/Placeholder';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { AlunosPage } from './pages/alunos/AlunosPage';
+import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
 import type { SidebarSection } from './layouts/Sidebar';
 
 const treinosSidebar: SidebarSection[] = [
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <DashboardPage /> },
           { path: '/alunos', element: <AlunosPage /> },
+          { path: '/alunos/:id', element: <AlunoDetailPage /> },
           { path: '/treinos', element: <Placeholder title="Treinos" sections={treinosSidebar} /> },
           {
             path: '/convites',

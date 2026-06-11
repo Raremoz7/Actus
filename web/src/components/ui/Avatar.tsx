@@ -4,7 +4,7 @@ const sizes = {
   lg: 'h-16 w-16 text-xl',
 } as const;
 
-export function initials(name: string | null | undefined): string {
+function initials(name: string | null | undefined): string {
   if (!name) return '?';
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? '';
