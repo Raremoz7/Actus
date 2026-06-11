@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -18,6 +18,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, KpiNumber, Tag, ListState, TopBar } from '@/components/ui';
 import { useMe } from '@/hooks/useMe';
+import { useMyProfile } from '@/hooks/useMyProfile';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
 import { useLogoutMutation } from '@/features/auth/hooks';
 import type { UserTipo } from '@/types/me';
@@ -123,6 +124,7 @@ function PerfilShell({ children }: { children: ReactNode }) {
 
 export function AccountScreen({ showStreak = false }: Props) {
   const me = useMe();
+  const profile = useMyProfile();
   const week = useWeeklyOverview();
   const logout = useLogoutMutation();
 
@@ -189,15 +191,21 @@ export function AccountScreen({ showStreak = false }: Props) {
   return (
     <PerfilShell>
       <Animated.View style={revealStyle}>
-        {/* Card de identidade. Avatar real é [MOCK — sem endpoint na API v1]: o GET /me
-            só devolve { id, tipo, display_name } — avatar_url é write-only via PATCH /me
-            e não volta em nenhum GET. Usamos a inicial do display_name até o backend
-            expor avatar_url num GET. */}
+        {/* Card de identidade. avatar_url vem de GET /me/profile (useMyProfile); sem foto,
+            cai na inicial do display_name. */}
         <View style={styles.identity}>
           <View style={styles.avatar}>
-            <AppText variant="h2" color="neon">
-              {initialOf(me.data?.display_name)}
-            </AppText>
+            {profile.data?.avatar_url ? (
+              <Image
+                source={{ uri: profile.data.avatar_url }}
+                style={styles.avatarImg}
+                accessibilityLabel="Sua foto"
+              />
+            ) : (
+              <AppText variant="h2" color="neon">
+                {initialOf(me.data?.display_name)}
+              </AppText>
+            )}
           </View>
           <View style={styles.identityText}>
             <AppText variant="h3" numberOfLines={1}>
@@ -309,6 +317,11 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.surface2,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
   },
   identityText: {
     flex: 1,

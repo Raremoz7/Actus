@@ -17,6 +17,7 @@ import workoutsRoutes from "./routes/workouts.js";
 import studentWorkoutsRoutes from "./routes/studentWorkouts.js";
 import dietTemplatesRoutes from "./routes/dietTemplates.js";
 import studentDietsRoutes from "./routes/studentDiets.js";
+import meAvatarRouter, { avatarUploadDir } from "./routes/meAvatar.js"; // [ACTUS-NEW] upload de avatar
 // [ACTUS-NEW] Par-Q (B5): três routers (aluno envia / aluno lê / profissional lê).
 import {
   studentParqRouter,
@@ -101,6 +102,9 @@ export function createApp() {
     }),
   );
 
+  // [ACTUS-NEW] avatares enviados: servidos publicamente (URL guardada em profiles.avatar_url).
+  app.use("/uploads", express.static(avatarUploadDir()));
+
   app.use("/auth", authRoutes);
   app.use("/admin/professionals", requireStaff, adminProfessionalsRoutes);
   app.use("/admin/links/students", requireStaff, adminStudentLinksRoutes);
@@ -118,6 +122,7 @@ export function createApp() {
   app.use("/students/:student_id/workouts", requireAuth, studentWorkoutsRoutes);
   app.use("/students/:student_id/diets", requireAuth, studentDietsRoutes);
   app.use("/me", requireAuth, meRoutes);
+  app.use("/me/avatar", requireAuth, meAvatarRouter); // [ACTUS-NEW] upload de avatar (qualquer tipo)
   app.use("/me", requireAuth, requireStudent, meStudentProgramRoutes);
   app.use("/me", requireAuth, requireStudent, meGamificationRoutes);
   app.use("/me", requireAuth, requireStudent, meChallengesRoutes);

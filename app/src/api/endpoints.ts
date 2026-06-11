@@ -14,6 +14,8 @@ export const endpoints = {
     root: '/me',
     // Perfil rico (read-back) — destrava o pré-preenchimento de editar-perfil.
     profile: '/me/profile',
+    // Upload de avatar (multipart) → seta avatar_url.
+    avatar: '/me/avatar',
     workouts: '/me/workouts',
     checkIns: '/me/check-ins',
     diets: '/me/diets',

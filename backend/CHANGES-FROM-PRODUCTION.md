@@ -19,6 +19,7 @@ git log --oneline origin/main..origin/dev -- backend/            # commits de ba
 | — | Auto-cadastro de profissional | `POST /auth/register-professional` | `20260610130000_actus_register_professional.sql` (`profiles.phone`) |
 | A3 | Preview público de convite | `GET /invites/:code/preview` | — |
 | A4 | Perfil rico (read-back) | `GET /me/profile` | — |
+| — | Upload de avatar | `POST /me/avatar` (multipart) + `/uploads` estático | — |
 
 > A1 e B5 já vinham integrados; os três últimos entraram nesta rodada de integração.
 > **Ordem das migrations:** `..._120000_par_q.sql` antes de `..._130000_..._register_professional.sql` (timestamps distintos, sem colisão).
@@ -63,6 +64,22 @@ Destrava `editar-perfil` (o `PATCH /me` grava, faltava o GET).
   locais dariam off-by-one em UTC-3). Profissional sem `user_basic_info` → campos student `null`.
 - Sem migration. Arquivos: `routes/me.ts`, `openapi.ts`, `test/me.profile.int.test.ts`.
 - Follow-up no front: `endpoints.me.profile` + hook + prefill de `editar-perfil`/avatar.
+
+## Upload de avatar — `POST /me/avatar`
+
+`profiles.avatar_url` existia, mas não havia como o usuário definir uma foto (sem upload/storage).
+
+- Autenticado (qualquer tipo). **multipart/form-data**, campo `avatar` (JPEG/PNG/WebP, ≤ 5 MB).
+- Grava em disco (`AVATAR_UPLOAD_DIR`, default `<api>/uploads`) com nome `<userId>-<uuid>.<ext>`,
+  seta `profiles.avatar_url` para a URL servida em `/uploads/<arquivo>` (estático, público).
+  `201 { avatar_url }`; erros `invalid_image` (400), `internal_error` (500); `401` sem token.
+- **Storage = disco local** (escolha: rápido, sem credencial). NÃO é production-grade — para
+  produção, trocar `meAvatar.ts` (fs.writeFile + base da URL) por Supabase Storage/S3 (interface
+  do endpoint não muda). Base da URL respeita `PUBLIC_BASE_URL`; senão deriva do request.
+- Sem migration. `uploads/` ignorado no git. Dep nova: `multer`.
+- Arquivos: `routes/meAvatar.ts`, `app.ts` (mount + `express.static`), `openapi.ts`,
+  `test/me.avatar.int.test.ts`. Front: `expo-image-picker` → `POST /me/avatar` → exibe em
+  `AccountScreen`/`editar-perfil` (fallback = iniciais).
 
 > **Build (`dist/`):** os changesets tocam `src/`/testes/migration/openapi/doc — não o JS compilado.
 > Rode `npm run build` em `backend/api` antes de `npm run start`.
