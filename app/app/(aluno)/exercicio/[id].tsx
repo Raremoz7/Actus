@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
-import { Image, Linking, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,11 +9,14 @@ import { CaretLeft, CaretRight, FilmSlate, Note as NoteIcon, Play } from 'phosph
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
+import { HeroCarousel } from '@/components/exercises/HeroCarousel';
+import { ImageLightbox } from '@/components/exercises/ImageLightbox';
 import { useWorkoutDetail } from '@/hooks/useWorkoutDetail';
 import { goBackOr } from '@/lib/nav';
 import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { wgerCatalog, exerciseDescription } from '@/lib/wger/catalog';
 import { wgerImageSource, wgerVideoUrl } from '@/lib/wger/media';
+import { exerciseCatalog } from '@/lib/exercises/catalog';
 import { darkTheme } from '@/theme';
 
 const { motion, colors, gradients, heroScrimLocations } = darkTheme;
@@ -35,6 +39,7 @@ export default function ExercicioDemoScreen() {
     rest?: string;
     note?: string;
     wgerId?: string;
+    exerciseId?: string;
   }>();
   const name = typeof params.name === 'string' ? params.name : '';
   const muscle = typeof params.muscle === 'string' ? params.muscle : '';
@@ -49,12 +54,36 @@ export default function ExercicioDemoScreen() {
   const hasRest = Number.isFinite(rest) && rest >= 0;
   const hasPrescription = sets > 0 && reps > 0;
 
-  // Dados reais do Wger: imagem local, descrição e URL de vídeo.
+  // Novo banco: busca pelo exerciseId (slug) do catálogo local.
+  const exerciseIdParam = typeof params.exerciseId === 'string' ? params.exerciseId : '';
+  const catalogEx = exerciseIdParam ? exerciseCatalog().getById(exerciseIdParam) : null;
+
+  // Fallback legado: Wger (mantém retrocompatibilidade com treinos antigos).
   const wgerId = Number(params.wgerId);
-  const ex = Number.isFinite(wgerId) && wgerId > 0 ? wgerCatalog().getExercise(wgerId) : null;
-  const heroSource = wgerImageSource(wgerId) ?? { uri: exerciseImageUrl(muscle, 1200) };
-  const description = ex ? exerciseDescription(ex) : null;
-  const videoUrl = wgerVideoUrl(wgerId);
+  const wgerEx = !catalogEx && Number.isFinite(wgerId) && wgerId > 0 ? wgerCatalog().getExercise(wgerId) : null;
+
+  // Monta array de imagens para o carrossel (1 ou 2 fontes).
+  const heroImages: ImageSourcePropType[] = catalogEx
+    ? ([
+        catalogEx.image_0_url ? { uri: catalogEx.image_0_url } : null,
+        catalogEx.image_1_url ? { uri: catalogEx.image_1_url } : null,
+      ].filter(Boolean) as ImageSourcePropType[])
+    : [wgerImageSource(wgerId) ?? { uri: exerciseImageUrl(muscle, 1200) }];
+
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const description = catalogEx
+    ? null  // catálogo PT-BR ainda sem instruções na tela; mostra só o básico
+    : wgerEx ? exerciseDescription(wgerEx) : null;
+  const videoUrl = wgerEx ? wgerVideoUrl(wgerId) : null;
+  // Sem vídeo próprio: abre uma busca no YouTube. Nome em inglês + termos de
+  // tutorial garantem que o topo seja um vídeo demonstrativo da execução.
+  // `sp=EgIYAQ%3D%3D` filtra duração < 4 min (enviesa p/ vídeos curtos).
+  const youtubeSearchUrl = name
+    ? `https://www.youtube.com/results?search_query=${encodeURIComponent(`how to do ${name} exercise proper form demonstration`)}&sp=EgIYAQ%253D%253D`
+    : null;
+  // Busca no YouTube é o padrão; o vídeo do Wger fica só como fallback.
+  const videoHref = youtubeSearchUrl ?? videoUrl;
 
   // Reaproveita o cache do detalhe do treino p/ navegar entre exercícios irmãos.
   const detail = useWorkoutDetail(workoutId);
@@ -79,8 +108,9 @@ export default function ExercicioDemoScreen() {
   const revealStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const title = name || 'Exercício';
+  const displayEquipment = catalogEx?.machine_type ?? equipment;
   // Grupo muscular + equipamento viram um eyebrow único sobre a foto (sem repetir o nome).
-  const heroMeta = [muscle, equipment].filter(Boolean).join(' · ');
+  const heroMeta = [muscle, displayEquipment].filter(Boolean).join(' · ');
 
   function goTo(sibling: NonNullable<typeof next>) {
     router.replace({
@@ -95,7 +125,8 @@ export default function ExercicioDemoScreen() {
         reps: String(sibling.reps),
         rest: String(sibling.rest_seconds),
         note: sibling.notes ?? '',
-        wgerId: String(sibling.wger_exercise_id),
+        wgerId: String(sibling.wger_exercise_id ?? ''),
+        exerciseId: sibling.exercise_id ?? '',
       },
     } as Href);
   }
@@ -107,14 +138,12 @@ export default function ExercicioDemoScreen() {
           contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 96 }]}
           showsVerticalScrollIndicator={false}
         >
-          {/* Hero cinematográfico full-bleed (sob a status bar). */}
-          <View style={[styles.hero, { height: heroHeight }]}>
-            <Image
-              accessible={false}
-              source={heroSource}
-              resizeMode="cover"
-              style={StyleSheet.absoluteFill}
-            />
+          {/* Hero cinematográfico com carrossel de imagens. */}
+          <HeroCarousel
+            images={heroImages}
+            height={heroHeight}
+            onTap={(idx) => setLightboxIndex(idx)}
+          >
             {/* Scrim de baixo p/ cima — garante leitura do título sobre qualquer foto. */}
             <LinearGradient
               pointerEvents="none"
@@ -122,7 +151,6 @@ export default function ExercicioDemoScreen() {
               locations={heroScrimLocations}
               style={StyleSheet.absoluteFill}
             />
-
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Voltar"
@@ -132,7 +160,6 @@ export default function ExercicioDemoScreen() {
             >
               <CaretLeft size={20} weight="bold" color={colors.textPrimary} />
             </Pressable>
-
             <View style={styles.heroText}>
               {heroMeta ? (
                 <AppText variant="eyebrow" color="neon" numberOfLines={1} style={styles.heroEyebrow}>
@@ -143,7 +170,7 @@ export default function ExercicioDemoScreen() {
                 {title}
               </AppText>
             </View>
-          </View>
+          </HeroCarousel>
 
           <View style={styles.body}>
             {/* Prescrição factual em mono — o conteúdo de maior valor da tela. */}
@@ -192,17 +219,19 @@ export default function ExercicioDemoScreen() {
             ) : null}
 
             {/* Demonstração em vídeo: botão neon quando há URL, aviso honesto quando não há. */}
-            {videoUrl ? (
+            {videoHref ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Ver demonstração em vídeo"
+                accessibilityLabel={youtubeSearchUrl ? 'Buscar demonstração no YouTube' : 'Ver demonstração em vídeo'}
                 style={styles.videoBtn}
-                onPress={() => void Linking.openURL(videoUrl)}
+                onPress={() => void Linking.openURL(videoHref)}
               >
                 <View style={styles.videoPlay}>
                   <Play size={16} weight="fill" color={colors.textInverse} />
                 </View>
-                <AppText variant="label">Ver demonstração em vídeo</AppText>
+                <AppText variant="label">
+                  {youtubeSearchUrl ? 'Buscar demonstração no YouTube' : 'Ver demonstração em vídeo'}
+                </AppText>
               </Pressable>
             ) : (
               <View style={styles.demo}>
@@ -215,8 +244,8 @@ export default function ExercicioDemoScreen() {
               </View>
             )}
 
-            {/* Crédito de licença Wger. */}
-            {ex ? (
+            {/* Crédito de licença Wger (apenas para exercícios legados). */}
+            {wgerEx ? (
               <AppText variant="metaSmall" color="tertiary" style={styles.credit}>Wger · CC-BY-SA</AppText>
             ) : null}
 
@@ -231,7 +260,7 @@ export default function ExercicioDemoScreen() {
                     onPress={() => goTo(prev)}
                   >
                     <CaretLeft size={16} weight="bold" color={colors.textSecondary} />
-                    <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
+                    <AppText variant="metaSmall" color="secondary" numberOfLines={1} style={styles.navText}>
                       {prev.name_snapshot}
                     </AppText>
                   </Pressable>
@@ -245,7 +274,7 @@ export default function ExercicioDemoScreen() {
                     style={[styles.navBtn, styles.navNext]}
                     onPress={() => goTo(next)}
                   >
-                    <AppText variant="metaSmall" color="secondary" numberOfLines={1}>
+                    <AppText variant="metaSmall" color="secondary" numberOfLines={1} style={styles.navText}>
                       {next.name_snapshot}
                     </AppText>
                     <CaretRight size={16} weight="bold" color={colors.textSecondary} />
@@ -258,6 +287,13 @@ export default function ExercicioDemoScreen() {
           </View>
         </ScrollView>
       </Animated.View>
+
+      <ImageLightbox
+        images={heroImages}
+        initialIndex={lightboxIndex ?? 0}
+        visible={lightboxIndex !== null}
+        onClose={() => setLightboxIndex(null)}
+      />
     </View>
   );
 }
@@ -266,12 +302,6 @@ const styles = StyleSheet.create((theme) => ({
   safe: { flex: 1, backgroundColor: theme.colors.bgBase },
   flex: { flex: 1 },
   scroll: {},
-  // Hero cinematográfico full-bleed (altura definida inline pelo tamanho da tela).
-  hero: {
-    backgroundColor: theme.colors.surface2,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
   back: {
     position: 'absolute',
     left: theme.spacing.lg,
@@ -283,6 +313,10 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   heroText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,
   },
@@ -380,4 +414,5 @@ const styles = StyleSheet.create((theme) => ({
   navPrev: { justifyContent: 'flex-start' },
   navNext: { justifyContent: 'flex-end' },
   navSpacer: { flex: 1 },
+  navText: { flex: 1, flexShrink: 1 },
 }));
