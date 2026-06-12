@@ -303,7 +303,7 @@ const styles = StyleSheet.create((theme) => ({
   // Espaço MAIOR entre seções (hierarquia/respiro); o interior de cada bloco é justo.
   section: { marginTop: theme.spacing.xl },
   // Card do Par-Q: respiro próprio entre o header e o herói (que não usam .section).
-  parqCard: { marginBottom: theme.spacing.md },
+  parqCard: { marginTop: 10, marginBottom: theme.spacing.md },
   statusCard: {
     backgroundColor: theme.colors.surface1,
     borderRadius: theme.radius.card,
