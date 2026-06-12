@@ -35,6 +35,12 @@ export const endpoints = {
   health: '/health',
   // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
   workouts: '/workouts',
+  // Banco de Treinos curado (templates do admin, lidos por todos os autenticados):
+  // GET /workout-templates (lista), GET /workout-templates/:id (detalhe),
+  // POST /workout-templates/:id/copy (personal clona p/ sua biblioteca → workout_id).
+  workoutTemplates: '/workout-templates',
+  workoutTemplateById: (id: string) => `/workout-templates/${id}`,
+  workoutTemplateCopy: (id: string) => `/workout-templates/${id}/copy`,
   // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
   studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
   // Templates de dieta do nutricionista logado (GET/POST /diet-templates,

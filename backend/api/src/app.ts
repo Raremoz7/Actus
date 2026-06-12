@@ -14,6 +14,7 @@ import professionalStudentsRoutes from "./routes/professionalStudents.js";
 import adminStudentLinksRoutes from "./routes/adminStudentLinks.js";
 import adminStaffRoutes from "./routes/adminStaff.js";
 import workoutsRoutes from "./routes/workouts.js";
+import workoutTemplatesRoutes from "./routes/workoutTemplates.js";
 import exercisesRoutes from "./routes/exercises.js";
 import studentWorkoutsRoutes from "./routes/studentWorkouts.js";
 import dietTemplatesRoutes from "./routes/dietTemplates.js";
@@ -65,7 +66,18 @@ function createSwaggerUiTagsSorter(): (a: unknown, b: unknown) => number {
 
 const swaggerUiTagsSorter = createSwaggerUiTagsSorter();
 
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS ?? "http://localhost:5173").split(",").map((s) => s.trim());
+// Origens de dev liberadas por padrão: painel web (5173) + Expo web no navegador (8081/8082).
+// Em produção, CORS_ORIGINS (env) tem precedência e define a allowlist real.
+const DEV_ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:8081",
+  "http://localhost:8082",
+  "http://127.0.0.1:8081",
+  "http://127.0.0.1:8082",
+];
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((s) => s.trim())
+  : DEV_ALLOWED_ORIGINS;
 
 export function createApp() {
   const app = express();
@@ -136,6 +148,7 @@ export function createApp() {
   app.use("/professional/challenges", requireAuth, requirePersonal, professionalChallengesRoutes);
   app.use("/exercises", requireAuth, exercisesRoutes);
   app.use("/workouts", requireAuth, workoutsRoutes);
+  app.use("/workout-templates", requireAuth, workoutTemplatesRoutes);
   app.use("/diet-templates", requireAuth, dietTemplatesRoutes);
   app.use("/students/:student_id/workouts", requireAuth, studentWorkoutsRoutes);
   app.use("/students/:student_id/diets", requireAuth, studentDietsRoutes);

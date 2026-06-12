@@ -29,7 +29,6 @@ import {
 import { useProWorkoutDetail } from '@/hooks/useProWorkoutDetail';
 import { useWorkoutMutations } from '@/hooks/useWorkoutMutations';
 import { toApiExercises } from '@/features/builder/toApiExercises';
-import { getLibraryWorkout } from '@/data/workoutLibrary';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
@@ -67,11 +66,9 @@ function coveredGroups(drafts: DraftExercise[]): string[] {
 }
 
 export default function MontarTreinoScreen() {
-  const params = useLocalSearchParams<{ id?: string; fromLibrary?: string }>();
+  const params = useLocalSearchParams<{ id?: string }>();
   const editingId = typeof params.id === 'string' ? params.id : undefined;
   const isEditing = Boolean(editingId);
-  // Clone-e-edita: id de um treino do Banco para pré-preencher (modo CRIAR).
-  const fromLibraryId = typeof params.fromLibrary === 'string' ? params.fromLibrary : undefined;
 
   const detail = useProWorkoutDetail(editingId);
   const { create, update } = useWorkoutMutations();
@@ -111,29 +108,6 @@ export default function MontarTreinoScreen() {
     );
     setHydrated(true);
   }, [isEditing, hydrated, detail.data]);
-
-  // Pré-preenche a partir de um treino do Banco (clone-e-edita). Modo CRIAR: salvar
-  // dispara POST /workouts, gerando um novo template do personal.
-  useEffect(() => {
-    if (isEditing || hydrated || !fromLibraryId) return;
-    const lib = getLibraryWorkout(fromLibraryId);
-    if (!lib) return;
-    setName(lib.name);
-    setNotes(lib.notes ?? '');
-    setExercises(
-      lib.exercises.map((e) => ({
-        name: e.name,
-        exerciseId: null,
-        wgerExerciseId: null,
-        sets: e.sets,
-        reps: e.reps,
-        restSeconds: e.rest_seconds,
-        notes: e.notes,
-        muscleGroup: e.muscle_group,
-      })),
-    );
-    setHydrated(true);
-  }, [isEditing, hydrated, fromLibraryId]);
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);

@@ -20,5 +20,5 @@ export default function AlunoLayout() {
     }
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', animationDuration: 300 }} />;
 }

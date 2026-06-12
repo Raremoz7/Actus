@@ -7,9 +7,6 @@ import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
 
-// onPress é opcional: sem tela de dieta do aluno (builder é do nutri), o card
-// fica informativo em vez de navegar para o lugar errado.
-// Dados honestos do body: nº de refeições e meta de kcal (quando o nutri preencheu).
 type Props = {
   title: string;
   mealCount: number;
@@ -18,7 +15,6 @@ type Props = {
 };
 
 export function DietCard({ title, mealCount, targetKcal, onPress }: Props) {
-  // Linha de dado real: "5 refeições · 2.400 kcal" (meta só se existir no body).
   const mealLabel = `${mealCount} ${mealCount === 1 ? 'refeição' : 'refeições'}`;
   const detail =
     targetKcal && targetKcal > 0
@@ -27,6 +23,10 @@ export function DietCard({ title, mealCount, targetKcal, onPress }: Props) {
 
   const inner = (
     <>
+      {/* Ícone decorativo de fundo — discreta textura visual */}
+      <View style={styles.bgIcon} pointerEvents="none">
+        <ForkKnife size={72} weight="duotone" color={colors.neon} />
+      </View>
       <View style={styles.head}>
         <ForkKnife size={14} weight="duotone" color={colors.textTertiary} />
         <AppText variant="eyebrow" color="tertiary">
@@ -61,6 +61,13 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.outlineVariant,
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
+    overflow: 'hidden',
+  },
+  bgIcon: {
+    position: 'absolute',
+    right: -12,
+    bottom: -12,
+    opacity: 0.06,
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   name: { marginTop: theme.spacing.xs, marginBottom: 2 },

@@ -47,3 +47,23 @@ body {
   color: var(--color-text-1);
   font-family: var(--font-body);
 }
+
+/* Scrollbar global — discreta, alinhada ao design system */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-v);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-outline-v) transparent;
+}

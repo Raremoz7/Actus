@@ -2,11 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { selectIsAdmin, useAuthStore } from '../store/authStore';
 
-const tabs = [
+const professorTabs = [
   { to: '/alunos', label: 'Alunos' },
   { to: '/treinos', label: 'Treinos' },
   { to: '/exercicios', label: 'Exercícios' },
   { to: '/convites', label: 'Convites' },
+];
+
+const adminTabs = [
+  { to: '/treinos/templates', label: 'Treinos' },
+  { to: '/exercicios', label: 'Exercícios' },
 ];
 
 function initials(name: string | null | undefined): string {
@@ -40,13 +45,13 @@ export function AppLayout() {
     }`;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <header className="flex h-[52px] items-center gap-6 border-b border-outline-v bg-bg-lowest px-5">
         <Link to="/" className="flex items-center">
           <img src="/actus-logo.svg" alt="Actus" className="h-7" />
         </Link>
         <nav className="flex h-full items-center gap-1">
-          {tabs.map((tab) => (
+          {(isAdmin ? adminTabs : professorTabs).map((tab) => (
             <NavLink key={tab.to} to={tab.to} className={tabClass}>
               {tab.label}
             </NavLink>

@@ -20,7 +20,7 @@ export function QuickAction({ icon, label, onPress }: Props) {
       style={styles.action}
     >
       <View style={styles.icon}>{icon}</View>
-      <AppText variant="label" color="inverse" numberOfLines={2}>
+      <AppText variant="label" color="inverse" numberOfLines={2} style={styles.label}>
         {label}
       </AppText>
     </Pressable>
@@ -37,6 +37,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.sm,
   },
+  label: { textAlign: 'center' },
   icon: {
     width: 44,
     height: 44,

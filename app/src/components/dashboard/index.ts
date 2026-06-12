@@ -5,4 +5,4 @@ export { DashboardHeader } from './DashboardHeader';
 export { KpiCard } from './KpiCard';
 export { QuickAction } from './QuickAction';
 export { RecentStudents } from './RecentStudents';
-export { EngagementSoon } from './EngagementSoon';
+export { EngagementCard } from './EngagementCard';

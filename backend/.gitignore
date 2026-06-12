@@ -1,3 +1,4 @@
 node_modules/
 .env
-backend/api/.env.local
+.env.local
+api/.env.local

@@ -1,6 +1,3 @@
-// Mostra a foto real do exercício (Wger) quando disponível; cai no placeholder
-// por grupo muscular (Unsplash curado) caso contrário. O ícone de halter fica
-// como fallback atrás da imagem (aparece se a foto não carregar).
 import { Image, View } from 'react-native';
 import { Barbell } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -8,6 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { darkTheme } from '@/theme';
 import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { wgerImageSource } from '@/lib/wger/media';
+import { exerciseCatalog } from '@/lib/exercises/catalog';
 
 const { colors } = darkTheme;
 
@@ -15,12 +13,17 @@ type Props = {
   size?: number;
   muscleGroup?: string | null;
   wgerExerciseId?: number | null;
+  exerciseId?: string | null;
   testID?: string;
 };
 
-export function ExerciseThumb({ size = 60, muscleGroup, wgerExerciseId, testID }: Props) {
-  const wger = wgerImageSource(wgerExerciseId);
-  const source = wger ?? { uri: exerciseImageUrl(muscleGroup, Math.round(size * 2)) };
+export function ExerciseThumb({ size = 60, muscleGroup, wgerExerciseId, exerciseId, testID }: Props) {
+  // Novo banco: busca imagem pelo exerciseId (slug texto) no catálogo local.
+  const catalogEx = exerciseId ? exerciseCatalog().getById(exerciseId) : null;
+  const wger = !catalogEx ? wgerImageSource(wgerExerciseId) : null;
+  const source = catalogEx?.image_0_url
+    ? { uri: catalogEx.image_0_url }
+    : wger ?? { uri: exerciseImageUrl(muscleGroup, Math.round(size * 2)) };
 
   return (
     <View testID={testID} style={[styles.thumb, { width: size, height: size }]}>
@@ -31,7 +34,6 @@ export function ExerciseThumb({ size = 60, muscleGroup, wgerExerciseId, testID }
         resizeMode="cover"
         style={[styles.image, { width: size, height: size }]}
       />
-      {/* Véu escuro p/ integrar a foto ao tema quiet luxury. */}
       <View pointerEvents="none" style={[styles.veil, { width: size, height: size }]} />
     </View>
   );

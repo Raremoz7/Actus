@@ -4,7 +4,7 @@
 // não há DELETE na API). Botão "Novo convite" leva a /convite/novo.
 
 import { useEffect, useMemo } from 'react';
-import { Alert, Pressable, Share, View } from 'react-native';
+import { Alert, Platform, Pressable, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -81,18 +81,20 @@ export default function ConvitesScreen() {
   }
 
   function handleRevoke(id: string) {
-    Alert.alert(
-      'Revogar convite',
-      'O link deixa de funcionar imediatamente. Esta ação não pode ser desfeita.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Revogar',
-          style: 'destructive',
-          onPress: () => revoke.mutate(id),
-        },
-      ],
-    );
+    const message =
+      'O link deixa de funcionar imediatamente. Esta ação não pode ser desfeita.';
+    // react-native-web não suporta Alert com múltiplos botões → no web o
+    // callback de "Revogar" nunca dispararia. Usa window.confirm como fallback.
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm(`Revogar convite\n\n${message}`)) {
+        revoke.mutate(id);
+      }
+      return;
+    }
+    Alert.alert('Revogar convite', message, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Revogar', style: 'destructive', onPress: () => revoke.mutate(id) },
+    ]);
   }
 
   return (

@@ -27,7 +27,7 @@ export function ConfiguracoesPage() {
   const logout = useAuthStore((s) => s.logout);
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 overflow-y-auto">
       <div className="flex h-[52px] items-center border-b border-outline-v px-6">
         <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
           Configurações

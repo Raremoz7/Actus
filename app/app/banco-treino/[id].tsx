@@ -12,9 +12,11 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button } from '@/components/ui';
-import { getLibraryWorkout } from '@/data/workoutLibrary';
-import { OBJETIVO_LABEL, NIVEL_LABEL } from '@/types/workoutLibrary';
+import { AppText, Button, ListState } from '@/components/ui';
+import {
+  useWorkoutTemplateDetail,
+  useCopyWorkoutTemplate,
+} from '@/hooks/useWorkoutTemplates';
 import { goBackOr } from '@/lib/nav';
 import { darkTheme } from '@/theme';
 
@@ -22,10 +24,17 @@ const { colors, motion } = darkTheme;
 
 const TREINOS_HREF = '/(personal)/(tabs)/treinos';
 
+// Rótulo de exercícios: "N exercícios" / "1 exercício".
+function exerciseLabel(n: number): string {
+  return n === 1 ? '1 exercício' : `${n} exercícios`;
+}
+
 export default function BancoTreinoDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === 'string' ? params.id : '';
-  const workout = getLibraryWorkout(id);
+  const detail = useWorkoutTemplateDetail(id);
+  const copy = useCopyWorkoutTemplate();
+  const workout = detail.data;
 
   // 1 momento de motion por tela: reveal de entrada (opacity, 300ms).
   const reveal = useSharedValue(0);
@@ -33,6 +42,16 @@ export default function BancoTreinoDetailScreen() {
     reveal.value = withTiming(1, { duration: motion.screenMs });
   }, [reveal]);
   const revealStyle = useAnimatedStyle(() => ({ opacity: reveal.value }));
+
+  // Clona no servidor (POST /:id/copy → workout_id) e abre o builder no novo treino.
+  function cloneAndEdit() {
+    if (!id || copy.isPending) return;
+    copy.mutate(id, {
+      onSuccess: ({ workout_id }) => {
+        router.replace(('/montar-treino?id=' + workout_id) as Href);
+      },
+    });
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -51,7 +70,21 @@ export default function BancoTreinoDetailScreen() {
         </AppText>
       </View>
 
-      {!workout ? (
+      {detail.isLoading ? (
+        <View style={styles.empty}>
+          <ListState kind="loading" skeletonCount={4} />
+        </View>
+      ) : detail.isError ? (
+        <View style={styles.empty}>
+          <ListState
+            kind="error"
+            title="Não foi possível carregar"
+            message="Verifique sua conexão e tente novamente."
+            actionLabel="Tentar de novo"
+            onAction={() => void detail.refetch()}
+          />
+        </View>
+      ) : !workout ? (
         <View style={styles.empty}>
           <AppText variant="bodyMd" color="secondary">
             Treino não encontrado.
@@ -64,13 +97,10 @@ export default function BancoTreinoDetailScreen() {
             showsVerticalScrollIndicator={false}
           >
             <AppText variant="eyebrow" color="neon">
-              {OBJETIVO_LABEL[workout.objetivo]}
+              {exerciseLabel(workout.exercises.length)}
             </AppText>
             <AppText variant="h2" style={styles.title}>
               {workout.name}
-            </AppText>
-            <AppText variant="metaSmall" color="tertiary">
-              {`${NIVEL_LABEL[workout.nivel]} · ${workout.muscle_groups}`}
             </AppText>
             {workout.notes ? (
               <AppText variant="bodyMd" color="secondary" style={styles.notes}>
@@ -79,11 +109,11 @@ export default function BancoTreinoDetailScreen() {
             ) : null}
 
             <View style={styles.list}>
-              {workout.exercises.map((e, i) => (
-                <View key={`${e.wger_exercise_id}-${i}`} style={styles.row}>
+              {workout.exercises.map((e) => (
+                <View key={e.id} style={styles.row}>
                   <View style={styles.rowText}>
                     <AppText variant="bodyMd" numberOfLines={1}>
-                      {e.name}
+                      {e.name_snapshot}
                     </AppText>
                     <AppText variant="metaSmall" color="tertiary">
                       {`${e.sets}×${e.reps} · descanso ${e.rest_seconds}s${
@@ -103,8 +133,9 @@ export default function BancoTreinoDetailScreen() {
 
           <View style={styles.ctaBar}>
             <Button
-              label="Clonar e editar"
-              onPress={() => router.push(('/montar-treino?fromLibrary=' + workout.id) as Href)}
+              label={copy.isPending ? 'Clonando…' : 'Clonar e editar'}
+              disabled={copy.isPending}
+              onPress={cloneAndEdit}
             />
           </View>
         </Animated.View>

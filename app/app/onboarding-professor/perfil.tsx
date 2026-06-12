@@ -1,20 +1,93 @@
 // Perfil profissional mínimo (PDF): nome profissional + área de atuação obrigatórios;
 // CREF, tempo de experiência e Cidade/UF opcionais — [MOCK até endpoint existir].
 import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
+import { CaretDown, CaretUp, Check } from 'phosphor-react-native';
 import type { z } from 'zod';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { Input } from '@/components/ui';
-import { OnboardingScreen, OptionCard } from '@/components/onboarding';
+import { AppText, Input } from '@/components/ui';
+import { OnboardingScreen } from '@/components/onboarding';
 import { useAuthStore } from '@/store/authStore';
+import { darkTheme } from '@/theme';
 import {
   AREA_LABEL,
   AreaAtuacaoSchema,
   saveProfessionalProfile,
 } from '@/mocks/professionalProfile';
 
+const { colors } = darkTheme;
+
 type Area = z.infer<typeof AreaAtuacaoSchema>;
 const AREAS = AreaAtuacaoSchema.options;
+
+function AreaSelect({
+  value,
+  onChange,
+}: {
+  value: Area | null;
+  onChange: (v: Area) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Selecionar área de atuação"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((v) => !v)}
+        style={[styles.trigger, open && styles.triggerOpen]}
+      >
+        <View style={styles.triggerContent}>
+          <AppText variant="metaSmall" color="tertiary" style={styles.triggerLabel}>
+            Área de atuação
+          </AppText>
+          <AppText variant="bodyLg" color={value ? 'primary' : 'tertiary'}>
+            {value ? AREA_LABEL[value] : 'Selecionar…'}
+          </AppText>
+        </View>
+        {open ? (
+          <CaretUp size={18} weight="bold" color={colors.textTertiary} />
+        ) : (
+          <CaretDown size={18} weight="bold" color={colors.textTertiary} />
+        )}
+      </Pressable>
+
+      {open && (
+        <View style={styles.dropdown}>
+          {AREAS.map((a) => {
+            const selected = value === a;
+            return (
+              <Pressable
+                key={a}
+                accessibilityRole="menuitem"
+                accessibilityState={{ selected }}
+                onPress={() => {
+                  onChange(a);
+                  setOpen(false);
+                }}
+                style={[styles.option, selected && styles.optionSelected]}
+              >
+                <AppText
+                  variant="bodyMd"
+                  color={selected ? 'neon' : 'primary'}
+                  style={styles.optionText}
+                >
+                  {AREA_LABEL[a]}
+                </AppText>
+                {selected ? (
+                  <Check size={16} weight="bold" color={colors.neon} />
+                ) : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
 
 export default function PerfilProfissionalScreen() {
   const user = useAuthStore((s) => s.user);
@@ -62,14 +135,7 @@ export default function PerfilProfissionalScreen() {
         autoCapitalize="words"
         error={nomeError ?? undefined}
       />
-      {AREAS.map((a) => (
-        <OptionCard
-          key={a}
-          label={AREA_LABEL[a]}
-          selected={area === a}
-          onPress={() => setArea(a)}
-        />
-      ))}
+      <AreaSelect value={area} onChange={setArea} />
       <Input
         label="CREF · opcional"
         value={cref}
@@ -85,3 +151,48 @@ export default function PerfilProfissionalScreen() {
     </OnboardingScreen>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  trigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    minHeight: 56,
+  },
+  triggerOpen: {
+    borderColor: theme.colors.neon,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  triggerContent: { flex: 1, gap: 2 },
+  triggerLabel: { marginBottom: 1 },
+  dropdown: {
+    backgroundColor: theme.colors.surface2,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: theme.colors.neon,
+    borderBottomLeftRadius: theme.radius.card,
+    borderBottomRightRadius: theme.radius.card,
+    overflow: 'hidden',
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.outlineVariant,
+  },
+  optionSelected: {
+    backgroundColor: theme.colors.surface3,
+  },
+  optionText: { flex: 1 },
+}));

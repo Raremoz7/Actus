@@ -21,7 +21,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { KpiCard } from './KpiCard';
 import { QuickAction } from './QuickAction';
 import { RecentStudents } from './RecentStudents';
-import { EngagementSoon } from './EngagementSoon';
+import { EngagementCard } from './EngagementCard';
 
 const { colors, motion } = darkTheme;
 
@@ -84,7 +84,7 @@ export function PersonalDashboard() {
           </View>
 
           <View style={styles.section}>
-            <EngagementSoon />
+            <EngagementCard students={studentList} />
           </View>
         </Animated.View>
       </ScrollView>

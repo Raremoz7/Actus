@@ -72,7 +72,9 @@ export function MyPositionCard({ standing, isPrivate = false, today }: Props) {
             </View>
             <View style={styles.metric}>
               <View style={styles.streak}>
-                <Flame size={18} weight="duotone" color={colors.neon} />
+                {standing.streakCurrent >= 1 && (
+                  <Flame testID="streak-flame" size={18} weight="duotone" color={colors.neon} />
+                )}
                 <AppText variant="dataBig" color="primary">
                   {String(standing.streakCurrent)}
                 </AppText>

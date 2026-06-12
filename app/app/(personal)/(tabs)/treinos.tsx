@@ -11,15 +11,11 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Screen, AppText, Button, ListState, TopBar } from '@/components/ui';
 import { useProWorkouts } from '@/hooks/useProWorkouts';
-import type { ProWorkoutListItem } from '@/types/workouts';
+import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import {
   WorkoutScopeToggle,
   type WorkoutScope,
-  ObjetivoChips,
-  LibraryWorkoutCard,
 } from '@/components/library';
-import { getWorkoutLibrary } from '@/data/workoutLibrary';
-import type { Objetivo } from '@/types/workoutLibrary';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
@@ -35,7 +31,9 @@ function exerciseLabel(n: number): string {
 }
 
 type CardProps = {
-  workout: ProWorkoutListItem;
+  // Estrutural: serve tanto p/ "Meus" (ProWorkoutListItem) quanto p/ os
+  // templates do Banco (WorkoutTemplateSummary) — ambos têm estes campos.
+  workout: { name: string; notes: string | null; exercise_count: number };
   onPress: () => void;
 };
 
@@ -77,9 +75,11 @@ function ProWorkoutCard({ workout, onPress }: CardProps) {
 // (/montar-treino), criando ou editando (?id=).
 export default function PersonalTreinosScreen() {
   const list = useProWorkouts();
-  // Escopo da aba: "meus" (templates do personal) ou "banco" (biblioteca gratuita).
+  // Escopo da aba: "meus" (treinos do personal) ou "banco" (templates curados).
   const [scope, setScope] = useState<WorkoutScope>('meus');
-  const [objetivo, setObjetivo] = useState<Objetivo | null>(null);
+  // Banco = templates curados do admin (GET /workout-templates). Só busca quando
+  // o escopo está ativo (evita request desnecessário ao abrir a aba em "Meus").
+  const templates = useWorkoutTemplates();
 
   // 1 momento de motion por tela: reveal de entrada (opacity + translateY, 300ms).
   const opacity = useSharedValue(0);
@@ -94,11 +94,9 @@ export default function PersonalTreinosScreen() {
   }));
 
   const workouts = useMemo(() => list.data?.workouts ?? [], [list.data]);
-
-  // Biblioteca filtrada pelo objetivo selecionado (null = todos).
-  const library = useMemo(
-    () => getWorkoutLibrary().filter((w) => !objetivo || w.objetivo === objetivo),
-    [objetivo],
+  const templateList = useMemo(
+    () => templates.data?.templates ?? [],
+    [templates.data],
   );
 
   function openBuilder() {
@@ -114,12 +112,14 @@ export default function PersonalTreinosScreen() {
   }
 
   const isEmpty = !list.isLoading && !list.isError && workouts.length === 0;
+  const isBankEmpty =
+    !templates.isLoading && !templates.isError && templateList.length === 0;
 
   return (
     <Screen edges={['top']}>
       <TopBar
         title="Treinos"
-        eyebrow={scope === 'meus' ? countLabel(workouts.length) : countLabel(library.length)}
+        eyebrow={scope === 'meus' ? countLabel(workouts.length) : countLabel(templateList.length)}
       />
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -172,16 +172,36 @@ export default function PersonalTreinosScreen() {
           </>
         ) : (
           <>
-            <ObjetivoChips selected={objetivo} onChange={setObjetivo} />
             <View style={styles.list}>
-              {library.map((w) => (
-                <LibraryWorkoutCard
-                  key={w.id}
-                  workout={w}
-                  onPress={() => openLibraryWorkout(w.id)}
+              {templateList.map((t) => (
+                <ProWorkoutCard
+                  key={t.id}
+                  workout={t}
+                  onPress={() => openLibraryWorkout(t.id)}
                 />
               ))}
             </View>
+
+            {templates.isLoading ? <ListState kind="loading" skeletonCount={3} /> : null}
+
+            {isBankEmpty ? (
+              <ListState
+                kind="empty"
+                icon={Barbell}
+                title="Banco vazio"
+                message="Os treinos curados aparecerão aqui em breve."
+              />
+            ) : null}
+
+            {templates.isError ? (
+              <ListState
+                kind="error"
+                title="Não foi possível carregar"
+                message="Verifique sua conexão e tente novamente."
+                actionLabel="Tentar de novo"
+                onAction={() => void templates.refetch()}
+              />
+            ) : null}
           </>
         )}
       </Animated.View>

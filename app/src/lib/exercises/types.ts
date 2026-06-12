@@ -13,6 +13,7 @@ export const ExerciseSchema = z.object({
   secondary_muscles: z.array(z.string()),
   image_0_url: z.string().nullable(),
   image_1_url: z.string().nullable(),
+  machine_type: z.string().nullable().optional(),
 });
 
 export type Exercise = z.infer<typeof ExerciseSchema>;

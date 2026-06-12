@@ -8,15 +8,16 @@ type Filters = {
   equipment?: string;
   level?: string;
   muscle?: string;
+  machine_type?: string;
   limit?: number;
   offset?: number;
 };
 
 export function useExerciseCatalog(filters: Filters = {}) {
-  const { q, category, equipment, level, muscle, limit = 60, offset = 0 } = filters;
+  const { q, category, equipment, level, muscle, machine_type, limit = 60, offset = 0 } = filters;
 
   return useQuery<ExerciseListResponse>({
-    queryKey: ['exercises', { q, category, equipment, level, muscle, limit, offset }],
+    queryKey: ['exercises', { q, category, equipment, level, muscle, machine_type, limit, offset }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (q) params.set('q', q);
@@ -24,6 +25,7 @@ export function useExerciseCatalog(filters: Filters = {}) {
       if (equipment) params.set('equipment', equipment);
       if (level) params.set('level', level);
       if (muscle) params.set('muscle', muscle);
+      if (machine_type) params.set('machine_type', machine_type);
       params.set('limit', String(limit));
       params.set('offset', String(offset));
       const r = await api.get<ExerciseListResponse>(`/exercises?${params}`);

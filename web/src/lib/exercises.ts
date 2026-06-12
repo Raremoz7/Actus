@@ -11,6 +11,7 @@ export type Exercise = {
   secondary_muscles: string[];
   image_0_url: string | null;
   image_1_url: string | null;
+  machine_type: string | null;
 };
 
 export type ExerciseListResponse = {
@@ -76,6 +77,33 @@ export const CATEGORIES = Object.keys(CATEGORY_PT);
 export const EQUIPMENTS = Object.keys(EQUIPMENT_PT);
 export const MUSCLES    = Object.keys(MUSCLE_PT);
 export const LEVELS     = Object.keys(LEVEL_PT);
+
+export const MACHINE_TYPES = [
+  'Smith Machine',
+  'Leg Press',
+  'Hack Squat',
+  'Mesa Flexora',
+  'Extensora',
+  'Leverage',
+  'Bicicleta Ergométrica',
+  'Peck Deck',
+  'Panturrilha (Máquina)',
+  'Esteira',
+  'Remo Ergométrico',
+  'Elíptico',
+  'Stairmaster',
+  'Escada Rolante',
+  'Máquina de Abdominal',
+  'Supino (Máquina)',
+  'Rosca (Máquina)',
+  'Tríceps (Máquina)',
+  'Press Ombro (Máquina)',
+  'Dip (Máquina)',
+  'Remada T-Bar',
+  'Glúteo e Isquiotibial (GHR)',
+  'Extensão Lombar (Máquina)',
+  'Agachamento (Máquina)',
+] as const;
 
 export function categoryLabel(key: string | null): string {
   if (!key) return '';

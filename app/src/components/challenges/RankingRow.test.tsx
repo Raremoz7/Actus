@@ -36,4 +36,19 @@ describe('RankingRow', () => {
     );
     expect(screen.getByText('recorde: 8 dias · ativo hoje')).toBeTruthy();
   });
+
+  it('não mostra ícone de chama quando streak é 0', () => {
+    render(
+      <RankingRow position={5} name="Carlos" activeDays={3} streak={0} isMe={false} />,
+    );
+    expect(screen.getByText('0')).toBeTruthy();
+    expect(screen.queryByTestId('streak-flame')).toBeNull();
+  });
+
+  it('mostra ícone de chama quando streak é 1 ou mais', () => {
+    render(
+      <RankingRow position={1} name="Ana" activeDays={10} streak={1} isMe={false} />,
+    );
+    expect(screen.getByTestId('streak-flame')).toBeTruthy();
+  });
 });

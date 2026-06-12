@@ -89,4 +89,35 @@ describe('ChallengeListCard', () => {
     fireEvent.press(screen.getByText('Aceitar'));
     expect(onAccept).not.toHaveBeenCalled();
   });
+
+  it('não mostra chama no teaser quando streak é 0', () => {
+    render(
+      <ChallengeListCard
+        name="Julho em forma"
+        dayProgress={{ day: 5, total: 30 }}
+        status="active"
+        statusLabel="Ativo"
+        participantStatus="active"
+        rankingTeaser={{ position: 1, streak: 0 }}
+        onPress={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('streak-flame')).toBeNull();
+    expect(screen.getByText('0 de sequência')).toBeTruthy();
+  });
+
+  it('mostra chama no teaser quando streak >= 1', () => {
+    render(
+      <ChallengeListCard
+        name="Julho em forma"
+        dayProgress={{ day: 5, total: 30 }}
+        status="active"
+        statusLabel="Ativo"
+        participantStatus="active"
+        rankingTeaser={{ position: 1, streak: 3 }}
+        onPress={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('streak-flame')).toBeTruthy();
+  });
 });

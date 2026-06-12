@@ -104,6 +104,7 @@ export default function TreinoDetailScreen() {
                   notes={e.notes}
                   position={numbered ? i + 1 : undefined}
                   wgerExerciseId={e.wger_exercise_id}
+                  exerciseId={e.exercise_id}
                   onPress={() =>
                     router.push({
                       pathname: '/(aluno)/exercicio/[id]',
@@ -117,7 +118,8 @@ export default function TreinoDetailScreen() {
                         reps: String(e.reps),
                         rest: String(e.rest_seconds),
                         note: e.notes ?? '',
-                        wgerId: String(e.wger_exercise_id),
+                        wgerId: String(e.wger_exercise_id ?? ''),
+                        exerciseId: e.exercise_id ?? '',
                       },
                     } as Href)
                   }

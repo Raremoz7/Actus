@@ -141,7 +141,9 @@ export function ChallengeListCard({
             {`Você está em ${rankingTeaser.position}º`}
           </AppText>
           <View style={styles.teaserStreak}>
-            <Flame size={13} weight="duotone" color={colors.neon} />
+            {rankingTeaser.streak >= 1 && (
+              <Flame testID="streak-flame" size={13} weight="duotone" color={colors.neon} />
+            )}
             <AppText variant="metaSmall" color="secondary">
               {`${rankingTeaser.streak} de sequência`}
             </AppText>

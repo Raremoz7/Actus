@@ -6,7 +6,7 @@
 --   nutri@actus.dev      (nutricionista) Marina Nutri
 --   aluno@actus.dev      (aluno)         Carlos Aluno    -> vinculado ao personal E ao nutri
 --   aluno2@actus.dev     (aluno)         Beatriz Aluna   -> vinculada ao personal
---   + 4 treinos reais (exercícios do catálogo Wger empacotado) — split Push/Pull/Legs p/ Carlos
+--   + 4 treinos (exercícios do catálogo PT-BR free-exercise-db) — split Push/Pull/Legs p/ Carlos
 --     e full body iniciante p/ Beatriz
 --   + 1 dieta atribuída ao Carlos
 --   + 1 desafio ATIVO com os dois alunos participando
@@ -65,42 +65,42 @@ begin
     (al2_id, prof_id,  'personal',      'active'),
     (al1_id, nutri_id, 'nutricionista', 'active');
 
-  -- ----- TREINOS (personal) — exercícios reais do catálogo Wger empacotado -----
+  -- ----- TREINOS (personal) — exercícios do catálogo PT-BR (free-exercise-db) -----
   insert into public.workouts (id, owner_personal_id, name, notes) values
     (w_push, prof_id, 'Peito, Ombro e Tríceps',          'Treino de empurrar focado em volume para superiores.'),
     (w_pull, prof_id, 'Costas e Bíceps',                 'Treino de puxar com ênfase em dorsais e bíceps.'),
     (w_legs, prof_id, 'Pernas completo',                 'Quadríceps, posterior e panturrilha num só treino.'),
-    (w_ini,  prof_id, 'Full body iniciante (máquinas)',  'Primeira rotina em máquinas guiadas, corpo inteiro.');
+    (w_ini,  prof_id, 'Full body iniciante',             'Primeira rotina de força, corpo inteiro.');
 
-  insert into public.workout_exercises (workout_id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, muscle_group) values
+  insert into public.workout_exercises (workout_id, position, exercise_id, name_snapshot, sets, reps, rest_seconds, muscle_group) values
     -- Peito, Ombro e Tríceps
-    (w_push, 1, 73,   'Bench Press',                       4, 10, 90, 'Peito'),
-    (w_push, 2, 538,  'Incline Bench Press - Barbell',     3, 10, 90, 'Peito'),
-    (w_push, 3, 238,  'Fly With Dumbbells',                3, 12, 60, 'Peito'),
-    (w_push, 4, 567,  'Shoulder Press, Dumbbells',         3, 10, 90, 'Ombros'),
-    (w_push, 5, 348,  'Lateral Raises',                    3, 15, 45, 'Ombros'),
-    (w_push, 6, 1185, 'Triceps Pushdown',                  3, 12, 60, 'Braços'),
+    (w_push, 1, 'Barbell_Bench_Press_-_Medium_Grip', 'Supino Reto com Barra',          4, 10, 90, 'Peito'),
+    (w_push, 2, 'Incline_Dumbbell_Flyes',            'Crucifixo Inclinado com Halteres',3, 12, 60, 'Peito'),
+    (w_push, 3, 'Butterfly',                         'Butterfly',                       3, 12, 60, 'Peito'),
+    (w_push, 4, 'Barbell_Shoulder_Press',            'Desenvolvimento Militar com Barra',3, 10, 90, 'Ombro'),
+    (w_push, 5, 'Side_Lateral_Raise',                'Elevação Lateral',                3, 15, 45, 'Ombro'),
+    (w_push, 6, 'Triceps_Pushdown',                  'Tríceps Pulley',                  3, 12, 60, 'Braço'),
     -- Costas e Bíceps
-    (w_pull, 1, 158,  'Close-grip Lat Pull Down',          4, 10, 90, 'Costas'),
-    (w_pull, 2, 921,  'Seated Cable Rows',                 3, 10, 90, 'Costas'),
-    (w_pull, 3, 81,   'Bent Over Dumbbell Rows',           3, 10, 75, 'Costas'),
-    (w_pull, 4, 1732, 'Face pulls with yellow/green band', 3, 15, 45, 'Costas'),
-    (w_pull, 5, 92,   'Biceps Curls With Dumbbell',        3, 12, 60, 'Braços'),
-    (w_pull, 6, 1567, 'Alternating dumbbell hammer curl',  3, 12, 60, 'Braços'),
+    (w_pull, 1, 'Close-Grip_Front_Lat_Pulldown',     'Pulldown Frente Pegada Fechada',  4, 10, 90, 'Costas'),
+    (w_pull, 2, 'Seated_Cable_Rows',                 'Remada Sentada no Pulley',        3, 10, 90, 'Costas'),
+    (w_pull, 3, 'One-Arm_Dumbbell_Row',              'Remada Unilateral com Halter',    3, 10, 75, 'Costas'),
+    (w_pull, 4, 'Face_Pull',                         'Face Pull',                       3, 15, 45, 'Costas'),
+    (w_pull, 5, 'Dumbbell_Bicep_Curl',               'Rosca Bíceps com Halteres',       3, 12, 60, 'Braço'),
+    (w_pull, 6, 'Hammer_Curls',                      'Rosca Martelo',                   3, 12, 60, 'Braço'),
     -- Pernas completo
-    (w_legs, 1, 257,  'Front Squats',                      4, 8,  120, 'Pernas'),
-    (w_legs, 2, 371,  'Leg Press',                         4, 12, 90,  'Pernas'),
-    (w_legs, 3, 1652, 'Dumbbell Romanian Deadlift',        3, 10, 90,  'Pernas'),
-    (w_legs, 4, 364,  'Leg Curl',                          3, 12, 60,  'Pernas'),
-    (w_legs, 5, 369,  'Leg Extension',                     3, 15, 60,  'Pernas'),
-    (w_legs, 6, 622,  'Standing Calf Raises',              4, 15, 45,  'Panturrilhas'),
-    -- Full body iniciante (máquinas)
-    (w_ini,  1, 371,  'Leg Press',                         3, 12, 60, 'Pernas'),
-    (w_ini,  2, 1725, 'Seated Row (Machine)',              3, 12, 60, 'Costas'),
-    (w_ini,  3, 543,  'Shoulder Press, on Machine',        3, 12, 60, 'Ombros'),
-    (w_ini,  4, 364,  'Leg Curl',                          3, 12, 60, 'Pernas'),
-    (w_ini,  5, 135,  'Butterfly',                         3, 12, 60, 'Peito'),
-    (w_ini,  6, 95,   'Biceps Curl With Cable',            3, 12, 60, 'Braços');
+    (w_legs, 1, 'Barbell_Squat',                     'Agachamento com Barra',           4, 8,  120, 'Pernas'),
+    (w_legs, 2, 'Leg_Press',                         'Leg Press',                       4, 12, 90,  'Pernas'),
+    (w_legs, 3, 'Romanian_Deadlift',                 'Levantamento Terra Romeno',       3, 10, 90,  'Pernas'),
+    (w_legs, 4, 'Lying_Leg_Curls',                   'Cadeira Flexora',                 3, 12, 60,  'Pernas'),
+    (w_legs, 5, 'Leg_Extensions',                    'Extensão de Pernas',              3, 15, 60,  'Pernas'),
+    (w_legs, 6, 'Standing_Calf_Raises',              'Elevação de Panturrilha em Pé',   4, 15, 45,  'Panturrilhas'),
+    -- Full body iniciante
+    (w_ini,  1, 'Leg_Press',                         'Leg Press',                       3, 12, 60, 'Pernas'),
+    (w_ini,  2, 'Seated_Cable_Rows',                 'Remada Sentada no Pulley',        3, 12, 60, 'Costas'),
+    (w_ini,  3, 'Barbell_Shoulder_Press',            'Desenvolvimento Militar com Barra',3, 12, 60, 'Ombro'),
+    (w_ini,  4, 'Lying_Leg_Curls',                   'Cadeira Flexora',                 3, 12, 60, 'Pernas'),
+    (w_ini,  5, 'Butterfly',                         'Butterfly',                       3, 12, 60, 'Peito'),
+    (w_ini,  6, 'Standing_Biceps_Cable_Curl',        'Rosca Direta na Polia em Pé',     3, 12, 60, 'Braço');
 
   -- Carlos: split Push (seg) / Pull (qua) / Legs (sex). Beatriz: full body iniciante (ter/qui).
   insert into public.student_workouts (student_id, workout_id, weekdays, display_order) values

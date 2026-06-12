@@ -79,7 +79,14 @@ export function RankingRow({
       </View>
       <View style={styles.metrics}>
         <View style={styles.streak}>
-          <Flame size={15} weight="duotone" color={isMe ? colors.neon : colors.secondary} />
+          {streak >= 1 && (
+            <Flame
+              testID="streak-flame"
+              size={15}
+              weight="duotone"
+              color={isMe ? colors.neon : colors.secondary}
+            />
+          )}
           <AppText variant="dataMed" color={isMe ? 'neon' : 'secondary'}>
             {String(streak)}
           </AppText>

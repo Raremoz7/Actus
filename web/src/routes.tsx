@@ -10,6 +10,8 @@ import { TreinosPage } from './pages/treinos/TreinosPage';
 import { ExerciciosPage } from './pages/exercicios/ExerciciosPage';
 import { BuilderPage } from './pages/treinos/BuilderPage';
 import { AtribuirPage } from './pages/treinos/AtribuirPage';
+import { TemplatesPage } from './pages/treinos/TemplatesPage';
+import { TemplateBuilderPage } from './pages/treinos/TemplateBuilderPage';
 import { ConvitesPage } from './pages/convites/ConvitesPage';
 import { ConfiguracoesPage } from './pages/configuracoes/ConfiguracoesPage';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -30,6 +32,9 @@ export const router = createBrowserRouter([
           { path: '/alunos', element: <AlunosPage /> },
           { path: '/alunos/:id', element: <AlunoDetailPage /> },
           { path: '/treinos', element: <TreinosPage /> },
+          { path: '/treinos/templates', element: <TemplatesPage /> },
+          { path: '/treinos/templates/novo', element: <TemplateBuilderPage /> },
+          { path: '/treinos/templates/:id', element: <TemplateBuilderPage /> },
           { path: '/exercicios', element: <ExerciciosPage /> },
           { path: '/treinos/novo', element: <BuilderPage /> },
           { path: '/treinos/:id', element: <BuilderPage /> },

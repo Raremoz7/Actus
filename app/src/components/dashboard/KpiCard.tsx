@@ -12,8 +12,8 @@ type Props = {
 export function KpiCard({ value, label }: Props) {
   return (
     <View style={styles.card}>
-      <KpiNumber value={value} size="big" tone="inverse" />
-      <AppText variant="metaSmall" color="inverse">
+      <KpiNumber value={value} size="big" tone="neon" />
+      <AppText variant="metaSmall" color="secondary">
         {label}
       </AppText>
     </View>
@@ -23,7 +23,9 @@ export function KpiCard({ value, label }: Props) {
 const styles = StyleSheet.create((theme) => ({
   card: {
     flex: 1,
-    backgroundColor: theme.colors.neon,
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.neon,
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
     gap: theme.spacing.xs,

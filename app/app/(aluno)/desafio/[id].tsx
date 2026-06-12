@@ -7,23 +7,17 @@ import { CaretLeft, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, ListState } from '@/components/ui';
-import { MyPositionCard, RankingRow } from '@/components/challenges';
+import { ChallengeCalendar, MyPositionCard, RankingRow } from '@/components/challenges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useChallengeRanking } from '@/hooks/useChallengeRanking';
 import { goBackOr } from '@/lib/nav';
 import { useMe } from '@/hooks/useMe';
-import { challengeDayProgress, challengeStatusLabel } from '@/lib/challenge';
+import { challengeStatusLabel } from '@/lib/challenge';
 import { formatDateLocal, shortDateBr } from '@/lib/format';
 import { isApiError } from '@/api/errors';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
-
-// Razão dia/total clampada a [0, 1] para a largura da barra.
-function progressRatio(day: number, total: number): number {
-  if (total <= 0) return 0;
-  return Math.min(1, Math.max(0, day / total));
-}
 
 // Ranking 403 por visibilidade/participação → privado (não é erro real).
 // O backend responde 403 com error 'ranking_private' / 'forbidden_not_participant'
@@ -56,10 +50,6 @@ export default function DesafioDetailScreen() {
 
   // Hoje em componentes LOCAIS (nunca toISOString — bug de fuso UTC-3).
   const today = formatDateLocal(new Date());
-  const dayProgress = challenge
-    ? challengeDayProgress(challenge.starts_on, challenge.ends_on, today)
-    : { day: 0, total: 1 };
-  const ratio = progressRatio(dayProgress.day, dayProgress.total);
   const statusLabel = challenge
     ? challengeStatusLabel(challenge.status, item?.participant_status ?? 'active')
     : 'Desafio';
@@ -117,13 +107,12 @@ export default function DesafioDetailScreen() {
                   {`${shortDateBr(challenge.starts_on)} até ${shortDateBr(challenge.ends_on)}`}
                 </AppText>
 
-                <View style={styles.progressRow}>
-                  <AppText variant="metaSmall" color="tertiary">
-                    {`dia ${dayProgress.day} de ${dayProgress.total}`}
-                  </AppText>
-                </View>
-                <View style={styles.track}>
-                  <View style={[styles.fill, { width: `${ratio * 100}%` }]} />
+                <View style={styles.calendar}>
+                  <ChallengeCalendar
+                    startsOn={challenge.starts_on}
+                    endsOn={challenge.ends_on}
+                    today={today}
+                  />
                 </View>
               </View>
 
@@ -226,18 +215,7 @@ const styles = StyleSheet.create((theme) => ({
   heroHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   heroTitle: { marginTop: theme.spacing.sm },
   period: { marginTop: theme.spacing.xs },
-  progressRow: { marginTop: theme.spacing.lg, marginBottom: theme.spacing.xs },
-  track: {
-    height: 6,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.surface3,
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.neon,
-  },
+  calendar: { marginTop: theme.spacing.lg },
   standing: { marginTop: theme.spacing.lg },
   rule: { marginTop: theme.spacing.lg },
   secLabel: { marginTop: theme.spacing.xl, marginBottom: theme.spacing.sm },

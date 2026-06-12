@@ -21,6 +21,8 @@ export { ListState } from './ListState';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 
+export { AnimatedPage } from './AnimatedPage';
+
 // Logo é criado por outro agente (Onda 1), mas reexportado aqui por conveniência.
 export { Logo } from './Logo';
 export type { LogoVariant, LogoColor } from './Logo';

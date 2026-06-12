@@ -1,29 +1,61 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 
-const mockPush = jest.fn();
+const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
-  router: { push: (...a: unknown[]) => mockPush(...a), back: jest.fn() },
-  // require lazy dentro da factory (jest proíbe referenciar variáveis fora de escopo).
-  useLocalSearchParams: () => ({
-    id: require('@/data/workoutLibrary').getWorkoutLibrary()[0].id,
-  }),
+  router: { replace: (...a: unknown[]) => mockReplace(...a), back: jest.fn() },
+  useLocalSearchParams: () => ({ id: 'tmpl-1' }),
+}));
+
+// Detalhe e cópia do template são mockados — a tela só orquestra hooks + navegação.
+const mockMutate = jest.fn();
+const detail = {
+  data: {
+    id: 'tmpl-1',
+    name: 'Treino A',
+    notes: null,
+    created_at: '2026-01-01T00:00:00Z',
+    exercises: [
+      {
+        id: 'ex-1',
+        position: 1,
+        exercise_id: 'supino-reto',
+        wger_exercise_id: null,
+        name_snapshot: 'Supino reto',
+        sets: 4,
+        reps: 8,
+        rest_seconds: 90,
+        notes: null,
+        muscle_group: 'Peito',
+      },
+    ],
+  },
+  isLoading: false,
+  isError: false,
+  refetch: jest.fn(),
+};
+
+jest.mock('@/hooks/useWorkoutTemplates', () => ({
+  useWorkoutTemplateDetail: () => detail,
+  useCopyWorkoutTemplate: () => ({ mutate: mockMutate, isPending: false }),
 }));
 
 import BancoTreinoDetailScreen from './[id]';
-import { getWorkoutLibrary } from '@/data/workoutLibrary';
 
 describe('Detalhe do banco', () => {
-  it('mostra o nome e o primeiro exercício do programa', () => {
-    const w = getWorkoutLibrary()[0]!;
+  it('mostra o nome e o primeiro exercício do template', () => {
     render(<BancoTreinoDetailScreen />);
-    expect(screen.getByText(w.name)).toBeTruthy();
-    expect(screen.getByText(w.exercises[0]!.name)).toBeTruthy();
+    expect(screen.getByText('Treino A')).toBeTruthy();
+    expect(screen.getByText('Supino reto')).toBeTruthy();
   });
 
-  it('CTA "Clonar e editar" navega para o montar-treino com fromLibrary', () => {
-    const w = getWorkoutLibrary()[0]!;
+  it('CTA "Clonar e editar" dispara a cópia e navega no sucesso', () => {
     render(<BancoTreinoDetailScreen />);
     fireEvent.press(screen.getByText('Clonar e editar'));
-    expect(mockPush).toHaveBeenCalledWith('/montar-treino?fromLibrary=' + w.id);
+    expect(mockMutate).toHaveBeenCalledWith('tmpl-1', expect.any(Object));
+
+    // Simula o onSuccess do mutate → navega para o builder do workout clonado.
+    const onSuccess = mockMutate.mock.calls[0]![1].onSuccess;
+    onSuccess({ workout_id: 'wk-9' });
+    expect(mockReplace).toHaveBeenCalledWith('/montar-treino?id=wk-9');
   });
 });

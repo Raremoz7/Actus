@@ -14,6 +14,13 @@ export function AdminLayout() {
         { name: 'Profissionais', to: '/admin/profissionais' },
       ],
     },
+    {
+      label: 'Conteúdo',
+      items: [
+        { name: 'Treinos', to: '/treinos' },
+        { name: 'Exercícios', to: '/exercicios' },
+      ],
+    },
   ];
 
   return (
