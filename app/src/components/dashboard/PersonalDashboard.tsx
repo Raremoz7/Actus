@@ -60,17 +60,17 @@ export function PersonalDashboard() {
 
           <View style={styles.actions}>
             <QuickAction
-              icon={<UserPlus size={22} weight="duotone" color={colors.neon} />}
+              icon={<UserPlus size={22} weight="duotone" color={colors.textInverse} />}
               label="Convidar aluno"
               onPress={() => router.push('/convite' as Href)}
             />
             <QuickAction
-              icon={<Barbell size={22} weight="duotone" color={colors.neon} />}
+              icon={<Barbell size={22} weight="duotone" color={colors.textInverse} />}
               label="Novo treino"
               onPress={() => router.push('/montar-treino' as Href)}
             />
             <QuickAction
-              icon={<Trophy size={22} weight="duotone" color={colors.neon} />}
+              icon={<Trophy size={22} weight="duotone" color={colors.textInverse} />}
               label="Criar desafio"
               onPress={() => router.push('/criar-desafio' as Href)}
             />

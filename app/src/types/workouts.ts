@@ -162,20 +162,22 @@ export const AssignWorkoutBodySchema = z.object({
 export type AssignWorkoutBody = z.infer<typeof AssignWorkoutBodySchema>;
 
 // [Pro] Corpo de criação de template — POST /workouts.
-// Verificado em api/src/routes/workouts.ts (createWorkoutSchema): mínimo 1 exercício.
-// `wger_exercise_id` é obrigatório (int>=1) — sem busca Wger na API v1, a UI usa
-// placeholder 1 e o nome digitado (name_snapshot). Os defaults do backend
-// (sets=3, reps=10, rest_seconds=60) são replicados aqui para o cliente.
-export const CreateWorkoutExerciseSchema = z.object({
-  position: z.number().int().min(1),
-  wger_exercise_id: z.number().int().min(1),
-  name_snapshot: z.string().min(1).max(200),
-  sets: z.number().int().min(1).max(50).default(3),
-  reps: z.number().int().min(1).max(500).default(10),
-  rest_seconds: z.number().int().min(0).max(3600).default(60),
-  notes: z.string().max(2000).optional(),
-  muscle_group: z.string().min(1).max(80).optional().nullable(),
-});
+// Aceita exercise_id (novo banco) ou wger_exercise_id legado — pelo menos um obrigatório.
+export const CreateWorkoutExerciseSchema = z
+  .object({
+    position: z.number().int().min(1),
+    exercise_id: z.string().min(1).max(200).optional().nullable(),
+    wger_exercise_id: z.number().int().min(1).optional().nullable(),
+    name_snapshot: z.string().min(1).max(200),
+    sets: z.number().int().min(1).max(50).default(3),
+    reps: z.number().int().min(1).max(500).default(10),
+    rest_seconds: z.number().int().min(0).max(3600).default(60),
+    notes: z.string().max(2000).optional(),
+    muscle_group: z.string().min(1).max(80).optional().nullable(),
+  })
+  .refine((d) => d.exercise_id != null || d.wger_exercise_id != null, {
+    message: 'exercise_id or wger_exercise_id is required',
+  });
 export type CreateWorkoutExercise = z.infer<typeof CreateWorkoutExerciseSchema>;
 
 export const CreateWorkoutBodySchema = z.object({

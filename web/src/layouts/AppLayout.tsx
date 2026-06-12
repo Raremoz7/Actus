@@ -5,6 +5,7 @@ import { selectIsAdmin, useAuthStore } from '../store/authStore';
 const tabs = [
   { to: '/alunos', label: 'Alunos' },
   { to: '/treinos', label: 'Treinos' },
+  { to: '/exercicios', label: 'Exercícios' },
   { to: '/convites', label: 'Convites' },
 ];
 

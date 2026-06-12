@@ -6,10 +6,12 @@ import {
   WorkoutDetailSchema,
 } from '../lib/schemas';
 
-// Shape REAL do POST/PATCH /workouts (backend/api/src/routes/workouts.ts — exerciseSchema)
+// Shape REAL do POST/PATCH /workouts (backend/api/src/routes/workouts.ts — exerciseSchema).
+// Aceita exercise_id (novo banco) ou wger_exercise_id (legado Wger) — pelo menos um obrigatório.
 export type WorkoutExercisePayload = {
   position: number;
-  wger_exercise_id: number;
+  exercise_id?: string | null;
+  wger_exercise_id?: number | null;
   name_snapshot: string;
   sets: number;
   reps: number;

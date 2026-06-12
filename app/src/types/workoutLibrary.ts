@@ -17,7 +17,7 @@ export const NivelSchema = z.enum(['iniciante', 'intermediario', 'avancado']);
 export type Nivel = z.infer<typeof NivelSchema>;
 
 export const LibraryExerciseSchema = z.object({
-  wger_exercise_id: z.number().int().min(1),
+  exercise_id: z.string().min(1),
   name: z.string().min(1),
   muscle_group: z.string().nullable(),
   sets: z.number().int().min(1),

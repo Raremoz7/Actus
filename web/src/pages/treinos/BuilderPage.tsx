@@ -8,13 +8,13 @@ import {
   useUpdateWorkout,
   type WorkoutPayload,
 } from '../../hooks/useWorkoutMutations';
-import { wgerName, type WgerExercise } from '../../lib/wger';
+import { exerciseMuscleGroup, type Exercise } from '../../lib/exercises';
 import { CatalogPanel } from './CatalogPanel';
 import { ExerciseList } from './ExerciseList';
 
 export type BuilderExercise = {
   key: string; // chave local de lista (permite o mesmo exercício 2x)
-  wger_exercise_id: number;
+  exercise_id: string;
   name_snapshot: string;
   sets: number;
   reps: number;
@@ -50,7 +50,7 @@ export function BuilderPage() {
     setExercises(
       detail.data.exercises.map((ex) => ({
         key: nextKey(),
-        wger_exercise_id: ex.wger_exercise_id,
+        exercise_id: ex.exercise_id ?? String(ex.wger_exercise_id ?? ''),
         name_snapshot: ex.name_snapshot,
         sets: ex.sets,
         reps: ex.reps,
@@ -61,18 +61,18 @@ export function BuilderPage() {
     );
   }, [isEdit, detail.data]);
 
-  function addExercise(ex: WgerExercise) {
+  function addExercise(ex: Exercise) {
     setExercises((prev) => [
       ...prev,
       {
         key: nextKey(),
-        wger_exercise_id: ex.id,
-        name_snapshot: wgerName(ex),
+        exercise_id: ex.id,
+        name_snapshot: ex.name_pt,
         sets: 3,
         reps: 10,
         rest_seconds: 60,
         notes: null,
-        muscle_group: ex.muscles[0] ?? ex.category,
+        muscle_group: exerciseMuscleGroup(ex),
       },
     ]);
     setValidationError(null);
@@ -116,7 +116,7 @@ export function BuilderPage() {
       ...(notes.trim() !== '' ? { notes: notes.trim() } : {}),
       exercises: exercises.map((ex, i) => ({
         position: i + 1,
-        wger_exercise_id: ex.wger_exercise_id,
+        exercise_id: ex.exercise_id,
         name_snapshot: ex.name_snapshot,
         sets: ex.sets,
         reps: ex.reps,

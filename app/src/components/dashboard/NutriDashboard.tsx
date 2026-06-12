@@ -54,12 +54,12 @@ export function NutriDashboard() {
 
           <View style={styles.actions}>
             <QuickAction
-              icon={<UserPlus size={22} weight="duotone" color={colors.neon} />}
+              icon={<UserPlus size={22} weight="duotone" color={colors.textInverse} />}
               label="Convidar aluno"
               onPress={() => router.push('/convite' as Href)}
             />
             <QuickAction
-              icon={<ForkKnife size={22} weight="duotone" color={colors.neon} />}
+              icon={<ForkKnife size={22} weight="duotone" color={colors.textInverse} />}
               label="Nova dieta"
               onPress={() => router.push('/montar-dieta' as Href)}
             />

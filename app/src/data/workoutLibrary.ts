@@ -1,8 +1,8 @@
 // src/data/workoutLibrary.ts
 // [SEED — conteúdo-semente do futuro GET /workouts/library]
 // Curadoria editorial: os PROGRAMAS (seleção + séries/reps) são autorais; os EXERCÍCIOS
-// são reais do catálogo Wger empacotado (id/nome/imagem). O resolver monta a forma final.
-import { wgerCatalog, exerciseName } from '@/lib/wger/catalog';
+// são reais do catálogo free-exercise-db (Unlicense) com nomes PT-BR do joao-gugel.
+import { exerciseCatalog, exerciseMuscleGroup } from '@/lib/exercises/catalog';
 import {
   LibraryWorkoutSchema,
   type LibraryWorkout,
@@ -12,20 +12,8 @@ import {
 } from '@/types/workoutLibrary';
 import type { CreateWorkoutBody } from '@/types/workouts';
 
-// Categoria do Wger (EN) → rótulo pt-BR de grupo muscular.
-const CATEGORY_PT: Record<string, string> = {
-  Chest: 'Peito',
-  Back: 'Costas',
-  Legs: 'Pernas',
-  Shoulders: 'Ombros',
-  Arms: 'Braços',
-  Abs: 'Abdômen',
-  Calves: 'Panturrilhas',
-  Cardio: 'Cardio',
-};
-
 type SeedExercise = {
-  wgerExerciseId: number;
+  exerciseId: string;
   sets: number;
   reps: number;
   restSeconds: number;
@@ -42,20 +30,20 @@ type Seed = {
 
 // Atalho para reduzir ruído na tabela de seed.
 const ex = (
-  wgerExerciseId: number,
+  exerciseId: string,
   sets: number,
   reps: number,
   restSeconds: number,
   notes?: string,
 ): SeedExercise => ({
-  wgerExerciseId,
+  exerciseId,
   sets,
   reps,
   restSeconds,
   ...(notes ? { notes } : {}),
 });
 
-// 8 programas curados. Os ids são exercícios REAIS do catálogo Wger empacotado.
+// 8 programas curados. Os ids são exercícios do catálogo free-exercise-db.
 const SEED: Seed[] = [
   {
     id: 'hipertrofia-superior-push',
@@ -64,12 +52,12 @@ const SEED: Seed[] = [
     nivel: 'intermediario',
     notes: 'Treino de empurrar focado em volume para superiores.',
     exercises: [
-      ex(73, 4, 10, 90),
-      ex(538, 3, 10, 90),
-      ex(238, 3, 12, 60),
-      ex(567, 3, 10, 90),
-      ex(348, 3, 15, 45),
-      ex(1185, 3, 12, 60),
+      ex('Barbell_Bench_Press_-_Medium_Grip',         4, 10, 90),
+      ex('Dumbbell_Shoulder_Press',                   3, 10, 90),
+      ex('Barbell_Incline_Bench_Press_-_Medium_Grip', 3, 12, 60),
+      ex('Cable_Seated_Lateral_Raise',                3, 15, 45),
+      ex('Triceps_Pushdown',                          3, 12, 60),
+      ex('EZ-Bar_Skullcrusher',                       3, 12, 60),
     ],
   },
   {
@@ -79,12 +67,12 @@ const SEED: Seed[] = [
     nivel: 'intermediario',
     notes: 'Treino de puxar com ênfase em dorsais e bíceps.',
     exercises: [
-      ex(158, 4, 10, 90),
-      ex(921, 3, 10, 90),
-      ex(81, 3, 10, 75),
-      ex(1732, 3, 15, 45),
-      ex(92, 3, 12, 60),
-      ex(1567, 3, 12, 60),
+      ex('Wide-Grip_Rear_Pull-Up',  4, 10, 90),
+      ex('Bent_Over_Barbell_Row',   3, 10, 90),
+      ex('Seated_Cable_Rows',       3, 10, 75),
+      ex('Face_Pull',               3, 15, 45),
+      ex('Barbell_Curl',            3, 12, 60),
+      ex('Hammer_Curls',            3, 12, 60),
     ],
   },
   {
@@ -94,12 +82,12 @@ const SEED: Seed[] = [
     nivel: 'intermediario',
     notes: 'Quadríceps, posterior e panturrilha num só treino.',
     exercises: [
-      ex(257, 4, 8, 120),
-      ex(371, 4, 12, 90),
-      ex(1652, 3, 10, 90),
-      ex(364, 3, 12, 60),
-      ex(369, 3, 15, 60),
-      ex(622, 4, 15, 45),
+      ex('Barbell_Full_Squat',   4,  8, 120),
+      ex('Leg_Press',            4, 12,  90),
+      ex('Romanian_Deadlift',    3, 10,  90),
+      ex('Barbell_Lunge',        3, 12,  60),
+      ex('Lying_Leg_Curls',      3, 15,  60),
+      ex('Standing_Calf_Raises', 4, 15,  45),
     ],
   },
   {
@@ -109,11 +97,11 @@ const SEED: Seed[] = [
     nivel: 'avancado',
     notes: 'Básicos pesados, 5 séries de 5 com descanso longo.',
     exercises: [
-      ex(630, 5, 5, 180),
-      ex(73, 5, 5, 180),
-      ex(257, 5, 5, 180),
-      ex(566, 3, 6, 150),
-      ex(921, 3, 6, 150),
+      ex('Barbell_Deadlift',             5, 5, 180),
+      ex('Barbell_Bench_Press_-_Medium_Grip', 5, 5, 180),
+      ex('Barbell_Squat',                5, 5, 180),
+      ex('Barbell_Shoulder_Press',       3, 6, 150),
+      ex('Bent_Over_Barbell_Row',        3, 6, 150),
     ],
   },
   {
@@ -123,12 +111,12 @@ const SEED: Seed[] = [
     nivel: 'iniciante',
     notes: 'Circuito full body, descanso curto, ritmo contínuo.',
     exercises: [
-      ex(203, 3, 15, 45),
-      ex(1551, 3, 12, 45),
-      ex(206, 3, 12, 45),
-      ex(1725, 3, 15, 45),
-      ex(960, 3, 20, 45),
-      ex(1091, 3, 1, 45, 'Segure 30s'),
+      ex('Push-Up_Wide',          3, 15, 45),
+      ex('Bodyweight_Squat',      3, 12, 45),
+      ex('Rope_Jumping',          3,  1, 45, '1 minuto'),
+      ex('Barbell_Walking_Lunge', 3, 12, 45),
+      ex('Mountain_Climbers',     3, 20, 45),
+      ex('Plank',                 3,  1, 45, 'Segure 30s'),
     ],
   },
   {
@@ -138,11 +126,11 @@ const SEED: Seed[] = [
     nivel: 'intermediario',
     notes: 'Resistência de core e cadeia posterior.',
     exercises: [
-      ex(1091, 3, 1, 45, 'Segure 40s'),
-      ex(1193, 3, 20, 45),
-      ex(377, 3, 15, 45),
-      ex(301, 3, 15, 60),
-      ex(1642, 3, 15, 60),
+      ex('Plank',                          3,  1, 45, 'Segure 40s'),
+      ex('Crunch_-_Hands_Overhead',        3, 20, 45),
+      ex('Hyperextensions_Back_Extensions',3, 15, 45),
+      ex('Russian_Twist',                  3, 15, 60),
+      ex('Cable_Crunch',                   3, 15, 60),
     ],
   },
   {
@@ -152,11 +140,11 @@ const SEED: Seed[] = [
     nivel: 'iniciante',
     notes: 'Sessão leve de mobilidade e liberação.',
     exercises: [
-      ex(1865, 2, 12, 30),
-      ex(1859, 2, 1, 30, '1 min cada lado'),
-      ex(1230, 2, 1, 20, '30s cada lado'),
-      ex(1232, 2, 1, 20, '30s cada lado'),
-      ex(268, 2, 12, 45, 'Carga leve'),
+      ex('Cat_Stretch',               2, 12, 30),
+      ex('Kneeling_Hip_Flexor',       2,  1, 30, '1 min cada lado'),
+      ex('Seated_Hamstring',          2,  1, 20, '30s cada lado'),
+      ex('IT_Band_and_Glute_Stretch', 2,  1, 20, '30s cada lado'),
+      ex('Childs_Pose',               2,  1, 45, '1 min'),
     ],
   },
   {
@@ -166,36 +154,35 @@ const SEED: Seed[] = [
     nivel: 'iniciante',
     notes: 'Primeira rotina em máquinas guiadas, corpo inteiro.',
     exercises: [
-      ex(371, 3, 12, 60),
-      ex(1725, 3, 12, 60),
-      ex(543, 3, 12, 60),
-      ex(364, 3, 12, 60),
-      ex(135, 3, 12, 60),
-      ex(95, 3, 12, 60),
+      ex('Leverage_Chest_Press',          3, 12, 60),
+      ex('Close-Grip_Front_Lat_Pulldown', 3, 12, 60),
+      ex('Leg_Press',                     3, 12, 60),
+      ex('Lying_Leg_Curls',               3, 12, 60),
+      ex('Machine_Shoulder_Military_Press',3, 12, 60),
+      ex('Seated_Cable_Rows',             3, 12, 60),
     ],
   },
 ];
 
-// Resolve um seed → LibraryWorkout (nome/grupo do catálogo). Exercício cujo id não
-// existe no catálogo é descartado (dev warn) — não quebra o programa.
+// Resolve um seed → LibraryWorkout. Exercício cujo id não existe no catálogo
+// é descartado (warn em dev) — não quebra o programa.
 function resolveSeed(seed: Seed): LibraryWorkout {
-  const catalog = wgerCatalog();
+  const catalog = exerciseCatalog();
   const resolved: LibraryExercise[] = [];
   for (const s of seed.exercises) {
-    const found = catalog.getExercise(s.wgerExerciseId);
+    const found = catalog.getById(s.exerciseId);
     if (!found) {
       if (__DEV__) {
         console.warn(
-          `[workoutLibrary] exercício ${s.wgerExerciseId} ausente no catálogo Wger (seed ${seed.id})`,
+          `[workoutLibrary] exercício "${s.exerciseId}" ausente no catálogo (seed ${seed.id})`,
         );
       }
       continue;
     }
-    const muscle = CATEGORY_PT[found.category] ?? found.category;
     resolved.push({
-      wger_exercise_id: s.wgerExerciseId,
-      name: exerciseName(found),
-      muscle_group: muscle,
+      exercise_id: s.exerciseId,
+      name: found.name_pt,
+      muscle_group: exerciseMuscleGroup(found),
       sets: s.sets,
       reps: s.reps,
       rest_seconds: s.restSeconds,
@@ -234,7 +221,7 @@ export function libraryToCreateBody(w: LibraryWorkout): CreateWorkoutBody {
     ...(w.notes ? { notes: w.notes } : {}),
     exercises: w.exercises.map((e, i) => ({
       position: i + 1,
-      wger_exercise_id: e.wger_exercise_id,
+      exercise_id: e.exercise_id,
       name_snapshot: e.name,
       sets: e.sets,
       reps: e.reps,

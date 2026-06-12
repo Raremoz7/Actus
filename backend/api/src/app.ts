@@ -14,6 +14,7 @@ import professionalStudentsRoutes from "./routes/professionalStudents.js";
 import adminStudentLinksRoutes from "./routes/adminStudentLinks.js";
 import adminStaffRoutes from "./routes/adminStaff.js";
 import workoutsRoutes from "./routes/workouts.js";
+import exercisesRoutes from "./routes/exercises.js";
 import studentWorkoutsRoutes from "./routes/studentWorkouts.js";
 import dietTemplatesRoutes from "./routes/dietTemplates.js";
 import studentDietsRoutes from "./routes/studentDiets.js";
@@ -133,6 +134,7 @@ export function createApp() {
   app.use("/professional/students/par-q", requireAuth, professionalParqListRouter);
   app.use("/professional/students", requireAuth, professionalStudentsRoutes);
   app.use("/professional/challenges", requireAuth, requirePersonal, professionalChallengesRoutes);
+  app.use("/exercises", requireAuth, exercisesRoutes);
   app.use("/workouts", requireAuth, workoutsRoutes);
   app.use("/diet-templates", requireAuth, dietTemplatesRoutes);
   app.use("/students/:student_id/workouts", requireAuth, studentWorkoutsRoutes);

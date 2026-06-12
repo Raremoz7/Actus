@@ -7,7 +7,7 @@ type KpiNumberProps = {
   value: string | number;
   size?: 'big' | 'medium';
   unit?: string;
-  tone?: 'neon' | 'primary';
+  tone?: 'neon' | 'primary' | 'inverse';
 };
 
 export function KpiNumber({

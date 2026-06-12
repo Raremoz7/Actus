@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { AlunosPage } from './pages/alunos/AlunosPage';
 import { AlunoDetailPage } from './pages/alunos/AlunoDetailPage';
 import { TreinosPage } from './pages/treinos/TreinosPage';
+import { ExerciciosPage } from './pages/exercicios/ExerciciosPage';
 import { BuilderPage } from './pages/treinos/BuilderPage';
 import { AtribuirPage } from './pages/treinos/AtribuirPage';
 import { ConvitesPage } from './pages/convites/ConvitesPage';
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
           { path: '/alunos', element: <AlunosPage /> },
           { path: '/alunos/:id', element: <AlunoDetailPage /> },
           { path: '/treinos', element: <TreinosPage /> },
+          { path: '/exercicios', element: <ExerciciosPage /> },
           { path: '/treinos/novo', element: <BuilderPage /> },
           { path: '/treinos/:id', element: <BuilderPage /> },
           { path: '/treinos/:id/atribuir', element: <AtribuirPage /> },

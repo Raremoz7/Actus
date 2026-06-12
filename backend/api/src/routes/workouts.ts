@@ -6,16 +6,23 @@ import { uuid } from "../crypto.js";
 
 const router = Router();
 
-const exerciseSchema = z.object({
-  position: z.number().int().min(1),
-  wger_exercise_id: z.number().int().min(1),
-  name_snapshot: z.string().min(1).max(200),
-  sets: z.number().int().min(1).max(50).default(3),
-  reps: z.number().int().min(1).max(500).default(10),
-  rest_seconds: z.number().int().min(0).max(3600).default(60),
-  notes: z.string().max(2000).optional(),
-  muscle_group: z.string().min(1).max(80).optional().nullable(),
-});
+const exerciseSchema = z
+  .object({
+    position: z.number().int().min(1),
+    // Legado Wger — pode ser null quando exercise_id está preenchido.
+    wger_exercise_id: z.number().int().min(1).optional().nullable(),
+    // Novo banco de exercícios (free-exercise-db slug).
+    exercise_id: z.string().min(1).max(200).optional().nullable(),
+    name_snapshot: z.string().min(1).max(200),
+    sets: z.number().int().min(1).max(50).default(3),
+    reps: z.number().int().min(1).max(500).default(10),
+    rest_seconds: z.number().int().min(0).max(3600).default(60),
+    notes: z.string().max(2000).optional(),
+    muscle_group: z.string().min(1).max(80).optional().nullable(),
+  })
+  .refine((d) => d.wger_exercise_id != null || d.exercise_id != null, {
+    message: "wger_exercise_id or exercise_id is required",
+  });
 
 const createWorkoutSchema = z.object({
   name: z.string().min(1).max(200),
@@ -90,7 +97,8 @@ router.get("/:workout_id", async (req, res) => {
       const exQ = await client.query<{
         id: string;
         position: number;
-        wger_exercise_id: number;
+        wger_exercise_id: number | null;
+        exercise_id: string | null;
         name_snapshot: string;
         sets: number;
         reps: number;
@@ -99,7 +107,7 @@ router.get("/:workout_id", async (req, res) => {
         muscle_group: string | null;
       }>(
         `
-        select id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group
+        select id, position, wger_exercise_id, exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group
         from public.workout_exercises
         where workout_id = $1
         order by position asc
@@ -118,6 +126,7 @@ router.get("/:workout_id", async (req, res) => {
             id: e.id,
             position: e.position,
             wger_exercise_id: e.wger_exercise_id,
+            exercise_id: e.exercise_id,
             name_snapshot: e.name_snapshot,
             sets: e.sets,
             reps: e.reps,
@@ -176,15 +185,16 @@ router.post("/", async (req, res) => {
         await client.query(
           `
           insert into public.workout_exercises
-            (id, workout_id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group)
+            (id, workout_id, position, wger_exercise_id, exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group)
           values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           `,
           [
             uuid(),
             insertedWorkoutId,
             ex.position,
-            ex.wger_exercise_id,
+            ex.wger_exercise_id ?? null,
+            ex.exercise_id ?? null,
             ex.name_snapshot,
             ex.sets,
             ex.reps,
@@ -255,14 +265,15 @@ router.patch("/:workout_id", async (req, res) => {
           await client.query(
             `
             insert into public.workout_exercises
-              (id, workout_id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group)
-            values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+              (id, workout_id, position, wger_exercise_id, exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group)
+            values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             `,
             [
               uuid(),
               workoutId,
               ex.position,
-              ex.wger_exercise_id,
+              ex.wger_exercise_id ?? null,
+              ex.exercise_id ?? null,
               ex.name_snapshot,
               ex.sets,
               ex.reps,
@@ -290,7 +301,7 @@ router.patch("/:workout_id", async (req, res) => {
       );
       const w = wQ.rows[0]!;
       const exQ = await client.query(
-        `select id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group from public.workout_exercises where workout_id = $1 order by position`,
+        `select id, position, wger_exercise_id, exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group from public.workout_exercises where workout_id = $1 order by position`,
         [workoutId],
       );
       return {

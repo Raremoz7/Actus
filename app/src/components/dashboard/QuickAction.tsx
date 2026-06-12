@@ -20,7 +20,7 @@ export function QuickAction({ icon, label, onPress }: Props) {
       style={styles.action}
     >
       <View style={styles.icon}>{icon}</View>
-      <AppText variant="label" color="secondary" numberOfLines={2}>
+      <AppText variant="label" color="inverse" numberOfLines={2}>
         {label}
       </AppText>
     </Pressable>
@@ -32,9 +32,7 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     alignItems: 'center',
     gap: theme.spacing.sm,
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
+    backgroundColor: theme.colors.neon,
     borderRadius: theme.radius.card,
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.sm,
@@ -43,7 +41,8 @@ const styles = StyleSheet.create((theme) => ({
     width: 44,
     height: 44,
     borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.surface2,
+    // Véu escuro discreto sobre o verde para dar profundidade ao ícone.
+    backgroundColor: 'rgba(20, 20, 20, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
