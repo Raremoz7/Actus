@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useExerciseCatalog } from '../../hooks/useExerciseCatalog';
 import {
@@ -191,6 +191,10 @@ function ExerciseCard({
   active: boolean;
   onClick: () => void;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const onImgError = useCallback(() => setImgFailed(true), []);
+  const showImg = !!exercise.image_0_url && !imgFailed;
+
   return (
     <button
       type="button"
@@ -201,11 +205,12 @@ function ExerciseCard({
           : 'border-outline-v bg-surface-1 hover:border-outline-h hover:bg-surface-2'
       }`}
     >
-      {exercise.image_0_url ? (
+      {showImg ? (
         <img
-          src={exercise.image_0_url}
+          src={exercise.image_0_url!}
           alt=""
           loading="lazy"
+          onError={onImgError}
           className="aspect-video w-full bg-surface-2 object-cover"
         />
       ) : (

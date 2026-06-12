@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useExerciseCatalog } from '../../hooks/useExerciseCatalog';
 import {
@@ -110,8 +110,11 @@ export function CatalogPanel({ onAdd }: { onAdd: (exercise: Exercise) => void })
 }
 
 function ExerciseThumb({ exercise }: { exercise: Exercise }) {
+  const [failed, setFailed] = useState(false);
+  const onError = useCallback(() => setFailed(true), []);
   const url = exercise.image_0_url;
-  if (!url) {
+
+  if (!url || failed) {
     return (
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-2 font-mono text-[10px] text-text-3">
         {(exercise.category ?? '?').slice(0, 3).toUpperCase()}
@@ -123,6 +126,7 @@ function ExerciseThumb({ exercise }: { exercise: Exercise }) {
       src={url}
       alt=""
       loading="lazy"
+      onError={onError}
       className="h-10 w-10 shrink-0 rounded-lg bg-surface-2 object-cover"
     />
   );

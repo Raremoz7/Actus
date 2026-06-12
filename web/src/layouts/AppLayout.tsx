@@ -42,11 +42,8 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex h-[52px] items-center gap-6 border-b border-outline-v bg-bg-lowest px-5">
-        <Link
-          to="/"
-          className="font-display text-xl font-black uppercase tracking-wide text-neon"
-        >
-          Actus
+        <Link to="/" className="flex items-center">
+          <img src="/actus-logo.svg" alt="Actus" className="h-7" />
         </Link>
         <nav className="flex h-full items-center gap-1">
           {tabs.map((tab) => (
@@ -102,7 +99,7 @@ export function AppLayout() {
           )}
         </div>
       </header>
-      <main className="flex flex-1">
+      <main className="flex min-h-0 flex-1 overflow-hidden">
         <Outlet />
       </main>
     </div>
