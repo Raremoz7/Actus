@@ -92,8 +92,6 @@ function RootLayout() {
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: STACK_BG },
-              animation: 'slide_from_right',
-              animationDuration: 300,
             }}
           />
         </ThemeProvider>

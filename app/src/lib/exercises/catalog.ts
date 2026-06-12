@@ -33,6 +33,27 @@ export const CATEGORY_PT: Record<string, string> = {
   strongman:                'Strongman',
 };
 
+export const EQUIPMENT_PT: Record<string, string> = {
+  'body only':     'Peso do Corpo',
+  barbell:         'Barra',
+  dumbbell:        'Halteres',
+  cable:           'Cabo',
+  machine:         'Máquina',
+  bands:           'Elásticos',
+  kettlebells:     'Kettlebell',
+  'e-z curl bar':  'Barra W',
+  'exercise ball': 'Bola Suíça',
+  'medicine ball': 'Bola Medicinal',
+  'foam roll':     'Rolo de Espuma',
+  other:           'Outro',
+};
+
+export const LEVEL_PT: Record<string, string> = {
+  beginner:     'Iniciante',
+  intermediate: 'Intermediário',
+  expert:       'Avançado',
+};
+
 export function musclePt(key: string): string {
   return MUSCLE_PT[key] ?? key;
 }

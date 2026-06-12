@@ -13,11 +13,17 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { MagnifyingGlass, X } from 'phosphor-react-native';
+import { Funnel, MagnifyingGlass, X } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input } from '@/components/ui';
-import { exerciseCatalog } from '@/lib/exercises/catalog';
+import {
+  exerciseCatalog,
+  CATEGORY_PT,
+  MUSCLE_PT,
+  EQUIPMENT_PT,
+  LEVEL_PT,
+} from '@/lib/exercises/catalog';
 import type { Exercise } from '@/lib/exercises/types';
 import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
@@ -158,6 +164,11 @@ export function ExerciseFormSheet({
     initialValue ? 'prescribe' : 'search',
   );
   const [query, setQuery] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMuscle, setFilterMuscle] = useState('');
+  const [filterEquipment, setFilterEquipment] = useState('');
+  const [filterLevel, setFilterLevel] = useState('');
   // Exercício escolhido (id do catálogo + nome + grupo). null = ainda não escolhido.
   const [picked, setPicked] = useState<
     { name: string; exerciseId: string | null; muscleGroup: string | null } | null
@@ -182,6 +193,11 @@ export function ExerciseFormSheet({
     setSubmitted(false);
     setMode(initialValue ? 'prescribe' : 'search');
     setQuery('');
+    setFiltersOpen(false);
+    setFilterCategory('');
+    setFilterMuscle('');
+    setFilterEquipment('');
+    setFilterLevel('');
     setPicked(
       initialValue
         ? {
@@ -193,11 +209,30 @@ export function ExerciseFormSheet({
     );
   }, [visible, initialValue]);
 
-  // Resultados da busca no catálogo PT-BR (até 20). Vazio quando o termo está em branco.
-  const results = useMemo(
-    () => (query.trim() ? exerciseCatalog().search(query, 20) : []),
-    [query],
-  );
+  const activeFilterCount = [filterCategory, filterMuscle, filterEquipment, filterLevel].filter(Boolean).length;
+
+  function clearFilters() {
+    setFilterCategory('');
+    setFilterMuscle('');
+    setFilterEquipment('');
+    setFilterLevel('');
+  }
+
+  // Busca no catálogo + filtros client-side.
+  // Sem texto e sem filtros: retorna os primeiros 20 (catálogo padrão).
+  // Com filtros e sem texto: percorre tudo antes de filtrar.
+  const results = useMemo(() => {
+    const hasQuery = query.trim().length > 0;
+    const hasFilters = !!(filterCategory || filterMuscle || filterEquipment || filterLevel);
+    const limit = hasQuery ? 200 : hasFilters ? 1000 : 20;
+
+    let pool = exerciseCatalog().search(query.trim(), limit);
+    if (filterCategory)  pool = pool.filter((e) => e.category === filterCategory);
+    if (filterMuscle)    pool = pool.filter((e) => e.primary_muscles.includes(filterMuscle) || e.secondary_muscles.includes(filterMuscle));
+    if (filterEquipment) pool = pool.filter((e) => e.equipment === filterEquipment);
+    if (filterLevel)     pool = pool.filter((e) => e.level === filterLevel);
+    return pool.slice(0, 20);
+  }, [query, filterCategory, filterMuscle, filterEquipment, filterLevel]);
 
   // Escolhe um exercício do catálogo → preenche nome/grupo e vai pro passo prescrever.
   function choose(ex: Exercise) {
@@ -292,36 +327,158 @@ export function ExerciseFormSheet({
             {mode === 'search' ? (
               // --- Passo 1: busca no catálogo PT-BR ---
               <>
-                <View style={styles.search}>
-                  <MagnifyingGlass
-                    size={18}
-                    weight="duotone"
-                    color={colors.textTertiary}
-                  />
-                  <TextInput
-                    style={styles.searchInput}
-                    accessibilityLabel="Buscar exercício"
-                    placeholder="Buscar exercício (ex.: supino)"
-                    placeholderTextColor={colors.textTertiary}
-                    value={query}
-                    onChangeText={setQuery}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoFocus
-                    returnKeyType="search"
-                  />
+                {/* Barra de busca + botão de filtros */}
+                <View style={styles.searchRow}>
+                  <View style={styles.search}>
+                    <MagnifyingGlass
+                      size={18}
+                      weight="duotone"
+                      color={colors.textTertiary}
+                    />
+                    <TextInput
+                      style={styles.searchInput}
+                      accessibilityLabel="Buscar exercício"
+                      placeholder="supino, agachamento…"
+                      placeholderTextColor={colors.textTertiary}
+                      value={query}
+                      onChangeText={setQuery}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      autoFocus
+                      returnKeyType="search"
+                    />
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Filtros"
+                    onPress={() => setFiltersOpen((o) => !o)}
+                    style={[styles.filterBtn, (filtersOpen || activeFilterCount > 0) && styles.filterBtnOpen]}
+                  >
+                    <Funnel
+                      size={15}
+                      weight="duotone"
+                      color={filtersOpen || activeFilterCount > 0 ? colors.neon : colors.textSecondary}
+                    />
+                    <AppText variant="metaSmall" color={filtersOpen || activeFilterCount > 0 ? 'neon' : 'secondary'}>
+                      Filtros
+                    </AppText>
+                    {activeFilterCount > 0 && (
+                      <View style={styles.filterBadge}>
+                        <AppText variant="metaSmall" color="inverse">
+                          {activeFilterCount}
+                        </AppText>
+                      </View>
+                    )}
+                  </Pressable>
                 </View>
 
+                {/* Painel de filtros — aparece ao tocar no botão */}
+                {filtersOpen && (
+                  <View style={styles.filterPanel}>
+                    {/* Categoria */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Categoria
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(CATEGORY_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterCategory(filterCategory === key ? '' : key)}
+                              style={[styles.filterChip, filterCategory === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterCategory === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Músculo */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Músculo
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(MUSCLE_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterMuscle(filterMuscle === key ? '' : key)}
+                              style={[styles.filterChip, filterMuscle === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterMuscle === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Equipamento */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Equipamento
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(EQUIPMENT_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterEquipment(filterEquipment === key ? '' : key)}
+                              style={[styles.filterChip, filterEquipment === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterEquipment === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Nível */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Nível
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(LEVEL_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterLevel(filterLevel === key ? '' : key)}
+                              style={[styles.filterChip, filterLevel === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterLevel === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {activeFilterCount > 0 && (
+                      <Pressable onPress={clearFilters} style={styles.filterClear}>
+                        <AppText variant="metaSmall" color="tertiary">Limpar filtros</AppText>
+                      </Pressable>
+                    )}
+                  </View>
+                )}
+
                 <ScrollView
-                  style={styles.resultsList}
+                  style={[styles.resultsList, filtersOpen && styles.resultsListCompact]}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator={false}
                 >
                   {results.length === 0 ? (
                     <AppText variant="bodySm" color="tertiary">
-                      {query.trim()
-                        ? 'Nenhum exercício encontrado.'
-                        : 'Digite para buscar no catálogo.'}
+                      Nenhum exercício encontrado.
                     </AppText>
                   ) : (
                     results.map((ex) => (
@@ -455,7 +612,13 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
   search: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
@@ -472,8 +635,64 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: theme.typeScale.bodyMd,
     color: theme.colors.textPrimary,
   },
+  filterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    backgroundColor: theme.colors.surface1,
+  },
+  filterBtnOpen: {
+    borderColor: theme.colors.neon,
+  },
+  filterBadge: {
+    minWidth: 16,
+    height: 16,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.neon,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  filterPanel: {
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.md,
+    gap: theme.spacing.md,
+  },
+  filterRowLabel: {
+    marginBottom: theme.spacing.xs,
+  },
+  filterChips: {
+    flexDirection: 'row',
+    gap: theme.spacing.xs,
+  },
+  filterChip: {
+    paddingVertical: 4,
+    paddingHorizontal: theme.spacing.sm,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    backgroundColor: theme.colors.surface2,
+  },
+  filterChipActive: {
+    backgroundColor: theme.colors.neon,
+    borderColor: theme.colors.neon,
+  },
+  filterClear: {
+    alignSelf: 'flex-end',
+  },
   resultsList: {
     maxHeight: 320,
+  },
+  resultsListCompact: {
+    maxHeight: 160,
   },
   resultRow: {
     flexDirection: 'row',

@@ -11,15 +11,24 @@ const { colors } = darkTheme;
 
 type Props = {
   size?: number;
+  // Nome do exercício — usado como fallback p/ achar a imagem no catálogo quando
+  // não há exerciseId (treinos legados). Mesma lógica da tela de detalhe.
+  name?: string | null;
   muscleGroup?: string | null;
   wgerExerciseId?: number | null;
   exerciseId?: string | null;
   testID?: string;
 };
 
-export function ExerciseThumb({ size = 60, muscleGroup, wgerExerciseId, exerciseId, testID }: Props) {
+export function ExerciseThumb({ size = 60, name, muscleGroup, wgerExerciseId, exerciseId, testID }: Props) {
   // Novo banco: busca imagem pelo exerciseId (slug texto) no catálogo local.
-  const catalogEx = exerciseId ? exerciseCatalog().getById(exerciseId) : null;
+  // Fallback por nome (treinos legados sem exerciseId) — espelha exercicio/[id].tsx,
+  // p/ a thumb mostrar a MESMA imagem do detalhe em vez do fallback por grupo.
+  const catalogEx = exerciseId
+    ? exerciseCatalog().getById(exerciseId)
+    : name
+      ? (exerciseCatalog().search(name, 1)[0] ?? null)
+      : null;
   const wger = !catalogEx ? wgerImageSource(wgerExerciseId) : null;
   const source = catalogEx?.image_0_url
     ? { uri: catalogEx.image_0_url }
