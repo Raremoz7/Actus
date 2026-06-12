@@ -17,20 +17,19 @@ import { MagnifyingGlass, X } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input } from '@/components/ui';
-import { exerciseName, wgerCatalog } from '@/lib/wger/catalog';
-import type { WgerExercise } from '@/lib/wger/types';
+import { exerciseCatalog } from '@/lib/exercises/catalog';
+import type { Exercise } from '@/lib/exercises/types';
 import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
 
 const { colors, motion } = darkTheme;
 
 // Dados que o sheet devolve ao confirmar. Sem position: a ordem sequencial é
-// responsabilidade do builder. `wgerExerciseId` = id REAL escolhido na busca.
-// `muscleGroup` mapeia para muscle_group de CreateWorkoutExercise; null quando
-// não escolhido (não inventar grupo).
+// responsabilidade do builder. Um dos dois ids de exercício deve ser não-nulo.
 export type ExerciseFormValue = {
   name: string;
-  wgerExerciseId: number; // id real do Wger (escolhido na busca)
+  exerciseId: string | null;     // slug do catálogo PT-BR (novo)
+  wgerExerciseId: number | null; // id legado do Wger (exercícios antigos)
   sets: number;
   reps: number;
   restSeconds: number;
@@ -51,13 +50,20 @@ export const MUSCLE_GROUPS = [
   'Cardio',
 ] as const;
 
-// Categoria do Wger (EN) → grupo muscular canônico em PT (mesma grafia dos chips).
-const CATEGORY_PT: Record<string, string> = {
-  Chest: 'Peito', Back: 'Costas', Legs: 'Pernas', Arms: 'Braço',
-  Shoulders: 'Ombro', Abs: 'Core', Calves: 'Pernas', Cardio: 'Cardio',
+// Músculo primário do catálogo (EN) → grupo canônico em PT (grafia dos chips).
+const MUSCLE_TO_GROUP: Record<string, string> = {
+  chest: 'Peito',
+  lats: 'Costas', 'middle back': 'Costas', 'upper back': 'Costas',
+  'lower back': 'Costas', traps: 'Costas',
+  quadriceps: 'Pernas', hamstrings: 'Pernas', calves: 'Pernas',
+  adductors: 'Pernas', abductors: 'Pernas',
+  shoulders: 'Ombro', neck: 'Ombro',
+  biceps: 'Braço', triceps: 'Braço', forearms: 'Braço',
+  abdominals: 'Core',
+  glutes: 'Glúteo',
 };
-function categoryToMuscleGroup(category: string): string | null {
-  return CATEGORY_PT[category] ?? category ?? null;
+function catalogMuscleGroup(ex: Exercise): string | null {
+  return MUSCLE_TO_GROUP[ex.primary_muscles[0] ?? ''] ?? null;
 }
 
 export type ExerciseFormSheetProps = {
@@ -152,14 +158,14 @@ export function ExerciseFormSheet({
     initialValue ? 'prescribe' : 'search',
   );
   const [query, setQuery] = useState('');
-  // Exercício escolhido (id real do Wger + nome + grupo). null = ainda não escolhido.
+  // Exercício escolhido (id do catálogo + nome + grupo). null = ainda não escolhido.
   const [picked, setPicked] = useState<
-    { name: string; wgerId: number; muscleGroup: string | null } | null
+    { name: string; exerciseId: string | null; muscleGroup: string | null } | null
   >(
     initialValue
       ? {
           name: initialValue.name,
-          wgerId: initialValue.wgerExerciseId,
+          exerciseId: initialValue.exerciseId,
           muscleGroup: initialValue.muscleGroup,
         }
       : null,
@@ -180,23 +186,23 @@ export function ExerciseFormSheet({
       initialValue
         ? {
             name: initialValue.name,
-            wgerId: initialValue.wgerExerciseId,
+            exerciseId: initialValue.exerciseId,
             muscleGroup: initialValue.muscleGroup,
           }
         : null,
     );
   }, [visible, initialValue]);
 
-  // Resultados da busca (até 20). Vazio quando o termo está em branco.
+  // Resultados da busca no catálogo PT-BR (até 20). Vazio quando o termo está em branco.
   const results = useMemo(
-    () => (query.trim() ? wgerCatalog().search(query, 20) : []),
+    () => (query.trim() ? exerciseCatalog().search(query, 20) : []),
     [query],
   );
 
   // Escolhe um exercício do catálogo → preenche nome/grupo e vai pro passo prescrever.
-  function choose(ex: WgerExercise) {
-    const mg = categoryToMuscleGroup(ex.category);
-    setPicked({ name: exerciseName(ex), wgerId: ex.id, muscleGroup: mg });
+  function choose(ex: Exercise) {
+    const mg = catalogMuscleGroup(ex);
+    setPicked({ name: ex.name_pt, exerciseId: ex.id, muscleGroup: mg });
     setMuscleGroup(mg);
     setMode('prescribe');
   }
@@ -232,7 +238,8 @@ export function ExerciseFormSheet({
     if (!picked || hasError) return;
     onConfirm({
       name: picked.name,
-      wgerExerciseId: picked.wgerId,
+      exerciseId: picked.exerciseId,
+      wgerExerciseId: null,
       sets: parsed.sets as number,
       reps: parsed.reps as number,
       restSeconds: parsed.rest as number,
@@ -283,7 +290,7 @@ export function ExerciseFormSheet({
             </View>
 
             {mode === 'search' ? (
-              // --- Passo 1: busca no catálogo Wger ---
+              // --- Passo 1: busca no catálogo PT-BR ---
               <>
                 <View style={styles.search}>
                   <MagnifyingGlass
@@ -294,7 +301,7 @@ export function ExerciseFormSheet({
                   <TextInput
                     style={styles.searchInput}
                     accessibilityLabel="Buscar exercício"
-                    placeholder="Buscar no Wger (ex.: supino)"
+                    placeholder="Buscar exercício (ex.: supino)"
                     placeholderTextColor={colors.textTertiary}
                     value={query}
                     onChangeText={setQuery}
@@ -321,19 +328,17 @@ export function ExerciseFormSheet({
                       <Pressable
                         key={ex.id}
                         accessibilityRole="button"
-                        accessibilityLabel={exerciseName(ex)}
+                        accessibilityLabel={ex.name_pt}
                         onPress={() => choose(ex)}
                         style={styles.resultRow}
                       >
-                        <ExerciseThumb size={40} wgerExerciseId={ex.id} muscleGroup={ex.muscles[0] ?? null} />
+                        <ExerciseThumb size={40} exerciseId={ex.id} muscleGroup={ex.primary_muscles[0] ?? null} />
                         <View style={styles.resultText}>
                           <AppText variant="bodyMd" numberOfLines={1}>
-                            {exerciseName(ex)}
+                            {ex.name_pt}
                           </AppText>
                           <AppText variant="metaSmall" color="tertiary">
-                            {`${ex.category}${
-                              ex.equipment[0] ? ' · ' + ex.equipment[0] : ''
-                            }`}
+                            {[ex.category, ex.equipment].filter(Boolean).join(' · ')}
                           </AppText>
                         </View>
                       </Pressable>

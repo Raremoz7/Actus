@@ -2,7 +2,7 @@ import { toApiExercises } from './toApiExercises';
 import type { ExerciseFormValue } from '@/components/builder';
 
 const v = (over: Partial<ExerciseFormValue>): ExerciseFormValue => ({
-  name: 'Supino', wgerExerciseId: 101, sets: 3, reps: 10, restSeconds: 60, notes: null, muscleGroup: 'Peito', ...over,
+  name: 'Supino', exerciseId: null, wgerExerciseId: 101, sets: 3, reps: 10, restSeconds: 60, notes: null, muscleGroup: 'Peito', ...over,
 });
 
 describe('toApiExercises', () => {

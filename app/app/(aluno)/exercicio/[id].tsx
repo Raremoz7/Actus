@@ -56,9 +56,15 @@ export default function ExercicioDemoScreen() {
 
   // Novo banco: busca pelo exerciseId (slug) do catálogo local.
   const exerciseIdParam = typeof params.exerciseId === 'string' ? params.exerciseId : '';
-  const catalogEx = exerciseIdParam ? exerciseCatalog().getById(exerciseIdParam) : null;
+  const catalogEx =
+    exerciseIdParam
+      ? exerciseCatalog().getById(exerciseIdParam)
+      // Fallback por nome: workouts legados (wger-only) sem exerciseId — tenta match no catálogo PT-BR.
+      : name
+        ? (exerciseCatalog().search(name, 1)[0] ?? null)
+        : null;
 
-  // Fallback legado: Wger (mantém retrocompatibilidade com treinos antigos).
+  // Fallback legado: Wger (mantém retrocompatibilidade quando o catálogo PT-BR não encontrou nada).
   const wgerId = Number(params.wgerId);
   const wgerEx = !catalogEx && Number.isFinite(wgerId) && wgerId > 0 ? wgerCatalog().getExercise(wgerId) : null;
 

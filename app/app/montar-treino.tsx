@@ -100,7 +100,8 @@ export default function MontarTreinoScreen() {
         .sort((a, b) => a.position - b.position)
         .map((e) => ({
           name: e.name_snapshot,
-          wgerExerciseId: e.wger_exercise_id,
+          exerciseId: e.exercise_id ?? null,
+          wgerExerciseId: e.wger_exercise_id ?? null,
           sets: e.sets,
           reps: e.reps,
           restSeconds: e.rest_seconds,
@@ -122,7 +123,8 @@ export default function MontarTreinoScreen() {
     setExercises(
       lib.exercises.map((e) => ({
         name: e.name,
-        wgerExerciseId: e.wger_exercise_id,
+        exerciseId: null,
+        wgerExerciseId: null,
         sets: e.sets,
         reps: e.reps,
         restSeconds: e.rest_seconds,

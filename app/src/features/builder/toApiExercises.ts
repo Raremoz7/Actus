@@ -1,12 +1,13 @@
 import type { ExerciseFormValue } from '@/components/builder';
 import type { CreateWorkoutExercise } from '@/types/workouts';
 
-// Converte os exercícios do builder no exercises[] da API (position 1-based +
-// wger_exercise_id REAL escolhido na busca). Mesma forma p/ create e PATCH (full replace).
+// Converte os exercícios do builder no exercises[] da API (position 1-based).
+// exercise_id tem prioridade (catálogo PT-BR); wger_exercise_id fica para legado.
 export function toApiExercises(drafts: ExerciseFormValue[]): CreateWorkoutExercise[] {
   return drafts.map((d, i) => ({
     position: i + 1,
-    wger_exercise_id: d.wgerExerciseId,
+    exercise_id: d.exerciseId ?? undefined,
+    wger_exercise_id: d.wgerExerciseId ?? undefined,
     name_snapshot: d.name,
     sets: d.sets,
     reps: d.reps,
