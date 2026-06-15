@@ -1,0 +1,97 @@
+/* ============================================================================
+   transitions.css — estados iniciais de reveal + overlay de virada de tema.
+
+   Tudo o que ANIMA é orquestrado por deck.js (GSAP). Aqui ficam apenas:
+     1) os estados iniciais (elementos escondidos ANTES do reveal) — para que,
+        mesmo com o GSAP atrasado, o conteúdo não "pisque" visível;
+     2) o desligamento total sob prefers-reduced-motion (tudo visível, sem
+        transform);
+     3) a superfície fixa do .theme-wipe (a barra que cobre a tela na virada).
+
+   ÚNICO hex permitido fora de tokens.css: #C8102E (vermelho World Gym) — é a
+   cor da própria transição de tema, conforme contrato. Nada mais usa hex cru.
+   Carrega DEPOIS de deck.css/screens.css, então as regras .slide ... vencem a
+   mecânica base (.hl-line>span etc.) por ordem + especificidade.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   01 · Estados iniciais — escondidos antes de animar
+   --------------------------------------------------------------------------- */
+
+/* headline linha-a-linha: o filho transladável começa abaixo do clip */
+.slide .hl-line > span {
+  transform: translateY(110%);
+}
+
+/* cartões (pilar / micro-atrito / insight): sobem + fade */
+.slide .pillar-card,
+.slide .insight-card {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+/* telas de app (slide Produto): só fade — o y/rotateY entram via GSAP */
+.slide .phone {
+  opacity: 0;
+}
+
+/* colunas (slide Parceria): entram pelas laterais, então começam invisíveis */
+.slide .col-left > *,
+.slide .col-right > * {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   02 · prefers-reduced-motion — desliga TUDO: conteúdo visível, sem transform
+   (deck.js também detecta e não aplica gsap.set/fromTo neste caso)
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .slide .hl-line > span,
+  .slide .pillar-card,
+  .slide .insight-card,
+  .slide .phone,
+  .slide .col-left > *,
+  .slide .col-right > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  /* sem barra de virada quando movimento é reduzido */
+  .theme-wipe { display: none !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   03 · theme-wipe — barra de virada de tema (full-screen, fixa)
+   Começa colapsada (scaleX 0) à esquerda; deck.js a expande para cobrir e
+   depois a colapsa pelo outro lado, trocando a cor conforme o destino.
+   --------------------------------------------------------------------------- */
+.theme-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: #C8102E; /* vermelho World Gym — única exceção de hex (cor da transição) */
+}
+
+/* ---------------------------------------------------------------------------
+   04 · Só o step ATIVO é visível — elimina o "bleed" de slides vizinhos
+   durante a câmera 3D. O movimento do impress continua (crossfade + câmera);
+   some o ruído lateral. Gate em .impress-enabled → sem JS, tudo visível.
+   --------------------------------------------------------------------------- */
+.impress-enabled .step { opacity: 0; transition: opacity .55s ease; }
+.impress-enabled .step.active { opacity: 1; }
+
+/* ---------------------------------------------------------------------------
+   05 · ?still — modo de verificação: mostra o estado FINAL sem animação
+   (deck.js adiciona body.is-still e trata como reduced-motion)
+   --------------------------------------------------------------------------- */
+body.is-still .slide .hl-line > span,
+body.is-still .slide .pillar-card,
+body.is-still .slide .insight-card,
+body.is-still .slide .phone,
+body.is-still .slide .col-left > *,
+body.is-still .slide .col-right > * {
+  opacity: 1 !important;
+  transform: none !important;
+}
