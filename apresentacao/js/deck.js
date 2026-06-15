@@ -56,12 +56,22 @@
     });
   }
 
+  /* pinta o palco inteiro (html+body) com a cor do tema → vermelho de fora a
+     fora nas telas World Gym, sem borda escura. */
+  function setStageBg(theme) {
+    var c = (theme === 'worldgym') ? '#C8102E' : '#10252D';
+    document.documentElement.style.background = c;
+    document.body.style.background = c;
+  }
+
   function handleEnter(step) {
     var toTheme = step.dataset.theme || 'actus';
-    if (reduceMotion) { prevTheme = toTheme; return; }   /* CSS já mostra tudo */
+    if (reduceMotion) { setStageBg(toTheme); prevTheme = toTheme; return; }
     if (toTheme !== prevTheme) {
-      themeWipe(toTheme, function () { reveal(step); });  /* revela atrás do wipe */
+      /* troca de tema: o wipe vermelho É a transição; troca cor e revela atrás dele */
+      themeWipe(toTheme, function () { setStageBg(toTheme); reveal(step); });
     } else {
+      setStageBg(toTheme);
       reveal(step);
     }
     prevTheme = toTheme;
