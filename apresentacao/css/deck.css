@@ -231,7 +231,7 @@ html, body {
 }
 .lockup .mark { display: flex; align-items: center; }
 .lockup .mark img {
-  height: 52px;
+  height: 80px;       /* versão vertical: as duas marcas no MESMO tamanho */
   width: auto;
   display: block;
 }
