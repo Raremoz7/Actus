@@ -253,6 +253,16 @@ html, body {
   font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--accent); margin-right: 14px;
 }
+
+/* atrito com tela do app ao lado: problema à esquerda, prova (mockup) à direita */
+.center.context-split { flex-direction: row; align-items: center; gap: 72px; }
+.context-split .context-text { flex: 1 1 0; min-width: 0; }
+.context-split .headline { font-size: 84px; line-height: .96; }
+.context-split .phone-mount {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  width: 360px;
+}
+.context-split .phone-mount .phone { transform: scale(.82); transform-origin: center; }
 /* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
 .lockup .mark img[src*="world-gym"] { height: 112px; }
 

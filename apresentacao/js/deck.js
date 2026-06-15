@@ -77,6 +77,19 @@
     prevTheme = toTheme;
   }
 
+  /* monta as telas do app (clones) nos pontos .phone-mount — sem duplicar markup */
+  (function mountScreens() {
+    var mounts = document.querySelectorAll('.phone-mount[data-screen]');
+    for (var i = 0; i < mounts.length; i++) {
+      if (mounts[i].childNodes.length) continue;
+      var src = document.getElementById(mounts[i].getAttribute('data-screen'));
+      if (!src) continue;
+      var clone = src.cloneNode(true);
+      clone.removeAttribute('id');
+      mounts[i].appendChild(clone);
+    }
+  })();
+
   /* ----- listeners ANTES do init ----- */
   root.addEventListener('impress:stepenter', function (e) {
     sawStepEnter = true;
