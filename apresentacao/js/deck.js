@@ -36,17 +36,8 @@
   var wipeEl = document.querySelector('.theme-wipe');
   var navHint = document.querySelector('.nav-hint');
 
-  /* ------------------------------------------------------------------------
-     Inicialização do impress (com guarda)
-     ------------------------------------------------------------------------ */
-  try {
-    if (typeof window.impress === 'function') {
-      var api = window.impress();
-      api.init();
-    }
-  } catch (err) {
-    /* impress indisponível → .impress-not-supported mostra o .fallback (CSS) */
-  }
+  /* (impress é inicializado no FINAL — depois de registrar os listeners — para
+     não perder o 'stepenter' do PRIMEIRO slide, que dispara dentro do init.) */
 
   /* ========================================================================
      REVEALS — por data-reveal do step
@@ -58,6 +49,7 @@
      ======================================================================== */
   function runReveal(step) {
     if (!hasGSAP || reduceMotion) return;
+    step.setAttribute('data-revealed', '1');   /* marca que o reveal disparou */
     var k = step.dataset.reveal;
     var tl = gsap.timeline();
 
@@ -127,6 +119,7 @@
      que o reveal reexecute ao voltar e nada "vaze" visível durante a câmera. */
   function resetReveal(step) {
     if (!hasGSAP || reduceMotion) return;
+    step.removeAttribute('data-revealed');
     gsap.set(step.querySelectorAll('.hl-line > span'), { yPercent: 110 });
     gsap.set(step.querySelectorAll('.pillar-card, .insight-card'), { opacity: 0, y: 28, scale: 1 });
     gsap.set(step.querySelectorAll('.phone'), { opacity: 0, y: 40, rotationY: 8 });
@@ -179,32 +172,52 @@
   setTimeout(hideNavHint, 6000);
 
   /* ========================================================================
-     Eventos do impress
+     Eventos do impress + inicialização
+     IMPORTANTE: registramos os listeners ANTES de init(), senão o 'stepenter'
+     do PRIMEIRO slide (capa, sem hash) dispara dentro do init e é perdido —
+     a headline da capa ficaria escondida até navegar e voltar.
      ======================================================================== */
   var prevTheme = 'actus';
+  var sawStepEnter = false;
 
-  root.addEventListener('impress:stepenter', function (e) {
-    var step = e.target;
+  function handleEnter(step) {
     var toTheme = step.dataset.theme || 'actus';
-
-    if (reduceMotion) {
-      prevTheme = toTheme;       /* CSS já exibe tudo; sem wipe/reveal */
-      return;
-    }
-
+    if (reduceMotion) { prevTheme = toTheme; return; }
     if (toTheme !== prevTheme) {
       /* fronteira de tema → cobre com a barra e revela atrás dela */
       themeWipe(toTheme, function () { runReveal(step); });
     } else {
       runReveal(step);
     }
-
     prevTheme = toTheme;
+  }
+
+  root.addEventListener('impress:stepenter', function (e) {
+    sawStepEnter = true;
+    handleEnter(e.target);
   });
 
   root.addEventListener('impress:stepleave', function (e) {
     resetReveal(e.target);       /* deixa o slide pronto para reexecutar */
     hideNavHint();               /* 1ª navegação → some a dica */
   });
+
+  /* init DEPOIS dos listeners (com guarda) */
+  try {
+    if (typeof window.impress === 'function') { window.impress().init(); }
+  } catch (err) {
+    /* impress indisponível → .impress-not-supported mostra o .fallback (CSS) */
+  }
+
+  /* rede de segurança: se nenhum stepenter chegou (timing do primeiro slide),
+     revela o slide ativo manualmente. */
+  if (!reduceMotion) {
+    setTimeout(function () {
+      if (!sawStepEnter) {
+        var active = root.querySelector('.step.active') || root.querySelector('.step');
+        if (active) handleEnter(active);
+      }
+    }, 80);
+  }
 
 })();
