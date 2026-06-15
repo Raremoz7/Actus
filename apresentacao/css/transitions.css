@@ -1,97 +1,106 @@
 /* ============================================================================
-   transitions.css — estados iniciais de reveal + overlay de virada de tema.
+   transitions.css — reveals dos slides (CSS puro, sem JS de animação),
+   fade do step ativo e wipe de virada de tema.
 
-   Tudo o que ANIMA é orquestrado por deck.js (GSAP). Aqui ficam apenas:
-     1) os estados iniciais (elementos escondidos ANTES do reveal) — para que,
-        mesmo com o GSAP atrasado, o conteúdo não "pisque" visível;
-     2) o desligamento total sob prefers-reduced-motion (tudo visível, sem
-        transform);
-     3) a superfície fixa do .theme-wipe (a barra que cobre a tela na virada).
-
-   ÚNICO hex permitido fora de tokens.css: #C8102E (vermelho World Gym) — é a
-   cor da própria transição de tema, conforme contrato. Nada mais usa hex cru.
-   Carrega DEPOIS de deck.css/screens.css, então as regras .slide ... vencem a
-   mecânica base (.hl-line>span etc.) por ordem + especificidade.
+   deck.js só adiciona/remove a classe .is-revealed no .step e dispara o wipe.
+   Único hex fora de tokens.css: #C8102E / #10252D (cores da transição de tema).
+   Carrega DEPOIS de deck.css/screens.css (vence por ordem).
    ============================================================================ */
 
 /* ---------------------------------------------------------------------------
-   01 · Estados iniciais — escondidos antes de animar
-   --------------------------------------------------------------------------- */
-
-/* headline linha-a-linha: o filho transladável começa abaixo do clip */
-.slide .hl-line > span {
-  transform: translateY(110%);
-}
-
-/* cartões (pilar / micro-atrito / insight): sobem + fade */
-.slide .pillar-card,
-.slide .insight-card {
-  opacity: 0;
-  transform: translateY(28px);
-}
-
-/* telas de app (slide Produto): só fade — o y/rotateY entram via GSAP */
-.slide .phone {
-  opacity: 0;
-}
-
-/* colunas (slide Parceria): entram pelas laterais, então começam invisíveis */
-.slide .col-left > *,
-.slide .col-right > * {
-  opacity: 0;
-}
-
-/* ---------------------------------------------------------------------------
-   02 · prefers-reduced-motion — desliga TUDO: conteúdo visível, sem transform
-   (deck.js também detecta e não aplica gsap.set/fromTo neste caso)
-   --------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: reduce) {
-  .slide .hl-line > span,
-  .slide .pillar-card,
-  .slide .insight-card,
-  .slide .phone,
-  .slide .col-left > *,
-  .slide .col-right > * {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  /* sem barra de virada quando movimento é reduzido */
-  .theme-wipe { display: none !important; }
-}
-
-/* ---------------------------------------------------------------------------
-   03 · theme-wipe — barra de virada de tema (full-screen, fixa)
-   Começa colapsada (scaleX 0) à esquerda; deck.js a expande para cobrir e
-   depois a colapsa pelo outro lado, trocando a cor conforme o destino.
-   --------------------------------------------------------------------------- */
-.theme-wipe {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  transform: scaleX(0);
-  transform-origin: left center;
-  background: #C8102E; /* vermelho World Gym — única exceção de hex (cor da transição) */
-}
-
-/* ---------------------------------------------------------------------------
-   04 · Só o step ATIVO é visível — elimina o "bleed" de slides vizinhos
-   durante a câmera 3D. O movimento do impress continua (crossfade + câmera);
-   some o ruído lateral. Gate em .impress-enabled → sem JS, tudo visível.
+   01 · Só o step ATIVO é visível — elimina o "bleed" dos vizinhos na câmera 3D.
+   Gate em .impress-enabled → sem JS, os steps ficam visíveis (fallback).
    --------------------------------------------------------------------------- */
 .impress-enabled .step { opacity: 0; transition: opacity .55s ease; }
 .impress-enabled .step.active { opacity: 1; }
 
 /* ---------------------------------------------------------------------------
-   05 · ?still — modo de verificação: mostra o estado FINAL sem animação
-   (deck.js adiciona body.is-still e trata como reduced-motion)
+   02 · Reveals — estado inicial (escondido) + .is-revealed (visível), com
+   transitions e stagger por nth-child. Sem dependência de lib.
    --------------------------------------------------------------------------- */
+
+/* headline linha-a-linha (clip + sobe) */
+.slide .hl-line { overflow: hidden; }
+.slide .hl-line > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform .72s cubic-bezier(.16,.84,.30,1);
+}
+.slide.is-revealed .hl-line > span { transform: translateY(0); }
+.slide.is-revealed .hl-line:nth-child(1) > span { transition-delay: .05s; }
+.slide.is-revealed .hl-line:nth-child(2) > span { transition-delay: .13s; }
+.slide.is-revealed .hl-line:nth-child(3) > span { transition-delay: .21s; }
+.slide.is-revealed .hl-line:nth-child(4) > span { transition-delay: .29s; }
+.slide.is-revealed .hl-line:nth-child(5) > span { transition-delay: .37s; }
+
+/* cartões (contexto / pilares / cta / insight) — sobem com fade */
+.slide .pillar-card,
+.slide .insight-card {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.slide.is-revealed .pillar-card,
+.slide.is-revealed .insight-card { opacity: 1; transform: none; }
+.slide.is-revealed .pillar-card:nth-child(1) { transition-delay: .10s; }
+.slide.is-revealed .pillar-card:nth-child(2) { transition-delay: .20s; }
+.slide.is-revealed .pillar-card:nth-child(3) { transition-delay: .30s; }
+.slide.is-revealed .insight-card { transition-delay: .42s; }
+
+/* telas de app (produto) — fade escalonado por slot */
+.slide .phone { opacity: 0; transition: opacity .6s ease; }
+.slide.is-revealed .phone { opacity: 1; }
+.slide.is-revealed .phone-slot:nth-child(1) .phone { transition-delay: .12s; }
+.slide.is-revealed .phone-slot:nth-child(2) .phone { transition-delay: .26s; }
+.slide.is-revealed .phone-slot:nth-child(3) .phone { transition-delay: .40s; }
+
+/* colunas (parceria) — entram pelas laterais */
+.slide .col-left  > * { opacity: 0; transform: translateX(-30px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+.slide .col-right > * { opacity: 0; transform: translateX(30px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+.slide.is-revealed .col-left  > *,
+.slide.is-revealed .col-right > * { opacity: 1; transform: none; }
+.slide.is-revealed .col-left  > *:nth-child(2) { transition-delay: .10s; }
+.slide.is-revealed .col-right > *:nth-child(2) { transition-delay: .10s; }
+
+/* dica de navegação some na 1ª navegação */
+.nav-hint { transition: opacity .5s ease; }
+.nav-hint.is-hidden { opacity: 0; }
+
+/* ---------------------------------------------------------------------------
+   03 · prefers-reduced-motion + ?still — tudo visível, sem animação
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .slide .hl-line > span,
+  .slide .pillar-card, .slide .insight-card,
+  .slide .phone,
+  .slide .col-left > *, .slide .col-right > * {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+  .impress-enabled .step { transition: none !important; }
+  .theme-wipe { display: none !important; }
+}
 body.is-still .slide .hl-line > span,
-body.is-still .slide .pillar-card,
-body.is-still .slide .insight-card,
+body.is-still .slide .pillar-card, body.is-still .slide .insight-card,
 body.is-still .slide .phone,
-body.is-still .slide .col-left > *,
-body.is-still .slide .col-right > * {
-  opacity: 1 !important;
-  transform: none !important;
+body.is-still .slide .col-left > *, body.is-still .slide .col-right > * {
+  opacity: 1 !important; transform: none !important; transition: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   04 · Wipe de virada de tema — barra que varre a tela (L→R).
+   deck.js troca a cor (vermelho ao entrar no World Gym, escuro ao voltar).
+   --------------------------------------------------------------------------- */
+.theme-wipe {
+  position: fixed; inset: 0; z-index: 40; pointer-events: none;
+  transform: translateX(-101%);
+  background: #C8102E;           /* cor padrão; deck.js ajusta por destino */
+  will-change: transform;
+}
+.theme-wipe.is-wiping { animation: wipe-across .85s cubic-bezier(.7, 0, .3, 1) both; }
+@keyframes wipe-across {
+  0%   { transform: translateX(-101%); }
+  48%  { transform: translateX(0); }
+  52%  { transform: translateX(0); }
+  100% { transform: translateX(101%); }
 }
