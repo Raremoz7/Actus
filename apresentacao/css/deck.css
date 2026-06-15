@@ -237,6 +237,8 @@ html, body {
 }
 /* recolore um logo com alpha para branco (ex.: World Gym no modo WG) */
 .lockup .mark--invert img { filter: brightness(0) invert(1); }
+/* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
+.lockup .mark img[src*="world-gym"] { height: 112px; }
 
 .lockup .sep {
   font-family: var(--disp);
