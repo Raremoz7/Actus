@@ -237,6 +237,22 @@ html, body {
 }
 /* recolore um logo com alpha para branco (ex.: World Gym no modo WG) */
 .lockup .mark--invert img { filter: brightness(0) invert(1); }
+
+/* contexto — lede curta + resposta "No produto" (contraponto neon) */
+.context-lede {
+  margin-top: 24px; max-width: 980px;
+  font-family: var(--body); font-size: 26px; line-height: 1.45; color: var(--ink-70);
+}
+.context-answer {
+  margin-top: 44px; padding-left: 22px; max-width: 900px;
+  border-left: 3px solid var(--accent);
+  font-family: var(--body); font-size: 24px; line-height: 1.45; color: var(--ink);
+}
+.context-answer b {
+  display: inline-block; font-family: var(--mono); font-weight: 400;
+  font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-right: 14px;
+}
 /* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
 .lockup .mark img[src*="world-gym"] { height: 112px; }
 
