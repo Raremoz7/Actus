@@ -149,8 +149,10 @@ html, body {
 /* visão: título maior que os demais slides de seção */
 #visao .headline--section { font-size: 84px; }
 /* capa: maior, mas cada linha em nowrap pra não quebrar em linhas extras */
-#capa .headline { font-size: 104px; line-height: 0.96; }
-#capa .headline .hl-line { white-space: nowrap; }
+#capa .headline,
+#obrigado .headline { font-size: 104px; line-height: 0.96; }
+#capa .headline .hl-line,
+#obrigado .headline .hl-line { white-space: nowrap; }
 
 /* ---------------------------------------------------------------------------
    06 · hl-line — reveal linha-a-linha (clip + filho transladável)
@@ -161,7 +163,8 @@ html, body {
 .hl-line {
   display: block;
   overflow: hidden;                 /* recorta o filho que sobe */
-  padding-bottom: 0.04em;           /* evita corte do baseline/letterspacing */
+  /* respiro p/ acentos altos (Ã, Á) e cedilha (Ç) não serem cortados pelo clip */
+  padding: 0.12em 0.04em 0.16em;
 }
 .hl-line > span {
   display: inline-block;

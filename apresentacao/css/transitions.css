@@ -23,7 +23,7 @@
 .slide .hl-line { overflow: hidden; }
 .slide .hl-line > span {
   display: inline-block;
-  transform: translateY(110%);
+  transform: translateY(135%);
   transition: transform .72s cubic-bezier(.16,.84,.30,1);
 }
 .slide.is-revealed .hl-line > span { transform: translateY(0); }
