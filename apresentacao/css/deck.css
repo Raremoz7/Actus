@@ -257,28 +257,17 @@ html, body {
 }
 
 /* atrito com tela do app ao lado: problema à esquerda, prova (mockup) à direita */
-.center.context-split { flex-direction: row; align-items: center; gap: 72px; }
+/* contexto + pilares: problema/tese à esquerda, prova (mockup) à direita —
+   título e mockup grandes, título sem quebra extra de linha */
+.center.context-split { flex-direction: row; align-items: center; gap: 48px; }
 .context-split .context-text { flex: 1 1 0; min-width: 0; }
-.context-split .headline { font-size: 84px; line-height: .96; }
+.context-split .headline { font-size: 102px; line-height: .95; }
+.context-split .hl-line { white-space: nowrap; }
 .context-split .phone-mount {
   flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
-  width: 360px;
+  width: 470px;
 }
-.context-split .phone-mount .phone { transform: scale(.82); transform-origin: center; }
-
-/* slides de CONTEXTO (atritos): título e mockup maiores */
-#atrito-1 .context-split .headline,
-#atrito-2 .context-split .headline,
-#atrito-3 .context-split .headline { font-size: 102px; line-height: .95; }
-/* não deixar as linhas do título quebrarem (mantém 3 linhas) */
-#atrito-1 .context-split .hl-line,
-#atrito-2 .context-split .hl-line,
-#atrito-3 .context-split .hl-line { white-space: nowrap; }
-#atrito-1 .context-split, #atrito-2 .context-split, #atrito-3 .context-split { gap: 48px; }
-#atrito-1 .phone-mount, #atrito-2 .phone-mount, #atrito-3 .phone-mount { width: 470px; }
-#atrito-1 .phone-mount .phone,
-#atrito-2 .phone-mount .phone,
-#atrito-3 .phone-mount .phone { transform: scale(1.18); }
+.context-split .phone-mount .phone { transform: scale(1.18); transform-origin: center; }
 /* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
 .lockup .mark img[src*="world-gym"] { height: 112px; }
 
