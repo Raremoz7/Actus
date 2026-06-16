@@ -265,6 +265,15 @@ html, body {
   width: 360px;
 }
 .context-split .phone-mount .phone { transform: scale(.82); transform-origin: center; }
+
+/* slides de CONTEXTO (atritos): título e mockup maiores */
+#atrito-1 .context-split .headline,
+#atrito-2 .context-split .headline,
+#atrito-3 .context-split .headline { font-size: 104px; line-height: .95; }
+#atrito-1 .phone-mount, #atrito-2 .phone-mount, #atrito-3 .phone-mount { width: 420px; }
+#atrito-1 .phone-mount .phone,
+#atrito-2 .phone-mount .phone,
+#atrito-3 .phone-mount .phone { transform: scale(1.02); }
 /* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
 .lockup .mark img[src*="world-gym"] { height: 112px; }
 
