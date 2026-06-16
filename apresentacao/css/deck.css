@@ -269,7 +269,11 @@ html, body {
 /* slides de CONTEXTO (atritos): título e mockup maiores */
 #atrito-1 .context-split .headline,
 #atrito-2 .context-split .headline,
-#atrito-3 .context-split .headline { font-size: 118px; line-height: .94; }
+#atrito-3 .context-split .headline { font-size: 102px; line-height: .95; }
+/* não deixar as linhas do título quebrarem (mantém 3 linhas) */
+#atrito-1 .context-split .hl-line,
+#atrito-2 .context-split .hl-line,
+#atrito-3 .context-split .hl-line { white-space: nowrap; }
 #atrito-1 .context-split, #atrito-2 .context-split, #atrito-3 .context-split { gap: 48px; }
 #atrito-1 .phone-mount, #atrito-2 .phone-mount, #atrito-3 .phone-mount { width: 470px; }
 #atrito-1 .phone-mount .phone,
