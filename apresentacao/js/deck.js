@@ -45,13 +45,20 @@
      cobre ~no meio da animação → chama onCover (revela o conteúdo atrás). */
   function themeWipe(toTheme, onCover) {
     if (reduceMotion || !wipeEl) { if (onCover) onCover(); return; }
+    /* segura o slide novo ESCONDIDO até o wipe cobrir a tela (CSS body.th-wipe) */
+    document.body.classList.add('th-wipe');
     wipeEl.style.background = (toTheme === 'worldgym') ? '#C8102E' : '#10252D';
     wipeEl.classList.remove('is-wiping');
     void wipeEl.offsetWidth;                 /* reflow: reinicia a animação */
     wipeEl.classList.add('is-wiping');
-    setTimeout(function () { if (onCover) onCover(); }, 360);
+    /* no auge do wipe (tela coberta): troca fundo + revela conteúdo e libera o slide */
+    setTimeout(function () {
+      if (onCover) onCover();
+      document.body.classList.remove('th-wipe');
+    }, 450);
     wipeEl.addEventListener('animationend', function ae() {
       wipeEl.classList.remove('is-wiping');
+      document.body.classList.remove('th-wipe');   /* segurança */
       wipeEl.removeEventListener('animationend', ae);
     });
   }

@@ -97,7 +97,11 @@ body.is-still .slide .col-left > *, body.is-still .slide .col-right > * {
   background: #C8102E;           /* cor padrão; deck.js ajusta por destino */
   will-change: transform;
 }
-.theme-wipe.is-wiping { animation: wipe-across .85s cubic-bezier(.7, 0, .3, 1) both; }
+.theme-wipe.is-wiping { animation: wipe-across .9s cubic-bezier(.7, 0, .3, 1) both; }
+
+/* durante a virada, o slide novo fica escondido até o wipe cobrir a tela —
+   assim o vermelho chega PELO wipe (antes), não pelo crossfade do slide */
+body.th-wipe .impress-enabled .step.active { opacity: 0 !important; }
 @keyframes wipe-across {
   0%   { transform: translateX(-101%); }
   48%  { transform: translateX(0); }
