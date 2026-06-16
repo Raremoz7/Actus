@@ -146,6 +146,8 @@ html, body {
 
 /* título de slide (não-herói) ~64px — ex.: contexto, pilares, "nós e vocês" */
 .headline--section { font-size: 64px; line-height: 0.94; }
+/* capa: menor para cada linha caber inteira (sem quebra extra ao lado do painel) */
+#capa .headline { font-size: 92px; line-height: 0.96; }
 
 /* ---------------------------------------------------------------------------
    06 · hl-line — reveal linha-a-linha (clip + filho transladável)
