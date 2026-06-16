@@ -146,8 +146,11 @@ html, body {
 
 /* título de slide (não-herói) ~64px — ex.: contexto, pilares, "nós e vocês" */
 .headline--section { font-size: 64px; line-height: 0.94; }
-/* capa: menor para cada linha caber inteira (sem quebra extra ao lado do painel) */
-#capa .headline { font-size: 92px; line-height: 0.96; }
+/* visão: título maior que os demais slides de seção */
+#visao .headline--section { font-size: 84px; }
+/* capa: maior, mas cada linha em nowrap pra não quebrar em linhas extras */
+#capa .headline { font-size: 104px; line-height: 0.96; }
+#capa .headline .hl-line { white-space: nowrap; }
 
 /* ---------------------------------------------------------------------------
    06 · hl-line — reveal linha-a-linha (clip + filho transladável)
@@ -497,4 +500,46 @@ html, body {
   font-size: 18px;
   letter-spacing: 0.12em;
   line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------------
+   14 · NÓS E VOCÊS — split meio a meio (Actus dark | World Gym vermelho)
+   --------------------------------------------------------------------------- */
+.nv-split .nv-bg { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 0; }
+.nv-split .nv-bg-actus { left: 0;  background: var(--bg-base); }
+.nv-split .nv-bg-wg    { right: 0; background: var(--slide-bg);
+  box-shadow: -1px 0 0 rgba(255,255,255,.14); }
+
+#nos-voces .nv-top { justify-content: center; }
+#nos-voces .nv-center { align-items: center; text-align: center; }
+#nos-voces .nv-title { color: #fff; margin-bottom: 64px; }
+#nos-voces .nv-title .hl-line { text-align: center; }
+
+#nos-voces .nv-cols {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 64px;
+  width: 100%;
+  max-width: 1480px;
+}
+#nos-voces .nv-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 28px; text-align: center;
+}
+#nos-voces .nv-logo img { height: 78px; width: auto; display: block; }
+#nos-voces .nv-col-wg .nv-logo img { height: 96px; filter: brightness(0) invert(1); }
+#nos-voces .nv-col ul { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+#nos-voces .nv-col li {
+  font-family: var(--body);
+  font-size: 23px;
+  line-height: 1.35;
+  color: var(--ink-70);
+  max-width: 470px;
+}
+#nos-voces .nv-x {
+  font-family: var(--disp); font-weight: 800;
+  font-size: 72px; line-height: 1;
+  color: rgba(255,255,255,.45);
+  align-self: center;
 }

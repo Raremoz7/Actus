@@ -525,28 +525,26 @@
   <!-- ============================================================
        07 · NÓS E VOCÊS — pan dentro do mundo vermelho (World Gym)
        ============================================================ -->
-  <div id="nos-voces" class="step slide" data-theme="worldgym" data-reveal="columns"
+  <div id="nos-voces" class="step slide nv-split" data-reveal="line"
        data-x="0" data-y="0" data-scale="1">
-    <div class="slide-frame">
+    <!-- fundos meio a meio: Actus (dark) | World Gym (vermelho) -->
+    <div class="nv-bg nv-bg-actus"></div>
+    <div class="nv-bg nv-bg-wg" data-theme="worldgym"></div>
 
-      <header class="top">
-        <div class="eyebrow"><span class="tick"></span>A PARCERIA</div>
-        <div class="lockup">
-          <span class="mark mark--invert"><img src="assets/logos/world-gym.webp" alt="World Gym"></span>
-          <span class="sep">×</span>
-          <span class="mark mark--invert"><img src="assets/logos/actus-vertical-neutra.svg" alt="Actus"></span>
-        </div>
+    <div class="slide-frame">
+      <header class="top nv-top">
+        <div class="eyebrow"><span class="tick"></span>A PARCERIA · COMO PODE FUNCIONAR</div>
       </header>
 
-      <div class="center">
-        <div class="s-index"><span class="num">13</span> / PARCERIA</div>
-        <h1 class="headline headline--section">
-          Como a parceria<br><span class="accent">pode funcionar</span>.
+      <div class="center nv-center">
+        <h1 class="headline headline--section nv-title">
+          <span class="hl-line"><span>Como a parceria</span></span>
+          <span class="hl-line"><span>pode funcionar.</span></span>
         </h1>
 
-        <div class="cols-2" style="margin-top:44px;">
-          <div class="col-left">
-            <div class="col-head">Actus</div>
+        <div class="nv-cols">
+          <div class="nv-col nv-col-actus">
+            <span class="nv-logo"><img src="assets/logos/actus-vertical.svg" alt="Actus"></span>
             <ul>
               <li>Tecnologia e produto para operação de treino</li>
               <li>Motor de dados e inteligência sobre usuários</li>
@@ -554,8 +552,11 @@
               <li>Velocidade para testar e evoluir o app</li>
             </ul>
           </div>
-          <div class="col-right">
-            <div class="col-head">World Gym + Actus</div>
+
+          <div class="nv-x">×</div>
+
+          <div class="nv-col nv-col-wg" data-theme="worldgym">
+            <span class="nv-logo"><img src="assets/logos/world-gym.webp" alt="World Gym"></span>
             <ul>
               <li>Canal de distribuição e confiança da marca</li>
               <li>Contexto real de academia e jornada presencial</li>
@@ -565,7 +566,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 

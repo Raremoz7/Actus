@@ -81,7 +81,13 @@
   /* pinta o palco inteiro (html+body) com a cor do tema → vermelho de fora a
      fora nas telas World Gym, sem borda escura. */
   function setStageBg(theme) {
-    var c = (theme === 'worldgym') ? '#C8102E' : '#10252D';
+    var active = document.querySelector('.step.active');
+    var c;
+    if (active && active.id === 'nos-voces') {
+      c = 'linear-gradient(90deg, #1A343F 50%, #C8102E 50%)';  /* split bleed */
+    } else {
+      c = (theme === 'worldgym') ? '#C8102E' : '#10252D';
+    }
     document.documentElement.style.background = c;
     document.body.style.background = c;
   }
