@@ -401,29 +401,27 @@ html, body {
 .cols-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  gap: 40px;
   align-items: stretch;
 }
+/* duas colunas = cards simétricos (mesma superfície e altura) */
 .col-left,
 .col-right {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-.col-left  { padding: 8px 4px; }
-
-/* coluna direita = realce (a parceria destrava) */
-.col-right {
-  position: relative;
-  background: var(--card-elev);
+  gap: 20px;
+  background: var(--card);
   border: 1px solid var(--rule);
   border-radius: 12px;
-  padding: 36px 36px 32px;
+  padding: 44px 44px 40px;
 }
+/* coluna direita = realce (a parceria destrava): superfície elevada + filete */
+.col-right { background: var(--card-elev); }
 .col-right::before {                /* filete de acento no topo do destaque */
   content: "";
   position: absolute;
-  top: 0; left: 24px; right: 24px;
+  top: 0; left: 28px; right: 28px;
   height: 3px;
   border-radius: 0 0 3px 3px;
   background: var(--accent);
