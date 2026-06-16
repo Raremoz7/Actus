@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from './pages/login/LoginPage';
+import { LandingPage } from './pages/landing/LandingPage';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { AppLayout } from './layouts/AppLayout';
@@ -21,6 +22,7 @@ import { VinculosPage } from './pages/admin/VinculosPage';
 import { ProfissionaisPage } from './pages/admin/ProfissionaisPage';
 
 export const router = createBrowserRouter([
+  { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
   {
     element: <RequireAuth />,
@@ -28,29 +30,29 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: '/', element: <DashboardPage /> },
-          { path: '/alunos', element: <AlunosPage /> },
-          { path: '/alunos/:id', element: <AlunoDetailPage /> },
-          { path: '/treinos', element: <TreinosPage /> },
-          { path: '/treinos/templates', element: <TemplatesPage /> },
-          { path: '/treinos/templates/novo', element: <TemplateBuilderPage /> },
-          { path: '/treinos/templates/:id', element: <TemplateBuilderPage /> },
-          { path: '/exercicios', element: <ExerciciosPage /> },
-          { path: '/treinos/novo', element: <BuilderPage /> },
-          { path: '/treinos/:id', element: <BuilderPage /> },
-          { path: '/treinos/:id/atribuir', element: <AtribuirPage /> },
-          { path: '/convites', element: <ConvitesPage /> },
-          { path: '/configuracoes', element: <ConfiguracoesPage /> },
+          { path: '/app', element: <DashboardPage /> },
+          { path: '/app/alunos', element: <AlunosPage /> },
+          { path: '/app/alunos/:id', element: <AlunoDetailPage /> },
+          { path: '/app/treinos', element: <TreinosPage /> },
+          { path: '/app/treinos/templates', element: <TemplatesPage /> },
+          { path: '/app/treinos/templates/novo', element: <TemplateBuilderPage /> },
+          { path: '/app/treinos/templates/:id', element: <TemplateBuilderPage /> },
+          { path: '/app/exercicios', element: <ExerciciosPage /> },
+          { path: '/app/treinos/novo', element: <BuilderPage /> },
+          { path: '/app/treinos/:id', element: <BuilderPage /> },
+          { path: '/app/treinos/:id/atribuir', element: <AtribuirPage /> },
+          { path: '/app/convites', element: <ConvitesPage /> },
+          { path: '/app/configuracoes', element: <ConfiguracoesPage /> },
           {
             element: <RequireAdmin />,
             children: [
               {
                 element: <AdminLayout />,
                 children: [
-                  { path: '/admin', element: <AdminOverviewPage /> },
-                  { path: '/admin/equipe', element: <StaffPage /> },
-                  { path: '/admin/vinculos', element: <VinculosPage /> },
-                  { path: '/admin/profissionais', element: <ProfissionaisPage /> },
+                  { path: '/app/admin', element: <AdminOverviewPage /> },
+                  { path: '/app/admin/equipe', element: <StaffPage /> },
+                  { path: '/app/admin/vinculos', element: <VinculosPage /> },
+                  { path: '/app/admin/profissionais', element: <ProfissionaisPage /> },
                 ],
               },
             ],

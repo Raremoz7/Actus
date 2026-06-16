@@ -32,7 +32,7 @@ export function AlunoDetailPage() {
   return (
     <div className="flex-1">
       <div className="flex h-[52px] items-center gap-3 border-b border-outline-v px-6">
-        <Link to="/alunos" className="text-sm text-text-3 hover:text-neon">
+        <Link to="/app/alunos" className="text-sm text-text-3 hover:text-neon">
           ‹ Alunos
         </Link>
       </div>

@@ -3,15 +3,15 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { selectIsAdmin, useAuthStore } from '../store/authStore';
 
 const professorTabs = [
-  { to: '/alunos', label: 'Alunos' },
-  { to: '/treinos', label: 'Treinos' },
-  { to: '/exercicios', label: 'Exercícios' },
-  { to: '/convites', label: 'Convites' },
+  { to: '/app/alunos', label: 'Alunos' },
+  { to: '/app/treinos', label: 'Treinos' },
+  { to: '/app/exercicios', label: 'Exercícios' },
+  { to: '/app/convites', label: 'Convites' },
 ];
 
 const adminTabs = [
-  { to: '/treinos/templates', label: 'Treinos' },
-  { to: '/exercicios', label: 'Exercícios' },
+  { to: '/app/treinos/templates', label: 'Treinos' },
+  { to: '/app/exercicios', label: 'Exercícios' },
 ];
 
 function initials(name: string | null | undefined): string {
@@ -47,7 +47,7 @@ export function AppLayout() {
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-[52px] items-center gap-6 border-b border-outline-v bg-bg-lowest px-5">
-        <Link to="/" className="flex items-center">
+        <Link to="/app" className="flex items-center">
           <img src="/actus-logo.svg" alt="Actus" className="h-7" />
         </Link>
         <nav className="flex h-full items-center gap-1">
@@ -57,7 +57,7 @@ export function AppLayout() {
             </NavLink>
           ))}
           {isAdmin && (
-            <NavLink to="/admin" className={tabClass}>
+            <NavLink to="/app/admin" className={tabClass}>
               Admin
             </NavLink>
           )}
@@ -82,7 +82,7 @@ export function AppLayout() {
                 role="menuitem"
                 onClick={() => {
                   setMenuOpen(false);
-                  navigate('/configuracoes');
+                  navigate('/app/configuracoes');
                 }}
                 className="block w-full px-4 py-2 text-left text-sm text-text-1 hover:bg-surface-3"
               >

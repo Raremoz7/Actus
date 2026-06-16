@@ -162,7 +162,7 @@ export function DashboardPage() {
                 <h2 className="font-display text-base font-bold uppercase tracking-wide text-text-1">
                   Alunos recentes
                 </h2>
-                <Link to="/alunos" className="text-xs text-text-3 hover:text-neon">
+                <Link to="/app/alunos" className="text-xs text-text-3 hover:text-neon">
                   Ver todos
                 </Link>
               </div>

@@ -18,7 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   orientation: 'portrait',
   userInterfaceStyle: 'dark', // dark mode é o único tema (quiet luxury)
-  icon: './assets/icon.png', // [ASSET PENDENTE] gerar raster a partir do actus.svg
+  icon: './assets/icon.png', // símbolo Actus neon sobre BG_LOWEST (scripts/gen-brand-assets.mjs)
   backgroundColor: BG_LOWEST,
   ios: {
     supportsTablet: false,
@@ -28,7 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'br.tec.somo.actus',
     adaptiveIcon: {
       backgroundColor: BG_LOWEST,
-      foregroundImage: './assets/android-icon-foreground.png', // [ASSET PENDENTE]
+      foregroundImage: './assets/android-icon-foreground.png',
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
@@ -39,11 +39,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-router',
     'expo-secure-store',
+    [
+      // Backend de QA/dev é HTTP puro (http://136.119.240.96:3000). Android 9+ bloqueia
+      // cleartext por padrão → request morre como "Sem conexão com o servidor". A flag
+      // no topo de `android` é ignorada no SDK 55; o caminho suportado é este plugin.
+      // Remover quando a API estiver atrás de HTTPS.
+      'expo-build-properties',
+      {
+        android: {
+          usesCleartextTraffic: true,
+        },
+      },
+    ],
     'expo-font',
     [
       'expo-splash-screen',
       {
-        image: './assets/splash-icon.png', // [ASSET PENDENTE] símbolo actus em neon
+        image: './assets/splash-icon.png', // símbolo Actus neon (scripts/gen-brand-assets.mjs)
         backgroundColor: BG_LOWEST,
         imageWidth: 160,
       },

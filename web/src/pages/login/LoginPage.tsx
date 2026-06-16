@@ -19,7 +19,7 @@ export function LoginPage() {
     const result = await login(email, password);
     setLoading(false);
     if (result.ok) {
-      navigate('/', { replace: true });
+      navigate('/app', { replace: true });
       return;
     }
     if (result.error === 'invalid_credentials') {
