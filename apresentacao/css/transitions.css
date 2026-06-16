@@ -63,6 +63,15 @@
 .slide.is-revealed .col-left  > *:nth-child(2) { transition-delay: .10s; }
 .slide.is-revealed .col-right > *:nth-child(2) { transition-delay: .10s; }
 
+/* subtítulo / lede — entram DEPOIS do título (não aparecem antes da animação) */
+.slide .context-lede,
+.slide .subhead {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1);
+}
+.slide.is-revealed .context-lede,
+.slide.is-revealed .subhead { opacity: 1; transform: none; transition-delay: .38s; }
+
 /* dica de navegação some na 1ª navegação */
 .nav-hint { transition: opacity .5s ease; }
 .nav-hint.is-hidden { opacity: 0; }
@@ -74,7 +83,8 @@
   .slide .hl-line > span,
   .slide .pillar-card, .slide .insight-card,
   .slide .phone,
-  .slide .col-left > *, .slide .col-right > * {
+  .slide .col-left > *, .slide .col-right > *,
+  .slide .context-lede, .slide .subhead {
     opacity: 1 !important; transform: none !important; transition: none !important;
   }
   .impress-enabled .step { transition: none !important; }
@@ -83,7 +93,8 @@
 body.is-still .slide .hl-line > span,
 body.is-still .slide .pillar-card, body.is-still .slide .insight-card,
 body.is-still .slide .phone,
-body.is-still .slide .col-left > *, body.is-still .slide .col-right > * {
+body.is-still .slide .col-left > *, body.is-still .slide .col-right > *,
+body.is-still .slide .context-lede, body.is-still .slide .subhead {
   opacity: 1 !important; transform: none !important; transition: none !important;
 }
 
