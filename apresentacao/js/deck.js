@@ -19,14 +19,20 @@
   var root = document.getElementById('impress');
   if (!root) return;
 
-  /* [TEMPORÁRIO] só ← e → navegam. Bloqueia as demais teclas do impress
+  /* [TEMPORÁRIO] só ← e → navegam. O impress navega no KEYUP (e usa keydown
+     p/ preventDefault), então bloqueamos keydown E keyup das demais teclas
      (espaço, PageUp/Down, ↑ ↓, Home/End, Tab) na fase de captura, antes do
-     impress tratá-las. Para reativar tudo, remova este bloco. */
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-      e.stopImmediatePropagation();
+     impress. Para reativar tudo, remova este bloco. */
+  (function () {
+    function gate(e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+        e.stopImmediatePropagation();
+      }
     }
-  }, true);
+    document.addEventListener('keydown', gate, true);
+    document.addEventListener('keyup', gate, true);
+    document.addEventListener('keypress', gate, true);
+  })();
 
   var reduceMotion = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
