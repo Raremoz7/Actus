@@ -19,6 +19,15 @@
   var root = document.getElementById('impress');
   if (!root) return;
 
+  /* [TEMPORÁRIO] só ← e → navegam. Bloqueia as demais teclas do impress
+     (espaço, PageUp/Down, ↑ ↓, Home/End, Tab) na fase de captura, antes do
+     impress tratá-las. Para reativar tudo, remova este bloco. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+      e.stopImmediatePropagation();
+    }
+  }, true);
+
   var reduceMotion = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
