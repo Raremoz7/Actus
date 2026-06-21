@@ -1,23 +1,69 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, ctaStyle, fontBody, fontDisplay, fontMono, hex } from '../theme';
+import { PhoneFrame } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Prints reais do app que o mockup do hero alterna em loop (crossfade).
+const HERO_SHOTS = [
+  '/landing/app/painel.jpeg',
+  '/landing/app/hoje.jpeg',
+  '/landing/app/alunos.jpeg',
+  '/landing/app/treino-detalhe.jpeg',
+  '/landing/app/exercicio.jpeg',
+  '/landing/app/treinos-prof.jpeg',
+];
+
+function HeroPhone() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setActive((p) => (p + 1) % HERO_SHOTS.length);
+    }, 2800);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <PhoneFrame height="clamp(360px, 48vw, 520px)">
+      <div style={{ position: 'relative', width: '100%', height: '100%', background: hex.bgBase }}>
+        {HERO_SHOTS.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            style={{
+              position: 'absolute',
+              top: '3%',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '97%',
+              objectFit: 'contain',
+              objectPosition: 'top center',
+              opacity: i === active ? 1 : 0,
+              transition: 'opacity 0.7s ease',
+            }}
+          />
+        ))}
+      </div>
+    </PhoneFrame>
+  );
+}
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLDivElement>(null);
-  const watchRef = useRef<HTMLDivElement>(null);
   const mockupsRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
     tl.from(contentRef.current, { y: 30, opacity: 0, duration: 0.9 })
-      .from(phoneRef.current, { y: 50, opacity: 0, scale: 0.95, duration: 1 }, '-=0.6')
-      .from(watchRef.current, { y: 60, opacity: 0, scale: 0.93, duration: 1 }, '-=0.8');
+      .from(phoneRef.current, { y: 50, opacity: 0, scale: 0.95, duration: 1 }, '-=0.6');
 
     gsap.to(mockupsRef.current, {
       y: -50,
@@ -36,7 +82,8 @@ export function HeroSection() {
       ref={sectionRef}
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at 50% 0%, #d2e5ff 0%, #fff9ee 45%, #ffffff 80%)',
+        background:
+          'radial-gradient(ellipse at 50% -10%, rgba(203,254,0,0.14) 0%, rgba(77,224,130,0.06) 35%, var(--color-bg-base) 70%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -49,76 +96,52 @@ export function HeroSection() {
         position: 'relative',
       }}
     >
-      {/* Clouds background */}
-      <img
-        src="/landing/clouds.avif"
-        alt=""
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '100%',
-          maxWidth: 1100,
-          opacity: 0.7,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      />
-
       {/* Text content */}
-      <div ref={contentRef} style={{ textAlign: 'center', zIndex: 2, maxWidth: 640 }}>
+      <div ref={contentRef} style={{ textAlign: 'center', zIndex: 2, maxWidth: 720 }}>
         <h1
           style={{
-            fontSize: 'clamp(44px, 6.5vw, 76px)',
-            fontWeight: 700,
-            lineHeight: 1.04,
-            color: '#222326',
-            letterSpacing: '-0.03em',
-            marginBottom: 20,
+            fontFamily: fontDisplay,
+            fontSize: 'clamp(52px, 8vw, 100px)',
+            fontWeight: 900,
+            lineHeight: 0.95,
+            color: c.text1,
+            textTransform: 'uppercase',
+            letterSpacing: '0.005em',
+            marginBottom: 22,
           }}
         >
-          Your Connected<br />Health Coach
+          Profissionais e alunos.<br />
+          <span style={{ color: c.neon }}>No mesmo ritmo.</span>
         </h1>
         <p
           style={{
+            fontFamily: fontBody,
             fontSize: 18,
-            color: 'rgba(34,35,38,0.6)',
-            marginBottom: 26,
+            color: c.text2,
+            marginBottom: 28,
             lineHeight: 1.5,
           }}
         >
-          Make sense of your health data, from wearables to<br />
-          bloodwork, and everything in between.
+          A plataforma que conecta personal trainers e alunos em torno de<br />
+          treinos claros, acompanhamento próximo e evolução contínua.
         </p>
         <Link
           to="/login"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            background: '#1f2025',
-            color: '#ebf0f8',
-            borderRadius: 128,
-            padding: '13px 24px',
+            ...ctaStyle,
+            padding: '14px 30px',
             fontSize: 16,
-            fontWeight: 500,
-            textDecoration: 'none',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 16px rgba(0,0,0,0.15)',
-            transition: 'opacity 0.2s',
+            boxShadow: '0 8px 28px rgba(203,254,0,0.25)',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(0.95)')}
+          onMouseLeave={(e) => (e.currentTarget.style.filter = 'brightness(1)')}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-          </svg>
           Entrar
         </Link>
         {/* Rating */}
-        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          <span style={{ color: '#ff9500', fontSize: 14 }}>★★★★★</span>
-          <span style={{ fontSize: 13, color: 'rgba(34,35,38,0.5)' }}>4.9 · 2K+ ratings</span>
+        <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <span style={{ color: c.neon, fontSize: 14 }}>★★★★★</span>
+          <span style={{ fontFamily: fontMono, fontSize: 12, color: c.text3 }}>4.9 · 2K+ avaliações</span>
         </div>
       </div>
 
@@ -135,73 +158,9 @@ export function HeroSection() {
           position: 'relative',
         }}
       >
-        {/* Phone: frame + screen video */}
-        <div
-          ref={phoneRef}
-          style={{
-            position: 'relative',
-            height: 'clamp(360px, 48vw, 520px)',
-            filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.18))',
-          }}
-        >
-          <video
-            src="/landing/hero-phone-screen.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              position: 'absolute',
-              top: '3.5%',
-              left: '6%',
-              width: '88%',
-              height: '93%',
-              objectFit: 'cover',
-              borderRadius: '13% / 6.5%',
-              zIndex: 1,
-            }}
-          />
-          <img
-            src="/landing/phone-frame.avif"
-            alt="Bevel app on iPhone"
-            style={{ height: '100%', width: 'auto', position: 'relative', zIndex: 2, display: 'block' }}
-          />
-        </div>
-
-        {/* Watch: frame + screen video */}
-        <div
-          ref={watchRef}
-          style={{
-            position: 'relative',
-            height: 'clamp(150px, 20vw, 220px)',
-            marginLeft: '-6%',
-            marginBottom: '6%',
-            filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.14))',
-          }}
-        >
-          <video
-            src="/landing/hero-watch-screen.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              position: 'absolute',
-              top: '24%',
-              left: '35%',
-              width: '54%',
-              height: '54%',
-              objectFit: 'cover',
-              borderRadius: '24%',
-              transform: 'rotate(-4deg)',
-              zIndex: 1,
-            }}
-          />
-          <img
-            src="/landing/hero-watch.avif"
-            alt="Bevel app on Apple Watch"
-            style={{ height: '100%', width: 'auto', position: 'relative', zIndex: 2, display: 'block' }}
-          />
+        {/* Phone: frame + prints reais do app alternando em loop */}
+        <div ref={phoneRef}>
+          <HeroPhone />
         </div>
       </div>
 
@@ -214,16 +173,31 @@ export function HeroSection() {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          background: 'rgba(255,255,255,0.8)',
+          background: 'rgba(32,63,75,0.7)',
+          border: `1px solid ${c.outlineV}`,
           borderRadius: 12,
           padding: '8px 12px',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <img src="/landing/qr-code.png" alt="QR code" style={{ width: 48, height: 48 }} />
+        <img
+          src="/landing/qr-code.png"
+          alt="QR code"
+          style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', padding: 2 }}
+        />
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#222326' }}>Download</div>
-          <div style={{ fontSize: 10, color: 'rgba(34,35,38,0.5)' }}>for iOS</div>
+          <div style={{ fontFamily: fontDisplay, fontWeight: 900, textTransform: 'uppercase', fontSize: 12, letterSpacing: '0.03em', color: c.text1 }}>
+            Baixe o app
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: fontMono, fontSize: 10, color: c.text3 }}>
+            <svg width="9" height="10" viewBox="0 0 24 26" fill="none" aria-hidden="true">
+              <path d="M1.6 1.2 14 13 1.6 24.8c-.4-.3-.6-.8-.6-1.4V2.6c0-.6.2-1.1.6-1.4Z" fill={c.neon} />
+              <path d="m16.3 10.7 3.1 1.8c1.2.7 1.2 2.3 0 3l-3.1 1.8L13.2 16l3.1-3.3-3.1-2 3.1-.0Z" fill={c.neon} opacity="0.75" />
+              <path d="M2.6.7 16 8.4l-2.8 3L2.6.7Z" fill={c.neon} opacity="0.9" />
+              <path d="M2.6 25.3 13.2 16.6 16 19.6 2.6 25.3Z" fill={c.neon} opacity="0.6" />
+            </svg>
+            na Google Play
+          </div>
         </div>
       </div>
     </section>

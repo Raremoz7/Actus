@@ -2,24 +2,26 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
+import { PhoneShot } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Floating health-record source icons scattered around the phone
-const ICONS = [
-  { src: '/landing/hr-icon-01.avif', top: '6%', left: '52%', size: 56, dur: 3.4, delay: 0 },
-  { src: '/landing/hr-icon-03.avif', top: '2%', left: '74%', size: 46, dur: 3.9, delay: 0.4 },
-  { src: '/landing/hr-icon-04.avif', top: '24%', left: '90%', size: 52, dur: 3.2, delay: 0.2 },
-  { src: '/landing/hr-icon-05.avif', top: '46%', left: '60%', size: 44, dur: 4.1, delay: 0.6 },
-  { src: '/landing/hr-icon-06.avif', top: '44%', left: '84%', size: 50, dur: 3.6, delay: 0.1 },
-  { src: '/landing/hr-icon-07.avif', top: '68%', left: '70%', size: 46, dur: 3.8, delay: 0.5 },
-  { src: '/landing/hr-icon-08.avif', top: '70%', left: '92%', size: 42, dur: 3.3, delay: 0.3 },
-  { src: '/landing/hr-icon-09.avif', top: '88%', left: '56%', size: 48, dur: 4.0, delay: 0.7 },
+// Avatares de alunos flutuando ao redor do phone (centralização de alunos)
+const ICONS: { initials: string; top: string; left: string; size: number; dur: number; delay: number }[] = [
+  { initials: 'AC', top: '6%', left: '52%', size: 50, dur: 3.4, delay: 0 },
+  { initials: 'BL', top: '2%', left: '76%', size: 42, dur: 3.9, delay: 0.4 },
+  { initials: 'CD', top: '26%', left: '90%', size: 46, dur: 3.2, delay: 0.2 },
+  { initials: 'DS', top: '48%', left: '62%', size: 40, dur: 4.1, delay: 0.6 },
+  { initials: 'MR', top: '44%', left: '86%', size: 46, dur: 3.6, delay: 0.1 },
+  { initials: 'ER', top: '70%', left: '72%', size: 42, dur: 3.8, delay: 0.5 },
+  { initials: 'FL', top: '72%', left: '92%', size: 38, dur: 3.3, delay: 0.3 },
+  { initials: 'GP', top: '88%', left: '56%', size: 44, dur: 4.0, delay: 0.7 },
 ];
 
 export function HealthRecordsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const phoneRef = useRef<HTMLImageElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const iconsRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +74,7 @@ export function HealthRecordsSection() {
     <section
       ref={sectionRef}
       style={{
-        background: 'linear-gradient(180deg, #ebf0f8 0%, #f4f7fb 100%)',
+        background: `linear-gradient(180deg, ${hex.bgBase} 0%, ${hex.bgLowest} 100%)`,
         padding: 'clamp(60px, 8vw, 110px) clamp(24px, 6vw, 80px)',
         overflow: 'hidden',
       }}
@@ -88,38 +90,36 @@ export function HealthRecordsSection() {
           gap: 'clamp(32px, 6vw, 80px)',
         }}
       >
-        {/* Phone + floating icons */}
+        {/* Phone (tela Alunos) + avatares flutuantes */}
         <div style={{ position: 'relative', flex: '0 0 auto', width: 'clamp(300px, 42vw, 460px)' }}>
-          <img
-            ref={phoneRef}
-            src="/landing/health-records-phone.avif"
-            alt="Health records on Bevel"
-            style={{
-              width: '64%',
-              height: 'auto',
-              display: 'block',
-              position: 'relative',
-              zIndex: 2,
-              filter: 'drop-shadow(0 24px 56px rgba(30,60,120,0.18))',
-            }}
-          />
-          <div ref={iconsRef} style={{ position: 'absolute', inset: 0, zIndex: 3 }}>
+          <div ref={phoneRef} style={{ width: '64%', position: 'relative', zIndex: 2 }}>
+            <PhoneShot src="/landing/app/alunos.jpeg" width="100%" />
+          </div>
+          <div ref={iconsRef} style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' }}>
             {ICONS.map((ic, i) => (
-              <img
+              <div
                 key={i}
-                src={ic.src}
-                alt=""
                 style={{
                   position: 'absolute',
                   top: ic.top,
                   left: ic.left,
                   width: ic.size,
                   height: ic.size,
-                  borderRadius: 14,
-                  objectFit: 'cover',
-                  boxShadow: '0 8px 20px rgba(30,60,120,0.14)',
+                  borderRadius: '50%',
+                  background: hex.surface3,
+                  border: `1.5px solid ${c.neon}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: fontDisplay,
+                  fontWeight: 700,
+                  fontSize: ic.size * 0.34,
+                  color: '#fff',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
                 }}
-              />
+              >
+                {ic.initials}
+              </div>
             ))}
           </div>
         </div>
@@ -128,18 +128,20 @@ export function HealthRecordsSection() {
         <div ref={textRef} style={{ flex: 1, minWidth: 280, maxWidth: 440 }}>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(32px, 4.2vw, 52px)',
-              fontWeight: 700,
-              color: '#222326',
-              letterSpacing: '-0.025em',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: c.text1,
+              letterSpacing: '0.01em',
               lineHeight: 1.08,
               marginBottom: 18,
             }}
           >
-            Connect your<br />health records
+            Centralize<br /><span style={{ color: c.neon }}>seus alunos</span>
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(34,35,38,0.55)', lineHeight: 1.6 }}>
-            Store your labs, clinical notes, and medical records in one secure place.
+          <p style={{ fontFamily: fontBody, fontSize: 17, color: c.text2, lineHeight: 1.6 }}>
+            Reúna fichas, treinos e o histórico de cada aluno em um só lugar, seguro e sempre à mão.
           </p>
         </div>
       </div>

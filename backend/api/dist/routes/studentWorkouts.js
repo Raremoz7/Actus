@@ -24,6 +24,94 @@ const patchAssignWorkoutSchema = z
     is_active: z.boolean().optional(),
 })
     .refine((o) => Object.keys(o).length > 0, { message: "empty_patch" });
+// [ACTUS-NEW] A1 — GET treinos atribuídos a um aluno (visão do profissional).
+// Contrato: app/docs/contrato-backend-treinos-do-aluno.md. Mesma forma de GET /me/workouts.
+// Autorização: tipo personal + vínculo ativo (igual ao POST/PATCH abaixo).
+router.get("/", async (req, res) => {
+    const personalId = authedUserId(req);
+    const p = paramsSchema.safeParse(req.params);
+    if (!p.success)
+        return res.status(400).json({ error: "invalid_params", details: p.error.flatten() });
+    const studentId = p.data.student_id;
+    // Filtro opcional ?active=true|false (default: todas; o app filtra no cliente).
+    const activeQ = req.query.active;
+    const active = typeof activeQ === "string" ? (activeQ === "true" ? true : activeQ === "false" ? false : null) : null;
+    if (activeQ !== undefined && active === null) {
+        return res.status(400).json({ error: "invalid_query", detail: "active must be true or false" });
+    }
+    try {
+        const out = await withTx(async (client) => {
+            const meQ = await client.query(`select tipo::text as tipo from public.profiles where id = $1`, [personalId]);
+            if (meQ.rows[0]?.tipo !== "personal")
+                return { ok: false, error: "only_personal" };
+            const linkQ = await client.query(`
+        select 1 from public.student_professional_links
+        where student_id = $1 and professional_id = $2 and professional_role = 'personal' and status = 'active'
+        limit 1
+        `, [studentId, personalId]);
+            if (!linkQ.rowCount)
+                return { ok: false, error: "student_not_linked" };
+            let sql = `
+        select
+          sw.id, sw.student_id, sw.workout_id, sw.weekdays, sw.start_date, sw.end_date,
+          sw.display_order, sw.is_active, sw.created_at,
+          w.name as workout_name,
+          w.notes as workout_notes,
+          coalesce(wec.cnt, 0)::int as exercise_count,
+          lcd.scheduled_for_date as last_completed_date
+        from public.student_workouts sw
+        join public.workouts w on w.id = sw.workout_id
+        left join (
+          select we.workout_id, count(*)::int as cnt
+          from public.workout_exercises we
+          group by we.workout_id
+        ) wec on wec.workout_id = sw.workout_id
+        left join (
+          select ws.student_workout_id, min(ws.scheduled_for_date) as scheduled_for_date
+          from public.workout_sessions ws
+          inner join (
+            select student_workout_id, max(completed_at) as mx
+            from public.workout_sessions
+            where status::text in ('completed', 'completed_partial')
+            group by student_workout_id
+          ) t on t.student_workout_id = ws.student_workout_id and ws.completed_at = t.mx
+          where ws.status::text in ('completed', 'completed_partial')
+          group by ws.student_workout_id
+        ) lcd on lcd.student_workout_id = sw.id
+        where sw.student_id = $1
+      `;
+            const params = [studentId];
+            if (active !== null) {
+                sql += ` and sw.is_active = $2`;
+                params.push(active);
+            }
+            sql += ` order by sw.display_order asc, sw.created_at desc limit 500`;
+            const q = await client.query(sql, params);
+            return { ok: true, rows: q.rows };
+        });
+        if (!out.ok)
+            return res.status(403).json({ error: out.error });
+        const student_workouts = out.rows.map((r) => ({
+            id: r.id,
+            student_id: r.student_id,
+            workout_id: r.workout_id,
+            weekdays: r.weekdays,
+            start_date: formatDateOnly(r.start_date),
+            end_date: r.end_date != null ? formatDateOnly(r.end_date) : null,
+            display_order: r.display_order,
+            is_active: r.is_active,
+            created_at: toIso(r.created_at),
+            workout_name: r.workout_name,
+            workout_notes: r.workout_notes,
+            exercise_count: r.exercise_count,
+            last_completed_date: r.last_completed_date != null ? formatDateOnly(r.last_completed_date) : null,
+        }));
+        return res.json({ student_workouts });
+    }
+    catch {
+        return res.status(500).json({ error: "internal_error" });
+    }
+});
 router.post("/", async (req, res) => {
     const personalId = authedUserId(req);
     const p = paramsSchema.safeParse(req.params);
@@ -174,4 +262,19 @@ router.patch("/:student_workout_id", async (req, res) => {
         return res.status(500).json({ error: "internal_error" });
     }
 });
+// [ACTUS-NEW] Helpers de data (cópia dos de meStudentProgram.ts — paridade de resposta).
+function toIso(v) {
+    const d = v instanceof Date ? v : new Date(v);
+    return d.toISOString();
+}
+function formatDateOnly(v) {
+    if (v == null)
+        return null;
+    if (v instanceof Date)
+        return v.toISOString().slice(0, 10);
+    if (typeof v === "string")
+        return v.slice(0, 10);
+    const d = new Date(v);
+    return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : null;
+}
 export default router;

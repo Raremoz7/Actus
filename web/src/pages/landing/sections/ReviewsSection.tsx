@@ -1,39 +1,41 @@
+import { c, hex, fontBody, fontDisplay } from '../theme';
+
 const REVIEWS = [
   {
-    title: 'Great and Useful App',
-    author: 'optionz0000',
-    date: 'September 1, 2025',
-    text: 'This app is incredibly useful for tracking my sleep and workouts! I love how it integrates with my Apple Watch and is incredibly accurate compared to other apps. It really helps me plan my day.',
+    title: 'App incrível e prático',
+    author: 'carol.personal',
+    date: '1 de setembro de 2025',
+    text: 'Organizou completamente a minha rotina como personal. Monto os treinos dos meus alunos em minutos e acompanho os check-ins de cada um sem perder nada. Mudou a forma como trabalho.',
   },
   {
-    title: 'This app is superb.',
-    author: 'Amz, Bevel User',
-    date: 'June 14, 2025',
-    text: "This app is superb. It's not long been released but is very polished. Great interface and the developer have a great mission and aspires to be the best of its kind.",
+    title: 'Simplesmente excelente',
+    author: 'Amanda, aluna Actus',
+    date: '14 de junho de 2025',
+    text: 'Recebo meus treinos direto no celular, com vídeo de cada exercício. A interface é linda e fácil de usar. Meu personal consegue ajustar a ficha na hora quando preciso.',
   },
   {
-    title: 'Vitality at mind',
-    author: 'Metrica S up, Bevel User',
-    date: 'April 30, 2025',
-    text: "Vitality at mind is what this app is for. Metrica S up it up. Can you recover? Do you improve over time? Stress over 99: it's all. The best health and wellness app that works with Apple Watch aside that built itself up.",
+    title: 'Acompanhamento de perto',
+    author: 'Rafael, personal trainer',
+    date: '30 de abril de 2025',
+    text: 'O que faz diferença é o acompanhamento. Vejo os check-ins e a atividade recente de cada aluno direto no painel. Ficou muito mais fácil ajustar a ficha e manter a galera no ritmo.',
   },
   {
-    title: 'Fantastic App',
-    author: 'CVNM, August 12, 2025',
-    date: 'August 12, 2025',
-    text: "There's so much to do. If you wear it 24 hours a day this is an incredibly valuable app to have. Basically what it is: if you wear an Apple watch you can get a full picture of sleep, recovery, and fitness wrapped in one. Strongly recommended.",
+    title: 'App fantástico',
+    author: 'Bruno, aluno Actus',
+    date: '12 de agosto de 2025',
+    text: 'Tem tudo num lugar só: ficha de treino e o catálogo com vídeo de cada exercício. Se você treina sério, é uma ferramenta valiosíssima. Recomendo demais.',
   },
   {
-    title: 'Best health tracker',
-    author: 'FitnessFan2025',
-    date: 'July 20, 2025',
-    text: 'Finally found an app that connects all my devices. The insights are clear and actionable. My HRV has improved since I started following the recommendations. 5 stars easily.',
+    title: 'O melhor pra montar treino',
+    author: 'FitPro2025',
+    date: '20 de julho de 2025',
+    text: 'Finalmente um app que reúne todos os meus alunos num painel só. As informações são claras e diretas. Economizo horas toda semana montando e ajustando os treinos. 5 estrelas, fácil.',
   },
   {
-    title: 'Changed my routine',
-    author: 'NightOwlRunner',
-    date: 'May 5, 2025',
-    text: 'The sleep tracking is unbelievably accurate. I used to ignore recovery but now it guides my training. Already a fan after 2 weeks. The biological age feature is eye-opening.',
+    title: 'Mudou minha rotina',
+    author: 'CorridaNoturna',
+    date: '5 de maio de 2025',
+    text: 'Reúno todos os meus alunos num painel só e monto os treinos no builder em minutos. O catálogo de exercícios com vídeo ajuda demais. Virei fã em duas semanas.',
   },
 ];
 
@@ -42,18 +44,19 @@ function ReviewCard({ review }: { review: typeof REVIEWS[0] }) {
     <div
       style={{
         flex: '0 0 280px',
-        background: '#fff',
+        background: hex.surface1,
+        border: `1px solid ${c.outlineV}`,
         borderRadius: 16,
         padding: '20px 20px 24px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
       }}
     >
-      <div style={{ color: '#ff9500', fontSize: 13, marginBottom: 8 }}>★★★★★</div>
-      <div style={{ fontWeight: 700, fontSize: 14, color: '#222326', marginBottom: 8 }}>{review.title}</div>
-      <p style={{ fontSize: 13, color: 'rgba(34,35,38,0.65)', lineHeight: 1.5, marginBottom: 12 }}>
+      <div style={{ color: c.neon, fontSize: 13, marginBottom: 8 }}>★★★★★</div>
+      <div style={{ fontFamily: fontDisplay, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.01em', fontSize: 14, color: c.text1, marginBottom: 8 }}>{review.title}</div>
+      <p style={{ fontFamily: fontBody, fontSize: 13, color: c.text2, lineHeight: 1.5, marginBottom: 12 }}>
         "{review.text}"
       </p>
-      <div style={{ fontSize: 11, color: 'rgba(34,35,38,0.4)' }}>
+      <div style={{ fontFamily: fontBody, fontSize: 11, color: c.text3 }}>
         {review.author} · {review.date}
       </div>
     </div>
@@ -64,7 +67,7 @@ export function ReviewsSection() {
   const allReviews = [...REVIEWS, ...REVIEWS];
 
   return (
-    <section style={{ background: '#fff', padding: 'clamp(60px, 8vw, 100px) 0', overflow: 'hidden' }}>
+    <section style={{ background: hex.bgLowest, padding: 'clamp(60px, 8vw, 100px) 0', overflow: 'hidden' }}>
       <style>{`
         @keyframes marquee-reviews {
           from { transform: translateX(0); }

@@ -24,7 +24,20 @@ router.get("/", async (req, res) => {
       `select id, tipo::text, display_name from public.profiles where id = $1`,
       [userId],
     );
-    return q.rows[0] ?? null;
+    const profile = q.rows[0] ?? null;
+    if (!profile) return null;
+    // [ACTUS — academia] contexto da academia (se o usuário for membro ativo): o painel web usa
+    // para rotear o gestor e exibir o nome da academia. Membro = gestor (manager) ou instrutor.
+    const aq = await client.query<{ id: string; name: string; role: string }>(
+      `select am.academy_id as id, a.name, am.role
+       from public.academy_members am
+       join public.academies a on a.id = am.academy_id
+       where am.user_id = $1 and am.status = 'active'
+       order by am.created_at asc
+       limit 1`,
+      [userId],
+    );
+    return { ...profile, academy: aq.rows[0] ?? null };
   });
   if (!me) return res.status(404).json({ error: "profile_not_found" });
   return res.json(me);

@@ -10,6 +10,7 @@ import type { CheckIn, Student, StudentWorkout } from '../../lib/schemas';
 import { deriveStudentStatus, daysSinceLocal } from '../../lib/studentStatus';
 import { ActivityPanel, type ActivityItem } from './ActivityPanel';
 import { KpiCard } from './KpiCard';
+import { BarMini, TrendLine } from '../../components/ui/charts';
 
 const KPI_WINDOW_DAYS = 30;
 
@@ -52,7 +53,7 @@ function StudentRow({ student, checkIns }: { student: Student; checkIns: CheckIn
   const status = deriveStudentStatus(checkIns);
   return (
     <Link
-      to={`/alunos/${student.id}`}
+      to={`/app/alunos/${student.id}`}
       className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-surface-2"
     >
       <Avatar name={student.full_name} size="sm" />
@@ -111,6 +112,46 @@ export function DashboardPage() {
     [checkIns.byStudent, workouts.byStudent],
   );
 
+  // Incrementos client-side (reusam os check-ins já buscados; janela de KPI_WINDOW_DAYS=30).
+  const activityByDay = useMemo(() => {
+    const buckets = new Array(14).fill(0) as number[];
+    for (const c of allCheckIns) {
+      const d = daysSinceLocal(c.checkInDate);
+      if (d >= 0 && d < 14) buckets[13 - d] += 1;
+    }
+    return buckets.map((value) => ({ value }));
+  }, [allCheckIns]);
+
+  const adherenceSeries = useMemo(() => {
+    const total = students.length;
+    const pts: { value: number }[] = [];
+    for (let w = 3; w >= 0; w--) {
+      const active = new Set<string>();
+      for (const [sid, list] of checkIns.byStudent) {
+        if (list.some((c) => {
+          const d = daysSinceLocal(c.check_in_date);
+          return d >= w * 7 && d < w * 7 + 7;
+        })) {
+          active.add(sid);
+        }
+      }
+      pts.push({ value: total > 0 ? Math.round((active.size / total) * 100) : 0 });
+    }
+    return pts;
+  }, [checkIns.byStudent, students.length]);
+
+  const atRiskStudents = useMemo(() => {
+    return students
+      .map((s) => {
+        const list = checkIns.byStudent.get(s.id) ?? [];
+        const lastDays = list.length ? Math.min(...list.map((c) => daysSinceLocal(c.check_in_date))) : Infinity;
+        return { student: s, lastDays };
+      })
+      .filter((x) => x.lastDays > 7)
+      .sort((a, b) => b.lastDays - a.lastDays)
+      .slice(0, 6);
+  }, [students, checkIns.byStudent]);
+
   const recent = students.slice(0, 8);
   const empty = !loading && students.length === 0;
 
@@ -128,7 +169,7 @@ export function DashboardPage() {
             Nenhum aluno ainda.
           </p>
           <p className="text-sm text-text-3">Gere um convite para começar.</p>
-          <Link to="/convites">
+          <Link to="/app/convites">
             <Button variant="secondary">Convidar aluno</Button>
           </Link>
         </div>
@@ -154,6 +195,55 @@ export function DashboardPage() {
               hint={sampleHint}
               loading={kpisLoading}
             />
+          </div>
+
+          <div className="flex flex-col gap-5 xl:flex-row">
+            <Card className="flex-1">
+              <h2 className="mb-3 font-display text-base font-bold uppercase tracking-wide text-text-1">
+                Aderência (4 semanas)
+              </h2>
+              <TrendLine data={adherenceSeries} />
+              <div className="mt-2 flex justify-between font-mono text-[10px] text-text-3">
+                <span>4 sem atrás</span>
+                <span>atual</span>
+              </div>
+            </Card>
+            <Card className="flex-1">
+              <h2 className="mb-3 font-display text-base font-bold uppercase tracking-wide text-text-1">
+                Atividade (14 dias)
+              </h2>
+              <BarMini data={activityByDay} />
+              <div className="mt-2 flex justify-between font-mono text-[10px] text-text-3">
+                <span>14 dias atrás</span>
+                <span>hoje</span>
+              </div>
+            </Card>
+            <Card className="flex-1">
+              <h2 className="mb-3 font-display text-base font-bold uppercase tracking-wide text-text-1">
+                Alunos em risco
+              </h2>
+              {atRiskStudents.length === 0 ? (
+                <p className="py-6 text-center text-sm text-text-3">Ninguém sem treinar há mais de 7 dias.</p>
+              ) : (
+                <div className="flex flex-col gap-0.5">
+                  {atRiskStudents.map(({ student, lastDays }) => (
+                    <Link
+                      key={student.id}
+                      to={`/app/alunos/${student.id}`}
+                      className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-2"
+                    >
+                      <Avatar name={student.full_name} size="sm" />
+                      <span className="min-w-0 flex-1 truncate text-sm text-text-1">
+                        {student.full_name ?? student.email}
+                      </span>
+                      <Tag variant="warn">
+                        {lastDays === Infinity ? 'Sem registro' : `${lastDays}d`}
+                      </Tag>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </Card>
           </div>
 
           <div className="flex flex-col gap-5 xl:flex-row">

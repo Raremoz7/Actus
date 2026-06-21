@@ -2,27 +2,29 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
+import { PhoneShot } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const COLUMNS = [
+const COLUMNS: { label: string; description: string; shot: string }[] = [
   {
-    label: 'Strain',
+    label: 'Treinos',
     description:
-      "Track how hard you're pushing with one number that captures your daily effort and exertion.",
-    img: '/landing/strain-phone.avif',
+      'Monte fichas completas com séries, repetições e descanso. Seu aluno recebe tudo direto no app.',
+    shot: '/landing/app/treino-detalhe.jpeg',
   },
   {
-    label: 'Sleep',
+    label: 'Acompanhamento',
     description:
-      'Discover what it takes to get a good night’s rest by knowing your sleep stages and needs.',
-    img: '/landing/sleep-phone.avif',
+      'Acompanhe cada aluno e ajuste o treino quando precisar, com tudo num só lugar.',
+    shot: '/landing/app/alunos.jpeg',
   },
   {
-    label: 'Recovery',
+    label: 'Progresso (em breve)',
     description:
-      "See if you're ready to tackle the day or if it's time to slow down and let your body recover.",
-    img: '/landing/recovery-phone.avif',
+      'Em breve: a evolução de cargas, volume e medidas para provar o resultado de cada aluno.',
+    shot: '/landing/app/painel.jpeg',
   },
 ];
 
@@ -56,7 +58,7 @@ export function StartTheDaySection() {
     <section
       ref={sectionRef}
       style={{
-        background: '#f3f6f7',
+        background: hex.bgLowest,
         padding: 'clamp(60px, 8vw, 110px) clamp(24px, 5vw, 60px)',
         overflow: 'hidden',
       }}
@@ -66,24 +68,27 @@ export function StartTheDaySection() {
         <div ref={headingRef} style={{ textAlign: 'center', marginBottom: 'clamp(40px, 6vw, 72px)' }}>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(32px, 5vw, 56px)',
-              fontWeight: 700,
-              color: '#222326',
-              letterSpacing: '-0.025em',
-              lineHeight: 1.08,
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: c.text1,
+              letterSpacing: '0.01em',
+              lineHeight: 1.02,
               marginBottom: 14,
             }}
           >
-            Start the day<br />with confidence
+            Tudo para orientar.<br /><span style={{ color: c.neon }}>Em um só lugar.</span>
           </h2>
           <p
             style={{
+              fontFamily: fontBody,
               fontSize: 17,
-              color: 'rgba(34,35,38,0.55)',
+              color: c.text2,
               lineHeight: 1.55,
             }}
           >
-            Turn your body's signals into clear, actionable metrics.
+            Da primeira conexão ao acompanhamento diário, sem afastar você das pessoas.
           </p>
         </div>
 
@@ -97,43 +102,38 @@ export function StartTheDaySection() {
             alignItems: 'start',
           }}
         >
-          {COLUMNS.map((col) => (
-            <div key={col.label} style={{ textAlign: 'left' }}>
-              <h3
-                style={{
-                  fontSize: 'clamp(22px, 2.4vw, 28px)',
-                  fontWeight: 700,
-                  color: '#222326',
-                  letterSpacing: '-0.02em',
-                  marginBottom: 10,
-                }}
-              >
-                {col.label}
-              </h3>
-              <p
-                style={{
-                  fontSize: 15,
-                  color: 'rgba(34,35,38,0.55)',
-                  lineHeight: 1.55,
-                  marginBottom: 28,
-                  maxWidth: 300,
-                }}
-              >
-                {col.description}
-              </p>
-              <img
-                src={col.img}
-                alt={col.label}
-                style={{
-                  width: '100%',
-                  maxWidth: 320,
-                  height: 'auto',
-                  display: 'block',
-                  filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.14))',
-                }}
-              />
-            </div>
-          ))}
+          {COLUMNS.map((col) => {
+            return (
+              <div key={col.label} style={{ textAlign: 'left' }}>
+                <h3
+                  style={{
+                    fontFamily: fontDisplay,
+                    fontSize: 'clamp(22px, 2.4vw, 28px)',
+                    fontWeight: 900,
+                    textTransform: 'uppercase',
+                    color: c.neon,
+                    letterSpacing: '0.01em',
+                    marginBottom: 10,
+                  }}
+                >
+                  {col.label}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: fontBody,
+                    fontSize: 15,
+                    color: c.text2,
+                    lineHeight: 1.55,
+                    marginBottom: 28,
+                    maxWidth: 300,
+                  }}
+                >
+                  {col.description}
+                </p>
+                <PhoneShot src={col.shot} width="min(100%, 280px)" />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

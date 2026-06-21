@@ -1,37 +1,38 @@
 import { Link } from 'react-router-dom';
+import { c, fontDisplay, hex } from '../theme';
 
 const COLUMNS = [
   {
-    title: 'Company',
+    title: 'Empresa',
     links: [
-      { label: 'About us', href: '#' },
-      { label: 'Careers', href: '#' },
+      { label: 'Sobre nós', href: '#' },
+      { label: 'Carreiras', href: '#' },
       { label: 'Blog', href: '#' },
     ],
   },
   {
-    title: 'Product',
+    title: 'Produto',
     links: [
-      { label: 'Download app', href: '#' },
-      { label: 'Knowledge Base', href: '#' },
-      { label: 'Release Notes', href: '#' },
+      { label: 'Baixar o app', href: '#' },
+      { label: 'Central de ajuda', href: '#' },
+      { label: 'Novidades', href: '#' },
       { label: 'Roadmap', href: '#' },
     ],
   },
   {
-    title: 'Support',
+    title: 'Suporte',
     links: [
-      { label: 'FAQ', href: '#' },
-      { label: 'Request a feature', href: '#' },
-      { label: 'Report a bug', href: '#' },
-      { label: 'Contact us', href: '#' },
+      { label: 'Perguntas frequentes', href: '#' },
+      { label: 'Sugerir recurso', href: '#' },
+      { label: 'Reportar erro', href: '#' },
+      { label: 'Fale conosco', href: '#' },
     ],
   },
   {
     title: 'Legal',
     links: [
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Privacy Policy', href: '#' },
+      { label: 'Termos de Uso', href: '#' },
+      { label: 'Política de Privacidade', href: '#' },
     ],
   },
 ];
@@ -48,8 +49,8 @@ export function Footer() {
   return (
     <footer
       style={{
-        background: '#fff',
-        borderTop: '1px solid rgba(34,35,38,0.08)',
+        background: hex.bgLowest,
+        borderTop: `1px solid ${c.outlineV}`,
         padding: 'clamp(48px, 6vw, 80px) clamp(24px, 6vw, 80px)',
       }}
     >
@@ -72,20 +73,13 @@ export function Footer() {
               alignItems: 'center',
               gap: 8,
               textDecoration: 'none',
-              color: '#222326',
-              fontWeight: 600,
-              fontSize: 16,
               marginBottom: 8,
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="10" fill="#222326" />
-              <path d="M10 28L20 12L30 28H10Z" fill="#fff" />
-            </svg>
-            Bevel
+            <img src="/actus-logo.svg" alt="Actus" style={{ height: 24, width: 'auto', display: 'block' }} />
           </Link>
-          <div style={{ fontSize: 12, color: 'rgba(34,35,38,0.4)', marginBottom: 20 }}>
-            © Finerpoint, Inc. 2026
+          <div style={{ fontSize: 12, color: c.text3, marginBottom: 20 }}>
+            © Somo / Actus 2026
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             {SOCIAL.map((s) => (
@@ -94,12 +88,12 @@ export function Footer() {
                 href="#"
                 aria-label={s.label}
                 style={{
-                  color: 'rgba(34,35,38,0.45)',
+                  color: c.text3,
                   transition: 'color 0.2s',
                   textDecoration: 'none',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#222326')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(34,35,38,0.45)')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = c.neon)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = c.text3)}
               >
                 {s.icon}
               </a>
@@ -110,7 +104,7 @@ export function Footer() {
         {/* Columns */}
         {COLUMNS.map((col) => (
           <div key={col.title}>
-            <div style={{ fontWeight: 600, fontSize: 13, color: '#222326', marginBottom: 12 }}>
+            <div style={{ fontFamily: fontDisplay, fontWeight: 700, fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.04em', color: c.text1, marginBottom: 12 }}>
               {col.title}
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -120,12 +114,12 @@ export function Footer() {
                     href={link.href}
                     style={{
                       fontSize: 13,
-                      color: 'rgba(34,35,38,0.55)',
+                      color: c.text2,
                       textDecoration: 'none',
                       transition: 'color 0.2s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#222326')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(34,35,38,0.55)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = c.neon)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = c.text2)}
                   >
                     {link.label}
                   </a>

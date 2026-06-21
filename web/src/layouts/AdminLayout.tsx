@@ -8,17 +8,18 @@ export function AdminLayout() {
     {
       label: 'Plataforma',
       items: [
-        { name: 'Overview', to: '/admin', active: pathname === '/admin' },
-        { name: 'Equipe', to: '/admin/equipe' },
-        { name: 'Vínculos', to: '/admin/vinculos' },
-        { name: 'Profissionais', to: '/admin/profissionais' },
+        { name: 'Overview', to: '/app/admin', active: pathname === '/app/admin' },
+        { name: 'Equipe', to: '/app/admin/equipe' },
+        { name: 'Vínculos', to: '/app/admin/vinculos' },
+        { name: 'Profissionais', to: '/app/admin/profissionais' },
+        { name: 'Academias', to: '/app/admin/academias' },
       ],
     },
     {
       label: 'Conteúdo',
       items: [
-        { name: 'Treinos', to: '/treinos' },
-        { name: 'Exercícios', to: '/exercicios' },
+        { name: 'Treinos', to: '/app/treinos/templates' },
+        { name: 'Exercícios', to: '/app/exercicios' },
       ],
     },
   ];

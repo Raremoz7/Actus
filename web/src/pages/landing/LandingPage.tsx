@@ -11,10 +11,8 @@ import { SocialProofSection } from './sections/SocialProofSection';
 import { StartTheDaySection } from './sections/StartTheDaySection';
 import { EatSection } from './sections/EatSection';
 import { HealthRecordsSection } from './sections/HealthRecordsSection';
-import { IntelligenceSection } from './sections/IntelligenceSection';
 import { StickyFeaturesSection } from './sections/StickyFeaturesSection';
 import { AccordionSection } from './sections/AccordionSection';
-import { PrivacySection } from './sections/PrivacySection';
 import { GallerySection } from './sections/GallerySection';
 import { ReviewsSection } from './sections/ReviewsSection';
 import { CtaSection } from './sections/CtaSection';
@@ -35,9 +33,10 @@ export function LandingPage() {
   return (
     <div
       style={{
-        fontFamily: '-apple-system, "SF Pro Display", "Helvetica Neue", Inter, sans-serif',
+        fontFamily: "'Barlow', sans-serif",
         overflowX: 'hidden',
-        background: '#fff',
+        background: 'var(--color-bg-base)',
+        color: 'var(--color-text-1)',
       }}
     >
       <Navbar />
@@ -53,17 +52,11 @@ export function LandingPage() {
       {/* Health records with floating source icons */}
       <HealthRecordsSection />
 
-      {/* Intelligence: orbs + heading (dark) */}
-      <IntelligenceSection />
-
-      {/* Sticky scroll — chat phone pinned, 4 features (dark wrapper, light panel) */}
+      {/* Sticky scroll — phone pinned, 4 features (dark wrapper, light panel) */}
       <StickyFeaturesSection />
 
-      {/* And that's not all — accordion (white) */}
+      {/* Do convite à evolução — accordion (features + jornada + privacidade) */}
       <AccordionSection />
-
-      {/* Built for privacy (dark teal panel) */}
-      <PrivacySection />
 
       {/* Crafted with care — photo mosaic */}
       <GallerySection />

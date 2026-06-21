@@ -1,4 +1,5 @@
 import { REFERENCE_BODY_WEIGHT_KG, caloriesFromMet, pickMetForSession, } from "../domain/workoutCalories.js";
+import { isMissingDbObjectError } from "../schemaCompat.js";
 function formatDuration(ms) {
     if (!Number.isFinite(ms) || ms <= 0)
         return "0m";
@@ -10,12 +11,19 @@ function formatDuration(ms) {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 export async function loadBodyWeightKg(client, studentId) {
-    const q = await client.query(`select body_weight_kg::text as w from public.user_basic_info where user_id = $1`, [studentId]);
-    const raw = q.rows[0]?.w;
-    if (raw == null)
-        return null;
-    const n = Number(raw);
-    return Number.isFinite(n) && n > 0 ? n : null;
+    try {
+        const q = await client.query(`select body_weight_kg::text as w from public.user_basic_info where user_id = $1`, [studentId]);
+        const raw = q.rows[0]?.w;
+        if (raw == null)
+            return null;
+        const n = Number(raw);
+        return Number.isFinite(n) && n > 0 ? n : null;
+    }
+    catch (err) {
+        if (isMissingDbObjectError(err))
+            return null;
+        throw err;
+    }
 }
 export async function loadPersonalBranding(client, studentId) {
     const q = await client.query(`
@@ -34,14 +42,21 @@ export async function loadPersonalBranding(client, studentId) {
     return { professional_id: r.pid, professional_display_name: r.dn };
 }
 async function loadSetsForSession(client, sessionId) {
-    const q = await client.query(`
-    select workout_exercise_id::text as workout_exercise_id, set_index,
-           weight_kg, reps_done, rest_seconds_actual
-    from public.session_sets
-    where session_id = $1
-    order by workout_exercise_id, set_index
-    `, [sessionId]);
-    return q.rows;
+    try {
+        const q = await client.query(`
+      select workout_exercise_id::text as workout_exercise_id, set_index,
+             weight_kg, reps_done, rest_seconds_actual
+      from public.session_sets
+      where session_id = $1
+      order by workout_exercise_id, set_index
+      `, [sessionId]);
+        return q.rows;
+    }
+    catch (err) {
+        if (isMissingDbObjectError(err))
+            return [];
+        throw err;
+    }
 }
 /** Última sessão concluída (ou parcial) da mesma atribuição, exceto a atual. */
 async function loadPreviousSessionId(client, studentWorkoutId, excludeSessionId) {

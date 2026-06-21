@@ -2,51 +2,52 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay, fontMono } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const MEMBER_POSTS = [
   {
-    user: 'firstdayback',
-    handle: '@firstdayback_fitness',
-    text: 'First day back in the green in a week.\n\nIt was a stressful week.',
-    date: 'Today, August 25',
-    img: '/landing/member-01.avif',
+    user: 'João Personal',
+    handle: 'Personal trainer',
+    text: 'Montei a ficha da semana toda dos meus alunos em minutos. O Actus organizou tudo pra mim.',
+    date: 'Hoje, 17 de junho',
+    img: '/landing/gym/gym-03.jpg',
   },
   {
-    user: 'runnerlife',
-    handle: '@brunomaceira2',
-    text: 'Running 133.03 today. Best pace of the month!',
-    date: 'Today, August 25',
-    img: '/landing/member-02.avif',
+    user: 'Beatriz Aluna',
+    handle: 'Aluna',
+    text: 'Recebi o treino direto no app e bati recorde no agachamento. Progresso registrado série a série!',
+    date: 'Hoje, 17 de junho',
+    img: '/landing/gym/gym-06.jpg',
   },
   {
-    user: 'healthyeats',
-    handle: '@healthyeating',
-    text: 'Meal prepped for the week. Feeling great about my macros.',
-    date: 'Today, August 25',
-    img: '/landing/member-03.avif',
+    user: 'Carla Coach',
+    handle: 'Personal trainer',
+    text: 'Acompanho o check-in de cada aluno em tempo real e ajusto a carga sem precisar trocar mil mensagens.',
+    date: 'Ontem, 16 de junho',
+    img: '/landing/gym/gym-08.jpg',
   },
   {
-    user: 'elle_maroti',
-    handle: '@elle_maroti',
-    text: 'Morning workout done. Recovery score 87 — feeling strong.',
-    date: 'Today, August 25',
-    img: '/landing/member-04.avif',
+    user: 'Carlos Aluno',
+    handle: 'Aluno',
+    text: 'A execução de cada exercício vem explicada no app. Treino com técnica e muito mais segurança.',
+    date: 'Ontem, 16 de junho',
+    img: '/landing/gym/gym-10.jpg',
   },
   {
-    user: 'cyclefit',
-    handle: '@cyclefit',
-    text: 'Strain 14.2 today. Highest this month! Body is adapting.',
-    date: 'Today, August 25',
-    img: '/landing/member-05.avif',
+    user: 'Rafa Treinador',
+    handle: 'Personal trainer',
+    text: 'O painel mostra a aderência e os inativos na hora. Consigo cuidar de mais alunos com a mesma atenção.',
+    date: '2 dias atrás',
+    img: '/landing/gym/gym-13.jpg',
   },
   {
-    user: 'sleepwell',
-    handle: '@sleepwell',
-    text: 'Finally got 8h of sleep. HRV up 12 points. Worth it!',
-    date: 'Today, August 25',
-    img: '/landing/member-06.avif',
+    user: 'Marina Aluna',
+    handle: 'Aluna',
+    text: 'Histórico de cargas e evolução num lugar só. Dá pra ver o quanto eu progredi mês a mês.',
+    date: '3 dias atrás',
+    img: '/landing/gym/gym-16.jpg',
   },
 ];
 
@@ -55,21 +56,22 @@ function PostCard({ post }: { post: typeof MEMBER_POSTS[0] }) {
     <div
       style={{
         flex: '0 0 220px',
-        background: '#fff',
+        background: hex.surface1,
+        border: `1px solid ${c.outlineV}`,
         borderRadius: 16,
         overflow: 'hidden',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+        boxShadow: '0 2px 16px rgba(0,0,0,0.3)',
       }}
     >
       <img src={post.img} alt={post.user} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
       <div style={{ padding: '12px 14px' }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: '#222326', marginBottom: 4 }}>
+        <div style={{ fontFamily: fontDisplay, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.02em', fontSize: 14, color: c.text1, marginBottom: 4 }}>
           {post.user}
         </div>
-        <p style={{ fontSize: 13, color: 'rgba(34,35,38,0.7)', lineHeight: 1.4, whiteSpace: 'pre-line', marginBottom: 8 }}>
+        <p style={{ fontFamily: fontBody, fontSize: 13, color: c.text2, lineHeight: 1.4, whiteSpace: 'pre-line', marginBottom: 8 }}>
           {post.text}
         </p>
-        <div style={{ fontSize: 11, color: 'rgba(34,35,38,0.4)' }}>{post.date}</div>
+        <div style={{ fontFamily: fontMono, fontSize: 11, color: c.text3 }}>{post.date}</div>
       </div>
     </div>
   );
@@ -77,18 +79,9 @@ function PostCard({ post }: { post: typeof MEMBER_POSTS[0] }) {
 
 export function SocialProofSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const logosRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useGSAP(() => {
-    gsap.from(logosRef.current!.children, {
-      y: 16,
-      opacity: 0,
-      stagger: 0.08,
-      duration: 0.6,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: logosRef.current, start: 'top 85%' },
-    });
     gsap.from(headingRef.current, {
       y: 24,
       opacity: 0,
@@ -101,41 +94,26 @@ export function SocialProofSection() {
   const allPosts = [...MEMBER_POSTS, ...MEMBER_POSTS];
 
   return (
-    <section ref={sectionRef} style={{ background: '#fff', paddingTop: 80, paddingBottom: 80, overflow: 'hidden' }}>
-      {/* Works with */}
-      <div ref={logosRef} style={{ textAlign: 'center', marginBottom: 48 }}>
-        <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(34,35,38,0.45)', marginBottom: 20, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          Works with
-        </p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
-          <img src="/landing/logo-apple-watch.svg" alt="Apple Watch" style={{ height: 20, opacity: 0.6 }} />
-          <img src="/landing/logo-oura.svg" alt="Oura" style={{ height: 20, opacity: 0.6 }} />
-          <img src="/landing/logo-garmin.svg" alt="Garmin" style={{ height: 20, opacity: 0.6 }} />
-          <img src="/landing/logo-amazfit.svg" alt="Amazfit" style={{ height: 20, opacity: 0.6 }} />
-        </div>
-      </div>
-
-      {/* Apple awards */}
-      <div style={{ textAlign: 'center', marginBottom: 48 }}>
-        <img src="/landing/apple-awards.avif" alt="Apple Watch Spotlight & New and Noteworthy" style={{ height: 48, margin: '0 auto' }} />
-      </div>
+    <section ref={sectionRef} style={{ background: hex.bgBase, paddingTop: 80, paddingBottom: 80, overflow: 'hidden' }}>
 
       {/* Members heading */}
       <h2
         ref={headingRef}
         style={{
           textAlign: 'center',
+          fontFamily: fontDisplay,
           fontSize: 'clamp(32px, 5vw, 56px)',
-          fontWeight: 700,
-          color: '#222326',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.1,
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          color: c.text1,
+          letterSpacing: '0.01em',
+          lineHeight: 1.05,
           marginBottom: 48,
           paddingLeft: 24,
           paddingRight: 24,
         }}
       >
-        Join over 1 million members<br />on their health journey
+        Junte-se a milhares de alunos<br />treinando com <span style={{ color: c.neon }}>resultado</span>
       </h2>
 
       {/* Carousel */}

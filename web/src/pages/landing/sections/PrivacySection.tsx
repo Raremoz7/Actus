@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,7 +33,7 @@ export function PrivacySection() {
     <section
       ref={sectionRef}
       style={{
-        background: '#fff',
+        background: hex.bgBase,
         padding: 'clamp(20px, 4vw, 48px) clamp(24px, 4vw, 60px) clamp(40px, 6vw, 80px)',
         overflow: 'hidden',
       }}
@@ -42,7 +43,8 @@ export function PrivacySection() {
           maxWidth: 1280,
           margin: '0 auto',
           borderRadius: 'clamp(20px, 3vw, 36px)',
-          background: 'radial-gradient(ellipse at 50% 40%, #16463a 0%, #0d2b24 55%, #0a1f1a 100%)',
+          background: `radial-gradient(ellipse at 50% 40%, ${hex.surface2} 0%, ${hex.bgBase} 55%, ${hex.bgLowest} 100%)`,
+          border: `1px solid ${c.outlineV}`,
           padding: 'clamp(80px, 12vw, 160px) 24px',
           position: 'relative',
           overflow: 'hidden',
@@ -68,8 +70,8 @@ export function PrivacySection() {
         >
           <defs>
             <linearGradient id="lockgrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.04)" />
+              <stop offset="0%" stopColor="rgba(203,254,0,0.32)" />
+              <stop offset="100%" stopColor="rgba(203,254,0,0.06)" />
             </linearGradient>
           </defs>
           {/* shackle */}
@@ -88,18 +90,20 @@ export function PrivacySection() {
         <div ref={contentRef} style={{ position: 'relative', zIndex: 2, maxWidth: 440 }}>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(30px, 4.4vw, 52px)',
-              fontWeight: 700,
-              color: '#fff',
-              letterSpacing: '-0.025em',
+              fontWeight: 900,
+              color: c.text1,
+              textTransform: 'uppercase',
+              letterSpacing: '0.01em',
               lineHeight: 1.08,
               marginBottom: 16,
             }}
           >
-            Built for privacy
+            Feito para <span style={{ color: c.neon }}>privacidade</span>
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(235,245,240,0.7)', lineHeight: 1.6 }}>
-            Your data is yours. We never sell it, never share it, and protect it with industry-standard security.
+          <p style={{ fontFamily: fontBody, fontSize: 16, color: c.text2, lineHeight: 1.6 }}>
+            Seus dados são seus. Nunca vendemos, nunca compartilhamos e protegemos tudo com segurança de ponta — você e seus alunos sempre no controle.
           </p>
         </div>
       </div>

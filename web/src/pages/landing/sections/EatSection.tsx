@@ -2,13 +2,15 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
+import { PhoneShot } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function EatSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const trigger = { trigger: sectionRef.current, start: 'top 72%' };
@@ -34,7 +36,7 @@ export function EatSection() {
     <section
       ref={sectionRef}
       style={{
-        background: 'linear-gradient(180deg, #efeafb 0%, #f3eefb 100%)',
+        background: `linear-gradient(180deg, ${hex.bgBase} 0%, ${hex.bgLowest} 100%)`,
         padding: 'clamp(60px, 8vw, 110px) clamp(24px, 6vw, 80px)',
         overflow: 'hidden',
       }}
@@ -54,35 +56,26 @@ export function EatSection() {
         <div ref={textRef} style={{ flex: 1, minWidth: 280, maxWidth: 420 }}>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(32px, 4.2vw, 52px)',
-              fontWeight: 700,
-              color: '#222326',
-              letterSpacing: '-0.025em',
-              lineHeight: 1.08,
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: c.text1,
+              letterSpacing: '0.01em',
+              lineHeight: 1.02,
               marginBottom: 18,
             }}
           >
-            Understand<br />what you eat
+            Clareza para treinar<br /><span style={{ color: c.neon }}>hoje</span>
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(34,35,38,0.55)', lineHeight: 1.6 }}>
-            Track your meals and get a full breakdown of what's fuelling your body.
+          <p style={{ fontFamily: fontBody, fontSize: 17, color: c.text2, lineHeight: 1.6 }}>
+            O aluno recebe o treino, executa cada série e acompanha o próprio progresso — simples no dia a dia.
           </p>
         </div>
 
-        {/* Composite UI */}
-        <div style={{ flex: '1 1 420px', minWidth: 300, maxWidth: 560 }}>
-          <img
-            ref={imgRef}
-            src="/landing/what-you-eat.avif"
-            alt="Nutrition tracking on Bevel"
-            style={{
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-              borderRadius: 20,
-              filter: 'drop-shadow(0 24px 56px rgba(80,60,140,0.16))',
-            }}
-          />
+        {/* Tela de exercício no celular */}
+        <div ref={imgRef} style={{ flex: '1 1 320px', minWidth: 260, display: 'flex', justifyContent: 'center' }}>
+          <PhoneShot src="/landing/app/exercicio.jpeg" width="min(100%, 300px)" />
         </div>
       </div>
     </section>

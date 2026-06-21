@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { selectIsAdmin, useAuthStore } from '../store/authStore';
+import {
+  landingPathForUser,
+  selectAcademy,
+  selectIsAcademyManager,
+  selectIsAdmin,
+  useAuthStore,
+} from '../store/authStore';
 
 const professorTabs = [
   { to: '/app/alunos', label: 'Alunos' },
@@ -26,6 +32,8 @@ export function AppLayout() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAdmin = useAuthStore(selectIsAdmin);
+  const isAcademyManager = useAuthStore(selectIsAcademyManager);
+  const academy = useAuthStore(selectAcademy);
   const logout = useAuthStore((s) => s.logout);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,14 +52,17 @@ export function AppLayout() {
       isActive ? 'border-neon text-text-1' : 'border-transparent text-text-2 hover:text-text-1'
     }`;
 
+  // Gestor (gestão pura) navega pela sidebar da AcademyLayout — sem tabs no topo.
+  const tabs = isAcademyManager ? [] : isAdmin ? adminTabs : professorTabs;
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-[52px] items-center gap-6 border-b border-outline-v bg-bg-lowest px-5">
-        <Link to="/app" className="flex items-center">
+        <Link to={landingPathForUser(user)} className="flex items-center">
           <img src="/actus-logo.svg" alt="Actus" className="h-7" />
         </Link>
         <nav className="flex h-full items-center gap-1">
-          {(isAdmin ? adminTabs : professorTabs).map((tab) => (
+          {tabs.map((tab) => (
             <NavLink key={tab.to} to={tab.to} className={tabClass}>
               {tab.label}
             </NavLink>
@@ -62,6 +73,11 @@ export function AppLayout() {
             </NavLink>
           )}
         </nav>
+        {academy && (
+          <span className="font-mono text-xs uppercase tracking-wide text-text-3">
+            {isAcademyManager ? academy.name : `Academia · ${academy.name}`}
+          </span>
+        )}
         <div className="relative ml-auto" ref={menuRef}>
           <button
             type="button"

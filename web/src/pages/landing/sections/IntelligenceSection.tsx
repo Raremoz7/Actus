@@ -2,13 +2,14 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ORBS = [
-  { name: 'Commander', img: '/landing/orb-commander.avif' },
-  { name: 'Friend', img: '/landing/orb-friend.avif', active: true },
-  { name: 'Guardian', img: '/landing/orb-guardian.avif' },
+  { name: 'Coach', img: '/landing/orb-commander.avif' },
+  { name: 'Parceiro', img: '/landing/orb-friend.avif', active: true },
+  { name: 'Guardião', img: '/landing/orb-guardian.avif' },
 ];
 
 export function IntelligenceSection() {
@@ -43,7 +44,7 @@ export function IntelligenceSection() {
     <section
       ref={sectionRef}
       style={{
-        background: '#1f2025',
+        background: hex.bgLowest,
         padding: 'clamp(80px, 11vw, 130px) clamp(24px, 6vw, 80px) clamp(40px, 5vw, 60px)',
         overflow: 'hidden',
         position: 'relative',
@@ -58,7 +59,7 @@ export function IntelligenceSection() {
           transform: 'translateX(-50%)',
           width: 300,
           height: 320,
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(150,170,255,0.18), transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(203,254,0,0.18), transparent 70%)',
           pointerEvents: 'none',
         }}
       />
@@ -84,8 +85,9 @@ export function IntelligenceSection() {
                   borderRadius: '50%',
                   overflow: 'hidden',
                   boxShadow: orb.active
-                    ? '0 0 48px 10px rgba(120,150,255,0.35)'
+                    ? '0 0 48px 10px rgba(203,254,0,0.35)'
                     : '0 8px 24px rgba(0,0,0,0.4)',
+                  border: orb.active ? `2px solid ${c.neon}` : `1px solid ${c.outlineV}`,
                   opacity: orb.active ? 1 : 0.7,
                 }}
               >
@@ -93,13 +95,14 @@ export function IntelligenceSection() {
               </div>
               <span
                 style={{
+                  fontFamily: fontBody,
                   fontSize: 12,
-                  color: orb.active ? 'rgba(235,240,248,0.92)' : 'rgba(235,240,248,0.4)',
+                  color: orb.active ? c.text1 : c.text3,
                   fontWeight: orb.active ? 600 : 400,
-                  background: orb.active ? 'rgba(255,255,255,0.08)' : 'transparent',
+                  background: orb.active ? hex.surface2 : 'transparent',
                   borderRadius: 99,
                   padding: '3px 14px',
-                  border: orb.active ? '1px solid rgba(255,255,255,0.14)' : 'none',
+                  border: orb.active ? `1px solid ${c.outlineV}` : 'none',
                 }}
               >
                 {orb.name}
@@ -112,30 +115,34 @@ export function IntelligenceSection() {
         <div ref={contentRef}>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(32px, 5vw, 58px)',
-              fontWeight: 400,
-              color: 'rgba(235,240,248,0.5)',
-              letterSpacing: '-0.025em',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: c.text3,
+              letterSpacing: '0.01em',
               lineHeight: 1.08,
             }}
           >
-            Go deeper with
+            Vá além com a
           </h2>
           <h2
             style={{
+              fontFamily: fontDisplay,
               fontSize: 'clamp(32px, 5vw, 58px)',
-              fontWeight: 700,
-              color: '#ebf0f8',
-              letterSpacing: '-0.025em',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: c.text1,
+              letterSpacing: '0.01em',
               lineHeight: 1.08,
               marginBottom: 18,
             }}
           >
-            Bevel Intelligence
+            Inteligência <span style={{ color: c.neon }}>Actus</span>
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(235,240,248,0.5)', lineHeight: 1.6 }}>
-            Get personalized guidance and actionable advice from<br />
-            your own 24/7 coach.
+          <p style={{ fontFamily: fontBody, fontSize: 17, color: c.text2, lineHeight: 1.6 }}>
+            Receba sugestões personalizadas de treino e ajustes<br />
+            inteligentes para cada aluno evoluir mais rápido.
           </p>
         </div>
       </div>

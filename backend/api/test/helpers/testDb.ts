@@ -13,6 +13,9 @@ export function createInMemoryPg() {
   db.public.registerFunction({
     name: "gen_random_uuid",
     returns: "uuid",
+    // impure: cada chamada gera um novo UUID; sem isso o pg-mem trata como pura e reusa o mesmo
+    // valor em inserts sucessivos sem id explícito (colisão de PK).
+    impure: true,
     implementation: () => crypto.randomUUID(),
   });
 
@@ -29,7 +32,7 @@ export function createInMemoryPg() {
 }
 
 export const minimalSchemaSql = `
-create type public.user_role as enum ('personal', 'nutricionista', 'aluno', 'actus_admin', 'actus_suporte');
+create type public.user_role as enum ('personal', 'nutricionista', 'aluno', 'actus_admin', 'actus_suporte', 'gestor');
 create type public.link_status as enum ('active', 'revoked');
 create type public.professional_role as enum ('personal', 'nutricionista');
 create type public.user_gender as enum ('masculino', 'feminino', 'nao_informar', 'outro');
@@ -305,5 +308,102 @@ as $$
     and ws.status::text in ('completed', 'completed_partial')
     and ws.scheduled_for_date is not null;
 $$;
+
+-- ---------------------------------------------------------------------------
+-- Módulo Academia (espelha 20260621120000_actus_academies_core /
+-- 20260621121000_actus_academy_commissions). Sem triggers/RLS — desnecessários no pg-mem.
+-- ---------------------------------------------------------------------------
+create type public.commission_rule_type as enum ('percent', 'fixed_per_student', 'fixed_monthly');
+create type public.revenue_subject_type as enum ('student', 'instructor', 'academy');
+create type public.revenue_source as enum ('manual', 'billing');
+
+create table public.academies (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text,
+  cnpj text,
+  timezone text not null default 'America/Sao_Paulo',
+  status text not null default 'active',
+  created_by uuid references public.app_users (id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.academy_members (
+  id uuid primary key default gen_random_uuid(),
+  academy_id uuid not null references public.academies (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  role text not null,
+  status text not null default 'active',
+  invited_by uuid references public.app_users (id),
+  joined_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint academy_members_unique_pair unique (academy_id, user_id)
+);
+
+create unique index academy_members_one_active_instructor_idx
+  on public.academy_members (user_id)
+  where role = 'instructor' and status = 'active';
+
+create view public.academy_students as
+select
+  am.academy_id,
+  spl.student_id,
+  am.user_id as instructor_user_id
+from public.academy_members am
+join public.student_professional_links spl
+  on spl.professional_id = am.user_id
+ and spl.professional_role = 'personal'
+ and spl.status = 'active'
+where am.role = 'instructor'
+  and am.status = 'active';
+
+create table public.academy_commission_rules (
+  id uuid primary key default gen_random_uuid(),
+  academy_id uuid not null references public.academies (id) on delete cascade,
+  instructor_user_id uuid references public.profiles (id) on delete cascade,
+  rule_type public.commission_rule_type not null,
+  percent numeric(5, 2),
+  amount_cents bigint,
+  currency text not null default 'BRL',
+  effective_from date not null,
+  effective_to date,
+  active boolean not null default true,
+  created_by uuid references public.app_users (id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.academy_revenue_entries (
+  id uuid primary key default gen_random_uuid(),
+  academy_id uuid not null references public.academies (id) on delete cascade,
+  instructor_user_id uuid not null references public.profiles (id) on delete cascade,
+  subject_type public.revenue_subject_type not null default 'student',
+  subject_id uuid,
+  period_month date not null,
+  amount_cents bigint not null,
+  currency text not null default 'BRL',
+  source public.revenue_source not null default 'manual',
+  source_ref text,
+  note text,
+  created_by uuid references public.app_users (id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.academy_commission_payouts (
+  id uuid primary key default gen_random_uuid(),
+  academy_id uuid not null references public.academies (id) on delete cascade,
+  instructor_user_id uuid not null references public.profiles (id) on delete cascade,
+  period_month date not null,
+  status text not null default 'pending',
+  amount_cents bigint not null default 0,
+  paid_at timestamptz,
+  created_by uuid references public.app_users (id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint commission_payouts_unique unique (academy_id, instructor_user_id, period_month)
+);
 `;
 

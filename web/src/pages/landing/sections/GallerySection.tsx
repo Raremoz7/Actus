@@ -2,12 +2,13 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PHOTOS = Array.from({ length: 14 }, (_, i) => ({
-  src: `/landing/crafted-${String(i + 1).padStart(2, '0')}.avif`,
-  alt: `Member ${i + 1}`,
+  src: `/landing/gym/gym-${String(i + 1).padStart(2, '0')}.jpg`,
+  alt: `Aluno treinando ${i + 1}`,
   yOffset: (i % 3 === 0 ? 20 : i % 3 === 1 ? -10 : 0),
 }));
 
@@ -42,7 +43,7 @@ export function GallerySection() {
     <section
       ref={sectionRef}
       style={{
-        background: '#f3f6f7',
+        background: hex.bgLowest,
         padding: 'clamp(80px, 10vw, 120px) clamp(24px, 4vw, 60px) clamp(60px, 8vw, 100px)',
         overflow: 'hidden',
       }}
@@ -50,19 +51,21 @@ export function GallerySection() {
       <div ref={headingRef} style={{ textAlign: 'center', marginBottom: 48 }}>
         <h2
           style={{
+            fontFamily: fontDisplay,
             fontSize: 'clamp(28px, 4.5vw, 52px)',
-            fontWeight: 700,
-            color: '#222326',
-            letterSpacing: '-0.02em',
+            fontWeight: 900,
+            color: c.text1,
+            textTransform: 'uppercase',
+            letterSpacing: '0.01em',
             lineHeight: 1.1,
             marginBottom: 12,
           }}
         >
-          Crafted with Care<br />Loved Everywhere
+          Feito com cuidado,<br /><span style={{ color: c.neon }}>amado</span> em todo lugar
         </h2>
-        <p style={{ fontSize: 16, color: 'rgba(34,35,38,0.55)', lineHeight: 1.6 }}>
-          Don't take our words for it. See why Bevel is trusted and<br />
-          loved by people around the world who want to feel better.
+        <p style={{ fontFamily: fontBody, fontSize: 16, color: c.text3, lineHeight: 1.6 }}>
+          Não acredite só na nossa palavra. Veja por que personais e alunos<br />
+          de todo o Brasil confiam na Actus para evoluir todos os dias.
         </p>
       </div>
 
@@ -88,6 +91,7 @@ export function GallerySection() {
               objectFit: 'cover',
               borderRadius: 22,
               transform: `translateY(${photo.yOffset}px)`,
+              boxShadow: '0 10px 28px rgba(0,0,0,0.4), 0 0 18px rgba(203,254,0,0.06)',
             }}
           />
         ))}

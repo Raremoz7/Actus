@@ -8,11 +8,20 @@ export const SessionResponseSchema = z.object({
 });
 export type SessionResponse = z.infer<typeof SessionResponseSchema>;
 
-// Shape REAL de GET /me (backend/api/src/routes/me.ts): { id, tipo, display_name }
+// Contexto de academia anexado ao /me quando o usuário é membro ativo (gestor ou instrutor).
+export const AcademyContextSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: z.enum(['manager', 'instructor']),
+});
+export type AcademyContext = z.infer<typeof AcademyContextSchema>;
+
+// Shape REAL de GET /me (backend/api/src/routes/me.ts): { id, tipo, display_name, academy? }
 export const MeSchema = z.object({
   id: z.string(),
   tipo: z.string(),
   display_name: z.string().nullable(),
+  academy: AcademyContextSchema.nullable().optional(),
 });
 export type Me = z.infer<typeof MeSchema>;
 
@@ -99,6 +108,9 @@ export const WorkoutExerciseSchema = z.object({
   id: z.string(),
   position: z.number(),
   wger_exercise_id: z.number(),
+  // exercise_id: slug do catálogo estático (migration workout_exercises_exercise_id); o BuilderPage
+  // já lê com fallback para wger_exercise_id. Opcional para compat com respostas antigas.
+  exercise_id: z.string().nullable().optional(),
   name_snapshot: z.string(),
   sets: z.number(),
   reps: z.number(),
@@ -234,3 +246,149 @@ export function decodeJwtPayload(token: string): z.infer<typeof JwtPayloadSchema
     return {};
   }
 }
+
+// ---------------------------------------------------------------------------
+// [ACTUS — academia] Módulo academia (painel do gestor + onboarding admin).
+// Contratos espelham backend/api/src/routes/{academy,academyCommissions,adminAcademies}.ts
+// ---------------------------------------------------------------------------
+
+// GET /academy/dashboard
+export const InstructorRankSchema = z.object({
+  instructor_user_id: z.string(),
+  display_name: z.string().nullable(),
+  student_count: z.number(),
+  active_students_7d: z.number(),
+  check_ins_30d: z.number(),
+});
+export type InstructorRank = z.infer<typeof InstructorRankSchema>;
+
+export const AcademyDashboardSchema = z.object({
+  kpis: z.object({
+    total_students: z.number(),
+    active_students_7d: z.number(),
+    check_ins_30d: z.number(),
+    instructors: z.number(),
+    adherence_7d_pct: z.number().nullable(),
+  }),
+  instructor_ranking: z.array(InstructorRankSchema),
+});
+export type AcademyDashboard = z.infer<typeof AcademyDashboardSchema>;
+
+// GET /academy/members
+export const AcademyMemberSchema = z.object({
+  id: z.string(),
+  user_id: z.string(),
+  role: z.enum(['manager', 'instructor']),
+  status: z.enum(['invited', 'active', 'revoked']),
+  display_name: z.string().nullable(),
+  email: z.string(),
+  student_count: z.number(),
+});
+export type AcademyMember = z.infer<typeof AcademyMemberSchema>;
+export const AcademyMembersResponseSchema = z.object({ members: z.array(AcademyMemberSchema) });
+
+// GET /academy/students
+export const AcademyStudentSchema = z.object({
+  id: z.string(),
+  display_name: z.string().nullable(),
+  email: z.string(),
+  instructor_user_id: z.string(),
+  instructor_name: z.string().nullable(),
+  last_check_in: z.string().nullable(),
+});
+export type AcademyStudent = z.infer<typeof AcademyStudentSchema>;
+export const AcademyStudentsResponseSchema = z.object({ students: z.array(AcademyStudentSchema) });
+
+// Comissões
+export const CommissionRuleType = z.enum(['percent', 'fixed_per_student', 'fixed_monthly']);
+
+export const CommissionRuleSchema = z.object({
+  id: z.string(),
+  instructor_user_id: z.string().nullable(),
+  rule_type: CommissionRuleType,
+  percent: z.number().nullable(),
+  amount_cents: z.number().nullable(),
+  currency: z.string(),
+  effective_from: z.string(),
+  effective_to: z.string().nullable(),
+});
+export type CommissionRule = z.infer<typeof CommissionRuleSchema>;
+export const CommissionRulesResponseSchema = z.object({ rules: z.array(CommissionRuleSchema) });
+
+export const CommissionEntrySchema = z.object({
+  id: z.string(),
+  instructor_user_id: z.string(),
+  instructor_name: z.string().nullable(),
+  subject_type: z.enum(['student', 'instructor', 'academy']),
+  subject_id: z.string().nullable(),
+  amount_cents: z.number(),
+  source: z.enum(['manual', 'billing']),
+  note: z.string().nullable(),
+  created_at: z.string(),
+});
+export type CommissionEntry = z.infer<typeof CommissionEntrySchema>;
+export const CommissionEntriesResponseSchema = z.object({ entries: z.array(CommissionEntrySchema) });
+
+export const CommissionReportRowSchema = z.object({
+  instructor_user_id: z.string(),
+  display_name: z.string().nullable(),
+  student_count: z.number(),
+  base_cents: z.number(),
+  rule_type: CommissionRuleType.nullable(),
+  commission_cents: z.number(),
+  status: z.enum(['pending', 'paid']),
+});
+export type CommissionReportRow = z.infer<typeof CommissionReportRowSchema>;
+
+export const CommissionReportSchema = z.object({
+  period: z.string(),
+  rows: z.array(CommissionReportRowSchema),
+  totals: z.object({
+    base_cents: z.number(),
+    commission_cents: z.number(),
+    due_cents: z.number(),
+  }),
+});
+export type CommissionReport = z.infer<typeof CommissionReportSchema>;
+
+// Admin — academias (GET /admin/academies, GET /admin/academies/:id)
+export const AcademyListItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string().nullable(),
+  cnpj: z.string().nullable(),
+  timezone: z.string(),
+  status: z.string(),
+  instructors: z.number(),
+  managers: z.number(),
+  created_at: z.string(),
+});
+export type AcademyListItem = z.infer<typeof AcademyListItemSchema>;
+export const AcademiesResponseSchema = z.object({ academies: z.array(AcademyListItemSchema) });
+
+export const AcademyDetailSchema = z.object({
+  academy: z.object({
+    id: z.string(),
+    name: z.string(),
+    slug: z.string().nullable(),
+    cnpj: z.string().nullable(),
+    timezone: z.string(),
+    status: z.string(),
+    created_at: z.string(),
+  }),
+  members: z.array(
+    z.object({
+      id: z.string(),
+      user_id: z.string(),
+      role: z.string(),
+      status: z.string(),
+      display_name: z.string().nullable(),
+      email: z.string(),
+      tipo: z.string(),
+    }),
+  ),
+});
+export type AcademyDetail = z.infer<typeof AcademyDetailSchema>;
+
+// POST responses
+export const AcademyCreateResponseSchema = z.object({ id: z.string(), name: z.string() });
