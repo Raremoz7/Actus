@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BadgeSchema } from './gamification';
+
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 // Estado de uma sessão de treino.
@@ -110,5 +112,8 @@ export type WorkoutFinishSummary = z.infer<typeof WorkoutFinishSummarySchema>;
 // (O backend faz res.json({ ...payload, summary }).)
 export const WorkoutFinishResponseSchema = WorkoutSessionSchema.extend({
   summary: WorkoutFinishSummarySchema,
+  // Badges recém-conquistados nesta finalização (Gamificação V1). Pode vir
+  // ausente em respostas legadas → default [].
+  newly_earned_badges: z.array(BadgeSchema).optional().default([]),
 });
 export type WorkoutFinishResponse = z.infer<typeof WorkoutFinishResponseSchema>;

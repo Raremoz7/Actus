@@ -99,6 +99,9 @@ export function useSessionMutations(sessionId: string): SessionMutations {
       // visão da semana e tudo de /me/workouts (lista + treino do dia/last_completed).
       queryClient.invalidateQueries({ queryKey: ['me', 'weekly-overview'] });
       queryClient.invalidateQueries({ queryKey: ['me', 'workouts'] });
+      // Finish pode conceder badges → revalida lista de badges e o badge
+      // ['me','badges','unseen'] (coberto por prefixo).
+      queryClient.invalidateQueries({ queryKey: ['me', 'badges'] });
     },
   });
 
