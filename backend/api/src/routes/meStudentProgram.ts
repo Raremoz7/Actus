@@ -1305,12 +1305,21 @@ function toIso(v: any): string {
   return d.toISOString();
 }
 
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : `${n}`;
+}
 function formatDateOnly(v: any): string | null {
   if (v == null) return null;
-  if (v instanceof Date) return v.toISOString().slice(0, 10);
   if (typeof v === "string") return v.slice(0, 10);
+  if (v instanceof Date) {
+    // node-pg materializa `date` como Date à meia-noite LOCAL; usar componentes locais
+    // evita o shift de fuso que toISOString (UTC) introduziria.
+    return `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
+  }
   const d = new Date(v);
-  return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : null;
+  return Number.isFinite(d.getTime())
+    ? `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+    : null;
 }
 
 export default router;
