@@ -35,7 +35,7 @@ describe("Gamificação — weekly overview", () => {
       studentId,
       await bcrypt.hash("pass", 12),
     ]);
-    await pool.query(`insert into public.profiles (id, tipo, display_name, streak_current, streak_best) values ($1, 'aluno', 'S', 3, 5)`, [
+    await pool.query(`insert into public.profiles (id, tipo, display_name, streak_current, streak_best, last_activity_at) values ($1, 'aluno', 'S', 3, 5, now())`, [
       studentId,
     ]);
     await pool.query(
@@ -69,6 +69,8 @@ describe("Gamificação — weekly overview", () => {
     expect(res.body.days).toHaveLength(7);
     expect(res.body.streak_current).toBe(3);
     expect(res.body.streak_best).toBe(5);
+    expect(res.body.is_broken).toBe(false);
+    expect(typeof res.body.last_activity_at).toBe("string");
     const tue = res.body.days.find((d: { date: string }) => d.date === "2026-05-05");
     expect(tue?.completed).toBe(true);
     expect(tue?.sources).toContain("check_in");

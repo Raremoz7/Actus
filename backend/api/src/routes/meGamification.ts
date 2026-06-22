@@ -4,6 +4,7 @@ import { authedUserId } from "../middleware/requireAuth.js";
 import { withTx } from "../db.js";
 import { sendInternalError } from "../schemaCompat.js";
 import { isoWeekdayFromDateOnly } from "./meStudentProgram.js";
+import { effectiveStreak } from "../services/streakService.js";
 
 const router = Router();
 
@@ -82,13 +83,23 @@ router.get("/gamification/weekly-overview", async (req, res) => {
       const streakQ = await client.query<{
         streak_current: number;
         streak_best: number;
+        last_activity_at: Date | null;
       }>(
-        `select streak_current, streak_best from public.profiles where id = $1`,
+        `select streak_current, streak_best, last_activity_at from public.profiles where id = $1`,
         [studentId],
       );
       const streakRow = streakQ.rows[0];
-      const streak_current = streakRow?.streak_current ?? 0;
+      const eff = effectiveStreak(
+        streakRow?.streak_current ?? 0,
+        streakRow?.last_activity_at ?? null,
+        new Date(),
+      );
+      const streak_current = eff.streak_current;
       const streak_best = streakRow?.streak_best ?? 0;
+      const is_broken = eff.is_broken;
+      const last_activity_at = streakRow?.last_activity_at
+        ? new Date(streakRow.last_activity_at).toISOString()
+        : null;
 
       const days: {
         weekday: number;
@@ -136,6 +147,8 @@ router.get("/gamification/weekly-overview", async (req, res) => {
           timezone: resolved.timezone,
           streak_current,
           streak_best,
+          is_broken,
+          last_activity_at,
           days,
         },
       };
