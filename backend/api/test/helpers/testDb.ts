@@ -441,5 +441,21 @@ create table public.device_tokens (
   last_seen_at timestamptz not null default now()
 );
 create index idx_device_tokens_user on public.device_tokens(user_id);
+
+-- Seed do catálogo de 7 badges (espelha 20260622120100_seed_badges).
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('first_step',      'Primeiro Passo',  'Concluiu o primeiro treino.',          'workout_count',   1,    'badge_first_step',      1, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('committed_5',     'Comprometido',    'Concluiu 5 treinos.',                  'workout_count',   5,    'badge_committed',       2, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('consistent_10',   'Consistente',     'Concluiu 10 treinos.',                 'workout_count',   10,   'badge_consistent',      3, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('dedicated_30',    'Dedicado',        'Concluiu 30 treinos.',                 'workout_count',   30,   'badge_dedicated',       4, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('personal_record', 'Recorde Pessoal', 'Bateu o primeiro recorde de carga.',   'personal_record', null, 'badge_personal_record', 5, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('fire_streak_7',   'Sequência de Fogo','Manteve 7 dias seguidos de treino.',  'streak',          7,    'badge_fire_streak',     6, true);
+insert into public.badges (id, name, description, criteria_type, criteria_threshold, asset_key, sort_order, active) values
+  ('legendary_30',    'Lendário',        'Manteve 30 dias seguidos de treino.', 'streak',          30,   'badge_legendary',       7, true);
 `;
 
