@@ -117,6 +117,15 @@ jest.mock('expo-audio', () => ({
   setIsAudioActiveAsync: jest.fn(() => Promise.resolve()),
 }));
 
+// expo-notifications — módulo nativo de push; no jest expomos a API consumida
+// (permissões, token e listener de tap) com no-ops.
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'ExponentPushToken[test]' })),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
 // expo-linear-gradient — nativo; no jest retorna View simples.
 jest.mock('expo-linear-gradient', () => {
   const React = require('react');
