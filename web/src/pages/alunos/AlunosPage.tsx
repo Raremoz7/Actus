@@ -5,6 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
+import { StreakBadge } from '../../components/StreakBadge';
+import { StudentBadges } from '../../components/StudentBadges';
 import { Sidebar, type SidebarSection } from '../../layouts/Sidebar';
 import { useStudents, useStudentsCheckIns } from '../../hooks/useStudents';
 import type { Student } from '../../lib/schemas';
@@ -157,9 +159,13 @@ function StudentRow({
     >
       <Avatar name={student.full_name} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-1">
-          {student.full_name ?? student.email}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-medium text-text-1">
+            {student.full_name ?? student.email}
+          </p>
+          <StreakBadge streak={student.streak_current ?? 0} isBroken={student.is_broken} />
+          <StudentBadges count={student.badge_count ?? 0} />
+        </div>
         <p className="truncate text-xs text-text-3">{student.email}</p>
       </div>
       <Tag variant={status.tone}>{status.label}</Tag>
