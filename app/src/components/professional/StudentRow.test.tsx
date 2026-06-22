@@ -40,6 +40,44 @@ describe('StudentRow · selo Par-Q', () => {
   });
 });
 
+describe('StudentRow · streak e badges', () => {
+  it('mostra streak e contagem de badges quando presentes', () => {
+    render(
+      <StudentRow
+        name="Marina"
+        subtitle="m@x.com"
+        streakCurrent={5}
+        badgeCount={3}
+        onPress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('Marina')).toBeTruthy();
+    expect(screen.getByText('5')).toBeTruthy();
+    expect(screen.getByText('3')).toBeTruthy();
+  });
+
+  it('não renderiza indicadores quando ausentes ou zerados', () => {
+    render(
+      <StudentRow
+        name="Lia"
+        subtitle="l@x.com"
+        streakCurrent={0}
+        badgeCount={0}
+        onPress={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('student-streak')).toBeNull();
+    expect(screen.queryByTestId('student-badges')).toBeNull();
+  });
+
+  it('não quebra quando as props de gamificação não são passadas', () => {
+    render(<StudentRow name="Rui" subtitle="r@x.com" onPress={jest.fn()} />);
+    expect(screen.getByText('Rui')).toBeTruthy();
+    expect(screen.queryByTestId('student-streak')).toBeNull();
+    expect(screen.queryByTestId('student-badges')).toBeNull();
+  });
+});
+
 describe('studentInitials', () => {
   it('usa as iniciais do primeiro e do último nome', () => {
     expect(studentInitials('Maria Silva')).toBe('MS');

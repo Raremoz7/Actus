@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { CaretRight } from 'phosphor-react-native';
+import { CaretRight, Flame, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
@@ -21,6 +21,10 @@ type Props = {
   isNew?: boolean;
   // Status do Par-Q do aluno (opcional). 'clear' não renderiza selo.
   parqStatus?: ParqStatus;
+  // Sequência atual de dias do aluno (gamificação). Só rende >0.
+  streakCurrent?: number;
+  // Quantidade de conquistas (badges) do aluno. Só rende >0.
+  badgeCount?: number;
   onPress: () => void;
 };
 
@@ -37,9 +41,21 @@ export function studentInitials(name: string): string {
 // Linha-pulso do aluno: avatar com INICIAIS reais + nome + e-mail mono + "Desde DD/MM".
 // Quando a lista mistura papéis, mostra um micro-rótulo (Personal/Nutri). Vínculos
 // recentes ganham o selo "Novo". Sem ponto de status — a lista não traz atividade.
-export function StudentRow({ name, subtitle, since, roleLabel, isNew, parqStatus, onPress }: Props) {
+export function StudentRow({
+  name,
+  subtitle,
+  since,
+  roleLabel,
+  isNew,
+  parqStatus,
+  streakCurrent,
+  badgeCount,
+  onPress,
+}: Props) {
   const initials = studentInitials(name);
   const a11y = roleLabel ? `${name}, ${roleLabel}` : name;
+  const hasStreak = typeof streakCurrent === 'number' && streakCurrent > 0;
+  const hasBadges = typeof badgeCount === 'number' && badgeCount > 0;
   return (
     <Pressable
       accessibilityRole="button"
@@ -88,6 +104,26 @@ export function StudentRow({ name, subtitle, since, roleLabel, isNew, parqStatus
           </View>
         ) : null}
         {parqStatus ? <ParqStatusBadge status={parqStatus} /> : null}
+        {hasStreak || hasBadges ? (
+          <View style={styles.gamification}>
+            {hasStreak ? (
+              <View testID="student-streak" style={styles.indicator}>
+                <Flame size={14} weight="duotone" color={colors.flame} />
+                <AppText variant="dataMed" color="secondary">
+                  {String(streakCurrent)}
+                </AppText>
+              </View>
+            ) : null}
+            {hasBadges ? (
+              <View testID="student-badges" style={styles.indicator}>
+                <Trophy size={14} weight="duotone" color={colors.textTertiary} />
+                <AppText variant="dataMed" color="secondary">
+                  {String(badgeCount)}
+                </AppText>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
       </View>
       <CaretRight size={16} weight="bold" color={colors.textTertiary} />
     </Pressable>
@@ -132,5 +168,16 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.spacing.sm,
     marginTop: 2,
+  },
+  gamification: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginTop: 2,
+  },
+  indicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
 }));

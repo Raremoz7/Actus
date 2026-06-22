@@ -17,6 +17,10 @@ export const StudentSchema = z.object({
   birth_date: dateOnly.nullable(),
   professional_role: ProfessionalRoleSchema,
   linked_at: z.string(),
+  // Gamificação V1 — campos opcionais expostos por GET /professional/students.
+  streak_current: z.number().int().optional(),
+  is_broken: z.boolean().optional(),
+  badge_count: z.number().int().optional(),
 });
 export type Student = z.infer<typeof StudentSchema>;
 

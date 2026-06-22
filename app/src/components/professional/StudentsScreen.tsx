@@ -151,6 +151,8 @@ export function StudentsScreen() {
               roleLabel={mixedRoles ? ROLE_LABEL[s.professional_role] : null}
               isNew={isNewLink(s.linked_at, now)}
               parqStatus={listParqStatus(parqStatus(parqMap[s.id] ?? null, now))}
+              streakCurrent={s.streak_current}
+              badgeCount={s.badge_count}
               onPress={() => openStudent(s.id)}
             />
           ))}
