@@ -9,6 +9,7 @@ import meGamificationRoutes from "./routes/meGamification.js";
 import professionalChallengesRoutes from "./routes/professionalChallenges.js";
 import meChallengesRoutes from "./routes/meChallenges.js";
 import meBadgesRoutes from "./routes/meBadges.js";
+import deviceTokensRoutes from "./routes/deviceTokens.js";
 import { requirePersonal } from "./middleware/requirePersonal.js";
 import adminProfessionalsRoutes from "./routes/adminProfessionals.js";
 import professionalStudentsRoutes from "./routes/professionalStudents.js";
@@ -165,6 +166,8 @@ export function createApp() {
   app.use("/students/:student_id/workouts", requireAuth, studentWorkoutsRoutes);
   app.use("/students/:student_id/diets", requireAuth, studentDietsRoutes);
   app.use("/me", requireAuth, meRoutes);
+  // Device tokens (push): QUALQUER usuário autenticado registra seus devices — SEM requireStudent.
+  app.use("/me", requireAuth, deviceTokensRoutes);
   app.use("/me/avatar", requireAuth, meAvatarRouter); // [ACTUS-NEW] upload de avatar (qualquer tipo)
   app.use("/me", requireAuth, requireStudent, meStudentProgramRoutes);
   app.use("/me", requireAuth, requireStudent, meGamificationRoutes);
