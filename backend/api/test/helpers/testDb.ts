@@ -57,6 +57,8 @@ create table public.profiles (
   streak_current integer not null default 0,
   streak_best integer not null default 0,
   last_activity_date date,
+  last_activity_at timestamptz,
+  last_credit_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -405,5 +407,39 @@ create table public.academy_commission_payouts (
   updated_at timestamptz not null default now(),
   constraint commission_payouts_unique unique (academy_id, instructor_user_id, period_month)
 );
+
+-- ---------------------------------------------------------------------------
+-- Gamificação V1 (espelha 20260622120000_gamification_v1).
+-- ---------------------------------------------------------------------------
+create table public.badges (
+  id text primary key,
+  name text not null,
+  description text not null,
+  criteria_type text not null check (criteria_type in ('workout_count','streak','personal_record')),
+  criteria_threshold int,
+  asset_key text not null,
+  sort_order int not null default 0,
+  active boolean not null default true
+);
+
+create table public.student_badges (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles(id) on delete cascade,
+  badge_id text not null references public.badges(id),
+  earned_at timestamptz not null default now(),
+  seen_at timestamptz,
+  unique (student_id, badge_id)
+);
+create index idx_student_badges_student on public.student_badges(student_id);
+
+create table public.device_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  expo_push_token text not null unique,
+  platform text not null check (platform in ('ios','android')),
+  created_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now()
+);
+create index idx_device_tokens_user on public.device_tokens(user_id);
 `;
 
