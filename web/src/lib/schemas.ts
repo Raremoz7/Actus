@@ -33,6 +33,12 @@ export const StudentSchema = z.object({
   birth_date: z.string().nullable(),
   professional_role: z.enum(['personal', 'nutricionista']),
   linked_at: z.string(),
+  // Gamificação V1 (Task 19): streak efetivo, flag de quebra e total de badges por
+  // aluno, retornados por GET /professional/students. Opcionais para não quebrar
+  // enquanto o deploy do backend com esses campos não chega em produção.
+  streak_current: z.number().int().optional(),
+  is_broken: z.boolean().optional(),
+  badge_count: z.number().int().optional(),
 });
 export type Student = z.infer<typeof StudentSchema>;
 
