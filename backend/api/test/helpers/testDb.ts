@@ -114,6 +114,7 @@ create table public.workout_exercises (
   workout_id uuid not null references public.workouts (id) on delete cascade,
   position integer not null,
   wger_exercise_id integer not null,
+  exercise_id text,
   name_snapshot text not null,
   sets integer not null default 3,
   reps integer not null default 10,

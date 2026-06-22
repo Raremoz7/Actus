@@ -5,6 +5,8 @@ import { authedUserId } from "../middleware/requireAuth.js";
 import { withTx } from "../db.js";
 import { uuid } from "../crypto.js";
 import { buildWorkoutFinishSummary } from "../services/studentWorkoutSummary.js";
+import { recomputeStreak } from "../services/streakService.js";
+import { evaluateBadges } from "../services/badgeService.js";
 import { isInvalidEnumValue, isMissingDbObjectError, isCheckInsWorkoutSessionFkViolation, sendInternalError } from "../schemaCompat.js";
 import { queryCheckInsForStudent } from "../studentCheckInsQuery.js";
 
@@ -459,7 +461,32 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
       }));
 
       const summary = await buildWorkoutFinishSummary(client, studentId, sessionId, exerciseMeta);
-      return { ok: true as const, summary };
+
+      // Gamificação: recalcula streak e avalia badges DENTRO da mesma transação,
+      // após o status virar terminal (o trigger trg_workout_session_completed_stats
+      // já incrementou total_workouts_completed no banco real).
+      const localDate = await studentLocalDateString(client, studentId);
+      const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate });
+      const twQ = await client.query<{ n: number }>(
+        `select total_workouts_completed as n from public.profiles where id = $1`,
+        [studentId],
+      );
+      const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+      const had_pr = (summary.load_evolution ?? []).some(
+        (e) => typeof e.delta_kg === "number" && e.delta_kg > 0,
+      );
+      const newBadges = await evaluateBadges(
+        client,
+        studentId,
+        {
+          total_workouts_completed: totalWorkoutsCompleted,
+          streak_current: streak.streak_current,
+          had_pr,
+        },
+        new Date(),
+      );
+
+      return { ok: true as const, summary, newBadges };
     });
 
     if (!summaryMeta.ok) {
@@ -475,9 +502,20 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
       }
     }
 
+    // newBadges/studentId disponíveis aqui para envio de push (task futura).
+    const newBadges = summaryMeta.newBadges;
     const payload = await withTx((client) => loadSessionPayloadTx(client, studentId, sessionId));
     if (!payload) return res.status(404).json({ error: "workout_session_not_found" });
-    return res.status(200).json({ ...payload, summary: summaryMeta.summary });
+    return res.status(200).json({
+      ...payload,
+      summary: summaryMeta.summary,
+      newly_earned_badges: newBadges.map((b) => ({
+        id: b.id,
+        name: b.name,
+        description: b.description,
+        asset_key: b.asset_key,
+      })),
+    });
   } catch (e: unknown) {
     if (e instanceof Error && e.name === "MigrationRequired") {
       return res.status(503).json({ error: "migration_required", message: e.message });
@@ -596,12 +634,41 @@ router.post("/check-ins", async (req, res) => {
         }
       }
       const inserted = await insertStudentCheckIn(client, studentId, d, workoutSessionId);
-      return { ok: true as const, check_in_date: d, created: inserted };
+
+      // Gamificação: recalcula streak e avalia badges na mesma transação.
+      // Check-in manual não tem load_evolution, então had_pr = false.
+      const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate: d });
+      const twQ = await client.query<{ n: number }>(
+        `select total_workouts_completed as n from public.profiles where id = $1`,
+        [studentId],
+      );
+      const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+      const newBadges = await evaluateBadges(
+        client,
+        studentId,
+        {
+          total_workouts_completed: totalWorkoutsCompleted,
+          streak_current: streak.streak_current,
+          had_pr: false,
+        },
+        new Date(),
+      );
+
+      return { ok: true as const, check_in_date: d, created: inserted, newBadges };
     });
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
-    return res.status(201).json({ check_in_date: result.check_in_date, created: result.created });
+    return res.status(201).json({
+      check_in_date: result.check_in_date,
+      created: result.created,
+      newly_earned_badges: result.newBadges.map((b) => ({
+        id: b.id,
+        name: b.name,
+        description: b.description,
+        asset_key: b.asset_key,
+      })),
+    });
   } catch (e: unknown) {
     if (isCheckInsWorkoutSessionFkViolation(e)) {
       return res.status(400).json({ error: "workout_session_not_found" });
@@ -1186,15 +1253,18 @@ async function loadSessionPayloadTx(client: PoolClient, studentId: string, sessi
 }
 
 async function studentLocalDateString(client: PoolClient, studentId: string): Promise<string> {
-  const q = await client.query<{ d: string }>(
+  // Retorna a data (sem cast ::text, que o pg-mem não suporta) e formata em JS:
+  // node-pg devolve `date` como string 'YYYY-MM-DD'; pg-mem devolve um Date — ambos
+  // tratados por formatDateOnly.
+  const q = await client.query<{ d: unknown }>(
     `
-    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date::text as d
+    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date as d
     from public.profiles p
     where p.id = $1
     `,
     [studentId],
   );
-  return q.rows[0]?.d ?? new Date().toISOString().slice(0, 10);
+  return formatDateOnly(q.rows[0]?.d) ?? new Date().toISOString().slice(0, 10);
 }
 
 async function insertStudentCheckIn(
