@@ -16,7 +16,7 @@ import { goBackOr } from '@/lib/nav';
 import { exerciseImageUrl } from '@/lib/exerciseImage';
 import { wgerCatalog, exerciseDescription } from '@/lib/wger/catalog';
 import { wgerImageSource, wgerVideoUrl } from '@/lib/wger/media';
-import { exerciseCatalog } from '@/lib/exercises/catalog';
+import { exerciseCatalog, EQUIPMENT_PT } from '@/lib/exercises/catalog';
 import { darkTheme } from '@/theme';
 
 const { motion, colors, gradients, heroScrimLocations } = darkTheme;
@@ -114,7 +114,13 @@ export default function ExercicioDemoScreen() {
   const revealStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const title = name || 'Exercício';
-  const displayEquipment = catalogEx?.machine_type ?? equipment;
+  // Equipamento: prioriza machine_type (ex.: "Smith Machine"); senão o equipment do catálogo
+  // traduzido p/ PT-BR (presente na maioria dos exercícios); por fim o equipment vindo por param
+  // (workouts legados sem exerciseId). Antes só usava machine_type/param e quase nunca aparecia.
+  const catalogEquipment = catalogEx?.equipment
+    ? (EQUIPMENT_PT[catalogEx.equipment] ?? catalogEx.equipment)
+    : '';
+  const displayEquipment = catalogEx?.machine_type || catalogEquipment || equipment;
   // Grupo muscular + equipamento viram um eyebrow único sobre a foto (sem repetir o nome).
   const heroMeta = [muscle, displayEquipment].filter(Boolean).join(' · ');
 

@@ -219,8 +219,7 @@ router.get("/students", async (req, res) => {
                 instructorClause = ` and s.instructor_user_id = $${params.length}`;
             }
             const q = await client.query(`select s.student_id, sp.display_name, sau.email,
-                s.instructor_user_id, ip.display_name as instructor_name,
-                (select max(c.check_in_date) from public.check_ins c where c.student_id = s.student_id) as last_check_in
+                s.instructor_user_id, ip.display_name as instructor_name
          from public.academy_students s
          join public.profiles sp on sp.id = s.student_id
          join public.app_users sau on sau.id = s.student_id
@@ -228,6 +227,17 @@ router.get("/students", async (req, res) => {
          where s.academy_id = $1${instructorClause}
          order by sp.display_name asc
          limit 2000`, params);
+            // Último check-in por aluno calculado em TS (evita subquery correlacionada no pg-mem).
+            const ci = await client.query(`select c.student_id, c.check_in_date
+         from public.check_ins c
+         join public.academy_students s on s.student_id = c.student_id and s.academy_id = $1`, [academyId]);
+            const lastByStudent = new Map();
+            for (const r of ci.rows) {
+                const d = toDateOnly(r.check_in_date);
+                const prev = lastByStudent.get(r.student_id);
+                if (!prev || d > prev)
+                    lastByStudent.set(r.student_id, d);
+            }
             return {
                 students: q.rows.map((r) => ({
                     id: r.student_id,
@@ -235,7 +245,7 @@ router.get("/students", async (req, res) => {
                     email: r.email,
                     instructor_user_id: r.instructor_user_id,
                     instructor_name: r.instructor_name,
-                    last_check_in: r.last_check_in == null ? null : toDateOnly(r.last_check_in),
+                    last_check_in: lastByStudent.get(r.student_id) ?? null,
                 })),
             };
         });

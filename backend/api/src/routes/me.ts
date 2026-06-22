@@ -222,4 +222,150 @@ router.patch("/", async (req, res) => {
   }
 });
 
+// [ACTUS-NEW] Perfil profissional self-service (onboarding do professor — TEC-8).
+// Em produção só staff editava dados profissionais (/admin/professionals). Aqui o próprio
+// profissional (personal/nutricionista) grava nome profissional, área de atuação principal,
+// CREF, tempo de experiência, Cidade/UF e a intenção de uso. nome_profissional mora em
+// profiles.display_name; o resto em professional_info (colunas planas — ver migration
+// 20260622130000_actus_professional_self_profile.sql). Aluno/staff → 403 not_professional.
+const PRO_AREAS = [
+  "musculacao",
+  "condicionamento",
+  "emagrecimento",
+  "hipertrofia",
+  "reabilitacao",
+  "funcional",
+  "corrida",
+  "outro",
+] as const;
+const PRO_FORMA_USO = ["organizar", "prescrever", "acompanhar", "convidar", "testar"] as const;
+
+const patchProfessionalProfileSchema = z
+  .object({
+    nome_profissional: z.string().min(2).max(120).optional(),
+    area: z.enum(PRO_AREAS).optional(),
+    // nullable → permite limpar o opcional depois (PATCH manda null).
+    cref: z.string().max(40).optional().nullable(),
+    experiencia_anos: z.string().max(40).optional().nullable(),
+    cidade_uf: z.string().max(120).optional().nullable(),
+    forma_uso: z.enum(PRO_FORMA_USO).optional(),
+  })
+  .refine((o) => Object.keys(o).length > 0, { message: "empty_patch" });
+
+function isProfessionalTipo(tipo: string | null): boolean {
+  return tipo === "personal" || tipo === "nutricionista";
+}
+
+router.get("/professional-profile", async (req, res) => {
+  const userId = authedUserId(req);
+  try {
+    const result = await withTx(
+      async (
+        client,
+      ): Promise<
+        | { ok: false; status: number; error: string }
+        | { ok: true; body: Record<string, string | null> }
+      > => {
+        const pQ = await client.query<{ tipo: string; display_name: string | null }>(
+          `select tipo::text as tipo, display_name from public.profiles where id = $1`,
+          [userId],
+        );
+        const prof = pQ.rows[0];
+        if (!prof) return { ok: false, status: 404, error: "profile_not_found" };
+        if (!isProfessionalTipo(prof.tipo)) return { ok: false, status: 403, error: "not_professional" };
+
+        const iQ = await client.query<{
+          primary_area: string | null;
+          experience: string | null;
+          city_uf: string | null;
+          onboarding_intent: string | null;
+          cref_number: string | null;
+        }>(
+          `select primary_area, experience, city_uf, onboarding_intent, cref_number
+           from public.professional_info where user_id = $1`,
+          [userId],
+        );
+        const info = iQ.rows[0] ?? null;
+        return {
+          ok: true,
+          body: {
+            nome_profissional: prof.display_name,
+            area: info?.primary_area ?? null,
+            cref: info?.cref_number ?? null,
+            experiencia_anos: info?.experience ?? null,
+            cidade_uf: info?.city_uf ?? null,
+            forma_uso: info?.onboarding_intent ?? null,
+          },
+        };
+      },
+    );
+    if (!result.ok) return res.status(result.status).json({ error: result.error });
+    return res.json(result.body);
+  } catch {
+    return res.status(500).json({ error: "internal_error" });
+  }
+});
+
+router.patch("/professional-profile", async (req, res) => {
+  const userId = authedUserId(req);
+  const parsed = patchProfessionalProfileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "invalid_body", details: parsed.error.flatten() });
+  }
+  const { nome_profissional, area, cref, experiencia_anos, cidade_uf, forma_uso } = parsed.data;
+
+  try {
+    const result = await withTx(
+      async (client): Promise<{ ok: false; status: number; error: string } | { ok: true }> => {
+        const tQ = await client.query<{ tipo: string }>(
+          `select tipo::text as tipo from public.profiles where id = $1`,
+          [userId],
+        );
+        const tipo = tQ.rows[0]?.tipo ?? null;
+        if (!tipo) return { ok: false, status: 404, error: "profile_not_found" };
+        if (!isProfessionalTipo(tipo)) return { ok: false, status: 403, error: "not_professional" };
+
+        if (nome_profissional !== undefined) {
+          await client.query(
+            `update public.profiles set display_name = $2, updated_at = now() where id = $1`,
+            [userId, nome_profissional],
+          );
+        }
+
+        // Garante a linha antes do UPDATE dinâmico (profissional auto-registrado não tem
+        // professional_info — só staff criava antes).
+        await client.query(
+          `insert into public.professional_info (user_id) values ($1) on conflict (user_id) do nothing`,
+          [userId],
+        );
+
+        const fields: string[] = [];
+        const vals: unknown[] = [];
+        let i = 1;
+        const setCol = (col: string, v: unknown) => {
+          fields.push(`${col} = $${i++}`);
+          vals.push(v);
+        };
+        if (area !== undefined) setCol("primary_area", area);
+        if (cref !== undefined) setCol("cref_number", cref);
+        if (experiencia_anos !== undefined) setCol("experience", experiencia_anos);
+        if (cidade_uf !== undefined) setCol("city_uf", cidade_uf);
+        if (forma_uso !== undefined) setCol("onboarding_intent", forma_uso);
+        if (fields.length) {
+          vals.push(userId);
+          await client.query(
+            `update public.professional_info set ${fields.join(", ")}, updated_at = now() where user_id = $${i}`,
+            vals,
+          );
+        }
+        return { ok: true };
+      },
+    );
+    if (!result.ok) return res.status(result.status).json({ error: result.error });
+    return res.json({ ok: true });
+  } catch {
+    return res.status(500).json({ error: "internal_error" });
+  }
+});
+
 export default router;

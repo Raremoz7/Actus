@@ -7,7 +7,7 @@
 //     que volta para a lista (/convite).
 
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, Share, View } from 'react-native';
+import { Alert, Linking, Pressable, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -19,9 +19,14 @@ import { CaretLeft } from 'phosphor-react-native';
 import { copyText } from '@/lib/clipboard';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Tag } from '@/components/ui';
+import { AppText, Button, Input, Tag } from '@/components/ui';
 import { useInviteActions } from '@/hooks/useInviteActions';
-import { inviteDeepLink, inviteShareMessage, isoInDays } from '@/lib/invite';
+import {
+  inviteDeepLink,
+  inviteShareMessage,
+  inviteWhatsAppUrl,
+  isoInDays,
+} from '@/lib/invite';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -84,6 +89,8 @@ export default function NovoConviteScreen() {
   const [maxUses, setMaxUses] = useState<MaxUses>(1);
   // Vista de compartilhar: setada no sucesso do create (guarda o code gerado).
   const [createdCode, setCreatedCode] = useState<string | null>(null);
+  // Número do aluno (opcional) — "inserir manualmente": envia o convite direto no WhatsApp.
+  const [phone, setPhone] = useState('');
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);
@@ -120,6 +127,17 @@ export default function NovoConviteScreen() {
 
   async function handleCopy(code: string) {
     await copyText(inviteDeepLink(code));
+  }
+
+  // WhatsApp (canal principal): com número digitado abre a conversa direta; sem número,
+  // o WhatsApp pede o contato. Fallback silencioso se o app não puder abrir o link.
+  async function handleWhatsApp(code: string) {
+    const url = inviteWhatsAppUrl(code, phone.trim() || undefined);
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('WhatsApp indisponível', 'Não foi possível abrir o WhatsApp neste dispositivo.');
+    }
   }
 
   function handleBack() {
@@ -176,9 +194,28 @@ export default function NovoConviteScreen() {
                 </View>
               </View>
 
+              <View style={styles.manual}>
+                <Input
+                  label="WhatsApp do aluno · opcional"
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                  placeholder="(11) 90000-0000"
+                />
+                <AppText variant="bodySm" color="tertiary">
+                  Com o número, o convite vai direto na conversa. Sem ele, você escolhe o
+                  contato no WhatsApp.
+                </AppText>
+              </View>
+
               <View style={styles.actions}>
                 <Button
                   variant="primary"
+                  label="Enviar pelo WhatsApp"
+                  onPress={() => void handleWhatsApp(createdCode)}
+                />
+                <Button
+                  variant="secondary"
                   label="Compartilhar convite"
                   onPress={() => void handleShare(createdCode)}
                 />
@@ -327,6 +364,10 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     gap: theme.spacing.sm,
     marginTop: theme.spacing.xs,
+  },
+  manual: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xl,
   },
   actions: {
     gap: theme.spacing.md,

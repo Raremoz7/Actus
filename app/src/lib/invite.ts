@@ -13,6 +13,22 @@ export function inviteShareMessage(code: string): string {
   return `Seu acesso ao Actus: ${inviteDeepLink(code)}`;
 }
 
+// Normaliza um telefone para o formato do wa.me (só dígitos, com DDI). Assume Brasil
+// (55) quando o número vem sem código de país. Vazio quando não há dígitos.
+export function normalizePhoneForWhatsApp(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  return digits.startsWith('55') ? digits : `55${digits}`;
+}
+
+// URL do WhatsApp com a mensagem do convite pronta. Com `phone` abre a conversa direta
+// (inserir aluno manualmente pelo número); sem `phone`, o WhatsApp pede o contato.
+export function inviteWhatsAppUrl(code: string, phone?: string): string {
+  const text = encodeURIComponent(inviteShareMessage(code));
+  const normalized = phone ? normalizePhoneForWhatsApp(phone) : '';
+  return normalized ? `https://wa.me/${normalized}?text=${text}` : `https://wa.me/?text=${text}`;
+}
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // Instante (ISO 8601 completo, com hora) correspondente a "agora + N dias".

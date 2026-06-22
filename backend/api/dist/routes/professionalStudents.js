@@ -4,6 +4,7 @@ import { withTx } from "../db.js";
 import { authedUserId } from "../middleware/requireAuth.js";
 import { queryCheckInsForStudent } from "../studentCheckInsQuery.js";
 import { sendInternalError } from "../schemaCompat.js";
+import { effectiveStreak } from "../services/streakService.js";
 const router = Router();
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 router.get("/", async (req, res) => {
@@ -23,19 +24,33 @@ router.get("/", async (req, res) => {
           ubi.birth_date,
           au.email,
           spl.professional_role,
-          spl.linked_at
+          spl.linked_at,
+          sp.streak_current,
+          sp.last_activity_at,
+          coalesce(bc.cnt, 0) as badge_count
         from public.student_professional_links spl
         join public.profiles sp on sp.id = spl.student_id
         join public.app_users au on au.id = spl.student_id
         left join public.user_basic_info ubi on ubi.user_id = spl.student_id
+        left join (
+          select student_id, count(*)::int as cnt
+            from public.student_badges group by student_id
+        ) bc on bc.student_id = spl.student_id
         where spl.professional_id = $1
           and spl.status = 'active'
         order by spl.linked_at desc
         limit 500
         `, [professionalId]);
+            const now = new Date();
             const students = q.rows.map((r) => {
                 const linkedAt = r.linked_at instanceof Date ? r.linked_at : new Date(r.linked_at);
                 const birthDate = r.birth_date instanceof Date ? r.birth_date : new Date(r.birth_date);
+                const lastActivityAt = r.last_activity_at == null
+                    ? null
+                    : r.last_activity_at instanceof Date
+                        ? r.last_activity_at
+                        : new Date(r.last_activity_at);
+                const eff = effectiveStreak(Number(r.streak_current ?? 0), lastActivityAt, now);
                 return {
                     id: r.student_id,
                     email: r.email,
@@ -43,6 +58,9 @@ router.get("/", async (req, res) => {
                     birth_date: Number.isFinite(birthDate.getTime()) ? birthDate.toISOString().slice(0, 10) : null,
                     professional_role: r.professional_role,
                     linked_at: linkedAt.toISOString(),
+                    streak_current: eff.streak_current,
+                    is_broken: eff.is_broken,
+                    badge_count: Number(r.badge_count ?? 0),
                 };
             });
             return { ok: true, students };

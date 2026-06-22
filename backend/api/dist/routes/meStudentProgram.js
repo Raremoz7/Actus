@@ -4,8 +4,11 @@ import { authedUserId } from "../middleware/requireAuth.js";
 import { withTx } from "../db.js";
 import { uuid } from "../crypto.js";
 import { buildWorkoutFinishSummary } from "../services/studentWorkoutSummary.js";
+import { recomputeStreak } from "../services/streakService.js";
+import { evaluateBadges } from "../services/badgeService.js";
 import { isInvalidEnumValue, isMissingDbObjectError, isCheckInsWorkoutSessionFkViolation, sendInternalError } from "../schemaCompat.js";
 import { queryCheckInsForStudent } from "../studentCheckInsQuery.js";
+import { sendBadgeNotifications } from "../services/pushService.js";
 const router = Router();
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 /** ISO-8601 weekday: 1 = segunda … 7 = domingo (alinha a student_workouts.weekdays). */
@@ -384,7 +387,20 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
                 muscle_group: r.muscle_group,
             }));
             const summary = await buildWorkoutFinishSummary(client, studentId, sessionId, exerciseMeta);
-            return { ok: true, summary };
+            // Gamificação: recalcula streak e avalia badges DENTRO da mesma transação,
+            // após o status virar terminal (o trigger trg_workout_session_completed_stats
+            // já incrementou total_workouts_completed no banco real).
+            const localDate = await studentLocalDateString(client, studentId);
+            const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate });
+            const twQ = await client.query(`select total_workouts_completed as n from public.profiles where id = $1`, [studentId]);
+            const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+            const had_pr = (summary.load_evolution ?? []).some((e) => typeof e.delta_kg === "number" && e.delta_kg > 0);
+            const newBadges = await evaluateBadges(client, studentId, {
+                total_workouts_completed: totalWorkoutsCompleted,
+                streak_current: streak.streak_current,
+                had_pr,
+            }, new Date());
+            return { ok: true, summary, newBadges };
         });
         if (!summaryMeta.ok) {
             switch (summaryMeta.error) {
@@ -398,10 +414,29 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
                     return res.status(500).json({ error: "internal_error" });
             }
         }
+        // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
+        const newBadges = summaryMeta.newBadges;
+        if (newBadges.length > 0) {
+            try {
+                await withTx((client) => sendBadgeNotifications(client, studentId, newBadges.map((b) => ({ id: b.id, name: b.name }))));
+            }
+            catch {
+                // best-effort: falha de push não afeta a conquista.
+            }
+        }
         const payload = await withTx((client) => loadSessionPayloadTx(client, studentId, sessionId));
         if (!payload)
             return res.status(404).json({ error: "workout_session_not_found" });
-        return res.status(200).json({ ...payload, summary: summaryMeta.summary });
+        return res.status(200).json({
+            ...payload,
+            summary: summaryMeta.summary,
+            newly_earned_badges: newBadges.map((b) => ({
+                id: b.id,
+                name: b.name,
+                description: b.description,
+                asset_key: b.asset_key,
+            })),
+        });
     }
     catch (e) {
         if (e instanceof Error && e.name === "MigrationRequired") {
@@ -510,12 +545,40 @@ router.post("/check-ins", async (req, res) => {
                 }
             }
             const inserted = await insertStudentCheckIn(client, studentId, d, workoutSessionId);
-            return { ok: true, check_in_date: d, created: inserted };
+            // Gamificação: recalcula streak e avalia badges na mesma transação.
+            // Check-in manual não tem load_evolution, então had_pr = false.
+            const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate: d });
+            const twQ = await client.query(`select total_workouts_completed as n from public.profiles where id = $1`, [studentId]);
+            const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+            const newBadges = await evaluateBadges(client, studentId, {
+                total_workouts_completed: totalWorkoutsCompleted,
+                streak_current: streak.streak_current,
+                had_pr: false,
+            }, new Date());
+            return { ok: true, check_in_date: d, created: inserted, newBadges };
         });
         if (!result.ok) {
             return res.status(400).json({ error: result.error });
         }
-        return res.status(201).json({ check_in_date: result.check_in_date, created: result.created });
+        // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
+        if (result.newBadges.length > 0) {
+            try {
+                await withTx((client) => sendBadgeNotifications(client, studentId, result.newBadges.map((b) => ({ id: b.id, name: b.name }))));
+            }
+            catch {
+                // best-effort: falha de push não afeta a conquista.
+            }
+        }
+        return res.status(201).json({
+            check_in_date: result.check_in_date,
+            created: result.created,
+            newly_earned_badges: result.newBadges.map((b) => ({
+                id: b.id,
+                name: b.name,
+                description: b.description,
+                asset_key: b.asset_key,
+            })),
+        });
     }
     catch (e) {
         if (isCheckInsWorkoutSessionFkViolation(e)) {
@@ -934,12 +997,15 @@ async function loadSessionPayloadTx(client, studentId, sessionId) {
     }
 }
 async function studentLocalDateString(client, studentId) {
+    // Retorna a data (sem cast ::text, que o pg-mem não suporta) e formata em JS:
+    // node-pg devolve `date` como string 'YYYY-MM-DD'; pg-mem devolve um Date — ambos
+    // tratados por formatDateOnly.
     const q = await client.query(`
-    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date::text as d
+    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date as d
     from public.profiles p
     where p.id = $1
     `, [studentId]);
-    return q.rows[0]?.d ?? new Date().toISOString().slice(0, 10);
+    return formatDateOnly(q.rows[0]?.d) ?? new Date().toISOString().slice(0, 10);
 }
 async function insertStudentCheckIn(client, studentId, checkInDate, workoutSessionId) {
     const insId = uuid();
@@ -968,14 +1034,22 @@ function toIso(v) {
     const d = v instanceof Date ? v : new Date(v);
     return d.toISOString();
 }
+function pad2(n) {
+    return n < 10 ? `0${n}` : `${n}`;
+}
 function formatDateOnly(v) {
     if (v == null)
         return null;
-    if (v instanceof Date)
-        return v.toISOString().slice(0, 10);
     if (typeof v === "string")
         return v.slice(0, 10);
+    if (v instanceof Date) {
+        // node-pg materializa `date` como Date à meia-noite LOCAL; usar componentes locais
+        // evita o shift de fuso que toISOString (UTC) introduziria.
+        return `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
+    }
     const d = new Date(v);
-    return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : null;
+    return Number.isFinite(d.getTime())
+        ? `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+        : null;
 }
 export default router;

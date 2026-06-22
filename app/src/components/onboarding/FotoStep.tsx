@@ -1,12 +1,15 @@
-// Passo de foto (aluno e professor). "Adicionar foto" fica pendente:
-// [pendente: expo-image-picker (rebuild do dev client) + endpoint de upload]
-// — o passo existe e é pulável, fiel à história.
-import { View } from 'react-native';
+// Passo de foto (aluno e professor). Seleciona da galeria (expo-image-picker) e envia
+// via POST /me/avatar (useUploadAvatar). Passo OPCIONAL: nenhum erro trava o onboarding —
+// dá para pular e completar depois no perfil.
+// [requer dev client com o módulo nativo do expo-image-picker compilado — rebuild se ausente]
+import { useState } from 'react';
+import { Alert, Image, Pressable, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { UserCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
 import { OnboardingScreen } from './OnboardingScreen';
+import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -19,25 +22,67 @@ type Props = {
 };
 
 export function FotoStep({ step, total, subtitle, onAdvance }: Props) {
+  const upload = useUploadAvatar();
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
+
+  async function pickAndUpload() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(
+        'Permissão necessária',
+        'Libere o acesso às fotos para escolher uma imagem, ou pule por enquanto.',
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    if (!asset) return;
+    setPreviewUri(asset.uri);
+    // Sucesso → avança. Falha → mantém na tela (a foto é opcional; pode pular).
+    upload.mutate(
+      { uri: asset.uri, mimeType: asset.mimeType, fileName: asset.fileName },
+      {
+        onSuccess: () => onAdvance(),
+        onError: () => {
+          Alert.alert(
+            'Não foi possível enviar',
+            'Tente outra foto ou pule por enquanto — dá para adicionar depois no perfil.',
+          );
+        },
+      },
+    );
+  }
+
   return (
     <OnboardingScreen
       step={step}
       total={total}
       title="Adicione uma foto de perfil"
       subtitle={subtitle}
-      ctaLabel="Adicionar foto"
-      ctaDisabled
-      onCta={() => undefined}
+      ctaLabel={previewUri ? 'Trocar foto' : 'Adicionar foto'}
+      ctaLoading={upload.isPending}
+      onCta={() => void pickAndUpload()}
       skipLabel="Pular por enquanto"
       onSkip={onAdvance}
     >
       <View style={styles.avatarWrap}>
-        <View style={styles.avatar}>
-          <UserCircle size={64} weight="duotone" color={colors.textTertiary} />
-        </View>
-        <AppText variant="metaSmall" color="tertiary">
-          Disponível em breve neste build.
-        </AppText>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Adicionar foto de perfil"
+          onPress={() => void pickAndUpload()}
+          style={styles.avatar}
+        >
+          {previewUri ? (
+            <Image source={{ uri: previewUri }} style={styles.avatarImage} resizeMode="cover" />
+          ) : (
+            <UserCircle size={64} weight="duotone" color={colors.textTertiary} />
+          )}
+        </Pressable>
       </View>
     </OnboardingScreen>
   );
@@ -54,5 +99,7 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
+  avatarImage: { width: '100%', height: '100%' },
 }));

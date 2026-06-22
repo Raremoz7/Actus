@@ -16,6 +16,8 @@ export const endpoints = {
     profile: '/me/profile',
     // Upload de avatar (multipart) → seta avatar_url.
     avatar: '/me/avatar',
+    // Perfil profissional self-service (onboarding do professor): GET/PATCH.
+    professionalProfile: '/me/professional-profile',
     workouts: '/me/workouts',
     checkIns: '/me/check-ins',
     diets: '/me/diets',

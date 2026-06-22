@@ -9,7 +9,7 @@ import {
   FORMA_USO_LABEL,
   FormaUsoSchema,
   saveProfessionalProfile,
-} from '@/mocks/professionalProfile';
+} from '@/api/professionalProfile';
 
 type FormaUso = z.infer<typeof FormaUsoSchema>;
 const OPTIONS = FormaUsoSchema.options;
@@ -20,7 +20,14 @@ export default function FormaUsoScreen() {
   const [value, setValue] = useState<FormaUso | null>(null);
 
   async function advance() {
-    if (value && user) await saveProfessionalProfile(user.id, { forma_uso: value });
+    // Intenção é opcional/telemetria: grava se houver, nunca trava a navegação.
+    if (value && user) {
+      try {
+        await saveProfessionalProfile({ forma_uso: value });
+      } catch {
+        // Segue mesmo se a rede falhar.
+      }
+    }
     router.push(NEXT);
   }
 

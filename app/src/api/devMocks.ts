@@ -431,6 +431,11 @@ const MATCHERS: Matcher[] = [
     build: (_m, config) =>
       mockCreateInvite(parseBody(config) as { expires_at?: string; max_uses?: number }),
   },
+  // PATCH /me/professional-profile  (perfil profissional self-service; só ok no bypass)
+  {
+    test: (m, u) => (m === 'patch' && /\/me\/professional-profile$/.test(u) ? [] : null),
+    build: () => ({ ok: true }),
+  },
   // PATCH /invites/:id  (revogar → expira agora)
   {
     test: (m, u) => (m === 'patch' ? u.match(/\/invites\/([^/]+)$/) : null),

@@ -15,7 +15,7 @@ import {
   AREA_LABEL,
   AreaAtuacaoSchema,
   saveProfessionalProfile,
-} from '@/mocks/professionalProfile';
+} from '@/api/professionalProfile';
 
 const { colors } = darkTheme;
 
@@ -105,13 +105,18 @@ export default function PerfilProfissionalScreen() {
       return;
     }
     if (!area) return;
-    await saveProfessionalProfile(user.id, {
-      nome_profissional: nome.trim(),
-      area,
-      cref: cref.trim() || undefined,
-      experiencia_anos: experiencia.trim() || undefined,
-      cidade_uf: cidade.trim() || undefined,
-    });
+    // Baixa fricção: persiste o perfil, mas não trava o onboarding se a rede falhar.
+    try {
+      await saveProfessionalProfile({
+        nome_profissional: nome.trim(),
+        area,
+        cref: cref.trim() || undefined,
+        experiencia_anos: experiencia.trim() || undefined,
+        cidade_uf: cidade.trim() || undefined,
+      });
+    } catch {
+      // Segue o fluxo; o perfil pode ser completado depois.
+    }
     router.push('/onboarding-professor/forma-uso');
   }
 

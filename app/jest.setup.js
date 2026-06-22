@@ -88,7 +88,33 @@ jest.mock('phosphor-react-native', () => {
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),
   selectionAsync: jest.fn(),
+  notificationAsync: jest.fn(() => Promise.resolve()),
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
+
+// lottie-react-native — renderiza animação nativa; no jest vira uma View simples
+// que preserva os props (não quebra no ambiente de teste).
+jest.mock('lottie-react-native', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    __esModule: true,
+    default: (props) => React.createElement(View, props),
+  };
+});
+
+// expo-audio — player nativo; no jest expomos a API consumida (createAudioPlayer)
+// com no-ops para o som best-effort não quebrar nos testes.
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    seekTo: jest.fn(),
+    remove: jest.fn(),
+    release: jest.fn(),
+  })),
+  setIsAudioActiveAsync: jest.fn(() => Promise.resolve()),
 }));
 
 // expo-linear-gradient — nativo; no jest retorna View simples.

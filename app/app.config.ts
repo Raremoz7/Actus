@@ -40,6 +40,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-secure-store',
     [
+      // Foto de perfil (onboarding aluno/professor): seleção da galeria. A string de
+      // permissão é exigida no iOS; sem o plugin o dev client não compila o módulo nativo.
+      'expo-image-picker',
+      {
+        photosPermission: 'O Actus usa suas fotos para definir a imagem de perfil.',
+      },
+    ],
+    [
       // Backend de QA/dev é HTTP puro (http://136.119.240.96:3000). Android 9+ bloqueia
       // cleartext por padrão → request morre como "Sem conexão com o servidor". A flag
       // no topo de `android` é ignorada no SDK 55; o caminho suportado é este plugin.
@@ -52,6 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-font',
+    'expo-audio',
     [
       'expo-splash-screen',
       {
