@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   SignOut,
   Ticket,
+  Trophy,
   UserCircle,
 } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -244,6 +245,13 @@ export function AccountScreen({ showStreak = false }: Props) {
             label="Editar perfil"
             onPress={() => router.push('/editar-perfil' as Href)}
           />
+          {tipo === 'aluno' ? (
+            <ActionRow
+              icon={<Trophy size={20} weight="duotone" color={colors.onSurface} />}
+              label="Conquistas"
+              onPress={() => router.push('/(aluno)/badges' as Href)}
+            />
+          ) : null}
           {tipo === 'aluno' ? (
             <ActionRow
               icon={<Ticket size={20} weight="duotone" color={colors.onSurface} />}
