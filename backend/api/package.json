@@ -8,7 +8,7 @@
     "dev:dist": "npm run build && node --watch --env-file=.env.local dist/index.js",
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file=.env.local dist/index.js",
-    "test": "vitest run"
+    "test": "TZ=UTC vitest run"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
