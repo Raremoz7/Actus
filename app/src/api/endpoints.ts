@@ -21,6 +21,10 @@ export const endpoints = {
     diets: '/me/diets',
     weeklyOverview: '/me/gamification/weekly-overview',
     challenges: '/me/challenges',
+    badges: '/me/badges',
+    badgesUnseen: '/me/badges/unseen',
+    badgesSeen: '/me/badges/seen',
+    deviceTokens: '/me/device-tokens',
   },
   professional: {
     students: '/professional/students',
