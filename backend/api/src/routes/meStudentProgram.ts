@@ -9,6 +9,7 @@ import { recomputeStreak } from "../services/streakService.js";
 import { evaluateBadges } from "../services/badgeService.js";
 import { isInvalidEnumValue, isMissingDbObjectError, isCheckInsWorkoutSessionFkViolation, sendInternalError } from "../schemaCompat.js";
 import { queryCheckInsForStudent } from "../studentCheckInsQuery.js";
+import { sendBadgeNotifications } from "../services/pushService.js";
 
 const router = Router();
 
@@ -502,8 +503,22 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
       }
     }
 
-    // newBadges/studentId disponíveis aqui para envio de push (task futura).
+    // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
     const newBadges = summaryMeta.newBadges;
+    if (newBadges.length > 0) {
+      try {
+        await withTx((client) =>
+          sendBadgeNotifications(
+            client,
+            studentId,
+            newBadges.map((b) => ({ id: b.id, name: b.name })),
+          ),
+        );
+      } catch {
+        // best-effort: falha de push não afeta a conquista.
+      }
+    }
+
     const payload = await withTx((client) => loadSessionPayloadTx(client, studentId, sessionId));
     if (!payload) return res.status(404).json({ error: "workout_session_not_found" });
     return res.status(200).json({
@@ -659,6 +674,22 @@ router.post("/check-ins", async (req, res) => {
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
+
+    // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
+    if (result.newBadges.length > 0) {
+      try {
+        await withTx((client) =>
+          sendBadgeNotifications(
+            client,
+            studentId,
+            result.newBadges.map((b) => ({ id: b.id, name: b.name })),
+          ),
+        );
+      } catch {
+        // best-effort: falha de push não afeta a conquista.
+      }
+    }
+
     return res.status(201).json({
       check_in_date: result.check_in_date,
       created: result.created,
