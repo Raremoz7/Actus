@@ -17,6 +17,7 @@ import {
   ChallengeCard,
   ParqPromptCard,
 } from '@/components/home';
+import { StreakCounter } from '@/components/gamification/StreakCounter';
 import { useMe } from '@/hooks/useMe';
 import { useWeeklyOverview } from '@/hooks/useWeeklyOverview';
 import { useStudentWorkouts } from '@/hooks/useStudentWorkouts';
@@ -229,6 +230,15 @@ export default function AlunoHojeScreen() {
               onSeeWeek={seeWeek}
               done={todayDone}
             />
+          ) : null}
+
+          {week.data ? (
+            <View style={styles.section}>
+              <StreakCounter
+                streak={week.data.streak_current ?? 0}
+                isBroken={week.data.is_broken ?? false}
+              />
+            </View>
           ) : null}
 
           {week.data ? (
