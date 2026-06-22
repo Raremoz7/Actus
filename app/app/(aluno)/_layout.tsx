@@ -3,6 +3,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
 import { DEV_BYPASS_AUTH } from '@/lib/devAuth';
 import { AUTH_ENTRY, homeForTipo } from '@/lib/authRoutes';
+import { UnseenBadgeWatcher } from '@/components/gamification/UnseenBadgeWatcher';
 
 // Guard de papel: só aluno autenticado entra. Redirecionos vão a destinos INEQUÍVOCOS
 // (nunca '/', que é ambíguo e causa loop de redirect — ver authRoutes).
@@ -20,5 +21,12 @@ export default function AlunoLayout() {
     }
   }
 
-  return <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', animationDuration: 300 }} />;
+  // O watcher fica AO LADO do Stack para flutuar sobre as tabs (banner absoluto)
+  // e, ao tocar, abrir a fila de conquista (Modal) por cima de qualquer rota.
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', animationDuration: 300 }} />
+      <UnseenBadgeWatcher />
+    </>
+  );
 }

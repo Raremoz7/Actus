@@ -10,6 +10,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AppText, ListState } from '@/components/ui';
 import { Stepper } from '@/components/session/Stepper';
 import { SessionFinishSummary } from '@/components/session/SessionFinishSummary';
+import { BadgeUnlockQueue } from '@/components/gamification/BadgeUnlockQueue';
 import { useSession } from '@/hooks/useSession';
 import { useSessionMutations } from '@/hooks/useSessionMutations';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@/lib/session';
 import { darkTheme } from '@/theme';
 import type { SessionExercise, SessionSet, WorkoutSession } from '@/types/sessions';
+import type { Badge } from '@/types/gamification';
 
 const { motion, colors } = darkTheme;
 
@@ -62,6 +64,10 @@ export default function SessaoPlayerScreen() {
   const [restLeft, setRestLeft] = useState(0);
   // Aviso "fora do dia planejado" é dispensável pelo aluno (não-bloqueante).
   const [hintDismissed, setHintDismissed] = useState(false);
+  // Conquistas concedidas pelo finish (Task 16): a celebração ONLINE. O finish
+  // retorna `newly_earned_badges`; guardamos aqui p/ exibir a fila por cima da
+  // tela de resumo (o overlay é um Modal — flutua sobre o SessionFinishSummary).
+  const [badgeQueue, setBadgeQueue] = useState<Badge[]>([]);
 
   // 1 motion por tela: reveal de entrada.
   const opacity = useSharedValue(0);
@@ -139,7 +145,17 @@ export default function SessaoPlayerScreen() {
   function doFinish() {
     // Guarda contra reentrância (o Alert de parcial chama doFinish direto).
     if (mutations.finish.isPending) return;
-    mutations.finish.mutate({ early_finish: !sessionComplete, with_check_in: true });
+    mutations.finish.mutate(
+      { early_finish: !sessionComplete, with_check_in: true },
+      {
+        onSuccess: (res) => {
+          // Celebração online: dispara a fila ANTES de qualquer navegação. Como
+          // o finish leva à tela de resumo (mesma rota, via showFinishScreen), o
+          // overlay (Modal) aparece por cima dela — celebração visível ao terminar.
+          if (res.newly_earned_badges.length > 0) setBadgeQueue(res.newly_earned_badges);
+        },
+      },
+    );
   }
 
   function handleFinish() {
@@ -334,6 +350,11 @@ export default function SessaoPlayerScreen() {
             </AppText>
           </Pressable>
         </View>
+      ) : null}
+
+      {/* Celebração online das conquistas concedidas pelo finish (overlay Modal). */}
+      {badgeQueue.length > 0 ? (
+        <BadgeUnlockQueue badges={badgeQueue} onDone={() => setBadgeQueue([])} />
       ) : null}
     </SafeAreaView>
   );
