@@ -20,7 +20,7 @@ Completar a "Web Básica do Personal" no que toca o **perfil do aluno** e a **li
 1. **Visão Geral — layout B (faixa + grade de métricas).** Faixa superior: avatar + nome + selo de status + ações (Editar / Ativar-Desativar). Abaixo: grade de stat-cards (Idade, Peso, Altura, Membro desde). Por fim, card "Contato" (telefone, gênero, e-mail). Valores numéricos em fonte mono (Share Tech Mono).
 2. **Badges — grade única.** Os 7 badges do catálogo na ordem de `sort_order`. Conquistados coloridos (emblema por tipo) com data; bloqueados em cinza com cadeado + texto do critério. Header com contador `n / 7`.
 3. **Lista — ordenação.** Dropdown com: Nome (A→Z, padrão), Último check-in (mais recente), Streak (maior). Busca e filtros de status preservados.
-4. **Desativar — soft, reversível.** "Desativar" muda o vínculo para `status='inactive'`: some da lista ativa, sai dos KPIs, mas aparece num filtro **"Arquivados"** e pode ser **reativado**. Histórico preservado. Confirm dialog antes de aplicar.
+4. **Desativar — soft, reversível.** "Desativar" muda o vínculo para `status='revoked'` (enum real `link_status = active|revoked`): some da lista ativa, sai dos KPIs, mas aparece num filtro **"Arquivados"** e pode ser **reativado** (`active`). Histórico preservado. Confirm dialog antes de aplicar.
 5. **Editar dados — tudo menos e-mail/senha.** Modal espelhando o cadastro, editando `full_name, phone, gender, birth_date, body_weight_kg, height_cm`. E-mail e senha (identidade de login) ficam com o aluno.
 6. **Responsividade.** < 1024px: sidebar de filtros vira menu hambúrguer; linhas da lista já são cards; tabs do perfil viram accordion. Mínimo funcional em 320px.
 
@@ -30,10 +30,10 @@ Completar a "Web Básica do Personal" no que toca o **perfil do aluno** e a **li
 - Nova migration `…_student_height.sql`: `alter table public.user_basic_info add column if not exists height_cm numeric(5,1);` (faixa válida via check opcional, ex. 90–250).
 
 ### Endpoints (`api/src/routes/professionalStudents.ts`)
-- **`GET /professional/students`** — estender o `SELECT` para incluir `ubi.phone`, `ubi.gender`, `ubi.body_weight_kg`, `ubi.height_cm`, `ubi.cpf_last4`. Aceitar `?status=active|inactive|all` (default `active`) e filtrar `spl.status` conforme — para alimentar o filtro "Arquivados". Manter `limit 500`.
+- **`GET /professional/students`** — estender o `SELECT` para incluir `ubi.phone`, `ubi.gender`, `ubi.body_weight_kg`, `ubi.height_cm`, `ubi.cpf_last4`. Aceitar `?status=active|revoked|all` (default `active`) e filtrar `spl.status` conforme — para alimentar o filtro "Arquivados". Manter `limit 500`.
 - **`GET /professional/students/:id/badges`** — autoriza vínculo ativo, então roda a mesma query do `meBadges` porém para `:id`: catálogo de `badges` (active) LEFT JOIN `student_badges` do aluno → `{ id, name, description, asset_key, sort_order, earned, earned_at }`, ordenado por `sort_order`. Erros no campo `error` (padrão da API): `not_professional` (403), `student_not_linked` (404).
 - **`PATCH /professional/students/:id`** — body Zod parcial: `full_name?, phone?, gender?, birth_date?, body_weight_kg?, height_cm?`. Atualiza `user_basic_info` (upsert por `user_id`). Autoriza vínculo ativo. Nunca toca e-mail/senha. Valida ranges (peso 20–400, altura 90–250) e `gender` no enum.
-- **`PATCH /professional/students/:id/status`** — body `{ status: 'active' | 'inactive' }`. Atualiza `student_professional_links.status` do par `(professional_id, student_id)`. Idempotente.
+- **`PATCH /professional/students/:id/status`** — body `{ status: 'active' | 'revoked' }`. Atualiza `student_professional_links.status` do par `(professional_id, student_id)`. Idempotente.
 
 ### Autorização
 Reusar o padrão já existente em `professionalStudents.ts`: confere `profiles.tipo ∈ {personal, nutricionista}` e vínculo `(professional_id, student_id)` (para mutações de status, permitir reativar vínculo `inactive`).
