@@ -23,6 +23,8 @@ export function AcademiasPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [cnpj, setCnpj] = useState('');
+  const [networkRole, setNetworkRole] = useState<'standalone' | 'network_hq' | 'unit'>('standalone');
+  const [parentAcademyId, setParentAcademyId] = useState('');
 
   const [managerFor, setManagerFor] = useState<{ id: string; name: string } | null>(null);
   const [gEmail, setGEmail] = useState('');
@@ -36,11 +38,15 @@ export function AcademiasPage() {
         name: name.trim(),
         slug: slug.trim() || undefined,
         cnpj: cnpj.trim() || undefined,
+        network_role: networkRole,
+        parent_academy_id: networkRole === 'unit' ? parentAcademyId : undefined,
       });
       toast('Academia criada.');
       setName('');
       setSlug('');
       setCnpj('');
+      setNetworkRole('standalone');
+      setParentAcademyId('');
       setCreateOpen(false);
     } catch (err) {
       const code = axios.isAxiosError(err) ? (err.response?.data?.error as string | undefined) : undefined;
@@ -138,6 +144,38 @@ export function AcademiasPage() {
             <span className={labelClass}>CNPJ (opcional)</span>
             <input value={cnpj} onChange={(e) => setCnpj(e.target.value)} className={inputClass} />
           </label>
+          <label className="flex flex-col gap-1">
+            <span className={labelClass}>Tipo de rede</span>
+            <select
+              value={networkRole}
+              onChange={(e) => setNetworkRole(e.target.value as typeof networkRole)}
+              className={inputClass}
+            >
+              <option value="standalone">Academia independente</option>
+              <option value="network_hq">Matriz de rede</option>
+              <option value="unit">Filial/franquia de uma rede existente</option>
+            </select>
+          </label>
+          {networkRole === 'unit' && (
+            <label className="flex flex-col gap-1">
+              <span className={labelClass}>Rede (matriz)</span>
+              <select
+                required
+                value={parentAcademyId}
+                onChange={(e) => setParentAcademyId(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecione a matriz</option>
+                {academies
+                  .filter((a) => a.network_role === 'network_hq')
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" onClick={() => setCreateOpen(false)}>
               Cancelar
