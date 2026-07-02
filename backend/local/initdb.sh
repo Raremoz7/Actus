@@ -13,6 +13,9 @@ for f in $(ls /local/migrations/*.sql | sort); do
   psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f "$f"
 done
 
+echo "[initdb] aplicando seed de exercícios (catálogo PT-BR)..."
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /local/seed-exercises.sql
+
 echo "[initdb] aplicando seed de ecossistema de teste..."
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /local/seed-ecosystem.sql
 

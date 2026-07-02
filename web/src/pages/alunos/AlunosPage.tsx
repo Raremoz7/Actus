@@ -37,8 +37,10 @@ export function AlunosPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>('todos');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<'nome' | 'checkin' | 'streak'>('nome');
+  const [archived, setArchived] = useState(false);
 
-  const studentsQuery = useStudents();
+  const studentsQuery = useStudents(archived ? 'revoked' : 'active');
   const students = useMemo(() => studentsQuery.data ?? [], [studentsQuery.data]);
   const studentIds = useMemo(() => students.map((s) => s.id), [students]);
   const checkIns = useStudentsCheckIns(studentIds, 30);
@@ -72,6 +74,23 @@ export function AlunosPage() {
     );
   }, [withStatus, filter, search]);
 
+  const sorted = useMemo(() => {
+    const arr = [...visible];
+    arr.sort((a, b) => {
+      if (sort === 'nome')
+        return (a.student.full_name ?? a.student.email).localeCompare(
+          b.student.full_name ?? b.student.email,
+        );
+      if (sort === 'streak')
+        return (b.student.streak_current ?? 0) - (a.student.streak_current ?? 0);
+      // checkin: menor daysSince primeiro; null vai pro fim
+      const da = a.status.daysSince ?? Infinity;
+      const db = b.status.daysSince ?? Infinity;
+      return da - db;
+    });
+    return arr;
+  }, [visible, sort]);
+
   const sections: SidebarSection[] = [
     {
       label: 'Status',
@@ -86,9 +105,18 @@ export function AlunosPage() {
 
   return (
     <>
-      <Sidebar sections={sections} />
+      {/* Sidebar de filtros: visível em desktop; colapsável (hambúrguer nativo) < 1024px. */}
+      <div className="hidden lg:block">
+        <Sidebar sections={sections} />
+      </div>
+      <details className="border-b border-outline-v lg:hidden">
+        <summary className="cursor-pointer list-none px-6 py-3 font-mono text-xs uppercase tracking-widest text-text-3">
+          Filtros
+        </summary>
+        <Sidebar sections={sections} />
+      </details>
       <div className="flex-1">
-        <div className="flex h-[52px] items-center gap-4 border-b border-outline-v px-6">
+        <div className="flex min-h-[52px] flex-wrap items-center gap-3 border-b border-outline-v px-6 py-2.5">
           <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
             Alunos
           </h1>
@@ -97,12 +125,32 @@ export function AlunosPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nome ou e-mail"
-            className="ml-4 h-8 w-64 rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none"
+            className="h-8 w-44 rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none sm:w-64"
           />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as typeof sort)}
+            className="h-8 rounded-xl border border-outline-v bg-surface-1 px-2 text-sm text-text-1 focus:border-neon focus:outline-none"
+            aria-label="Ordenar por"
+          >
+            <option value="nome">Nome</option>
+            <option value="checkin">Último check-in</option>
+            <option value="streak">Streak</option>
+          </select>
+          <button
+            type="button"
+            onClick={() => setArchived((v) => !v)}
+            aria-pressed={archived}
+            className={`h-8 rounded-xl border px-3 text-xs ${
+              archived ? 'border-neon text-neon' : 'border-outline-v text-text-3'
+            }`}
+          >
+            Arquivados
+          </button>
           <Button
             variant="secondary"
             className="ml-auto !px-4 !py-1.5 !text-xs"
-            onClick={() => navigate('/convites')}
+            onClick={() => navigate('/app/convites')}
           >
             Convidar aluno
           </Button>
@@ -114,21 +162,23 @@ export function AlunosPage() {
           ) : students.length === 0 ? (
             <div className="py-20 text-center">
               <p className="font-display text-lg font-bold uppercase tracking-wide text-text-2">
-                Nenhum aluno ainda.
+                {archived ? 'Nenhum aluno arquivado.' : 'Nenhum aluno ainda.'}
               </p>
-              <p className="mt-1 text-sm text-text-3">Gere um convite para começar.</p>
+              {!archived && (
+                <p className="mt-1 text-sm text-text-3">Gere um convite para começar.</p>
+              )}
             </div>
-          ) : visible.length === 0 ? (
+          ) : sorted.length === 0 ? (
             <p className="py-12 text-center text-sm text-text-3">
               Nenhum aluno corresponde ao filtro.
             </p>
           ) : (
-            visible.map(({ student, status }) => (
+            sorted.map(({ student, status }) => (
               <StudentRow
                 key={student.id}
                 student={student}
                 status={status}
-                onClick={() => navigate(`/alunos/${student.id}`)}
+                onClick={() => navigate(`/app/alunos/${student.id}`)}
               />
             ))
           )}

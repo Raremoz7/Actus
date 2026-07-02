@@ -31,10 +31,17 @@ describe('onboarding professor — perfil', () => {
     });
   });
 
-  it('exige nome + área; grava e avança', async () => {
+  it('sinaliza campos obrigatórios ao tentar avançar; grava e avança quando preenchido (TEC-74)', async () => {
     render(<PerfilProfissionalScreen />);
     const cta = screen.getByLabelText('Continuar');
-    expect(cta.props.accessibilityState?.disabled).toBe(true);
+    // Botão habilitado — a sinalização vem ao tentar avançar.
+    expect(cta.props.accessibilityState?.disabled).toBe(false);
+
+    // Tenta avançar vazio → sinaliza os dois campos obrigatórios e não avança.
+    fireEvent.press(screen.getByText('Continuar'));
+    expect(screen.getByText('Informe seu nome profissional.')).toBeTruthy();
+    expect(screen.getByText('Selecione sua área de atuação.')).toBeTruthy();
+    expect(mockPush).not.toHaveBeenCalled();
 
     fireEvent.changeText(screen.getByLabelText('Nome profissional'), 'João Personal');
     // Abre o dropdown de área antes de escolher a opção.

@@ -12,8 +12,8 @@ import { AppText, Logo } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
-import { AUTH_ENTRY, PASSWORD_GATE, homeForTipo } from '@/lib/authRoutes';
-import { onboardingEntry } from '@/lib/onboardingRoutes';
+import { AUTH_ENTRY, PASSWORD_GATE } from '@/lib/authRoutes';
+import { authedDestination } from '@/lib/onboardingRoutes';
 
 const { motion } = darkTheme;
 
@@ -56,12 +56,7 @@ export default function SplashScreenRoute() {
         void obHydrate();
         return;
       }
-      const entry = onboardingEntry(user.tipo);
-      if (entry && !isOnboardingDone(user.id)) {
-        router.replace(entry);
-        return;
-      }
-      router.replace(homeForTipo(user.tipo));
+      router.replace(authedDestination(user, isOnboardingDone));
     }
   }, [status, user, obHydrated, obHydrate, isOnboardingDone]);
 

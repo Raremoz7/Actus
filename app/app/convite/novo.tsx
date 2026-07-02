@@ -17,6 +17,7 @@ import Animated, {
 import { router } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
 import { copyText } from '@/lib/clipboard';
+import { toast } from '@/store/toastStore';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Button, Input, Tag } from '@/components/ui';
@@ -125,8 +126,11 @@ export default function NovoConviteScreen() {
     }
   }
 
+  // Copia o link de convite (deep link) e confirma com toast. (TEC-68)
   async function handleCopy(code: string) {
-    await copyText(inviteDeepLink(code));
+    if (await copyText(inviteDeepLink(code))) {
+      toast('Link de convite copiado');
+    }
   }
 
   // WhatsApp (canal principal): com número digitado abre a conversa direta; sem número,

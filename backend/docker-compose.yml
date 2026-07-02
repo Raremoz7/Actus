@@ -14,6 +14,7 @@ services:
       - ./local/initdb.sh:/docker-entrypoint-initdb.d/00_initdb.sh:ro
       - ./local/00_shim.sql:/local/00_shim.sql:ro
       - ./local/seed-ecosystem.sql:/local/seed-ecosystem.sql:ro
+      - ./local/seed-exercises.sql:/local/seed-exercises.sql:ro
       - ./supabase/migrations:/local/migrations:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U actus -d actus"]

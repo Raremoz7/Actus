@@ -28,7 +28,8 @@ export type AppTextColor =
   | 'neon'
   | 'accentMuted'
   | 'onSurface'
-  | 'error';
+  | 'error'
+  | 'success';
 
 type AppTextProps = {
   variant: AppTextVariant;
@@ -156,6 +157,7 @@ const COLOR_TOKEN: Record<AppTextColor, string> = {
   accentMuted: colors.accentMuted,
   onSurface: colors.onSurface,
   error: colors.error,
+  success: colors.success,
 };
 
 export function AppText({

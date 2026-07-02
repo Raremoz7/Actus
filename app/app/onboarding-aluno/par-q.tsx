@@ -49,7 +49,8 @@ export default function ParqOnboardingScreen() {
       title="Antes de começar"
       subtitle="Sete perguntas rápidas sobre sua saúde — seu personal usa isso para montar treinos seguros."
       ctaLabel="Enviar respostas"
-      ctaDisabled={!allAnswered || saving}
+      canAdvance={allAnswered}
+      invalidMessage="Responda todas as perguntas para continuar."
       ctaLoading={saving}
       onCta={() => void advance()}
     >

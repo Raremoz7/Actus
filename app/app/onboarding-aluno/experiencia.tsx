@@ -29,7 +29,8 @@ export default function ExperienciaScreen() {
       total={8}
       title="Qual seu nível de treino?"
       ctaLabel="Continuar"
-      ctaDisabled={!value}
+      canAdvance={value !== null}
+      invalidMessage="Escolha uma opção para continuar."
       onCta={() => void advance()}
     >
       {OPTIONS.map((opt) => (

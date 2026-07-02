@@ -10,6 +10,7 @@ const baseProps = {
   onShare: jest.fn(),
   onCopy: jest.fn(),
   onRevoke: jest.fn(),
+  onReactivate: jest.fn(),
 };
 
 describe('InviteCard', () => {
@@ -41,6 +42,18 @@ describe('InviteCard', () => {
   it('não mostra Revogar quando inativo', () => {
     render(<InviteCard {...baseProps} active={false} />);
     expect(screen.queryByLabelText('Revogar convite')).toBeNull();
+  });
+
+  it('mostra Reativar quando inativo e dispara onReactivate (TEC-71)', () => {
+    const onReactivate = jest.fn();
+    render(<InviteCard {...baseProps} active={false} onReactivate={onReactivate} />);
+    fireEvent.press(screen.getByLabelText('Reativar convite'));
+    expect(onReactivate).toHaveBeenCalledTimes(1);
+  });
+
+  it('não mostra Reativar quando ativo', () => {
+    render(<InviteCard {...baseProps} active />);
+    expect(screen.queryByLabelText('Reativar convite')).toBeNull();
   });
 
   it('singular "uso" quando maxUses é 1', () => {

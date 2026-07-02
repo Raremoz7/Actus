@@ -86,7 +86,8 @@ export default function VinculoScreen() {
           : 'Cole o código do convite ou siga sem vínculo por enquanto.'
       }
       ctaLabel="Confirmar vínculo"
-      ctaDisabled={!invited && code.trim().length === 0}
+      canAdvance={invited || code.trim().length > 0}
+      invalidMessage="Digite o código do convite."
       ctaLoading={consume.isPending}
       onCta={invited ? confirmInvited : confirmManual}
       skipLabel={invited ? undefined : 'Seguir sem vínculo'}

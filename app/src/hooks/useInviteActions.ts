@@ -6,6 +6,7 @@ import {
 import { api } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
 import { parseApi } from '@/api/parseApi';
+import { isoInDays } from '@/lib/invite';
 import { CreatedInviteSchema } from '@/types/invites';
 import { invitesListQueryKey } from './useInvites';
 
@@ -25,10 +26,22 @@ export interface CreatedInviteResult {
   code: string;
 }
 
+// Reativar um convite inativo: id + estado de usos (para decidir se precisa
+// devolver folga de usos quando esgotado).
+export interface ReactivateInviteArgs {
+  id: string;
+  usedCount: number;
+  maxUses: number;
+}
+
 export interface InviteActions {
   create: UseMutationResult<CreatedInviteResult, unknown, CreateInviteArgs>;
   revoke: UseMutationResult<void, unknown, string>;
+  reactivate: UseMutationResult<void, unknown, ReactivateInviteArgs>;
 }
+
+// Validade padrão (dias) ao reativar um convite — decisão de UX "um toque". (TEC-71)
+const REACTIVATE_DAYS = 7;
 
 // Mutations de gestão de convites do profissional. Ambas invalidam a lista no
 // onSuccess para refletir o novo estado via refetch.
@@ -66,5 +79,22 @@ export function useInviteActions(): InviteActions {
     onSuccess: invalidateList,
   });
 
-  return { create, revoke };
+  // Reativar = PATCH que empurra expires_at para o futuro (agora + N dias). Se o
+  // convite ficou inativo por usos ESGOTADOS (used_count >= max_uses), estender a
+  // validade não basta — também sobe max_uses devolvendo a folga original
+  // (used_count + max_uses), senão continuaria inativo. Instante em ISO completo.
+  const reactivate = useMutation({
+    mutationFn: async ({ id, usedCount, maxUses }: ReactivateInviteArgs): Promise<void> => {
+      const body: { expires_at: string; max_uses?: number } = {
+        expires_at: isoInDays(REACTIVATE_DAYS),
+      };
+      if (usedCount >= maxUses) {
+        body.max_uses = usedCount + maxUses;
+      }
+      await api.patch(`${endpoints.invites}/${id}`, body);
+    },
+    onSuccess: invalidateList,
+  });
+
+  return { create, revoke, reactivate };
 }

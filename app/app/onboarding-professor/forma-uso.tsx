@@ -37,7 +37,8 @@ export default function FormaUsoScreen() {
       total={4}
       title="O que você quer fazer primeiro na Actus?"
       ctaLabel="Continuar"
-      ctaDisabled={!value}
+      canAdvance={value !== null}
+      invalidMessage="Escolha uma opção para continuar."
       onCta={() => void advance()}
       skipLabel="Pular"
       onSkip={() => router.push(NEXT)}

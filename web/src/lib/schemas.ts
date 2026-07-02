@@ -39,11 +39,33 @@ export const StudentSchema = z.object({
   streak_current: z.number().int().optional(),
   is_broken: z.boolean().optional(),
   badge_count: z.number().int().optional(),
+  // TEC-56 Bloco 1: campos ricos + status do vínculo. Opcionais (deploy gradual).
+  status: z.enum(['active', 'revoked']).optional(),
+  phone: z.string().nullable().optional(),
+  gender: z.enum(['masculino', 'feminino', 'nao_informar', 'outro']).nullable().optional(),
+  body_weight_kg: z.number().nullable().optional(),
+  height_cm: z.number().nullable().optional(),
+  cpf_last4: z.string().nullable().optional(),
 });
 export type Student = z.infer<typeof StudentSchema>;
 
 export const StudentsResponseSchema = z.object({
   students: z.array(StudentSchema),
+});
+
+export const StudentBadgeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  asset_key: z.string().nullable(),
+  sort_order: z.number(),
+  earned: z.boolean(),
+  earned_at: z.string().nullable(),
+});
+export type StudentBadge = z.infer<typeof StudentBadgeSchema>;
+export const StudentBadgesResponseSchema = z.object({
+  student_id: z.string(),
+  badges: z.array(StudentBadgeSchema),
 });
 
 // Shape REAL de GET /professional/students/:student_id/check-ins
@@ -398,3 +420,71 @@ export type AcademyDetail = z.infer<typeof AcademyDetailSchema>;
 
 // POST responses
 export const AcademyCreateResponseSchema = z.object({ id: z.string(), name: z.string() });
+
+// ---------------------------------------------------------------------------
+// [ACTUS — TEC-57] Anamnese dinâmica (builder de template + respostas por aluno).
+// Distinto do PAR-Q (fixo, 7 perguntas). Contrato proposto em
+// web/docs/backend/tec-57-anamnese.md — backend ainda não implementado.
+// ---------------------------------------------------------------------------
+export const AnamneseFieldType = z.enum(['text', 'textarea', 'number', 'select', 'boolean', 'date']);
+export type AnamneseFieldTypeT = z.infer<typeof AnamneseFieldType>;
+
+export const AnamneseFieldSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  type: AnamneseFieldType,
+  options: z.array(z.string()).optional(), // usado quando type === 'select'
+  required: z.boolean().optional().default(false),
+});
+export type AnamneseField = z.infer<typeof AnamneseFieldSchema>;
+
+export const AnamneseTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  fields: z.array(AnamneseFieldSchema),
+  is_active: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string().nullable().optional(),
+});
+export type AnamneseTemplate = z.infer<typeof AnamneseTemplateSchema>;
+export const AnamneseTemplatesResponseSchema = z.object({
+  templates: z.array(AnamneseTemplateSchema),
+});
+
+// Valores de resposta: string (text/textarea/date/select), number, boolean (sim/não) ou null.
+export const AnamneseAnswerValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+export type AnamneseAnswerValue = z.infer<typeof AnamneseAnswerValueSchema>;
+
+// GET /professional/students/:id/anamnese → template ativo + respostas do aluno (ou null).
+export const StudentAnamneseResponseSchema = z.object({
+  template: AnamneseTemplateSchema.nullable(),
+  answers: z.record(z.string(), AnamneseAnswerValueSchema).nullable(),
+  submitted_at: z.string().nullable().optional(),
+});
+export type StudentAnamnese = z.infer<typeof StudentAnamneseResponseSchema>;
+
+// ---------------------------------------------------------------------------
+// [ACTUS — TEC-58] Alimentação: feed de refeições (mobile escreve) + comentários
+// do profissional (web) + push. Contrato em web/docs/backend/tec-58-alimentacao.md
+// — backend ainda não implementado.
+// ---------------------------------------------------------------------------
+export const MealCommentSchema = z.object({
+  id: z.string(),
+  author_id: z.string(),
+  author_name: z.string().nullable().optional(),
+  body: z.string(),
+  created_at: z.string(),
+});
+export type MealComment = z.infer<typeof MealCommentSchema>;
+
+export const MealLogSchema = z.object({
+  id: z.string(),
+  student_id: z.string(),
+  photo_url: z.string().nullable(),
+  eaten_at: z.string(), // ISO datetime
+  description: z.string().nullable(),
+  created_at: z.string(),
+  comments: z.array(MealCommentSchema).default([]),
+});
+export type MealLog = z.infer<typeof MealLogSchema>;
+export const MealLogsResponseSchema = z.object({ meals: z.array(MealLogSchema) });

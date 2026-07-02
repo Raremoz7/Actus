@@ -61,7 +61,7 @@ npx expo-doctor      # sanidade das deps
   1. `POST /auth/register`: tornar `invite_code` e `birth_date` opcionais (cadastro sem vínculo, baixa fricção). Front pronto; sem convite só funciona via devMocks até lá.
   2. `POST /auth/register-professional` (novo): { email, password ≥8, full_name, phone, lgpd_consent, policy_version } → cria `profiles.tipo='personal'` ATIVO + tokens (igual register). Perfil profissional vem depois (item 6).
   3. `GET /invites/:code/preview` (reforço): incluir NOME do profissional + `professional_role` — requisito da história ("Você foi convidado por João Personal").
-  4. Upload de foto de perfil (aluno e professor) + campo no /me. Front tem o passo com `[pendente: expo-image-picker → exigirá rebuild do dev client quando entrar]`.
+  4. ✅ Upload de foto de perfil (aluno e professor) — `POST /me/avatar` (real) ligado no `FotoStep` via `expo-image-picker` + `useUploadAvatar`. ⚠️ Exige **rebuild do dev client** (módulo nativo do picker) e plugin já adicionado no `app.config.ts`. Storage do avatar no backend ainda é disco local (trocar por S3/Supabase em produção).
   5. Preferências do aluno (interesse, experiência, dias/semana, local, altura) — persistir e expor ao profissional vinculado. Front roda sobre `src/mocks/studentOnboarding.ts`.
-  6. Perfil profissional (nome profissional, área de atuação, CREF opcional, experiência, cidade/UF, forma de uso) — persistir/expor. Front roda sobre `src/mocks/professionalProfile.ts`.
+  6. ✅ Perfil profissional (nome profissional, área de atuação, CREF opcional, experiência, cidade/UF, forma de uso) — `GET/PATCH /me/professional-profile` (real) + migration `20260622130000_actus_professional_self_profile.sql` (colunas em `professional_info`). Front em `src/api/professionalProfile.ts` (mock removido). ⚠️ Migration precisa ser aplicada em produção.
   7. Flag de onboarding concluído no /me (hoje gate local em `src/store/onboardingStore.ts`).

@@ -24,10 +24,16 @@ describe('onboarding aluno — quiz', () => {
     useStudentOnboardingMock.setState({ byStudent: {}, hydrated: true });
   });
 
-  it('CTA travado até escolher; escolha grava e avança', async () => {
+  it('sinaliza escolha pendente ao tentar avançar; escolha grava e avança (TEC-74)', async () => {
     render(<InteresseScreen />);
     const cta = screen.getByLabelText('Continuar');
-    expect(cta.props.accessibilityState?.disabled).toBe(true);
+    // Botão habilitado — a sinalização vem ao tentar avançar, não por desabilitar.
+    expect(cta.props.accessibilityState?.disabled).toBe(false);
+
+    // Tocar sem escolher mostra o erro e não avança.
+    fireEvent.press(screen.getByText('Continuar'));
+    expect(screen.getByText('Escolha uma opção para continuar.')).toBeTruthy();
+    expect(mockPush).not.toHaveBeenCalled();
 
     fireEvent.press(screen.getByText('Hipertrofia'));
     fireEvent.press(screen.getByText('Continuar'));

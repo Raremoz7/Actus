@@ -29,7 +29,8 @@ export default function LocalScreen() {
       total={8}
       title="Onde você treina?"
       ctaLabel="Continuar"
-      ctaDisabled={!value}
+      canAdvance={value !== null}
+      invalidMessage="Escolha uma opção para continuar."
       onCta={() => void advance()}
     >
       {OPTIONS.map((opt) => (

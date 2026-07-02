@@ -25,9 +25,11 @@ const AREAS = AreaAtuacaoSchema.options;
 function AreaSelect({
   value,
   onChange,
+  invalid = false,
 }: {
   value: Area | null;
   onChange: (v: Area) => void;
+  invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,8 +39,9 @@ function AreaSelect({
         accessibilityRole="button"
         accessibilityLabel="Selecionar área de atuação"
         accessibilityState={{ expanded: open }}
+        aria-invalid={invalid || undefined}
         onPress={() => setOpen((v) => !v)}
-        style={[styles.trigger, open && styles.triggerOpen]}
+        style={[styles.trigger, open && styles.triggerOpen, invalid && !open && styles.triggerInvalid]}
       >
         <View style={styles.triggerContent}>
           <AppText variant="metaSmall" color="tertiary" style={styles.triggerLabel}>
@@ -97,10 +100,19 @@ export default function PerfilProfissionalScreen() {
   const [experiencia, setExperiencia] = useState('');
   const [cidade, setCidade] = useState('');
   const [nomeError, setNomeError] = useState<string | null>(null);
+  const [areaError, setAreaError] = useState(false);
+
+  const nomeValido = nome.trim().length >= 2;
+
+  // Marca os campos obrigatórios pendentes ao tentar avançar sem preencher. (TEC-74)
+  function markInvalidFields() {
+    setNomeError(nomeValido ? null : 'Informe seu nome profissional.');
+    setAreaError(area === null);
+  }
 
   async function advance() {
     if (!user) return;
-    if (nome.trim().length < 2) {
+    if (!nomeValido) {
       setNomeError('Informe seu nome profissional.');
       return;
     }
@@ -127,7 +139,8 @@ export default function PerfilProfissionalScreen() {
       title="Conte o básico sobre sua atuação"
       subtitle="CREF e demais dados podem ser preenchidos depois, no perfil."
       ctaLabel="Continuar"
-      ctaDisabled={nome.trim().length < 2 || !area}
+      canAdvance={nomeValido && area !== null}
+      onInvalidAttempt={markInvalidFields}
       onCta={() => void advance()}
     >
       <Input
@@ -140,7 +153,19 @@ export default function PerfilProfissionalScreen() {
         autoCapitalize="words"
         error={nomeError ?? undefined}
       />
-      <AreaSelect value={area} onChange={setArea} />
+      <AreaSelect
+        value={area}
+        onChange={(v) => {
+          setAreaError(false);
+          setArea(v);
+        }}
+        invalid={areaError}
+      />
+      {areaError ? (
+        <AppText variant="bodySm" color="error">
+          Selecione sua área de atuação.
+        </AppText>
+      ) : null}
       <Input
         label="CREF · opcional"
         value={cref}
@@ -175,6 +200,9 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.neon,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+  },
+  triggerInvalid: {
+    borderColor: theme.colors.error,
   },
   triggerContent: { flex: 1, gap: 2 },
   triggerLabel: { marginBottom: 1 },

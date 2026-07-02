@@ -1,4 +1,4 @@
-import { Alert, Share } from 'react-native';
+import { Share } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import ConvitesScreen from './index';
@@ -76,15 +76,15 @@ describe('ConvitesScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/convite/novo');
   });
 
-  it('copia o deep link ao tocar em Copiar', () => {
+  it('copia apenas o código do convite ao tocar em Copiar (TEC-69)', () => {
     mockUseInvites.mockReturnValue({
       data: { invites },
       isLoading: false,
       isError: false,
     });
     render(<ConvitesScreen />);
-    fireEvent.press(screen.getByLabelText('Copiar convite'));
-    expect(mockSetString).toHaveBeenCalledWith('actus://register?code=ABC123');
+    fireEvent.press(screen.getByLabelText('Copiar código do convite'));
+    expect(mockSetString).toHaveBeenCalledWith('ABC123');
   });
 
   it('compartilha a mensagem ao tocar em Compartilhar', () => {
@@ -102,25 +102,21 @@ describe('ConvitesScreen', () => {
     shareSpy.mockRestore();
   });
 
-  it('revoga via confirmação (Alert) ao tocar em Revogar', () => {
-    // Dispara o callback do botão destrutivo do Alert.
-    const alertSpy = jest
-      .spyOn(Alert, 'alert')
-      .mockImplementation((_t, _m, buttons) => {
-        const revokeBtn = buttons?.find((b) => b.text === 'Revogar');
-        revokeBtn?.onPress?.();
-      });
+  it('revoga via ConfirmDialog do app ao confirmar (TEC-70)', () => {
     mockUseInvites.mockReturnValue({
       data: { invites },
       isLoading: false,
       isError: false,
     });
     render(<ConvitesScreen />);
+    // 1) toca no ícone de revogar → abre o diálogo de confirmação do app.
     fireEvent.press(screen.getByLabelText('Revogar convite'));
+    // 2) confirma no botão "Revogar" do diálogo (não é o Alert nativo).
+    fireEvent.press(screen.getByText('Revogar'));
     expect(mockRevoke).toHaveBeenCalledWith(
       '11111111-1111-1111-1111-111111111111',
+      expect.any(Object),
     );
-    alertSpy.mockRestore();
   });
 
   it('mostra estado vazio quando não há convites', () => {

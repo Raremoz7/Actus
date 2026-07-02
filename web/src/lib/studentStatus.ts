@@ -48,3 +48,15 @@ export function deriveStudentStatus(checkIns: Pick<CheckIn, 'check_in_date'>[] |
     daysSince: days,
   };
 }
+
+/** Idade em anos a partir de 'YYYY-MM-DD' (componentes locais; null se inválido). */
+export function ageFromBirthDate(birthDate: string | null): number | null {
+  if (!birthDate) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birthDate);
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < mo || (now.getMonth() + 1 === mo && now.getDate() < d)) age--;
+  return age >= 0 && age < 150 ? age : null;
+}

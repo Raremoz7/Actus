@@ -216,7 +216,10 @@ create table public.user_basic_info (
   birth_date date not null,
   phone text,
   gender public.user_gender not null default 'nao_informar',
-  body_weight_kg numeric(6, 2)
+  body_weight_kg numeric(6, 2),
+  height_cm numeric(5, 1),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create unique index user_basic_info_cpf_hash_key
@@ -254,6 +257,10 @@ create table public.professional_info (
   office_hours jsonb not null default '{}'::jsonb,
   specialties jsonb not null default '[]'::jsonb,
   bio text,
+  primary_area text,
+  experience text,
+  city_uf text,
+  onboarding_intent text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

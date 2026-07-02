@@ -9,6 +9,7 @@ import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
 import { apiEvents } from '@/api/client';
+import { ToastHost } from '@/components/ui';
 import { queryClient } from '@/lib/queryClient';
 import { initSentry, Sentry } from '@/observability/sentry';
 import { useAppFonts } from '@/theme/fonts';
@@ -94,6 +95,7 @@ function RootLayout() {
               contentStyle: { backgroundColor: STACK_BG },
             }}
           />
+          <ToastHost />
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

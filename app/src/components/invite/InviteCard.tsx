@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { ShareNetwork, Copy, Trash } from 'phosphor-react-native';
+import { ShareNetwork, Copy, Trash, ArrowClockwise } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText } from '@/components/ui';
@@ -18,6 +18,8 @@ type Props = {
   onCopy: () => void;
   // Revogar = PATCH expires_at para agora (não há DELETE na API). Só faz sentido enquanto ativo.
   onRevoke: () => void;
+  // Reativar (PATCH validade/usos) — só faz sentido enquanto inativo.
+  onReactivate: () => void;
 };
 
 export function InviteCard({
@@ -29,6 +31,7 @@ export function InviteCard({
   onShare,
   onCopy,
   onRevoke,
+  onReactivate,
 }: Props) {
   styles.useVariants({ active });
 
@@ -67,7 +70,7 @@ export function InviteCard({
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Copiar convite"
+          accessibilityLabel="Copiar código do convite"
           style={styles.iconButton}
           onPress={onCopy}
         >
@@ -82,7 +85,19 @@ export function InviteCard({
           >
             <Trash size={18} weight="duotone" color={colors.error} />
           </Pressable>
-        ) : null}
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Reativar convite"
+            style={styles.reactivate}
+            onPress={onReactivate}
+          >
+            <ArrowClockwise size={18} weight="duotone" color={colors.success} />
+            <AppText variant="label" color="success">
+              Reativar
+            </AppText>
+          </Pressable>
+        )}
       </View>
     </View>
   );
@@ -138,5 +153,18 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.surface2,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // Ação de reativar (convite inativo): pill com rótulo, ocupa o espaço restante.
+  reactivate: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+    height: 40,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surface2,
+    borderWidth: 1,
+    borderColor: theme.colors.success,
   },
 }));

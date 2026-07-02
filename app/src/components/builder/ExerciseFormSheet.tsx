@@ -13,6 +13,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Funnel, MagnifyingGlass, X } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -28,7 +29,7 @@ import type { Exercise } from '@/lib/exercises/types';
 import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
 
-const { colors, motion } = darkTheme;
+const { colors, motion, spacing } = darkTheme;
 
 // Dados que o sheet devolve ao confirmar. Sem position: a ordem sequencial é
 // responsabilidade do builder. Um dos dois ids de exercício deve ser não-nulo.
@@ -150,6 +151,9 @@ export function ExerciseFormSheet({
   onClose,
   onConfirm,
 }: ExerciseFormSheetProps) {
+  // Respeita a barra de navegação inferior do Android (safe area), evitando que
+  // o botão "Adicionar" fique sob os botões de navegação. (TEC-75)
+  const insets = useSafeAreaInsets();
   const [sets, setSets] = useState(DEFAULT_SETS);
   const [reps, setReps] = useState(DEFAULT_REPS);
   const [rest, setRest] = useState(DEFAULT_REST);
@@ -303,7 +307,13 @@ export function ExerciseFormSheet({
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <Animated.View style={[styles.sheet, sheetStyle]}>
+          <Animated.View
+            style={[
+              styles.sheet,
+              sheetStyle,
+              { paddingBottom: spacing.xxl + insets.bottom },
+            ]}
+          >
             <View style={styles.handle} />
 
             <View style={styles.header}>

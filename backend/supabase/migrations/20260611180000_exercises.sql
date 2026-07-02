@@ -28,8 +28,5 @@ create index if not exists exercises_equipment_idx  on public.exercises (equipme
 create index if not exists exercises_level_idx      on public.exercises (level);
 create index if not exists exercises_muscles_gin_idx on public.exercises using gin (primary_muscles);
 
--- RLS: exercícios são leitura pública para qualquer usuário autenticado
-alter table public.exercises enable row level security;
-
-create policy exercises_select on public.exercises
-  for select using (auth.role() = 'authenticated');
+-- Autorização via backend (Opção A — ver docs/SECURITY-RLS.md); RLS off como demais tabelas de domínio.
+alter table public.exercises disable row level security;

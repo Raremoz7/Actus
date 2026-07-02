@@ -3,8 +3,8 @@
 // com ações de compartilhar / copiar link / revogar (PATCH expires_at → agora;
 // não há DELETE na API). Botão "Novo convite" leva a /convite/novo.
 
-import { useEffect, useMemo } from 'react';
-import { Alert, Platform, Pressable, Share, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -15,17 +15,14 @@ import { router, type Href } from 'expo-router';
 import { CaretLeft, Plus, Ticket } from 'phosphor-react-native';
 import { goBackOr } from '@/lib/nav';
 import { copyText } from '@/lib/clipboard';
+import { toast } from '@/store/toastStore';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, ListState } from '@/components/ui';
+import { AppText, Button, ConfirmDialog, ListState } from '@/components/ui';
 import { InviteCard } from '@/components/invite';
 import { useInvites } from '@/hooks/useInvites';
 import { useInviteActions } from '@/hooks/useInviteActions';
-import {
-  inviteDeepLink,
-  inviteShareMessage,
-  inviteExpiryLabel,
-} from '@/lib/invite';
+import { inviteShareMessage, inviteExpiryLabel } from '@/lib/invite';
 import { darkTheme } from '@/theme';
 
 const { motion, colors } = darkTheme;
@@ -42,7 +39,9 @@ function createdAtLabel(iso: string): string {
 
 export default function ConvitesScreen() {
   const list = useInvites();
-  const { revoke } = useInviteActions();
+  const { revoke, reactivate } = useInviteActions();
+  // Id do convite pendente de confirmação de revogação (null = diálogo fechado).
+  const [revokeId, setRevokeId] = useState<string | null>(null);
 
   // ÚNICA animação da tela: reveal de entrada (opacity + translateY, 300ms).
   const reveal = useSharedValue(0);
@@ -76,25 +75,38 @@ export default function ConvitesScreen() {
     }
   }
 
+  // Copia só o CÓDIGO do convite (não o pseudolink) e confirma com toast. (TEC-69)
   async function handleCopy(code: string) {
-    await copyText(inviteDeepLink(code));
+    if (await copyText(code)) {
+      toast('Código de convite copiado');
+    }
   }
 
+  // Abre o diálogo de confirmação do app (substitui o Alert nativo — que nem
+  // renderiza os botões no web). A confirmação real acontece em confirmRevoke. (TEC-70)
   function handleRevoke(id: string) {
-    const message =
-      'O link deixa de funcionar imediatamente. Esta ação não pode ser desfeita.';
-    // react-native-web não suporta Alert com múltiplos botões → no web o
-    // callback de "Revogar" nunca dispararia. Usa window.confirm como fallback.
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && window.confirm(`Revogar convite\n\n${message}`)) {
-        revoke.mutate(id);
-      }
-      return;
-    }
-    Alert.alert('Revogar convite', message, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Revogar', style: 'destructive', onPress: () => revoke.mutate(id) },
-    ]);
+    setRevokeId(id);
+  }
+
+  function confirmRevoke() {
+    if (!revokeId) return;
+    revoke.mutate(revokeId, { onSettled: () => setRevokeId(null) });
+  }
+
+  // Reativa um convite inativo (um toque, validade padrão) e confirma com toast. (TEC-71)
+  function handleReactivate(inv: {
+    id: string;
+    used_count: number;
+    max_uses: number;
+  }) {
+    reactivate.mutate(
+      { id: inv.id, usedCount: inv.used_count, maxUses: inv.max_uses },
+      {
+        onSuccess: () => toast('Convite reativado'),
+        onError: () =>
+          Alert.alert('Não foi possível reativar', 'Tente novamente em instantes.'),
+      },
+    );
   }
 
   return (
@@ -143,6 +155,7 @@ export default function ConvitesScreen() {
                   onShare={() => void handleShare(inv.code)}
                   onCopy={() => void handleCopy(inv.code)}
                   onRevoke={() => handleRevoke(inv.id)}
+                  onReactivate={() => handleReactivate(inv)}
                 />
                 <AppText
                   variant="metaSmall"
@@ -183,6 +196,17 @@ export default function ConvitesScreen() {
       <View style={styles.footer}>
         <Button variant="primary" label="Novo convite" onPress={openNew} />
       </View>
+
+      <ConfirmDialog
+        visible={revokeId !== null}
+        title="Revogar convite"
+        message="O link deixa de funcionar imediatamente. Esta ação não pode ser desfeita."
+        confirmLabel="Revogar"
+        tone="destructive"
+        loading={revoke.isPending}
+        onConfirm={confirmRevoke}
+        onCancel={() => setRevokeId(null)}
+      />
     </SafeAreaView>
   );
 }

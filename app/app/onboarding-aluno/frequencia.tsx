@@ -26,7 +26,8 @@ export default function FrequenciaScreen() {
       total={8}
       title="Quantos dias por semana você quer treinar?"
       ctaLabel="Continuar"
-      ctaDisabled={!value}
+      canAdvance={value !== null}
+      invalidMessage="Escolha uma opção para continuar."
       onCta={() => void advance()}
     >
       {OPTIONS.map((opt) => (

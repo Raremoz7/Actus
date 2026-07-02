@@ -29,7 +29,8 @@ export default function InteresseScreen() {
       total={8}
       title="Qual seu principal interesse com o treino?"
       ctaLabel="Continuar"
-      ctaDisabled={!value}
+      canAdvance={value !== null}
+      invalidMessage="Escolha uma opção para continuar."
       onCta={() => void advance()}
     >
       {OPTIONS.map((opt) => (
