@@ -5,3 +5,4 @@ export { DietCard } from './DietCard';
 export { ChallengeCard } from './ChallengeCard';
 export { ProgressRing } from './ProgressRing';
 export { ParqPromptCard } from './ParqPromptCard';
+export { AlimentacaoCard } from './AlimentacaoCard';

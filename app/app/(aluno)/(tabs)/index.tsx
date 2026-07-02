@@ -16,6 +16,7 @@ import {
   DietCard,
   ChallengeCard,
   ParqPromptCard,
+  AlimentacaoCard,
 } from '@/components/home';
 import { StreakCounter } from '@/components/gamification/StreakCounter';
 import { useMe } from '@/hooks/useMe';
@@ -268,6 +269,10 @@ export default function AlunoHojeScreen() {
               ) : null}
             </View>
           ) : null}
+
+          <View style={styles.section}>
+            <AlimentacaoCard onPress={() => router.push('/(aluno)/alimentacao' as Href)} />
+          </View>
 
           {noWorkoutYet ? (
             answers?.link_status === 'none' ? (
