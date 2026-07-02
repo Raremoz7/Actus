@@ -13,6 +13,7 @@ export const AcademyContextSchema = z.object({
   id: z.string(),
   name: z.string(),
   role: z.enum(['manager', 'instructor']),
+  network_role: z.enum(['standalone', 'network_hq', 'unit']).optional(),
 });
 export type AcademyContext = z.infer<typeof AcademyContextSchema>;
 
@@ -397,6 +398,8 @@ export const AcademyListItemSchema = z.object({
   instructors: z.number(),
   managers: z.number(),
   created_at: z.string(),
+  network_role: z.enum(['standalone', 'network_hq', 'unit']).optional(),
+  parent_academy_id: z.string().nullable().optional(),
 });
 export type AcademyListItem = z.infer<typeof AcademyListItemSchema>;
 export const AcademiesResponseSchema = z.object({ academies: z.array(AcademyListItemSchema) });
@@ -427,6 +430,26 @@ export type AcademyDetail = z.infer<typeof AcademyDetailSchema>;
 
 // POST responses
 export const AcademyCreateResponseSchema = z.object({ id: z.string(), name: z.string() });
+
+// GET /academy/network/dashboard
+export const NetworkUnitSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  kpis: z.object({
+    total_students: z.number(),
+    instructors: z.number(),
+  }),
+});
+export type NetworkUnit = z.infer<typeof NetworkUnitSchema>;
+
+export const NetworkDashboardSchema = z.object({
+  kpis: z.object({
+    total_students: z.number(),
+    instructors: z.number(),
+  }),
+  units: z.array(NetworkUnitSchema),
+});
+export type NetworkDashboard = z.infer<typeof NetworkDashboardSchema>;
 
 // ---------------------------------------------------------------------------
 // [ACTUS — TEC-57] Anamnese dinâmica (builder de template + respostas por aluno).

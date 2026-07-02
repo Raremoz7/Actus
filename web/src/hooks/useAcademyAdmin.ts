@@ -29,7 +29,14 @@ export function useAcademyDetail(academyId: string | null) {
 export function useCreateAcademy() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (body: { name: string; slug?: string; cnpj?: string; timezone?: string }) => {
+    mutationFn: async (body: {
+      name: string;
+      slug?: string;
+      cnpj?: string;
+      timezone?: string;
+      network_role?: 'standalone' | 'network_hq' | 'unit';
+      parent_academy_id?: string;
+    }) => {
       const r = await api.post('/admin/academies', body);
       return AcademyCreateResponseSchema.parse(r.data);
     },
