@@ -98,6 +98,14 @@ export function AlimentacaoTab({ studentId }: { studentId: string }) {
     );
   }
 
+  if (meals.isError) {
+    return (
+      <p className="py-8 text-center text-sm text-error">
+        Não foi possível carregar as refeições. Tente novamente.
+      </p>
+    );
+  }
+
   const list = meals.data ?? [];
   if (list.length === 0) {
     return (
