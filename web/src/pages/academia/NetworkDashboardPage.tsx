@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { KpiCard } from '../dashboard/KpiCard';
@@ -6,7 +7,10 @@ import { useNetworkDashboard } from '../../hooks/useAcademyNetwork';
 const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 
 export function NetworkDashboardPage() {
-  const { data, isLoading } = useNetworkDashboard();
+  const { data, isLoading, isError } = useNetworkDashboard();
+
+  if (isError) return <Navigate to="/app/academia" replace />;
+
   const units = data?.units ?? [];
 
   return (

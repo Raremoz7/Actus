@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { NetworkDashboardPage } from './NetworkDashboardPage';
 import { api } from '../../api/client';
@@ -13,6 +13,20 @@ function renderPage() {
     <QueryClientProvider client={qc}>
       <MemoryRouter>
         <NetworkDashboardPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+function renderPageWithRouting() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={qc}>
+      <MemoryRouter initialEntries={['/app/academia/rede']}>
+        <Routes>
+          <Route path="/app/academia/rede" element={<NetworkDashboardPage />} />
+          <Route path="/app/academia" element={<div>redirected</div>} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -39,5 +53,12 @@ describe('NetworkDashboardPage', () => {
     expect(await screen.findByText('12')).toBeInTheDocument();
     expect(await screen.findByText('Unidade A')).toBeInTheDocument();
     expect(await screen.findByText('Unidade B')).toBeInTheDocument();
+  });
+
+  it('redireciona para o dashboard próprio quando a API retorna erro (403 para gestor sem acesso à rede)', async () => {
+    vi.mocked(api.get).mockRejectedValue(new Error('403'));
+    renderPageWithRouting();
+    expect(await screen.findByText('redirected')).toBeInTheDocument();
+    expect(screen.queryByText(/nenhuma filial vinculada ainda/i)).not.toBeInTheDocument();
   });
 });
