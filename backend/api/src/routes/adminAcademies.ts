@@ -112,16 +112,25 @@ router.get("/", async (_req, res) => {
         cnpj: string | null;
         timezone: string;
         status: string;
+        net_role: string;
+        parent_academy_id: string | null;
         created_at: unknown;
         instructors: string | number;
         managers: string | number;
       }>(
-        `select a.id, a.name, a.slug, a.cnpj, a.timezone, a.status, a.created_at,
-                (select count(*) from public.academy_members m
-                   where m.academy_id = a.id and m.role = 'instructor' and m.status = 'active') as instructors,
-                (select count(*) from public.academy_members m
-                   where m.academy_id = a.id and m.role = 'manager' and m.status = 'active') as managers
+        `select a.id, a.name, a.slug, a.cnpj, a.timezone, a.status,
+                a.network_role::text as net_role, a.parent_academy_id, a.created_at,
+                coalesce(ic.instructors, 0) as instructors,
+                coalesce(mc.managers, 0) as managers
          from public.academies a
+         left join (
+           select academy_id, count(*) as instructors from public.academy_members
+           where role = 'instructor' and status = 'active' group by academy_id
+         ) ic on ic.academy_id = a.id
+         left join (
+           select academy_id, count(*) as managers from public.academy_members
+           where role = 'manager' and status = 'active' group by academy_id
+         ) mc on mc.academy_id = a.id
          order by a.created_at desc
          limit 500`,
       );
@@ -133,6 +142,8 @@ router.get("/", async (_req, res) => {
           cnpj: r.cnpj,
           timezone: r.timezone,
           status: r.status,
+          network_role: r.net_role,
+          parent_academy_id: r.parent_academy_id,
           instructors: Number(r.instructors),
           managers: Number(r.managers),
           created_at: isoDate(r.created_at),
@@ -159,8 +170,14 @@ router.get("/:academy_id", async (req, res) => {
         cnpj: string | null;
         timezone: string;
         status: string;
+        network_role: string;
+        parent_academy_id: string | null;
         created_at: unknown;
-      }>(`select id, name, slug, cnpj, timezone, status, created_at from public.academies where id = $1`, [academyId]);
+      }>(
+        `select id, name, slug, cnpj, timezone, status, network_role::text as network_role, parent_academy_id, created_at
+         from public.academies where id = $1`,
+        [academyId],
+      );
       const academy = a.rows[0];
       if (!academy) return null;
 
@@ -191,6 +208,8 @@ router.get("/:academy_id", async (req, res) => {
           cnpj: academy.cnpj,
           timezone: academy.timezone,
           status: academy.status,
+          network_role: academy.network_role,
+          parent_academy_id: academy.parent_academy_id,
           created_at: isoDate(academy.created_at),
         },
         members: m.rows.map((r) => ({

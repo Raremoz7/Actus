@@ -65,4 +65,59 @@ describe("Rede de academias (filiais/franquias)", () => {
     expect(res.status, JSON.stringify(res.body)).toBe(400);
     expect(res.body.error).toBe("invalid_body");
   });
+
+  it("retorna 404 quando parent_academy_id não corresponde a nenhuma academia", async () => {
+    const staff = await staffToken();
+    const res = await request(app)
+      .post("/admin/academies")
+      .set("Authorization", `Bearer ${staff}`)
+      .send({ name: "Filial fantasma", network_role: "unit", parent_academy_id: crypto.randomUUID() });
+    expect(res.status, JSON.stringify(res.body)).toBe(404);
+    expect(res.body.error).toBe("parent_academy_not_found");
+  });
+
+  it("rejeita parent_academy_id quando network_role não é unit", async () => {
+    const staff = await staffToken();
+    const res = await request(app)
+      .post("/admin/academies")
+      .set("Authorization", `Bearer ${staff}`)
+      .send({ name: "X", network_role: "standalone", parent_academy_id: crypto.randomUUID() });
+    expect(res.status, JSON.stringify(res.body)).toBe(400);
+    expect(res.body.error).toBe("invalid_body");
+  });
+
+  it("expõe network_role e parent_academy_id em GET /admin/academies e GET /admin/academies/:id", async () => {
+    const staff = await staffToken();
+
+    const hq = await request(app)
+      .post("/admin/academies")
+      .set("Authorization", `Bearer ${staff}`)
+      .send({ name: "Rede Matriz GET", network_role: "network_hq" });
+    expect(hq.status, JSON.stringify(hq.body)).toBe(201);
+
+    const unit = await request(app)
+      .post("/admin/academies")
+      .set("Authorization", `Bearer ${staff}`)
+      .send({ name: "Filial GET", network_role: "unit", parent_academy_id: hq.body.id });
+    expect(unit.status, JSON.stringify(unit.body)).toBe(201);
+
+    const list = await request(app).get("/admin/academies").set("Authorization", `Bearer ${staff}`);
+    expect(list.status, JSON.stringify(list.body)).toBe(200);
+    const hqInList = list.body.academies.find((a: any) => a.id === hq.body.id);
+    const unitInList = list.body.academies.find((a: any) => a.id === unit.body.id);
+    expect(hqInList.network_role).toBe("network_hq");
+    expect(hqInList.parent_academy_id).toBeNull();
+    expect(unitInList.network_role).toBe("unit");
+    expect(unitInList.parent_academy_id).toBe(hq.body.id);
+
+    const hqDetail = await request(app).get(`/admin/academies/${hq.body.id}`).set("Authorization", `Bearer ${staff}`);
+    expect(hqDetail.status, JSON.stringify(hqDetail.body)).toBe(200);
+    expect(hqDetail.body.academy.network_role).toBe("network_hq");
+    expect(hqDetail.body.academy.parent_academy_id).toBeNull();
+
+    const unitDetail = await request(app).get(`/admin/academies/${unit.body.id}`).set("Authorization", `Bearer ${staff}`);
+    expect(unitDetail.status, JSON.stringify(unitDetail.body)).toBe(200);
+    expect(unitDetail.body.academy.network_role).toBe("unit");
+    expect(unitDetail.body.academy.parent_academy_id).toBe(hq.body.id);
+  });
 });
