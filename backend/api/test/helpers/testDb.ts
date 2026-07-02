@@ -326,6 +326,7 @@ $$;
 create type public.commission_rule_type as enum ('percent', 'fixed_per_student', 'fixed_monthly');
 create type public.revenue_subject_type as enum ('student', 'instructor', 'academy');
 create type public.revenue_source as enum ('manual', 'billing');
+create type public.academy_network_role as enum ('standalone', 'network_hq', 'unit');
 
 create table public.academies (
   id uuid primary key default gen_random_uuid(),
@@ -334,6 +335,8 @@ create table public.academies (
   cnpj text,
   timezone text not null default 'America/Sao_Paulo',
   status text not null default 'active',
+  network_role public.academy_network_role not null default 'standalone',
+  parent_academy_id uuid references public.academies (id),
   created_by uuid references public.app_users (id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
