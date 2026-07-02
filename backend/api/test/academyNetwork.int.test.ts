@@ -149,6 +149,10 @@ describe("Rede de academias (filiais/franquias)", () => {
   it("gestor da matriz vê o dashboard de rede consolidado das unidades", async () => {
     const hqId = await createAcademyDirect("Rede X", { networkRole: "network_hq" });
     const hqToken = await createManagerFor(hqId);
+
+    const me = await request(app).get("/me").set("Authorization", `Bearer ${hqToken}`);
+    expect(me.body.academy.network_role).toBe("network_hq");
+
     const unitAId = await createAcademyDirect("Unidade A", { networkRole: "unit", parentId: hqId });
     const unitBId = await createAcademyDirect("Unidade B", { networkRole: "unit", parentId: hqId });
 

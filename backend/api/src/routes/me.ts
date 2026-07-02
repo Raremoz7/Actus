@@ -28,8 +28,8 @@ router.get("/", async (req, res) => {
     if (!profile) return null;
     // [ACTUS — academia] contexto da academia (se o usuário for membro ativo): o painel web usa
     // para rotear o gestor e exibir o nome da academia. Membro = gestor (manager) ou instrutor.
-    const aq = await client.query<{ id: string; name: string; role: string }>(
-      `select am.academy_id as id, a.name, am.role
+    const aq = await client.query<{ id: string; name: string; role: string; network_role: string }>(
+      `select am.academy_id as id, a.name, am.role, a.network_role::text as network_role
        from public.academy_members am
        join public.academies a on a.id = am.academy_id
        where am.user_id = $1 and am.status = 'active'
