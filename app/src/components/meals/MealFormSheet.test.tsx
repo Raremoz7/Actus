@@ -1,11 +1,11 @@
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import { MealFormSheet } from './MealFormSheet';
+
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(async () => ({ granted: true })),
   launchImageLibraryAsync: jest.fn(async () => ({ canceled: true })),
 }));
 jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
-
-import { render, screen, fireEvent } from '@testing-library/react-native';
-import { MealFormSheet } from './MealFormSheet';
 
 describe('MealFormSheet', () => {
   it('mantém "Salvar" desabilitado sem descrição nem foto e confirma com descrição', () => {
