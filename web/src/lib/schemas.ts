@@ -398,8 +398,8 @@ export const AcademyListItemSchema = z.object({
   instructors: z.number(),
   managers: z.number(),
   created_at: z.string(),
-  network_role: z.enum(['standalone', 'network_hq', 'unit']).optional(),
-  parent_academy_id: z.string().nullable().optional(),
+  network_role: z.enum(['standalone', 'network_hq', 'unit']),
+  parent_academy_id: z.string().nullable(),
 });
 export type AcademyListItem = z.infer<typeof AcademyListItemSchema>;
 export const AcademiesResponseSchema = z.object({ academies: z.array(AcademyListItemSchema) });
