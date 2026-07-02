@@ -10,6 +10,16 @@ const mockPush = jest.fn();
 jest.mock('@/hooks/useProWorkouts', () => ({
   useProWorkouts: () => mockUseProWorkouts(),
 }));
+// A tela também consome useWorkoutTemplates (escopo "Banco"); mockamos para não
+// depender do QueryClientProvider. O escopo padrão é "meus", então esses dados
+// não são renderizados — basta um retorno estável.
+jest.mock('@/hooks/useWorkoutTemplates', () => ({
+  useWorkoutTemplates: () => ({
+    data: { templates: [] },
+    isLoading: false,
+    isError: false,
+  }),
+}));
 jest.mock('expo-router', () => ({
   router: { push: (...args: unknown[]) => mockPush(...args) },
 }));

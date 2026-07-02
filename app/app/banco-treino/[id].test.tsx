@@ -8,7 +8,7 @@ jest.mock('expo-router', () => ({
 
 // Detalhe e cópia do template são mockados — a tela só orquestra hooks + navegação.
 const mockMutate = jest.fn();
-const detail = {
+const mockDetail = {
   data: {
     id: 'tmpl-1',
     name: 'Treino A',
@@ -35,7 +35,7 @@ const detail = {
 };
 
 jest.mock('@/hooks/useWorkoutTemplates', () => ({
-  useWorkoutTemplateDetail: () => detail,
+  useWorkoutTemplateDetail: () => mockDetail,
   useCopyWorkoutTemplate: () => ({ mutate: mockMutate, isPending: false }),
 }));
 
