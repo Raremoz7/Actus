@@ -18,6 +18,7 @@ import adminStaffRoutes from "./routes/adminStaff.js";
 import adminAcademiesRoutes from "./routes/adminAcademies.js";
 import academyRoutes from "./routes/academy.js";
 import academyCommissionsRoutes from "./routes/academyCommissions.js";
+import academyNetworkRoutes from "./routes/academyNetwork.js";
 import professionalDashboardRoutes from "./routes/professionalDashboard.js";
 import workoutsRoutes from "./routes/workouts.js";
 import workoutTemplatesRoutes from "./routes/workoutTemplates.js";
@@ -149,6 +150,7 @@ export function createApp() {
   // /academy/commissions é montado ANTES de /academy (prefixo mais específico primeiro).
   app.use("/admin/academies", requireStaff, adminAcademiesRoutes);
   app.use("/academy/commissions", requireAuth, requireAcademyManager, academyCommissionsRoutes);
+  app.use("/academy/network", requireAuth, requireAcademyManager, academyNetworkRoutes);
   app.use("/academy", requireAuth, requireAcademyManager, academyRoutes);
   // [ACTUS-NEW] A3 — preview PÚBLICO de convite, registrado ANTES do /invites protegido
   // (mais específico + sem requireAuth: é usado no passo 1 do cadastro, sem sessão).
