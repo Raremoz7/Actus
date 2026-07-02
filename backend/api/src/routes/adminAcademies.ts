@@ -11,17 +11,28 @@ import { authedUserId } from "../middleware/requireAuth.js";
 
 const router = Router();
 
-const createAcademySchema = z.object({
-  name: z.string().min(1).max(200),
-  slug: z
-    .string()
-    .min(1)
-    .max(120)
-    .regex(/^[a-z0-9-]+$/, "slug_invalid")
-    .optional(),
-  cnpj: z.string().min(11).max(32).optional(),
-  timezone: z.string().min(1).max(64).optional(),
-});
+const createAcademySchema = z
+  .object({
+    name: z.string().min(1).max(200),
+    slug: z
+      .string()
+      .min(1)
+      .max(120)
+      .regex(/^[a-z0-9-]+$/, "slug_invalid")
+      .optional(),
+    cnpj: z.string().min(11).max(32).optional(),
+    timezone: z.string().min(1).max(64).optional(),
+    network_role: z.enum(["standalone", "network_hq", "unit"]).optional().default("standalone"),
+    parent_academy_id: z.string().uuid().optional(),
+  })
+  .refine((o) => o.network_role !== "unit" || o.parent_academy_id != null, {
+    message: "parent_academy_id_required_for_unit",
+    path: ["parent_academy_id"],
+  })
+  .refine((o) => o.network_role === "unit" || o.parent_academy_id == null, {
+    message: "parent_academy_id_only_for_unit",
+    path: ["parent_academy_id"],
+  });
 
 const patchAcademySchema = z
   .object({
@@ -65,18 +76,23 @@ router.post("/", async (req, res) => {
   const actorId = authedUserId(req);
   const parsed = createAcademySchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "invalid_body", details: parsed.error.flatten() });
-  const { name, slug, cnpj, timezone } = parsed.data;
+  const { name, slug, cnpj, timezone, network_role, parent_academy_id } = parsed.data;
 
   try {
     const created = await withTx(async (client) => {
+      if (parent_academy_id) {
+        const parent = await client.query(`select 1 from public.academies where id = $1`, [parent_academy_id]);
+        if (!parent.rowCount) return { ok: false as const, error: "parent_academy_not_found" as const };
+      }
       const id = uuid();
       await client.query(
-        `insert into public.academies (id, name, slug, cnpj, timezone, created_by)
-         values ($1, $2, $3, $4, coalesce($5, 'America/Sao_Paulo'), $6)`,
-        [id, name, slug ?? null, cnpj ?? null, timezone ?? null, actorId],
+        `insert into public.academies (id, name, slug, cnpj, timezone, network_role, parent_academy_id, created_by)
+         values ($1, $2, $3, $4, coalesce($5, 'America/Sao_Paulo'), $6, $7, $8)`,
+        [id, name, slug ?? null, cnpj ?? null, timezone ?? null, network_role, parent_academy_id ?? null, actorId],
       );
-      return { id };
+      return { ok: true as const, id };
     });
+    if (!created.ok) return res.status(404).json({ error: created.error });
     return res.status(201).json({ id: created.id, name });
   } catch (e: any) {
     const msg = String(e?.message ?? "");
