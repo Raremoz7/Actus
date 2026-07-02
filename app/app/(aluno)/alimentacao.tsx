@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { AppState, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CaretLeft, Plus, ForkKnife } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -30,9 +30,30 @@ export default function AlimentacaoScreen() {
   const [editing, setEditing] = useState<(MealInput & { id?: string }) | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  async function flushQueue() {
+    const pending = Object.values(useMealQueueStore.getState().items);
+    for (const q of pending) {
+      try {
+        useMealQueueStore.getState().markPending(q.localId);
+        await create.mutateAsync({ photoUri: q.photoUri, description: q.description, tags: q.tags, eatenAt: q.eatenAt });
+        useMealQueueStore.getState().remove(q.localId);
+      } catch {
+        useMealQueueStore.getState().markError(q.localId);
+      }
+    }
+  }
+
   useEffect(() => {
-    void hydrateQueue();
-  }, [hydrateQueue]);
+    void (async () => {
+      await hydrateQueue();
+      void flushQueue();
+    })();
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active') void flushQueue();
+    });
+    return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const groups = useMemo<DayGroup[]>(() => {
     const server: FeedMeal[] = (list.data ?? []).map((m) => ({
