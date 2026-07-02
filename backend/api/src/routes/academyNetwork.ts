@@ -10,6 +10,8 @@ const router = Router();
 
 type UnitRow = { id: string; name: string };
 
+type Kpis = { total_students: number; instructors: number };
+
 async function requireNetworkHq(academyId: string): Promise<UnitRow[] | null> {
   return withTx(async (client) => {
     const hq = await client.query<{ network_role: string }>(
@@ -26,21 +28,41 @@ async function requireNetworkHq(academyId: string): Promise<UnitRow[] | null> {
   });
 }
 
-async function unitKpis(academyId: string) {
+// Busca os KPIs de todas as unidades em UMA única transação (2 queries agregadas por
+// academy_id, com `= ANY($1::uuid[])`), em vez de abrir uma transação por unidade
+// (evita N+1 transações/conexões concorrentes sob Promise.all).
+async function unitKpisByAcademy(academyIds: string[]): Promise<Map<string, Kpis>> {
   return withTx(async (client) => {
-    const totalStudents = await client.query<{ count: string }>(
-      `select count(distinct student_id) as count from public.academy_students where academy_id = $1`,
-      [academyId],
-    );
-    const instructors = await client.query<{ count: string }>(
-      `select count(*) as count from public.academy_members
-       where academy_id = $1 and role = 'instructor' and status = 'active'`,
-      [academyId],
-    );
-    return {
-      total_students: Number(totalStudents.rows[0]?.count ?? 0),
-      instructors: Number(instructors.rows[0]?.count ?? 0),
-    };
+    const map = new Map<string, Kpis>();
+    for (const id of academyIds) map.set(id, { total_students: 0, instructors: 0 });
+
+    const [studentsRes, instructorsRes] = await Promise.all([
+      client.query<{ academy_id: string; count: string }>(
+        `select academy_id, count(distinct student_id) as count
+         from public.academy_students
+         where academy_id = ANY($1::uuid[])
+         group by academy_id`,
+        [academyIds],
+      ),
+      client.query<{ academy_id: string; count: string }>(
+        `select academy_id, count(*) as count
+         from public.academy_members
+         where academy_id = ANY($1::uuid[]) and role = 'instructor' and status = 'active'
+         group by academy_id`,
+        [academyIds],
+      ),
+    ]);
+
+    for (const row of studentsRes.rows) {
+      const entry = map.get(row.academy_id);
+      if (entry) entry.total_students = Number(row.count ?? 0);
+    }
+    for (const row of instructorsRes.rows) {
+      const entry = map.get(row.academy_id);
+      if (entry) entry.instructors = Number(row.count ?? 0);
+    }
+
+    return map;
   });
 }
 
@@ -63,9 +85,13 @@ router.get("/dashboard", async (req, res) => {
     const units = await requireNetworkHq(academyId);
     if (!units) return res.status(403).json({ error: "forbidden_not_network_hq" });
 
-    const perUnit = await Promise.all(
-      units.map(async (u) => ({ id: u.id, name: u.name, kpis: await unitKpis(u.id) })),
-    );
+    const kpisByAcademy = await unitKpisByAcademy(units.map((u) => u.id));
+
+    const perUnit = units.map((u) => ({
+      id: u.id,
+      name: u.name,
+      kpis: kpisByAcademy.get(u.id) ?? { total_students: 0, instructors: 0 },
+    }));
 
     const totals = perUnit.reduce(
       (acc, u) => ({

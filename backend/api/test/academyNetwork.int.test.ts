@@ -162,6 +162,16 @@ describe("Rede de academias (filiais/franquias)", () => {
     expect(dash.body.units).toHaveLength(2);
   });
 
+  it("gestor de matriz sem nenhuma unidade vê dashboard vazio (sem quebrar com ANY([]))", async () => {
+    const hqId = await createAcademyDirect("Rede Sem Unidades", { networkRole: "network_hq" });
+    const hqToken = await createManagerFor(hqId);
+
+    const dash = await request(app).get("/academy/network/dashboard").set("Authorization", `Bearer ${hqToken}`);
+    expect(dash.status, JSON.stringify(dash.body)).toBe(200);
+    expect(dash.body.kpis).toEqual({ total_students: 0, instructors: 0 });
+    expect(dash.body.units).toEqual([]);
+  });
+
   it("gestor de uma unidade (não matriz) recebe 403 ao acessar rotas de rede", async () => {
     const hqId = await createAcademyDirect("Rede Y", { networkRole: "network_hq" });
     const unitId = await createAcademyDirect("Unidade Y1", { networkRole: "unit", parentId: hqId });
