@@ -49,6 +49,22 @@ export function deriveStudentStatus(checkIns: Pick<CheckIn, 'check_in_date'>[] |
   };
 }
 
+export type WorkoutTemporalTone = 'active' | 'future' | 'done';
+export type WorkoutTemporalStatus = { label: string; tone: WorkoutTemporalTone };
+
+/** Status temporal de um treino atribuído, derivado de start/end ('YYYY-MM-DD' local).
+ *  Futuro = ainda não começou; Concluído = o período já passou; senão Em andamento
+ *  (inclui o caso sem período definido — atribuição em aberto). */
+export function deriveWorkoutStatus(
+  startDate: string | null,
+  endDate: string | null,
+  now = new Date(),
+): WorkoutTemporalStatus {
+  if (startDate && daysSinceLocal(startDate, now) < 0) return { label: 'Futuro', tone: 'future' };
+  if (endDate && daysSinceLocal(endDate, now) > 0) return { label: 'Concluído', tone: 'done' };
+  return { label: 'Em andamento', tone: 'active' };
+}
+
 /** Idade em anos a partir de 'YYYY-MM-DD' (componentes locais; null se inválido). */
 export function ageFromBirthDate(birthDate: string | null): number | null {
   if (!birthDate) return null;

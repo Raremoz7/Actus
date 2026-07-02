@@ -76,6 +76,13 @@ export const CheckInSchema = z.object({
   source: z.string(),
   created_at: z.string(),
   workout_session_id: z.string().nullable().optional(),
+  // Enriquecimento da sessão de treino (TEC-12 Histórico). Opcionais: o backend
+  // atual ainda não os retorna → a UI degrada para data + tipo. Contrato em
+  // web/docs/backend/tec-12-historico.md.
+  workout_name: z.string().nullable().optional(),
+  duration_seconds: z.number().nullable().optional(),
+  completion_pct: z.number().nullable().optional(), // 0–100
+  pr_count: z.number().nullable().optional(),
 });
 export type CheckIn = z.infer<typeof CheckInSchema>;
 

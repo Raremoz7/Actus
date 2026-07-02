@@ -5,7 +5,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useStudentWorkouts, useToggleWorkoutActive } from '../../hooks/useStudentDetail';
 import type { StudentWorkout } from '../../lib/schemas';
-import { parseLocalDate } from '../../lib/studentStatus';
+import { deriveWorkoutStatus, parseLocalDate, type WorkoutTemporalTone } from '../../lib/studentStatus';
 
 // weekdays da API: 1=segunda … 7=domingo
 const WEEKDAY_SHORT = ['', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'];
@@ -14,6 +14,21 @@ function formatDateBr(dateOnly: string): string {
   const d = parseLocalDate(dateOnly);
   return d.toLocaleDateString('pt-BR');
 }
+
+// Período do treino (início – fim) para o card. null quando não há datas definidas.
+function periodLabel(start: string | null, end: string | null): string | null {
+  if (start && end) return `${formatDateBr(start)} – ${formatDateBr(end)}`;
+  if (start) return `desde ${formatDateBr(start)}`;
+  if (end) return `até ${formatDateBr(end)}`;
+  return null;
+}
+
+// Status temporal → variante do Tag (done cai no cinza padrão).
+const STATUS_TAG_VARIANT: Record<WorkoutTemporalTone, 'active' | 'future' | 'default'> = {
+  active: 'active',
+  future: 'future',
+  done: 'default',
+};
 
 function WorkoutRow({ workout, studentId }: { workout: StudentWorkout; studentId: string }) {
   const toggle = useToggleWorkoutActive(studentId);
@@ -28,8 +43,13 @@ function WorkoutRow({ workout, studentId }: { workout: StudentWorkout; studentId
     if (ok) toggle.mutate({ studentWorkoutId: workout.id, isActive: next });
   }
 
+  // Status temporal só faz sentido enquanto o treino está ativo; inativo mostra "Inativo".
+  const status = deriveWorkoutStatus(workout.start_date, workout.end_date);
+  const period = periodLabel(workout.start_date, workout.end_date);
+  const dimmed = !workout.is_active || status.tone === 'done';
+
   return (
-    <Card className={`flex items-center gap-4 ${workout.is_active ? '' : 'opacity-60'}`}>
+    <Card className={`flex items-center gap-4 ${dimmed ? 'opacity-70' : ''}`}>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-text-1">{workout.workout_name}</p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -41,6 +61,9 @@ function WorkoutRow({ workout, studentId }: { workout: StudentWorkout; studentId
               {WEEKDAY_SHORT[d]}
             </span>
           ))}
+          {period && (
+            <span className="ml-1 font-mono text-[10px] text-text-3">{period}</span>
+          )}
         </div>
       </div>
       <div className="text-right">
@@ -51,9 +74,11 @@ function WorkoutRow({ workout, studentId }: { workout: StudentWorkout; studentId
             : 'nunca concluído'}
         </p>
       </div>
-      <Tag variant={workout.is_active ? 'active' : 'default'}>
-        {workout.is_active ? 'Ativo' : 'Inativo'}
-      </Tag>
+      {workout.is_active ? (
+        <Tag variant={STATUS_TAG_VARIANT[status.tone]}>{status.label}</Tag>
+      ) : (
+        <Tag variant="default">Inativo</Tag>
+      )}
       <Button
         variant="ghost"
         className="!px-3 !py-1.5 !text-xs"

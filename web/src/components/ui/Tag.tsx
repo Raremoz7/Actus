@@ -1,12 +1,13 @@
 import type { HTMLAttributes } from 'react';
 
-type Variant = 'default' | 'active' | 'warn' | 'error';
+type Variant = 'default' | 'active' | 'warn' | 'error' | 'future';
 
 const variants: Record<Variant, string> = {
   default: 'bg-surface-2 text-on-surface',
   active: 'bg-neon/15 text-neon',
   warn: 'bg-warning/15 text-warning',
   error: 'bg-error/15 text-error',
+  future: 'bg-accent-muted/15 text-accent-muted',
 };
 
 type Props = HTMLAttributes<HTMLSpanElement> & { variant?: Variant };
