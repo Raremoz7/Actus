@@ -24,6 +24,7 @@ import { ProfissionaisPage } from './pages/admin/ProfissionaisPage';
 import { AcademiasPage } from './pages/admin/AcademiasPage';
 import { AcademyLayout } from './layouts/AcademyLayout';
 import { AcademyDashboardPage } from './pages/academia/AcademyDashboardPage';
+import { NetworkDashboardPage } from './pages/academia/NetworkDashboardPage';
 import { AcademyTeamPage } from './pages/academia/AcademyTeamPage';
 import { AcademyInstructorDetailPage } from './pages/academia/AcademyInstructorDetailPage';
 import { AcademyCommissionsPage } from './pages/academia/AcademyCommissionsPage';
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
                 element: <AcademyLayout />,
                 children: [
                   { path: '/app/academia', element: <AcademyDashboardPage /> },
+                  { path: '/app/academia/rede', element: <NetworkDashboardPage /> },
                   { path: '/app/academia/equipe', element: <AcademyTeamPage /> },
                   { path: '/app/academia/equipe/:instructorId', element: <AcademyInstructorDetailPage /> },
                   { path: '/app/academia/comissoes', element: <AcademyCommissionsPage /> },
