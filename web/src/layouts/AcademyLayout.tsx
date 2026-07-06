@@ -18,7 +18,6 @@ export function AcademyLayout() {
           ? [{ name: 'Rede', to: '/app/academia/rede', active: pathname === '/app/academia/rede' }]
           : []),
         { name: 'Equipe', to: '/app/academia/equipe', active: pathname.startsWith('/app/academia/equipe') },
-        { name: 'Comissões', to: '/app/academia/comissoes' },
         { name: 'Configurações', to: '/app/academia/configuracoes' },
       ],
     },

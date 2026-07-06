@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Protótipo · Dashboard Gerencial — Actus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-lowest: #10252D;
+    --bg-base: #1A343F;
+    --surface-1: #203F4B;
+    --surface-2: #294B58;
+    --surface-3: #345867;
+    --surface-4: #406575;
+    --neon: #CBFE00;
+    --secondary: #4DE082;
+    --accent-muted: #7BA0BC;
+    --accent-muted-surface: rgba(123,160,188,0.16);
+    --text-1: #FFFFFF;
+    --text-2: rgba(255,255,255,0.70);
+    --text-3: rgba(255,255,255,0.50);
+    --text-inv: #141414;
+    --outline: #8E9379;
+    --outline-v: #444933;
+    --on-surface: #E2E4CF;
+    --success: #4ADE80;
+    --warning: #FBBF24;
+    --error: #F87171;
+    --info: #60A5FA;
+    --flame: #F97316;
+
+    /* Paleta de dataviz (categórica) — cor vem dos DADOS, não do fundo.
+       Neon segue reservado como única cor de AÇÃO. */
+    --data-1: #7BA0BC; /* azul-névoa */
+    --data-2: #5FD08A; /* verde */
+    --data-3: #F3B24C; /* âmbar */
+    --data-4: #E87D5E; /* coral */
+    --data-5: #9E8FE6; /* violeta */
+    --data-6: #4FBFD0; /* ciano */
+
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg-base);
+    color: var(--text-1);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--outline-v); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--outline); }
+  * { scrollbar-width: thin; scrollbar-color: var(--outline-v) transparent; }
+
+  /* ---------- Shell ---------- */
+  .app { display: flex; flex-direction: column; height: 100vh; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px; flex-shrink: 0; padding: 0 20px;
+    border-bottom: 1px solid var(--outline-v); background: var(--bg-lowest);
+  }
+  .brand { font-family: var(--font-display); font-weight: 900; font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .brand span { color: var(--neon); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .topbar-role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 100px; flex-shrink: 0; display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 12px; background: var(--surface-2); color: var(--on-surface); text-transform: uppercase;
+  }
+  .body { display: flex; min-height: 0; flex: 1; overflow: hidden; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar { width: 196px; flex-shrink: 0; border-right: 1px solid var(--outline-v); background: var(--bg-lowest); padding: 20px 12px; }
+  .sidebar-label { padding: 0 12px; margin-bottom: 8px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+  .nav { display: flex; flex-direction: column; gap: 2px; list-style: none; }
+  .nav a { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: var(--text-2); text-decoration: none; transition: 150ms; }
+  .nav a:hover { background: var(--surface-2); color: var(--text-1); }
+  .nav a.active { background: rgba(203,254,0,0.10); color: var(--neon); }
+
+  /* ---------- Content ---------- */
+  .content { flex: 1; overflow: auto; }
+  .page-head { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 24px; border-bottom: 1px solid var(--outline-v); position: sticky; top: 0; background: var(--bg-base); z-index: 5; }
+  .page-title { font-family: var(--font-display); font-weight: 900; font-size: 20px; letter-spacing: 0.03em; text-transform: uppercase; }
+  .segmented { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface-1); border-radius: 100px; border: 1px solid var(--outline-v); }
+  .segmented button { border: 0; cursor: pointer; background: transparent; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); padding: 5px 12px; border-radius: 100px; transition: 150ms; }
+  .segmented button.active { background: var(--neon); color: var(--text-inv); }
+
+  /* ---------- Filtros do topo (unidade + período) ---------- */
+  .page-head-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .page-head-left .page-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scope-tag { flex-shrink: 0; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-muted); background: var(--accent-muted-surface); padding: 3px 8px; border-radius: 4px; }
+  .scope-tag[hidden] { display: none; }
+  .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .unit-filter { position: relative; }
+  .unit-btn { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; background: var(--surface-1); border: 1px solid var(--outline-v); border-radius: 100px; color: var(--text-1); cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: 150ms; }
+  .unit-btn:hover { border-color: var(--outline); }
+  .unit-btn .unit-ico { display: inline-flex; color: var(--neon); }
+  .unit-btn .unit-caret { font-size: 9px; color: var(--text-3); margin-left: 1px; }
+  .unit-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; min-width: 248px; padding: 6px; background: var(--surface-2); border: 1px solid var(--outline-v); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.42); display: flex; flex-direction: column; gap: 2px; }
+  .unit-menu[hidden] { display: none; }
+  .unit-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; border: 0; cursor: pointer; background: transparent; color: var(--text-1); font-family: var(--font-body); font-size: 14px; padding: 8px 10px; border-radius: 8px; transition: 120ms; }
+  .unit-opt:hover { background: var(--surface-3); }
+  .unit-opt.active { background: rgba(203,254,0,0.10); color: var(--neon); }
+  .unit-opt-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+  .unit-opt.active .unit-opt-sub { color: rgba(203,254,0,0.7); }
+
+  /* ---------- Line chart interativo (hover) ---------- */
+  .lc-plot { position: relative; height: 172px; }
+  .lc-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .lc-col { position: absolute; top: 0; bottom: 0; transform: translateX(-50%); cursor: pointer; }
+  .lc-guide { position: absolute; top: 4px; bottom: 4px; width: 1px; background: var(--outline); opacity: 0; transform: translateX(-50%); transition: opacity 120ms; pointer-events: none; }
+  .lc-guide.on { opacity: 0.55; }
+  .lc-dot { position: absolute; width: 8px; height: 8px; border-radius: 100px; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px var(--surface-1); transition: width 120ms, height 120ms; pointer-events: none; }
+  .lc-dot.big { width: 12px; height: 12px; }
+  .lc-tip { position: absolute; z-index: 10; pointer-events: none; opacity: 0; transform: translate(-50%, calc(-100% - 12px)); transition: opacity 120ms; background: var(--surface-3); border: 1px solid var(--outline-v); border-radius: 10px; padding: 9px 11px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); min-width: 158px; }
+  .lc-tip.on { opacity: 1; }
+  .lc-tip .t-title { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); margin-bottom: 6px; }
+  .lc-tip .t-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; }
+  .lc-tip .t-row + .t-row { margin-top: 3px; }
+  .lc-tip .t-row .k { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); }
+  .lc-tip .t-row .k .dot { width: 7px; height: 7px; border-radius: 100px; }
+  .lc-tip .t-row .v { font-family: var(--font-mono); color: var(--text-1); }
+  .lc-tip .t-row.total { margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--outline-v); }
+  .lc-xlabels { display: flex; justify-content: space-between; margin-top: 8px; }
+  .lc-xlabels span { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); flex: 1; text-align: center; transition: color 120ms; }
+  .lc-xlabels span.on { color: var(--text-1); }
+
+  .grid { padding: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; align-content: start; }
+
+  .card { background: var(--surface-1); border: 1px solid var(--outline-v); border-radius: 12px; padding: 16px; min-width: 0; }
+  .card--elevated { background: var(--surface-2); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+
+  /* spans */
+  .sp3 { grid-column: span 3; } .sp4 { grid-column: span 4; } .sp5 { grid-column: span 5; }
+  .sp6 { grid-column: span 6; } .sp7 { grid-column: span 7; } .sp8 { grid-column: span 8; } .sp12 { grid-column: span 12; }
+  @media (max-width: 1100px) { .sp3,.sp4,.sp5 { grid-column: span 6; } .sp7,.sp8 { grid-column: span 12; } }
+
+  .kpi-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+  .kpi-row { display: flex; align-items: baseline; gap: 8px; }
+  .kpi-value { font-family: var(--font-mono); font-size: 28px; line-height: 1; }
+  .kpi-value.neon { color: var(--neon); }
+  .delta { font-family: var(--font-mono); font-size: 11px; display: inline-flex; align-items: center; gap: 2px; }
+  .delta.up { color: var(--success); } .delta.down { color: var(--error); }
+  .kpi-hint { font-size: 11px; color: var(--text-3); margin-top: 6px; }
+
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 8px 12px; flex-wrap: wrap; }
+  .card-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .card-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; }
+  .card-link { font-size: 12px; color: var(--text-3); text-decoration: none; transition: 150ms; white-space: nowrap; }
+  .card-link:hover { color: var(--neon); }
+  .icon-btn { width: 26px; height: 26px; border-radius: 100px; border: 1px solid var(--outline-v); background: transparent; color: var(--text-3); cursor: pointer; display: grid; place-items: center; font-size: 13px; transition: 150ms; }
+  .icon-btn:hover { color: var(--text-1); border-color: var(--outline); }
+
+  /* ---------- Column chart ---------- */
+  .colchart { display: flex; align-items: flex-end; gap: 12px; height: 168px; padding-top: 8px; }
+  .colchart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+  .colchart .bar-wrap { width: 100%; display: flex; align-items: flex-end; justify-content: center; flex: 1; }
+  .colchart .bar { width: 70%; max-width: 44px; border-radius: 6px 6px 0 0; position: relative; transition: 150ms; opacity: 0.92; }
+  .colchart .col:hover .bar { opacity: 1; }
+  .colchart .bar-val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--text-2); white-space: nowrap; }
+  .colchart .bar-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); text-align: center; line-height: 1.2; }
+
+  /* ---------- Donut ---------- */
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut { width: 148px; height: 148px; border-radius: 100px; flex-shrink: 0; position: relative; }
+  .donut::after { content: ''; position: absolute; inset: 26px; border-radius: 100px; background: var(--surface-1); }
+  .donut-center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; z-index: 2; }
+  .donut-center .dc-num { font-family: var(--font-mono); font-size: 24px; line-height: 1; }
+  .donut-center .dc-lab { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-top: 3px; }
+  .legend-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .legend-list .lg { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .legend-list .lg .dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .legend-list .lg .lg-name { flex: 1; }
+  .legend-list .lg .lg-val { font-family: var(--font-mono); color: var(--text-1); }
+  .legend-list .lg .lg-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); width: 38px; text-align: right; }
+
+  /* ---------- Legend inline (line chart) ---------- */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+  .legend .dot { width: 9px; height: 9px; border-radius: 100px; }
+  .linechart .xlabels { display: flex; justify-content: space-between; margin-top: 6px; }
+  .linechart .xlabels span { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); flex: 1; text-align: center; }
+
+  /* ---------- Area chart ---------- */
+  .area-wrap { position: relative; }
+  .area-tip {
+    position: absolute; top: 6px; left: 62%; background: var(--surface-3); border: 1px solid var(--outline-v);
+    border-radius: 10px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); min-width: 150px;
+  }
+  .area-tip .t-title { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); margin-bottom: 6px; }
+  .area-tip .t-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; }
+  .area-tip .t-row + .t-row { margin-top: 3px; }
+  .area-tip .t-row .k { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); }
+  .area-tip .t-row .k .dot { width: 7px; height: 7px; border-radius: 100px; }
+  .area-tip .t-row .v { font-family: var(--font-mono); color: var(--text-1); }
+  .xlabels-8 { display: flex; justify-content: space-between; margin-top: 6px; }
+  .xlabels-8 span { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); flex: 1; text-align: center; }
+
+  /* ---------- Progress bars ---------- */
+  .progress-list { display: flex; flex-direction: column; gap: 14px; }
+  .prow .ptop { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .prow .pname { font-size: 13px; color: var(--text-2); }
+  .prow .ppct { font-family: var(--font-mono); font-size: 12px; color: var(--text-1); }
+  .prow .ptrack { height: 8px; border-radius: 100px; background: var(--surface-3); overflow: hidden; }
+  .prow .pfill { height: 100%; border-radius: 100px; }
+
+  /* ---------- Occupancy hero number ---------- */
+  .live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--success); }
+  .live-dot { width: 7px; height: 7px; border-radius: 100px; background: var(--success); animation: livepulse 1.8s infinite; }
+  @keyframes livepulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.55); }
+    70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+  .occ-hero { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .occ-hero-num { display: flex; align-items: baseline; gap: 10px; }
+  .oh-val { font-family: var(--font-mono); font-size: 44px; line-height: 1; color: var(--data-1); }
+  .oh-unit { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); line-height: 1.3; }
+
+  /* ---------- Occupancy dot-matrix ---------- */
+  .occ { display: grid; grid-template-columns: repeat(14, 1fr); gap: 7px; padding: 4px 0 10px; }
+  .occ i { width: 100%; aspect-ratio: 1; border-radius: 100px; background: var(--surface-3); }
+  .occ i.on { background: var(--data-1); }
+  .occ i.hot { background: var(--data-4); }
+  .occ-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .occ-foot .lab { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+  .occ-foot .big { font-family: var(--font-mono); font-size: 22px; color: var(--data-1); }
+
+  /* ---------- Ranked list ---------- */
+  .ranklist { display: flex; flex-direction: column; gap: 12px; }
+  .rankrow { display: grid; grid-template-columns: 130px 1fr 34px; align-items: center; gap: 12px; }
+  .rankrow .rk-name { font-size: 14px; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rankrow .rk-track { height: 8px; border-radius: 100px; background: var(--surface-3); overflow: hidden; }
+  .rankrow .rk-fill { height: 100%; border-radius: 100px; }
+  .rankrow .rk-val { font-family: var(--font-mono); font-size: 14px; color: var(--text-2); text-align: right; }
+
+  /* ---------- People list ---------- */
+  .people { display: flex; flex-direction: column; }
+  .person { display: flex; align-items: center; gap: 12px; padding: 8px 6px; border-radius: 10px; text-decoration: none; transition: background 150ms; }
+  .person:hover { background: var(--surface-2); }
+  .person + .person { border-top: 1px solid rgba(68,73,51,0.5); border-radius: 0; }
+  .person .avatar { width: 32px; height: 32px; font-size: 13px; }
+  .person .pinfo { min-width: 0; flex: 1; }
+  .person .pname { font-size: 14px; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .person .pmeta { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); margin-top: 1px; }
+  .person .pright { text-align: right; flex-shrink: 0; }
+
+  .tag { display: inline-block; padding: 3px 9px; border-radius: 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+  .tag--warn { background: rgba(251,191,36,0.16); color: var(--warning); }
+  .tag--error { background: rgba(248,113,113,0.16); color: var(--error); }
+  .tag--muted { background: var(--accent-muted-surface); color: var(--accent-muted); }
+  .tag--neon { background: var(--neon); color: var(--text-inv); }
+  .tag--success { background: rgba(74,222,128,0.16); color: var(--success); }
+
+  .money { font-family: var(--font-mono); font-size: 14px; }
+  .money--due { color: var(--error); }
+
+  /* ---------- Trainer cards (padrão goJim que o Davi curtiu) ---------- */
+  .trainer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .trainer-grid { grid-template-columns: 1fr; } }
+  .trainer { position: relative; background: var(--surface-2); border: 1px solid var(--outline-v); border-radius: 12px; padding: 14px; }
+  .trainer .t-arrow { position: absolute; top: 12px; right: 12px; }
+  .trainer .t-name { font-family: var(--font-display); font-weight: 800; font-size: 17px; text-transform: uppercase; letter-spacing: 0.01em; }
+  .trainer .t-role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-top: 2px; }
+  .trainer .t-stats { display: flex; gap: 20px; margin: 14px 0; }
+  .trainer .t-stat .s-num { font-family: var(--font-mono); font-size: 18px; color: var(--text-1); }
+  .trainer .t-stat .s-lab { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-top: 2px; }
+  .trainer .t-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* ---------- Modality chip cloud (Favourited Workout) ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; border-radius: 100px; padding: 7px 13px; background: var(--surface-2); border: 1px solid var(--outline-v); }
+  .chip .cdot { width: 9px; height: 9px; border-radius: 100px; flex-shrink: 0; }
+  .chip .cname { font-size: 13px; color: var(--text-1); }
+  .chip .ccount { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+  .chip.lg { padding: 10px 16px; } .chip.lg .cname { font-size: 15px; }
+  .chip.md { padding: 8px 14px; }
+
+  /* ---------- Members table ---------- */
+  table.members { width: 100%; border-collapse: collapse; }
+  table.members th { text-align: left; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); border-bottom: 1px solid var(--outline-v); }
+  table.members td { padding: 12px 10px; border-bottom: 1px solid rgba(68,73,51,0.5); font-size: 14px; color: var(--text-2); }
+  table.members tr:hover td { background: var(--surface-2); }
+  table.members .m-name { display: flex; align-items: center; gap: 10px; }
+  table.members .m-name .avatar { width: 32px; height: 32px; font-size: 12px; }
+  table.members .m-name .nm { color: var(--text-1); }
+  table.members .m-name .em { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+  table.members .mono { font-family: var(--font-mono); font-size: 13px; }
+
+  .proto-flag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-inv); background: var(--neon); padding: 3px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">ACT<span>US</span></div>
+    <div class="topbar-right">
+      <span class="proto-flag">Protótipo · dados fictícios</span>
+      <span class="topbar-role">Console do gestor</span>
+      <div class="avatar">GD</div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar">
+      <p class="sidebar-label">Academia</p>
+      <ul class="nav">
+        <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="#">Equipe</a></li>
+        <li><a href="#">Configurações</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+      <div class="page-head">
+        <div class="page-head-left">
+          <h1 class="page-title" id="pageTitle">Academia Demo</h1>
+          <span class="scope-tag" id="scopeTag" hidden></span>
+        </div>
+        <div class="filters">
+          <div class="unit-filter">
+            <button class="unit-btn" id="unitBtn" aria-haspopup="true" aria-expanded="false">
+              <svg class="unit-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/>
+              </svg>
+              <span class="unit-label" id="unitLabel">Todas as unidades</span>
+              <span class="unit-caret">▾</span>
+            </button>
+            <div class="unit-menu" id="unitMenu" hidden>
+              <button class="unit-opt active" data-name="Academia Demo" data-short="Todas as unidades" data-type="">Todas as unidades<span class="unit-opt-sub">Visão consolidada · 3 unidades</span></button>
+              <button class="unit-opt" data-name="Unidade Centro" data-short="Unidade Centro" data-type="Matriz">Unidade Centro<span class="unit-opt-sub">Matriz</span></button>
+              <button class="unit-opt" data-name="Unidade Zona Sul" data-short="Unidade Zona Sul" data-type="Filial">Unidade Zona Sul<span class="unit-opt-sub">Filial</span></button>
+              <button class="unit-opt" data-name="Unidade Barra" data-short="Unidade Barra" data-type="Franquia">Unidade Barra<span class="unit-opt-sub">Franquia</span></button>
+            </div>
+          </div>
+          <div class="segmented" id="period">
+            <button class="active">Este mês</button>
+            <button>Mês passado</button>
+            <button>90 dias</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- KPIs com deltas coloridos -->
+        <div class="card sp3">
+          <p class="kpi-label">Total de alunos</p>
+          <div class="kpi-row"><span class="kpi-value">248</span><span class="delta up">↑ 6,1%</span></div>
+          <p class="kpi-hint">+14 no mês</p>
+        </div>
+        <div class="card sp3">
+          <p class="kpi-label">Ativos (7d)</p>
+          <div class="kpi-row"><span class="kpi-value">176</span><span class="delta up">↑ 1,8%</span></div>
+          <p class="kpi-hint">71% da base</p>
+        </div>
+        <div class="card sp3">
+          <p class="kpi-label">Check-ins (30d)</p>
+          <div class="kpi-row"><span class="kpi-value">3.912</span><span class="delta down">↓ 1,2%</span></div>
+        </div>
+        <div class="card sp3">
+          <p class="kpi-label" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Ocupação agora</span>
+            <span class="live"><i class="live-dot"></i>ao vivo</span>
+          </p>
+          <div class="kpi-row"><span class="kpi-value" style="color:var(--data-1)">138</span></div>
+          <p class="kpi-hint">de 245 vagas · 56%</p>
+        </div>
+
+        <!-- Área (hero) + Donut objetivo -->
+        <div class="card sp8">
+          <div class="card-head">
+            <h2 class="card-title">Movimento da academia</h2>
+            <span class="card-eyebrow">check-ins / mês</span>
+          </div>
+          <div class="area-wrap">
+            <svg viewBox="0 0 640 200" width="100%" height="200" preserveAspectRatio="none" role="img" aria-label="Check-ins por mês">
+              <defs>
+                <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--data-1)" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="var(--data-1)" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="180" x2="640" y2="180" stroke="var(--outline-v)" stroke-width="1" />
+              <line x1="0" y1="100" x2="640" y2="100" stroke="var(--outline-v)" stroke-width="0.5" opacity="0.5" />
+              <polygon fill="url(#areaFill)" points="0,180 91.4,163.1 182.9,134.4 274.3,119.6 365.7,94.2 457.1,64.5 548.6,20 640,25.1 640,180 0,180" />
+              <polyline fill="none" stroke="var(--data-1)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"
+                points="0,180 91.4,163.1 182.9,134.4 274.3,119.6 365.7,94.2 457.1,64.5 548.6,20 640,25.1" />
+              <line x1="548.6" y1="20" x2="548.6" y2="180" stroke="var(--data-3)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7" />
+              <circle cx="548.6" cy="20" r="4.5" fill="var(--data-3)" stroke="var(--bg-base)" stroke-width="2" />
+            </svg>
+            <div class="area-tip">
+              <div class="t-title">Julho 2026 · pico</div>
+              <div class="t-row"><span class="k"><i class="dot" style="background:var(--data-1)"></i>Check-ins</span><span class="v">3.960</span></div>
+              <div class="t-row"><span class="k"><i class="dot" style="background:var(--data-2)"></i>Novos alunos</span><span class="v">+14</span></div>
+            </div>
+          </div>
+          <div class="xlabels-8">
+            <span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span>
+          </div>
+        </div>
+
+        <div class="card sp4">
+          <div class="card-head"><h2 class="card-title">Objetivo</h2><span class="card-eyebrow">248 alunos</span></div>
+          <div class="donut-wrap">
+            <div class="donut" style="background: conic-gradient(var(--data-1) 0 110.3deg, var(--data-2) 110.3deg 246.8deg, var(--data-3) 246.8deg 306.2deg, var(--data-4) 306.2deg 342.5deg, var(--data-5) 342.5deg 360deg);">
+              <div class="donut-center"><div><div class="dc-num">248</div><div class="dc-lab">alunos</div></div></div>
+            </div>
+            <div class="legend-list">
+              <div class="lg"><span class="dot" style="background:var(--data-1)"></span><span class="lg-name">Hipertrofia</span><span class="lg-val">76</span><span class="lg-pct">31%</span></div>
+              <div class="lg"><span class="dot" style="background:var(--data-2)"></span><span class="lg-name">Emagrecimento</span><span class="lg-val">94</span><span class="lg-pct">38%</span></div>
+              <div class="lg"><span class="dot" style="background:var(--data-3)"></span><span class="lg-name">Condicionamento</span><span class="lg-val">41</span><span class="lg-pct">17%</span></div>
+              <div class="lg"><span class="dot" style="background:var(--data-4)"></span><span class="lg-name">Saúde</span><span class="lg-val">25</span><span class="lg-pct">10%</span></div>
+              <div class="lg"><span class="dot" style="background:var(--data-5)"></span><span class="lg-name">Reabilitação</span><span class="lg-val">12</span><span class="lg-pct">5%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faixa etária (coluna) + Frequência (coluna, outra cor) -->
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Faixa etária</h2></div>
+          <div class="colchart">
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:45%;background:var(--data-1)"><span class="bar-val">42</span></div></div><span class="bar-label">18–24</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:94%;background:var(--data-1)"><span class="bar-val">88</span></div></div><span class="bar-label">25–34</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:65%;background:var(--data-1)"><span class="bar-val">61</span></div></div><span class="bar-label">35–44</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:37%;background:var(--data-1)"><span class="bar-val">34</span></div></div><span class="bar-label">45–54</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:25%;background:var(--data-1)"><span class="bar-val">23</span></div></div><span class="bar-label">55+</span></div>
+          </div>
+        </div>
+
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Frequência semanal</h2><span class="card-eyebrow">check-ins/aluno</span></div>
+          <div class="colchart">
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:31%;background:var(--data-6)"><span class="bar-val">22</span></div></div><span class="bar-label">1×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:68%;background:var(--data-6)"><span class="bar-val">48</span></div></div><span class="bar-label">2×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:100%;background:var(--data-6)"><span class="bar-val">71</span></div></div><span class="bar-label">3×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:75%;background:var(--data-6)"><span class="bar-val">53</span></div></div><span class="bar-label">4×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:44%;background:var(--data-6)"><span class="bar-val">31</span></div></div><span class="bar-label">5×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:21%;background:var(--data-6)"><span class="bar-val">15</span></div></div><span class="bar-label">6×</span></div>
+            <div class="col"><div class="bar-wrap"><div class="bar" style="height:11%;background:var(--data-6)"><span class="bar-val">8</span></div></div><span class="bar-label">7×</span></div>
+          </div>
+        </div>
+
+        <!-- Instrutores em destaque (cards) + Modalidades (chip cloud) -->
+        <div class="card sp7">
+          <div class="card-head"><h2 class="card-title">Instrutores em destaque</h2><a href="#" class="card-link">Ver equipe</a></div>
+          <div class="trainer-grid">
+            <div class="trainer">
+              <button class="icon-btn t-arrow">↗</button>
+              <div class="t-name">João Personal</div>
+              <div class="t-role">Personal trainer</div>
+              <div class="t-stats">
+                <div class="t-stat"><div class="s-num">58</div><div class="s-lab">Alunos</div></div>
+                <div class="t-stat"><div class="s-num">6</div><div class="s-lab">Anos</div></div>
+                <div class="t-stat"><div class="s-num">74%</div><div class="s-lab">Aderência</div></div>
+              </div>
+              <div class="t-tags">
+                <span class="tag tag--muted">Hipertrofia</span>
+                <span class="tag tag--muted">Mobilidade</span>
+                <span class="tag tag--muted">+2</span>
+              </div>
+            </div>
+            <div class="trainer">
+              <button class="icon-btn t-arrow">↗</button>
+              <div class="t-name">Carla Coach</div>
+              <div class="t-role">Personal trainer</div>
+              <div class="t-stats">
+                <div class="t-stat"><div class="s-num">47</div><div class="s-lab">Alunos</div></div>
+                <div class="t-stat"><div class="s-num">4</div><div class="s-lab">Anos</div></div>
+                <div class="t-stat"><div class="s-num">81%</div><div class="s-lab">Aderência</div></div>
+              </div>
+              <div class="t-tags">
+                <span class="tag tag--muted">Emagrecimento</span>
+                <span class="tag tag--muted">Funcional</span>
+                <span class="tag tag--muted">+2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card sp5">
+          <div class="card-head"><h2 class="card-title">Modalidades mais praticadas</h2></div>
+          <div class="chips">
+            <span class="chip lg"><i class="cdot" style="background:var(--data-2)"></i><span class="cname">Musculação</span><span class="ccount">182</span></span>
+            <span class="chip lg"><i class="cdot" style="background:var(--data-4)"></i><span class="cname">Funcional</span><span class="ccount">96</span></span>
+            <span class="chip md"><i class="cdot" style="background:var(--data-3)"></i><span class="cname">Crossfit</span><span class="ccount">74</span></span>
+            <span class="chip md"><i class="cdot" style="background:var(--data-5)"></i><span class="cname">Yoga</span><span class="ccount">61</span></span>
+            <span class="chip md"><i class="cdot" style="background:var(--data-6)"></i><span class="cname">Pilates</span><span class="ccount">53</span></span>
+            <span class="chip"><i class="cdot" style="background:var(--data-1)"></i><span class="cname">Spinning</span><span class="ccount">44</span></span>
+            <span class="chip"><i class="cdot" style="background:var(--data-4)"></i><span class="cname">Boxe</span><span class="ccount">38</span></span>
+            <span class="chip"><i class="cdot" style="background:var(--data-2)"></i><span class="cname">Natação</span><span class="ccount">29</span></span>
+            <span class="chip"><i class="cdot" style="background:var(--data-3)"></i><span class="cname">Corrida</span><span class="ccount">22</span></span>
+          </div>
+        </div>
+
+        <!-- Dia da semana por sexo (linha) -->
+        <div class="card sp12">
+          <div class="card-head">
+            <h2 class="card-title">Alunos por dia da semana</h2>
+            <div class="legend">
+              <span><i class="dot" style="background:var(--data-1)"></i>Masc.</span>
+              <span><i class="dot" style="background:var(--data-4)"></i>Fem.</span>
+            </div>
+          </div>
+          <div class="linechart" id="weekChart"></div>
+        </div>
+
+        <!-- Alunos por personal (barras) + Inadimplentes (lista) -->
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Alunos por personal</h2><a href="#" class="card-link">Ver equipe</a></div>
+          <div class="ranklist">
+            <div class="rankrow"><span class="rk-name">João Personal</span><div class="rk-track"><div class="rk-fill" style="width:100%;background:var(--data-1)"></div></div><span class="rk-val">58</span></div>
+            <div class="rankrow"><span class="rk-name">Carla Coach</span><div class="rk-track"><div class="rk-fill" style="width:81%;background:var(--data-2)"></div></div><span class="rk-val">47</span></div>
+            <div class="rankrow"><span class="rk-name">Rafa Treinador</span><div class="rk-track"><div class="rk-fill" style="width:76%;background:var(--data-3)"></div></div><span class="rk-val">44</span></div>
+            <div class="rankrow"><span class="rk-name">Marina Nutri</span><div class="rk-track"><div class="rk-fill" style="width:67%;background:var(--data-4)"></div></div><span class="rk-val">39</span></div>
+            <div class="rankrow"><span class="rk-name">Diego Fit</span><div class="rk-track"><div class="rk-fill" style="width:59%;background:var(--data-5)"></div></div><span class="rk-val">34</span></div>
+            <div class="rankrow"><span class="rk-name">Bruna Alves</span><div class="rk-track"><div class="rk-fill" style="width:45%;background:var(--data-6)"></div></div><span class="rk-val">26</span></div>
+          </div>
+        </div>
+
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Alunos inadimplentes</h2><span class="card-eyebrow">R$ 1.910 em aberto</span></div>
+          <div class="people">
+            <a href="#" class="person"><div class="avatar">RC</div><div class="pinfo"><div class="pname">Ricardo Campos</div><div class="pmeta">Venc. 05/06 · 27 dias</div></div><div class="pright"><span class="money money--due">R$ 220</span></div></a>
+            <a href="#" class="person"><div class="avatar">LM</div><div class="pinfo"><div class="pname">Letícia Moraes</div><div class="pmeta">Venc. 10/06 · 22 dias</div></div><div class="pright"><span class="money money--due">R$ 180</span></div></a>
+            <a href="#" class="person"><div class="avatar">FT</div><div class="pinfo"><div class="pname">Fábio Tavares</div><div class="pmeta">Venc. 15/06 · 17 dias</div></div><div class="pright"><span class="money money--due">R$ 350</span></div></a>
+            <a href="#" class="person"><div class="avatar">AS</div><div class="pinfo"><div class="pname">Aline Santos</div><div class="pmeta">Venc. 20/06 · 12 dias</div></div><div class="pright"><span class="money money--due">R$ 220</span></div></a>
+            <a href="#" class="person"><div class="avatar">PG</div><div class="pinfo"><div class="pname">Paulo Guedes</div><div class="pmeta">Venc. 25/06 · 7 dias</div></div><div class="pright"><span class="money money--due">R$ 940</span></div></a>
+          </div>
+        </div>
+
+        <!-- Aniversariantes alunos + equipe -->
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Aniversariantes · alunos</h2><span class="card-eyebrow">próximos 7 dias</span></div>
+          <div class="people">
+            <a href="#" class="person"><div class="avatar">BA</div><div class="pinfo"><div class="pname">Beatriz Aluna</div><div class="pmeta">Faz 27 anos</div></div><div class="pright"><span class="tag tag--neon">Hoje</span></div></a>
+            <a href="#" class="person"><div class="avatar">CA</div><div class="pinfo"><div class="pname">Carlos Aluno</div><div class="pmeta">Faz 31 anos</div></div><div class="pright"><span class="tag tag--muted">Amanhã</span></div></a>
+            <a href="#" class="person"><div class="avatar">GS</div><div class="pinfo"><div class="pname">Gabriela Souza</div><div class="pmeta">Faz 24 anos</div></div><div class="pright"><span class="tag tag--muted">Qui, 04/07</span></div></a>
+            <a href="#" class="person"><div class="avatar">MO</div><div class="pinfo"><div class="pname">Marcos Oliveira</div><div class="pmeta">Faz 39 anos</div></div><div class="pright"><span class="tag tag--muted">Sáb, 06/07</span></div></a>
+          </div>
+        </div>
+
+        <div class="card sp6">
+          <div class="card-head"><h2 class="card-title">Aniversariantes · equipe</h2><span class="card-eyebrow">próximos 7 dias</span></div>
+          <div class="people">
+            <a href="#" class="person"><div class="avatar">CC</div><div class="pinfo"><div class="pname">Carla Coach</div><div class="pmeta">Personal trainer</div></div><div class="pright"><span class="tag tag--muted">Sex, 05/07</span></div></a>
+            <a href="#" class="person"><div class="avatar">DF</div><div class="pinfo"><div class="pname">Diego Fit</div><div class="pmeta">Personal trainer</div></div><div class="pright"><span class="tag tag--muted">Dom, 07/07</span></div></a>
+          </div>
+        </div>
+
+        <!-- Tabela de membros (padrão goJim) -->
+        <div class="card sp12">
+          <div class="card-head"><h2 class="card-title">Todos os alunos</h2><a href="#" class="card-link">Ordenar: vencimento ↓</a></div>
+          <table class="members">
+            <thead>
+              <tr><th>Aluno</th><th>Vencimento</th><th>Idade</th><th>Status</th><th>Telefone</th><th>Última visita</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="m-name"><div class="avatar">MC</div><div><div class="nm">Mariana Costa</div><div class="em">mariana.costa@example.com</div></div></div></td>
+                <td class="mono">08/07/26</td><td class="mono">24</td><td><span class="tag tag--success">Ativo</span></td><td class="mono">(11) 99123-0119</td><td class="mono">Hoje</td>
+              </tr>
+              <tr>
+                <td><div class="m-name"><div class="avatar">TR</div><div><div class="nm">Thiago Rocha</div><div class="em">thiago.rocha@example.com</div></div></div></td>
+                <td class="mono">05/07/26</td><td class="mono">31</td><td><span class="tag tag--warn">Vence em 3d</span></td><td class="mono">(11) 99555-8842</td><td class="mono">Ontem</td>
+              </tr>
+              <tr>
+                <td><div class="m-name"><div class="avatar">JB</div><div><div class="nm">Juliana Braga</div><div class="em">juliana.braga@example.com</div></div></div></td>
+                <td class="mono">28/06/26</td><td class="mono">27</td><td><span class="tag tag--error">Expirado</span></td><td class="mono">(21) 98811-2030</td><td class="mono">4 dias</td>
+              </tr>
+              <tr>
+                <td><div class="m-name"><div class="avatar">VL</div><div><div class="nm">Vitor Lima</div><div class="em">vitor.lima@example.com</div></div></div></td>
+                <td class="mono">19/08/26</td><td class="mono">22</td><td><span class="tag tag--success">Ativo</span></td><td class="mono">(31) 99640-1177</td><td class="mono">Hoje</td>
+              </tr>
+              <tr>
+                <td><div class="m-name"><div class="avatar">CN</div><div><div class="nm">Camila Nunes</div><div class="em">camila.nunes@example.com</div></div></div></td>
+                <td class="mono">02/09/26</td><td class="mono">35</td><td><span class="tag tag--success">Ativo</span></td><td class="mono">(11) 99320-4456</td><td class="mono">2 dias</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  // Segmented de período (protótipo).
+  var seg = document.getElementById('period');
+  seg.addEventListener('click', function (e) {
+    if (e.target.tagName !== 'BUTTON') return;
+    seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+    e.target.classList.add('active');
+  });
+
+  // Filtro de unidade (academia / filial / franquia). Sem seleção = visão consolidada.
+  var unitBtn = document.getElementById('unitBtn');
+  var unitMenu = document.getElementById('unitMenu');
+  var unitLabel = document.getElementById('unitLabel');
+  var pageTitle = document.getElementById('pageTitle');
+  var scopeTag = document.getElementById('scopeTag');
+
+  function closeUnitMenu() { unitMenu.hidden = true; unitBtn.setAttribute('aria-expanded', 'false'); }
+  unitBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var willOpen = unitMenu.hidden;
+    unitMenu.hidden = !willOpen;
+    unitBtn.setAttribute('aria-expanded', String(willOpen));
+  });
+  unitMenu.addEventListener('click', function (e) {
+    var opt = e.target.closest('.unit-opt');
+    if (!opt) return;
+    unitMenu.querySelectorAll('.unit-opt').forEach(function (o) { o.classList.remove('active'); });
+    opt.classList.add('active');
+    unitLabel.textContent = opt.dataset.short;
+    pageTitle.textContent = opt.dataset.name;
+    if (opt.dataset.type) { scopeTag.textContent = opt.dataset.type; scopeTag.hidden = false; }
+    else { scopeTag.hidden = true; }
+    closeUnitMenu();
+  });
+  document.addEventListener('click', function () { if (!unitMenu.hidden) closeUnitMenu(); });
+
+  // Gráfico "Alunos por dia da semana" — data-driven, com tooltip no hover (dia + masc/fem + total).
+  (function () {
+    var data = [
+      { d: 'Seg', full: 'Segunda-feira', m: 72, f: 84 },
+      { d: 'Ter', full: 'Terça-feira',   m: 60, f: 74 },
+      { d: 'Qua', full: 'Quarta-feira',  m: 66, f: 80 },
+      { d: 'Qui', full: 'Quinta-feira',  m: 52, f: 62 },
+      { d: 'Sex', full: 'Sexta-feira',   m: 78, f: 56 },
+      { d: 'Sáb', full: 'Sábado',        m: 40, f: 46 },
+      { d: 'Dom', full: 'Domingo',       m: 14, f: 18 }
+    ];
+    var host = document.getElementById('weekChart');
+    if (!host) return;
+    var n = data.length, max = 90, padT = 12, padB = 88; // banda vertical útil (%)
+    function px(i) { return n === 1 ? 50 : (i / (n - 1)) * 100; }
+    function py(v) { return padT + (1 - v / max) * (padB - padT); }
+
+    var mPts = data.map(function (p, i) { return px(i) + ',' + py(p.m); }).join(' ');
+    var fPts = data.map(function (p, i) { return px(i) + ',' + py(p.f); }).join(' ');
+
+    var svg =
+      '<svg class="lc-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+        '<line x1="0" y1="88" x2="100" y2="88" stroke="var(--outline-v)" stroke-width="1" vector-effect="non-scaling-stroke"/>' +
+        '<line x1="0" y1="50" x2="100" y2="50" stroke="var(--outline-v)" stroke-width="1" opacity="0.5" vector-effect="non-scaling-stroke"/>' +
+        '<line x1="0" y1="12" x2="100" y2="12" stroke="var(--outline-v)" stroke-width="1" opacity="0.5" vector-effect="non-scaling-stroke"/>' +
+        '<polyline fill="none" stroke="var(--data-1)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="' + mPts + '"/>' +
+        '<polyline fill="none" stroke="var(--data-4)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="' + fPts + '"/>' +
+      '</svg>';
+
+    var overlay = '<div class="lc-guide" id="lcGuide"></div>';
+    data.forEach(function (p, i) {
+      overlay += '<i class="lc-dot" data-i="' + i + '" style="left:' + px(i) + '%;top:' + py(p.m) + '%;background:var(--data-1)"></i>';
+      overlay += '<i class="lc-dot" data-i="' + i + '" style="left:' + px(i) + '%;top:' + py(p.f) + '%;background:var(--data-4)"></i>';
+    });
+    data.forEach(function (p, i) {
+      overlay += '<div class="lc-col" data-i="' + i + '" style="left:' + px(i) + '%;width:' + (100 / n) + '%"></div>';
+    });
+
+    host.innerHTML =
+      '<div class="lc-plot">' + svg + overlay + '<div class="lc-tip" id="lcTip"></div></div>' +
+      '<div class="lc-xlabels">' + data.map(function (p) { return '<span>' + p.d + '</span>'; }).join('') + '</div>';
+
+    var plot = host.querySelector('.lc-plot');
+    var guide = host.querySelector('#lcGuide');
+    var tipEl = host.querySelector('#lcTip');
+    var dots = host.querySelectorAll('.lc-dot');
+    var xlabs = host.querySelectorAll('.lc-xlabels span');
+
+    function show(i) {
+      var p = data[i];
+      guide.style.left = px(i) + '%';
+      guide.classList.add('on');
+      tipEl.style.left = Math.max(12, Math.min(88, px(i))) + '%';
+      tipEl.style.top = Math.min(py(p.m), py(p.f)) + '%';
+      tipEl.innerHTML =
+        '<div class="t-title">' + p.full + '</div>' +
+        '<div class="t-row"><span class="k"><i class="dot" style="background:var(--data-1)"></i>Masculino</span><span class="v">' + p.m + '</span></div>' +
+        '<div class="t-row"><span class="k"><i class="dot" style="background:var(--data-4)"></i>Feminino</span><span class="v">' + p.f + '</span></div>' +
+        '<div class="t-row total"><span class="k">Total</span><span class="v">' + (p.m + p.f) + '</span></div>';
+      tipEl.classList.add('on');
+      dots.forEach(function (dt) { dt.classList.toggle('big', dt.dataset.i == i); });
+      xlabs.forEach(function (s, si) { s.classList.toggle('on', si === i); });
+    }
+    function hide() {
+      guide.classList.remove('on');
+      tipEl.classList.remove('on');
+      dots.forEach(function (dt) { dt.classList.remove('big'); });
+      xlabs.forEach(function (s) { s.classList.remove('on'); });
+    }
+    host.querySelectorAll('.lc-col').forEach(function (col) {
+      col.addEventListener('mouseenter', function () { show(+col.dataset.i); });
+    });
+    plot.addEventListener('mouseleave', hide);
+  })();
+</script>
+</body>
+</html>
