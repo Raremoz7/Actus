@@ -113,11 +113,7 @@ export function AcademyDashboardPage() {
           <h1 className="truncate font-display text-xl font-black uppercase tracking-wide text-text-1">
             {scope ? (units.find((u) => u.id === scope)?.name ?? academy?.name ?? 'Academia') : (academy?.name ?? 'Academia')}
           </h1>
-          {scope && (
-            <span className="shrink-0 rounded px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent-muted" style={{ background: 'color-mix(in srgb, var(--color-accent-muted) 16%, transparent)' }}>
-              Filial
-            </span>
-          )}
+          {scope && <Tag variant="future">Filial</Tag>}
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2.5">
           {isHq && units.length > 0 && <UnitFilter units={units} value={scope} onChange={setScope} />}

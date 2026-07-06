@@ -19,8 +19,8 @@ export function UnitFilter({
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener('click', onDoc);
-    return () => document.removeEventListener('click', onDoc);
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
   }, [open]);
 
   const selected = value == null ? null : units.find((u) => u.id === value) ?? null;
@@ -37,7 +37,7 @@ export function UnitFilter({
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        onClick={() => setOpen((o) => !o)}
         className="inline-flex h-[30px] items-center gap-2 rounded-full border border-outline-v bg-surface-1 px-3 text-[13px] text-text-1 transition-colors hover:border-outline"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neon" aria-hidden>
