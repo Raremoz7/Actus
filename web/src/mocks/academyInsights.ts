@@ -36,6 +36,8 @@ export const mockWeekdayBySex = {
   fem: [72, 66, 69, 58, 55, 47, 18],
 };
 
+export const weekdayFullLabels = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
+
 export const mockMonthlyCheckIns = {
   xLabels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'],
   values: [2180, 2540, 3010, 3260, 3540, 3810, 3960, 3890],
@@ -83,3 +85,16 @@ export const mockUpcomingBirthdaysStaff = [
   { name: 'Carla Coach', role: 'Personal trainer', when: 'Sex, 05/07' },
   { name: 'Diego Fit', role: 'Personal trainer', when: 'Dom, 07/07' },
 ];
+
+// [TEC-79] Escala determinística dos mocks por unidade selecionada, para o filtro de unidade
+// mudar visivelmente os cards de "Prévia" sem backend por unidade. scope=null => consolidado (1.0).
+export function scopeFactor(scope: string | null): number {
+  if (!scope) return 1;
+  let h = 0;
+  for (let i = 0; i < scope.length; i++) h = (h * 31 + scope.charCodeAt(i)) >>> 0;
+  return 0.55 + (h % 41) / 100; // 0.55 .. 0.95, estável por id
+}
+
+export function scaleColumns<T extends { value: number }>(rows: T[], f: number): T[] {
+  return rows.map((r) => ({ ...r, value: Math.round(r.value * f) }));
+}

@@ -391,6 +391,8 @@ export function WeekdayLineChart({
   const padT = 12;
   const padB = 88;
   const x = (i: number) => (n === 1 ? 50 : (i / (n - 1)) * 100);
+  // NB: viewBox é 0 0 100 100, então y(v) em unidades do viewBox coincide com % do container
+  // (usado tanto para os pontos/ SVG quanto para o `top` do tooltip). Manter padT/padB nessa escala 0–100.
   const y = (v: number) => padT + (1 - v / max) * (padB - padT);
 
   const activeMinY =

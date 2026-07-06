@@ -1,11 +1,15 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../components/ui/Avatar';
 import { Card } from '../../components/ui/Card';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { KpiCard } from '../dashboard/KpiCard';
+import { UnitFilter, type UnitOption } from '../../components/academy/UnitFilter';
+import { PeriodSegmented, type Period } from '../../components/academy/PeriodSegmented';
 import { useAcademyDashboard } from '../../hooks/useAcademy';
+import { useNetworkDashboard } from '../../hooks/useAcademyNetwork';
 import { selectAcademy, useAuthStore } from '../../store/authStore';
 import { formatBRL } from '../../lib/commission';
 import {
@@ -26,6 +30,9 @@ import {
   mockUpcomingBirthdaysStudents,
   mockWeekdayBySex,
   mockWeeklyFrequencyTotals,
+  scaleColumns,
+  scopeFactor,
+  weekdayFullLabels,
 } from '../../mocks/academyInsights';
 
 const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
@@ -82,6 +89,18 @@ export function AcademyDashboardPage() {
   const academy = useAuthStore(selectAcademy);
   const { data, isLoading } = useAcademyDashboard();
 
+  const [scope, setScope] = useState<string | null>(null);
+  const [period, setPeriod] = useState<Period>('month');
+
+  const isHq = academy?.network_role === 'network_hq';
+  const net = useNetworkDashboard({ enabled: isHq });
+  const units: UnitOption[] = (net.data?.units ?? []).map((u) => ({ id: u.id, name: u.name }));
+
+  // [TEC-79] Escala determinística dos cards de prévia conforme a unidade selecionada.
+  const f = scopeFactor(scope);
+  const scaledGoals = mockGoals.map((g) => ({ ...g, value: Math.round(g.value * f) }));
+  const scaledModalities = mockModalities.map((m) => ({ ...m, value: Math.round(m.value * f) }));
+
   const kpis = data?.kpis;
   const ranking = data?.instructor_ranking ?? [];
   const maxStudents = Math.max(1, ...ranking.map((r) => r.student_count));
@@ -89,10 +108,21 @@ export function AcademyDashboardPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          {academy?.name ?? 'Academia'}
-        </h1>
+      <div className="flex h-[52px] items-center justify-between gap-3 border-b border-outline-v px-6">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <h1 className="truncate font-display text-xl font-black uppercase tracking-wide text-text-1">
+            {scope ? (units.find((u) => u.id === scope)?.name ?? academy?.name ?? 'Academia') : (academy?.name ?? 'Academia')}
+          </h1>
+          {scope && (
+            <span className="shrink-0 rounded px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent-muted" style={{ background: 'color-mix(in srgb, var(--color-accent-muted) 16%, transparent)' }}>
+              Filial
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2.5">
+          {isHq && units.length > 0 && <UnitFilter units={units} value={scope} onChange={setScope} />}
+          <PeriodSegmented value={period} onChange={setPeriod} />
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4 p-6">
@@ -125,9 +155,9 @@ export function AcademyDashboardPage() {
                 ao vivo
               </span>
             </p>
-            <p className="font-mono text-[28px] leading-none text-data-1">{mockOccupancy.current}</p>
+            <p className="font-mono text-[28px] leading-none text-data-1">{Math.round(mockOccupancy.current * f)}</p>
             <p className="text-xs text-text-3">
-              de {mockOccupancy.capacity} vagas · {Math.round((mockOccupancy.current / mockOccupancy.capacity) * 100)}%
+              de {mockOccupancy.capacity} vagas · {Math.round((Math.round(mockOccupancy.current * f) / mockOccupancy.capacity) * 100)}%
             </p>
           </Card>
         </div>
@@ -145,8 +175,8 @@ export function AcademyDashboardPage() {
         <Card className="col-span-12 xl:col-span-4">
           <CardHead title="Objetivo" right={<PreviewTag />} />
           <Donut
-            segments={mockGoals}
-            centerValue={String(mockGoals.reduce((sum, g) => sum + g.value, 0))}
+            segments={scaledGoals}
+            centerValue={String(scaledGoals.reduce((sum, g) => sum + g.value, 0))}
             centerLabel="alunos"
           />
         </Card>
@@ -154,12 +184,12 @@ export function AcademyDashboardPage() {
         {/* Faixa etária + Frequência semanal */}
         <Card className="col-span-12 xl:col-span-6">
           <CardHead title="Faixa etária" right={<PreviewTag />} />
-          <ColumnChart data={mockAgeBuckets} color="var(--color-data-1)" />
+          <ColumnChart data={scaleColumns(mockAgeBuckets, f)} color="var(--color-data-1)" />
         </Card>
 
         <Card className="col-span-12 xl:col-span-6">
           <CardHead title="Frequência semanal" right={<PreviewTag />} />
-          <ColumnChart data={mockWeeklyFrequencyTotals} color="var(--color-data-6)" />
+          <ColumnChart data={scaleColumns(mockWeeklyFrequencyTotals, f)} color="var(--color-data-6)" />
         </Card>
 
         {/* Instrutores em destaque (dados reais) + Modalidades (mock) */}
@@ -207,7 +237,7 @@ export function AcademyDashboardPage() {
         <Card className="col-span-12 xl:col-span-5">
           <CardHead title="Modalidades mais praticadas" right={<PreviewTag />} />
           <div className="flex flex-wrap content-start gap-2">
-            {mockModalities.map((m) => (
+            {scaledModalities.map((m) => (
               <span
                 key={m.label}
                 className="inline-flex items-center gap-1.5 rounded-full border border-outline-v bg-surface-2 px-3.5 py-2"
@@ -233,10 +263,10 @@ export function AcademyDashboardPage() {
           />
           <WeekdayLineChart
             xLabels={mockWeekdayBySex.xLabels}
-            fullLabels={['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']}
+            fullLabels={weekdayFullLabels}
             series={[
-              { label: 'Masculino', color: 'var(--color-data-1)', values: mockWeekdayBySex.masc },
-              { label: 'Feminino', color: 'var(--color-data-4)', values: mockWeekdayBySex.fem },
+              { label: 'Masculino', color: 'var(--color-data-1)', values: mockWeekdayBySex.masc.map((v) => Math.round(v * f)) },
+              { label: 'Feminino', color: 'var(--color-data-4)', values: mockWeekdayBySex.fem.map((v) => Math.round(v * f)) },
             ]}
           />
         </Card>
