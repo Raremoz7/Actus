@@ -22,7 +22,7 @@ editorial) — ver §07.
 |---|---|---|---|
 | **App mobile** (produto) | React Native · Expo SDK 55 · Unistyles 3 · Reanimated | Dark único | `tokens.ts` + `AppText` |
 | **Painel web** | React · Tailwind v4 · GSAP · Lenis | Dark (mesmos tokens) | `@theme` em `index.css` |
-| **Landing** | React · Tailwind v4 · GSAP · Lenis | **Light** editorial | Subsistema próprio (§07) |
+| **Landing** | React · Tailwind v4 · GSAP · Lenis | Dark (mesmos tokens do painel) | Subsistema próprio (§07) |
 
 ---
 
@@ -305,21 +305,31 @@ O painel web é a mesma marca em outra stack. Regras de equivalência:
 
 ---
 
-## 07 · Landing (subsistema light)
+## 07 · Landing (subsistema editorial)
 
-A landing é editorial e **light** — referência visual reconstruída de `bevel.health`
-(material em `www_bevel_health/`). Não usa a paleta dark do app; é o único contexto claro.
+A landing é editorial mas **dark** — reusa a mesma paleta do painel (`src/pages/landing/theme.ts`
+reexporta os tokens de `index.css` via `var(--color-*)`). Referência de composição/ritmo visual
+reconstruída de `bevel.health` (material em `www_bevel_health/`); a referência **não** é de
+paleta — a decisão de produto foi manter o dark único da marca em toda superfície web, sem um
+segundo tema claro a manter.
 
-- **Fundo:** `#fff`. **Texto:** `#222326` / `rgba(34,35,38,0.65)` / `rgba(34,35,38,0.5)`.
-- **Superfícies claras:** `rgba(255,255,255,0.7)`, `#f6f7f9`, `#f0f2f5`.
+- **Fundo/texto/superfícies:** mesmos tokens do painel (`bg-lowest`/`bg-base`, `text-1/2/3`,
+  `surface-1..4`) — ver §01.
+- **Exceção de implementação:** `theme.ts` também expõe os hexs crus em `hex.*` para os poucos
+  casos onde `var()` é inconveniente (gradientes/rgba compostos no mesmo valor). Preferir sempre
+  `c.*` (as classes/CSS vars); só cair em `hex.*` quando `var()` realmente não servir.
 - **Tipografia:** display Barlow Condensed mantém a marca; corpo pode cair em system stack
-  (`-apple-system, "SF Pro Display", Inter`). Tamanhos com `clamp()` responsivo.
+  (`-apple-system, "SF Pro Display", Inter`). Tamanhos com `clamp()` responsivo — usar um único
+  `SectionHeading`/escala fluida compartilhada entre seções, não um `clamp()` custom por seção.
 - **Motion:** GSAP ScrollTrigger + Lenis (parallax de phones, stagger de texto, accordion, pin).
   Respeitar §08: **um** momento alto-impacto, não fade-up em tudo.
 - **Sombras:** `drop-shadow` editorial nos mockups de phone; sombra suave de navbar ao scroll.
 - **Estrutura:** composição editorial assimétrica — **não** a fórmula AI-slop de LP (ver §08).
+- **Componentes:** a landing deve reusar `Button`/`Card`/`Tag` de `web/src/components/ui/` em vez
+  de reimplementar botão/card em `React.CSSProperties` ad hoc por seção.
 
-A landing pode divergir visualmente do app, mas **nunca** das restrições anti-slop (§08) nem da voz (§09).
+A landing pode divergir do painel em composição/ritmo, mas **não** em paleta, nem nas
+restrições anti-slop (§08), nem na voz (§09).
 
 ---
 
