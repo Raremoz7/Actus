@@ -49,7 +49,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     '@react-native-community/datetimepicker',
-    '@sentry/react-native',
     'react-native-edge-to-edge',
   ],
 });

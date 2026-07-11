@@ -37,9 +37,6 @@ yarn-error.*
 # mockups do brainstorming (visual companion)
 .superpowers/
 
-# Sentry
-.sentryclirc
-
 # typescript
 *.tsbuildinfo
 

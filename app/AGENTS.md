@@ -11,7 +11,7 @@ O backend (Node/Express + Postgres) vive neste monorepo em `../backend/` — có
 
 ## Stack (inegociável)
 
-Expo SDK 55 (dev build — **Expo Go não funciona**) · Expo Router · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod (toda resposta da API validada) · SecureStore (tokens) · Phosphor duotone · Reanimated · Sentry sem PII
+Expo SDK 55 (dev build — **Expo Go não funciona**) · Expo Router · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod (toda resposta da API validada) · SecureStore (tokens) · Phosphor duotone · Reanimated
 
 ## Regras críticas da API (violar = bug em produção)
 

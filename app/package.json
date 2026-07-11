@@ -8,7 +8,6 @@
     "@expo-google-fonts/share-tech-mono": "^0.4.1",
     "@hookform/resolvers": "^5.4.0",
     "@react-native-community/datetimepicker": "8.6.0",
-    "@sentry/react-native": "~7.11.0",
     "@tanstack/react-query": "^5.100.14",
     "axios": "^1.16.1",
     "expo": "~55.0.0",
