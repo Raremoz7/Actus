@@ -10,12 +10,8 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import { apiEvents } from '@/api/client';
 import { queryClient } from '@/lib/queryClient';
-import { initSentry, Sentry } from '@/observability/sentry';
 import { useAppFonts } from '@/theme/fonts';
 import { useAuthStore } from '@/store/authStore';
-
-// Sentry inicializado no módulo (antes de qualquer render).
-initSentry();
 
 // Segura o splash nativo até fontes + hydrate prontos.
 void SplashScreen.preventAutoHideAsync();
@@ -100,4 +96,4 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;

@@ -19,7 +19,7 @@ Monorepo com o app mobile e a API.
 
 | Lado | Tecnologias |
 |---|---|
-| App | Expo SDK 55 (dev build) · Expo Router · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod · Reanimated · Sentry |
+| App | Expo SDK 55 (dev build) · Expo Router · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod · Reanimated |
 | API | Node + Express · TypeScript · Postgres 16 · JWT (access + refresh rotativo) · Zod · Swagger · Vitest |
 
 ## Como rodar

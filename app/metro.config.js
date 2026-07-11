@@ -1,7 +1,7 @@
-const { getSentryExpoConfig } = require('@sentry/react-native/metro');
+const { getDefaultConfig } = require('expo/metro-config');
 
-// Config base com Sentry (source maps + symbolication)
-const config = getSentryExpoConfig(__dirname);
+// Config base do Expo
+const config = getDefaultConfig(__dirname);
 
 // SVG como componente React (react-native-svg-transformer)
 config.transformer = {
