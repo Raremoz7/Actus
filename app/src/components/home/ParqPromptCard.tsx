@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { CaretRight, ClipboardText } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { shortDateBr } from '@/lib/format';
 import { isParqPending, type ParqStatus } from '@/lib/parq';
 import { darkTheme } from '@/theme';
@@ -21,10 +21,8 @@ export function ParqPromptCard({ status, validUntil, onPress }: Props) {
   if (!isParqPending(status)) {
     const valid = validUntil ? `Em dia · válido até ${shortDateBr(validUntil)}` : 'Em dia';
     return (
-      <Pressable
-        style={styles.cardMuted}
+      <Card
         onPress={onPress}
-        accessibilityRole="button"
         accessibilityLabel="Par-Q em dia. Toque para revisar suas respostas."
       >
         <View style={styles.mutedRow}>
@@ -37,7 +35,7 @@ export function ParqPromptCard({ status, validUntil, onPress }: Props) {
           </View>
           <CaretRight size={16} weight="bold" color={colors.textTertiary} />
         </View>
-      </Pressable>
+      </Card>
     );
   }
 
@@ -60,13 +58,6 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.card,
     padding: theme.spacing.md,
     gap: 2,
-  },
-  cardMuted: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
   },
   mutedRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   mutedText: { flex: 1 },

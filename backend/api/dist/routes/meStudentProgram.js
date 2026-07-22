@@ -4,7 +4,13 @@ import { authedUserId } from "../middleware/requireAuth.js";
 import { withTx } from "../db.js";
 import { uuid } from "../crypto.js";
 import { buildWorkoutFinishSummary } from "../services/studentWorkoutSummary.js";
+import { recomputeStreak } from "../services/streakService.js";
+import { evaluateBadges } from "../services/badgeService.js";
+import { isInvalidEnumValue, isMissingDbObjectError, isCheckInsWorkoutSessionFkViolation, sendInternalError } from "../schemaCompat.js";
+import { queryCheckInsForStudent } from "../studentCheckInsQuery.js";
+import { sendBadgeNotifications } from "../services/pushService.js";
 const router = Router();
+const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 /** ISO-8601 weekday: 1 = segunda … 7 = domingo (alinha a student_workouts.weekdays). */
 export function isoWeekdayFromDateOnly(dateStr) {
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -42,6 +48,35 @@ const finishSessionSchema = z.object({
 const postCheckInSchema = z.object({
     check_in_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     workout_session_id: z.string().uuid().optional().nullable(),
+});
+router.get("/check-ins", async (req, res) => {
+    const studentId = authedUserId(req);
+    const limitRaw = req.query.limit;
+    const fromRaw = req.query.from;
+    const toRaw = req.query.to;
+    let limit = 120;
+    if (limitRaw !== undefined) {
+        const n = Number(typeof limitRaw === "string" ? limitRaw : Array.isArray(limitRaw) ? limitRaw[0] : NaN);
+        if (!Number.isFinite(n) || n < 1 || n > 500) {
+            return res.status(400).json({ error: "invalid_query", detail: "limit must be between 1 and 500" });
+        }
+        limit = Math.floor(n);
+    }
+    const from = typeof fromRaw === "string" ? fromRaw : undefined;
+    const to = typeof toRaw === "string" ? toRaw : undefined;
+    if (from !== undefined && !dateOnly.safeParse(from).success) {
+        return res.status(400).json({ error: "invalid_query", detail: "from must be YYYY-MM-DD" });
+    }
+    if (to !== undefined && !dateOnly.safeParse(to).success) {
+        return res.status(400).json({ error: "invalid_query", detail: "to must be YYYY-MM-DD" });
+    }
+    try {
+        const check_ins = await withTx((client) => queryCheckInsForStudent(client, studentId, { from, to, limit }));
+        return res.json({ check_ins });
+    }
+    catch (e) {
+        return sendInternalError(res, e);
+    }
 });
 router.get("/diets", async (req, res) => {
     const studentId = authedUserId(req);
@@ -216,7 +251,7 @@ router.patch("/workouts/sessions/:session_id", async (req, res) => {
             if (nextStatus === "completed_partial") {
                 if (cur !== "in_progress")
                     return { ok: false, error: "invalid_session_transition" };
-                await client.query(`update public.workout_sessions set status = 'completed_partial'::public.workout_session_status, completed_at = now(), updated_at = now() where id = $1`, [sessionId]);
+                await setWorkoutSessionCompletedPartial(client, sessionId);
                 return { ok: true };
             }
             if (nextStatus === "completed") {
@@ -246,8 +281,11 @@ router.patch("/workouts/sessions/:session_id", async (req, res) => {
             return res.status(404).json({ error: "workout_session_not_found" });
         return res.json(payload);
     }
-    catch {
-        return res.status(500).json({ error: "internal_error" });
+    catch (e) {
+        if (e instanceof Error && e.name === "MigrationRequired") {
+            return res.status(503).json({ error: "migration_required", message: e.message });
+        }
+        return sendInternalError(res, e);
     }
 });
 /** Marca início efetivo do treino (atualiza `started_at`). */
@@ -307,7 +345,7 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
                 if (row.status !== "in_progress")
                     return { ok: false, error: "session_not_finishable" };
                 if (early_finish) {
-                    await client.query(`update public.workout_sessions set status = 'completed_partial'::public.workout_session_status, completed_at = now(), updated_at = now() where id = $1`, [sessionId]);
+                    await setWorkoutSessionCompletedPartial(client, sessionId);
                 }
                 else {
                     const pending = await client.query(`select 1 from public.session_exercises where session_id = $1 and completed = false limit 1`, [sessionId]);
@@ -321,19 +359,48 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
                 const d = formatDateOnly(row.scheduled_for_date) ?? (await studentLocalDateString(client, studentId));
                 await insertStudentCheckIn(client, studentId, d, sessionId);
             }
-            const exQ = await client.query(`
-        select we.id, we.name_snapshot, we.muscle_group
-        from public.session_exercises se
-        join public.workout_exercises we on we.id = se.workout_exercise_id
-        where se.session_id = $1
-        `, [sessionId]);
+            let exQ;
+            try {
+                exQ = await client.query(`
+          select we.id, we.name_snapshot, we.muscle_group
+          from public.session_exercises se
+          join public.workout_exercises we on we.id = se.workout_exercise_id
+          where se.session_id = $1
+          `, [sessionId]);
+            }
+            catch (err) {
+                if (!isMissingDbObjectError(err))
+                    throw err;
+                const exQ2 = await client.query(`
+          select we.id, we.name_snapshot
+          from public.session_exercises se
+          join public.workout_exercises we on we.id = se.workout_exercise_id
+          where se.session_id = $1
+          `, [sessionId]);
+                exQ = {
+                    rows: exQ2.rows.map((r) => ({ ...r, muscle_group: null })),
+                };
+            }
             const exerciseMeta = exQ.rows.map((r) => ({
                 workout_exercise_id: r.id,
                 name_snapshot: r.name_snapshot,
                 muscle_group: r.muscle_group,
             }));
             const summary = await buildWorkoutFinishSummary(client, studentId, sessionId, exerciseMeta);
-            return { ok: true, summary };
+            // Gamificação: recalcula streak e avalia badges DENTRO da mesma transação,
+            // após o status virar terminal (o trigger trg_workout_session_completed_stats
+            // já incrementou total_workouts_completed no banco real).
+            const localDate = await studentLocalDateString(client, studentId);
+            const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate });
+            const twQ = await client.query(`select total_workouts_completed as n from public.profiles where id = $1`, [studentId]);
+            const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+            const had_pr = (summary.load_evolution ?? []).some((e) => typeof e.delta_kg === "number" && e.delta_kg > 0);
+            const newBadges = await evaluateBadges(client, studentId, {
+                total_workouts_completed: totalWorkoutsCompleted,
+                streak_current: streak.streak_current,
+                had_pr,
+            }, new Date());
+            return { ok: true, summary, newBadges };
         });
         if (!summaryMeta.ok) {
             switch (summaryMeta.error) {
@@ -347,13 +414,35 @@ router.post("/workouts/sessions/:session_id/finish", async (req, res) => {
                     return res.status(500).json({ error: "internal_error" });
             }
         }
+        // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
+        const newBadges = summaryMeta.newBadges;
+        if (newBadges.length > 0) {
+            try {
+                await withTx((client) => sendBadgeNotifications(client, studentId, newBadges.map((b) => ({ id: b.id, name: b.name }))));
+            }
+            catch {
+                // best-effort: falha de push não afeta a conquista.
+            }
+        }
         const payload = await withTx((client) => loadSessionPayloadTx(client, studentId, sessionId));
         if (!payload)
             return res.status(404).json({ error: "workout_session_not_found" });
-        return res.status(200).json({ ...payload, summary: summaryMeta.summary });
+        return res.status(200).json({
+            ...payload,
+            summary: summaryMeta.summary,
+            newly_earned_badges: newBadges.map((b) => ({
+                id: b.id,
+                name: b.name,
+                description: b.description,
+                asset_key: b.asset_key,
+            })),
+        });
     }
-    catch {
-        return res.status(500).json({ error: "internal_error" });
+    catch (e) {
+        if (e instanceof Error && e.name === "MigrationRequired") {
+            return res.status(503).json({ error: "migration_required", message: e.message });
+        }
+        return sendInternalError(res, e);
     }
 });
 /** Substitui séries registradas de um exercício na sessão (apenas `in_progress`). */
@@ -430,8 +519,14 @@ router.put("/workouts/sessions/:session_id/exercises/:workout_exercise_id/sets",
             return res.status(404).json({ error: "workout_session_not_found" });
         return res.json(payload);
     }
-    catch {
-        return res.status(500).json({ error: "internal_error" });
+    catch (e) {
+        if (isMissingDbObjectError(e)) {
+            return res.status(503).json({
+                error: "migration_required",
+                message: "Registro de séries (session_sets) requer migração do banco.",
+            });
+        }
+        return sendInternalError(res, e);
     }
 });
 router.post("/check-ins", async (req, res) => {
@@ -442,13 +537,54 @@ router.post("/check-ins", async (req, res) => {
     try {
         const result = await withTx(async (client) => {
             const d = parsed.data.check_in_date?.slice(0, 10) ?? (await studentLocalDateString(client, studentId));
-            const inserted = await insertStudentCheckIn(client, studentId, d, parsed.data.workout_session_id ?? null);
-            return { check_in_date: d, created: inserted };
+            let workoutSessionId = parsed.data.workout_session_id ?? null;
+            if (workoutSessionId != null) {
+                const v = await client.query(`select 1 from public.workout_sessions where id = $1 and student_id = $2 limit 1`, [workoutSessionId, studentId]);
+                if (!v.rowCount) {
+                    return { ok: false, error: "workout_session_not_found" };
+                }
+            }
+            const inserted = await insertStudentCheckIn(client, studentId, d, workoutSessionId);
+            // Gamificação: recalcula streak e avalia badges na mesma transação.
+            // Check-in manual não tem load_evolution, então had_pr = false.
+            const streak = await recomputeStreak(client, studentId, { at: new Date(), localDate: d });
+            const twQ = await client.query(`select total_workouts_completed as n from public.profiles where id = $1`, [studentId]);
+            const totalWorkoutsCompleted = Number(twQ.rows[0]?.n ?? 0);
+            const newBadges = await evaluateBadges(client, studentId, {
+                total_workouts_completed: totalWorkoutsCompleted,
+                streak_current: streak.streak_current,
+                had_pr: false,
+            }, new Date());
+            return { ok: true, check_in_date: d, created: inserted, newBadges };
         });
-        return res.status(201).json(result);
+        if (!result.ok) {
+            return res.status(400).json({ error: result.error });
+        }
+        // Push best-effort de conquistas, APÓS o commit da transação. Nunca derruba a resposta.
+        if (result.newBadges.length > 0) {
+            try {
+                await withTx((client) => sendBadgeNotifications(client, studentId, result.newBadges.map((b) => ({ id: b.id, name: b.name }))));
+            }
+            catch {
+                // best-effort: falha de push não afeta a conquista.
+            }
+        }
+        return res.status(201).json({
+            check_in_date: result.check_in_date,
+            created: result.created,
+            newly_earned_badges: result.newBadges.map((b) => ({
+                id: b.id,
+                name: b.name,
+                description: b.description,
+                asset_key: b.asset_key,
+            })),
+        });
     }
-    catch {
-        return res.status(500).json({ error: "internal_error" });
+    catch (e) {
+        if (isCheckInsWorkoutSessionFkViolation(e)) {
+            return res.status(400).json({ error: "workout_session_not_found" });
+        }
+        return sendInternalError(res, e);
     }
 });
 router.get("/workouts", async (req, res) => {
@@ -544,12 +680,28 @@ router.get("/workouts/:student_workout_id", async (req, res) => {
             const sw = swQ.rows[0];
             if (!sw)
                 return null;
-            const exQ = await client.query(`
-        select id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group
-        from public.workout_exercises
-        where workout_id = $1
-        order by position asc
-        `, [sw.workout_id]);
+            let exQ;
+            try {
+                exQ = await client.query(`
+          select id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes, muscle_group
+          from public.workout_exercises
+          where workout_id = $1
+          order by position asc
+          `, [sw.workout_id]);
+            }
+            catch (err) {
+                if (!isMissingDbObjectError(err))
+                    throw err;
+                const exQ2 = await client.query(`
+          select id, position, wger_exercise_id, name_snapshot, sets, reps, rest_seconds, notes
+          from public.workout_exercises
+          where workout_id = $1
+          order by position asc
+          `, [sw.workout_id]);
+                exQ = {
+                    rows: exQ2.rows.map((e) => ({ ...e, muscle_group: null })),
+                };
+            }
             const sessions = await client.query(`
         select id, scheduled_for_date, status::text, started_at, completed_at
         from public.workout_sessions
@@ -597,8 +749,8 @@ router.get("/workouts/:student_workout_id", async (req, res) => {
             return res.status(404).json({ error: "student_workout_not_found" });
         return res.json(payload);
     }
-    catch {
-        return res.status(500).json({ error: "internal_error" });
+    catch (e) {
+        return sendInternalError(res, e);
     }
 });
 router.post("/workouts/:student_workout_id/sessions", async (req, res) => {
@@ -682,7 +834,7 @@ router.post("/workouts/:student_workout_id/sessions", async (req, res) => {
             if (retry)
                 return res.status(200).json(retry);
         }
-        return res.status(500).json({ error: "internal_error" });
+        return sendInternalError(res, e);
     }
 });
 async function ensureSessionExercises(client, sessionId, workoutId) {
@@ -698,7 +850,20 @@ async function ensureSessionExercises(client, sessionId, workoutId) {
 async function loadSessionPayload(studentId, sessionId) {
     return withTx((client) => loadSessionPayloadTx(client, studentId, sessionId));
 }
-async function loadSessionPayloadTx(client, studentId, sessionId) {
+async function setWorkoutSessionCompletedPartial(client, sessionId) {
+    try {
+        await client.query(`update public.workout_sessions set status = 'completed_partial'::public.workout_session_status, completed_at = now(), updated_at = now() where id = $1`, [sessionId]);
+    }
+    catch (err) {
+        if (isInvalidEnumValue(err, "completed_partial")) {
+            const e = new Error("O enum workout_session_status não inclui completed_partial. Aplique as migrações do repositório (ex.: supabase db push).");
+            e.name = "MigrationRequired";
+            throw e;
+        }
+        throw err;
+    }
+}
+async function loadSessionPayloadTxModern(client, studentId, sessionId) {
     const sQ = await client.query(`
     select id, student_workout_id, scheduled_for_date, status::text, started_at, completed_at
     from public.workout_sessions
@@ -768,36 +933,123 @@ async function loadSessionPayloadTx(client, studentId, sessionId) {
         })),
     };
 }
+/** Schema fase 1: sem `muscle_group` em workout_exercises e sem tabela session_sets. */
+async function loadSessionPayloadTxLegacy(client, studentId, sessionId) {
+    const sQ = await client.query(`
+    select id, student_workout_id, scheduled_for_date, status::text, started_at, completed_at
+    from public.workout_sessions
+    where id = $1 and student_id = $2
+    `, [sessionId, studentId]);
+    const s = sQ.rows[0];
+    if (!s)
+        return null;
+    const exQ = await client.query(`
+    select
+      se.workout_exercise_id,
+      se.completed,
+      se.completed_at,
+      we.position,
+      we.wger_exercise_id,
+      we.name_snapshot,
+      we.sets,
+      we.reps,
+      we.rest_seconds,
+      we.notes
+    from public.session_exercises se
+    join public.workout_exercises we on we.id = se.workout_exercise_id
+    where se.session_id = $1
+    order by we.position asc
+    `, [sessionId]);
+    return {
+        session: {
+            id: s.id,
+            student_workout_id: s.student_workout_id,
+            scheduled_for_date: formatDateOnly(s.scheduled_for_date),
+            status: s.status,
+            started_at: toIso(s.started_at),
+            completed_at: s.completed_at ? toIso(s.completed_at) : null,
+        },
+        exercises: exQ.rows.map((e) => ({
+            workout_exercise_id: e.workout_exercise_id,
+            completed: e.completed,
+            completed_at: e.completed_at ? toIso(e.completed_at) : null,
+            position: e.position,
+            wger_exercise_id: e.wger_exercise_id,
+            name_snapshot: e.name_snapshot,
+            sets: e.sets,
+            reps: e.reps,
+            rest_seconds: e.rest_seconds,
+            notes: e.notes,
+            muscle_group: null,
+            sets_logged: [],
+        })),
+    };
+}
+async function loadSessionPayloadTx(client, studentId, sessionId) {
+    try {
+        return await loadSessionPayloadTxModern(client, studentId, sessionId);
+    }
+    catch (err) {
+        if (isMissingDbObjectError(err)) {
+            return loadSessionPayloadTxLegacy(client, studentId, sessionId);
+        }
+        throw err;
+    }
+}
 async function studentLocalDateString(client, studentId) {
+    // Retorna a data (sem cast ::text, que o pg-mem não suporta) e formata em JS:
+    // node-pg devolve `date` como string 'YYYY-MM-DD'; pg-mem devolve um Date — ambos
+    // tratados por formatDateOnly.
     const q = await client.query(`
-    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date::text as d
+    select (timezone(coalesce(p.timezone, 'UTC'), now()))::date as d
     from public.profiles p
     where p.id = $1
     `, [studentId]);
-    return q.rows[0]?.d ?? new Date().toISOString().slice(0, 10);
+    return formatDateOnly(q.rows[0]?.d) ?? new Date().toISOString().slice(0, 10);
 }
 async function insertStudentCheckIn(client, studentId, checkInDate, workoutSessionId) {
     const insId = uuid();
-    const r = await client.query(`
-    insert into public.check_ins (id, student_id, check_in_date, source, workout_session_id)
-    values ($1, $2, $3::date, 'app', $4)
-    on conflict (student_id, check_in_date) do nothing
-    returning id
-    `, [insId, studentId, checkInDate, workoutSessionId]);
-    return (r.rows?.length ?? 0) > 0;
+    try {
+        const r = await client.query(`
+      insert into public.check_ins (id, student_id, check_in_date, source, workout_session_id)
+      values ($1, $2, $3::date, 'app', $4)
+      on conflict (student_id, check_in_date) do nothing
+      returning id
+      `, [insId, studentId, checkInDate, workoutSessionId]);
+        return (r.rows?.length ?? 0) > 0;
+    }
+    catch (err) {
+        if (!isMissingDbObjectError(err))
+            throw err;
+        const r = await client.query(`
+      insert into public.check_ins (id, student_id, check_in_date, source)
+      values ($1, $2, $3::date, 'app')
+      on conflict (student_id, check_in_date) do nothing
+      returning id
+      `, [insId, studentId, checkInDate]);
+        return (r.rows?.length ?? 0) > 0;
+    }
 }
 function toIso(v) {
     const d = v instanceof Date ? v : new Date(v);
     return d.toISOString();
 }
+function pad2(n) {
+    return n < 10 ? `0${n}` : `${n}`;
+}
 function formatDateOnly(v) {
     if (v == null)
         return null;
-    if (v instanceof Date)
-        return v.toISOString().slice(0, 10);
     if (typeof v === "string")
         return v.slice(0, 10);
+    if (v instanceof Date) {
+        // node-pg materializa `date` como Date à meia-noite LOCAL; usar componentes locais
+        // evita o shift de fuso que toISOString (UTC) introduziria.
+        return `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
+    }
     const d = new Date(v);
-    return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : null;
+    return Number.isFinite(d.getTime())
+        ? `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+        : null;
 }
 export default router;

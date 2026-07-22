@@ -16,11 +16,19 @@ export const endpoints = {
     profile: '/me/profile',
     // Upload de avatar (multipart) → seta avatar_url.
     avatar: '/me/avatar',
+    // Registro alimentar do aluno ("o que comi").
+    meals: '/me/meals',
+    // Perfil profissional self-service (onboarding do professor): GET/PATCH.
+    professionalProfile: '/me/professional-profile',
     workouts: '/me/workouts',
     checkIns: '/me/check-ins',
     diets: '/me/diets',
     weeklyOverview: '/me/gamification/weekly-overview',
     challenges: '/me/challenges',
+    badges: '/me/badges',
+    badgesUnseen: '/me/badges/unseen',
+    badgesSeen: '/me/badges/seen',
+    deviceTokens: '/me/device-tokens',
   },
   professional: {
     students: '/professional/students',
@@ -35,6 +43,12 @@ export const endpoints = {
   health: '/health',
   // Templates de treino do profissional logado (GET/POST /workouts, GET/PATCH /workouts/:id).
   workouts: '/workouts',
+  // Banco de Treinos curado (templates do admin, lidos por todos os autenticados):
+  // GET /workout-templates (lista), GET /workout-templates/:id (detalhe),
+  // POST /workout-templates/:id/copy (personal clona p/ sua biblioteca → workout_id).
+  workoutTemplates: '/workout-templates',
+  workoutTemplateById: (id: string) => `/workout-templates/${id}`,
+  workoutTemplateCopy: (id: string) => `/workout-templates/${id}/copy`,
   // Atribuição de treino a um aluno: POST /students/:student_id/workouts.
   studentWorkouts: (studentId: string) => `/students/${studentId}/workouts`,
   // Templates de dieta do nutricionista logado (GET/POST /diet-templates,

@@ -48,3 +48,31 @@ export function deriveStudentStatus(checkIns: Pick<CheckIn, 'check_in_date'>[] |
     daysSince: days,
   };
 }
+
+export type WorkoutTemporalTone = 'active' | 'future' | 'done';
+export type WorkoutTemporalStatus = { label: string; tone: WorkoutTemporalTone };
+
+/** Status temporal de um treino atribuído, derivado de start/end ('YYYY-MM-DD' local).
+ *  Futuro = ainda não começou; Concluído = o período já passou; senão Em andamento
+ *  (inclui o caso sem período definido — atribuição em aberto). */
+export function deriveWorkoutStatus(
+  startDate: string | null,
+  endDate: string | null,
+  now = new Date(),
+): WorkoutTemporalStatus {
+  if (startDate && daysSinceLocal(startDate, now) < 0) return { label: 'Futuro', tone: 'future' };
+  if (endDate && daysSinceLocal(endDate, now) > 0) return { label: 'Concluído', tone: 'done' };
+  return { label: 'Em andamento', tone: 'active' };
+}
+
+/** Idade em anos a partir de 'YYYY-MM-DD' (componentes locais; null se inválido). */
+export function ageFromBirthDate(birthDate: string | null): number | null {
+  if (!birthDate) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birthDate);
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < mo || (now.getMonth() + 1 === mo && now.getDate() < d)) age--;
+  return age >= 0 && age < 150 ? age : null;
+}

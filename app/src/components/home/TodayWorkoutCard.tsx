@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { Play, MoonStars, CaretRight, Check } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { WorkoutCardPhoto } from '@/components/workouts/WorkoutCardPhoto';
 import { darkTheme } from '@/theme';
 import type { TodayWorkoutSummary } from '@/types/workouts';
@@ -38,7 +38,7 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
     // Treino concluído hoje: selo + copy quiet-luxury, sem CTA de iniciar.
     if (done) {
       return (
-        <View style={styles.card}>
+        <Card padding="none" style={styles.cardExtra}>
           <WorkoutCardPhoto hint={w.muscle_groups} />
           <AppText variant="eyebrow" color="neon">
             Treino de hoje
@@ -52,12 +52,12 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
               Treino concluído
             </AppText>
           </View>
-        </View>
+        </Card>
       );
     }
 
     return (
-      <View style={styles.card}>
+      <Card padding="none" style={styles.cardExtra}>
         <WorkoutCardPhoto hint={w.muscle_groups} />
         <AppText variant="eyebrow" color="neon">
           Treino de hoje
@@ -79,13 +79,13 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
             Iniciar treino
           </AppText>
         </Pressable>
-      </View>
+      </Card>
     );
   }
 
   const next = summary.next_workout;
   return (
-    <View style={styles.card}>
+    <Card padding="none" style={styles.cardExtra}>
       <View style={styles.restIcon}>
         <MoonStars size={26} weight="duotone" color={colors.secondary} />
       </View>
@@ -112,16 +112,12 @@ export function TodayWorkoutCard({ summary, onStart, onSeeWeek, done = false }: 
         </AppText>
         <CaretRight size={16} weight="bold" color={colors.textTertiary} />
       </Pressable>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
+  cardExtra: {
     padding: theme.spacing.xl,
     // Clipa a foto full-bleed ao raio do card.
     overflow: 'hidden',

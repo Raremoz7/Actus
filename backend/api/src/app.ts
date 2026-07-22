@@ -8,12 +8,20 @@ import meStudentProgramRoutes from "./routes/meStudentProgram.js";
 import meGamificationRoutes from "./routes/meGamification.js";
 import professionalChallengesRoutes from "./routes/professionalChallenges.js";
 import meChallengesRoutes from "./routes/meChallenges.js";
+import meBadgesRoutes from "./routes/meBadges.js";
+import deviceTokensRoutes from "./routes/deviceTokens.js";
 import { requirePersonal } from "./middleware/requirePersonal.js";
 import adminProfessionalsRoutes from "./routes/adminProfessionals.js";
 import professionalStudentsRoutes from "./routes/professionalStudents.js";
 import adminStudentLinksRoutes from "./routes/adminStudentLinks.js";
 import adminStaffRoutes from "./routes/adminStaff.js";
+import adminAcademiesRoutes from "./routes/adminAcademies.js";
+import academyRoutes from "./routes/academy.js";
+import academyCommissionsRoutes from "./routes/academyCommissions.js";
+import academyNetworkRoutes from "./routes/academyNetwork.js";
+import professionalDashboardRoutes from "./routes/professionalDashboard.js";
 import workoutsRoutes from "./routes/workouts.js";
+import workoutTemplatesRoutes from "./routes/workoutTemplates.js";
 import exercisesRoutes from "./routes/exercises.js";
 import studentWorkoutsRoutes from "./routes/studentWorkouts.js";
 import dietTemplatesRoutes from "./routes/dietTemplates.js";
@@ -29,6 +37,7 @@ import {
 import { requireAuth } from "./middleware/requireAuth.js";
 import { requireStudent } from "./middleware/requireStudent.js";
 import { requireStaff } from "./middleware/requireStaff.js";
+import { requireAcademyManager } from "./middleware/requireAcademyManager.js";
 import { openapi } from "./openapi.js";
 import { OPENAPI_TAGS } from "./openapiTags.js";
 
@@ -65,7 +74,18 @@ function createSwaggerUiTagsSorter(): (a: unknown, b: unknown) => number {
 
 const swaggerUiTagsSorter = createSwaggerUiTagsSorter();
 
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS ?? "http://localhost:5173").split(",").map((s) => s.trim());
+// Origens de dev liberadas por padrão: painel web (5173) + Expo web no navegador (8081/8082).
+// Em produção, CORS_ORIGINS (env) tem precedência e define a allowlist real.
+const DEV_ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:8081",
+  "http://localhost:8082",
+  "http://127.0.0.1:8081",
+  "http://127.0.0.1:8082",
+];
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((s) => s.trim())
+  : DEV_ALLOWED_ORIGINS;
 
 export function createApp() {
   const app = express();
@@ -126,6 +146,12 @@ export function createApp() {
   app.use("/admin/professionals", requireStaff, adminProfessionalsRoutes);
   app.use("/admin/links/students", requireStaff, adminStudentLinksRoutes);
   app.use("/admin/staff", requireStaff, adminStaffRoutes);
+  // [ACTUS — academia] Onboarding pela equipe Actus + painel do gestor (escopo por academy_id no middleware).
+  // /academy/commissions é montado ANTES de /academy (prefixo mais específico primeiro).
+  app.use("/admin/academies", requireStaff, adminAcademiesRoutes);
+  app.use("/academy/commissions", requireAuth, requireAcademyManager, academyCommissionsRoutes);
+  app.use("/academy/network", requireAuth, requireAcademyManager, academyNetworkRoutes);
+  app.use("/academy", requireAuth, requireAcademyManager, academyRoutes);
   // [ACTUS-NEW] A3 — preview PÚBLICO de convite, registrado ANTES do /invites protegido
   // (mais específico + sem requireAuth: é usado no passo 1 do cadastro, sem sessão).
   app.use("/invites/:code/preview", invitePreviewRouter);
@@ -134,16 +160,21 @@ export function createApp() {
   app.use("/professional/students/par-q", requireAuth, professionalParqListRouter);
   app.use("/professional/students", requireAuth, professionalStudentsRoutes);
   app.use("/professional/challenges", requireAuth, requirePersonal, professionalChallengesRoutes);
+  app.use("/professional/dashboard", requireAuth, requirePersonal, professionalDashboardRoutes);
   app.use("/exercises", requireAuth, exercisesRoutes);
   app.use("/workouts", requireAuth, workoutsRoutes);
+  app.use("/workout-templates", requireAuth, workoutTemplatesRoutes);
   app.use("/diet-templates", requireAuth, dietTemplatesRoutes);
   app.use("/students/:student_id/workouts", requireAuth, studentWorkoutsRoutes);
   app.use("/students/:student_id/diets", requireAuth, studentDietsRoutes);
   app.use("/me", requireAuth, meRoutes);
+  // Device tokens (push): QUALQUER usuário autenticado registra seus devices — SEM requireStudent.
+  app.use("/me", requireAuth, deviceTokensRoutes);
   app.use("/me/avatar", requireAuth, meAvatarRouter); // [ACTUS-NEW] upload de avatar (qualquer tipo)
   app.use("/me", requireAuth, requireStudent, meStudentProgramRoutes);
   app.use("/me", requireAuth, requireStudent, meGamificationRoutes);
   app.use("/me", requireAuth, requireStudent, meChallengesRoutes);
+  app.use("/me", requireAuth, requireStudent, meBadgesRoutes);
   // [ACTUS-NEW] Par-Q (B5) — ver routes/parq.ts e migration 20260610120000_par_q.sql.
   app.use("/students/:student_id/par-q", requireAuth, studentParqRouter);
   app.use("/me/par-q", requireAuth, requireStudent, meParqRouter);

@@ -6,20 +6,15 @@
 // 1 momento de motion isolado: reveal de entrada do sheet (300ms).
 
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { Check, UsersThree, X } from 'phosphor-react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import { Check, UsersThree } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button } from '@/components/ui';
+import { AppText, BottomSheet, Button } from '@/components/ui';
 import type { Student } from '@/types/professional';
 import { darkTheme } from '@/theme';
 
-const { colors, motion } = darkTheme;
+const { colors } = darkTheme;
 
 export type AddParticipantsSheetProps = {
   visible: boolean;
@@ -45,16 +40,6 @@ export function AddParticipantsSheet({
   useEffect(() => {
     if (visible) setSelected(new Set());
   }, [visible]);
-
-  // ÚNICA animação do sheet: slide/fade de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(visible ? 1 : 0, { duration: motion.screenMs });
-  }, [visible, reveal]);
-  const sheetStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 24 }],
-  }));
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -82,36 +67,13 @@ export function AddParticipantsSheet({
         : `Adicionar ${count} alunos`;
 
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      accessibilityViewIsModal
+      title="Adicionar participantes"
+      onClose={onClose}
+      closeLabel="Fechar seleção"
     >
-      <View style={styles.backdrop}>
-        <Pressable
-          style={styles.backdropPress}
-          accessibilityRole="button"
-          accessibilityLabel="Fechar seleção"
-          onPress={onClose}
-        />
-        <Animated.View style={[styles.sheet, sheetStyle]}>
-          <View style={styles.handle} />
-
-          <View style={styles.header}>
-            <AppText variant="h3">Adicionar participantes</AppText>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Fechar"
-              hitSlop={12}
-              onPress={onClose}
-            >
-              <X size={20} weight="bold" color={colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          {loading ? (
+      {loading ? (
             <AppText variant="bodySm" color="tertiary">
               Carregando alunos…
             </AppText>
@@ -172,57 +134,20 @@ export function AddParticipantsSheet({
             </ScrollView>
           )}
 
-          <View style={styles.cta}>
-            <Button
-              variant="primary"
-              label={confirmLabel}
-              loading={saving}
-              disabled={count === 0}
-              onPress={handleConfirm}
-            />
-          </View>
-        </Animated.View>
+      <View style={styles.cta}>
+        <Button
+          variant="primary"
+          label={confirmLabel}
+          loading={saving}
+          disabled={count === 0}
+          onPress={handleConfirm}
+        />
       </View>
-    </Modal>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: theme.colors.overlay,
-  },
-  backdropPress: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  sheet: {
-    backgroundColor: theme.colors.bgBase,
-    borderTopLeftRadius: theme.radius.modal,
-    borderTopRightRadius: theme.radius.modal,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-    // Sombra: permitida em sheet (exceção do design para modal/sheet/dropdown).
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 4,
-    borderRadius: theme.radius.tag,
-    backgroundColor: theme.colors.surface3,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   list: {
     // Limita a altura do sheet a ~metade da tela; rola se houver muitos alunos.
     maxHeight: 360,

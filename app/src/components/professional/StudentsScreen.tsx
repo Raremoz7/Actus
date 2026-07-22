@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, type Href } from 'expo-router';
+import { router, type Href } from '@/navigation';
 import { MagnifyingGlass, UserPlus, Users } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -151,6 +151,8 @@ export function StudentsScreen() {
               roleLabel={mixedRoles ? ROLE_LABEL[s.professional_role] : null}
               isNew={isNewLink(s.linked_at, now)}
               parqStatus={listParqStatus(parqStatus(parqMap[s.id] ?? null, now))}
+              streakCurrent={s.streak_current}
+              badgeCount={s.badge_count}
               onPress={() => openStudent(s.id)}
             />
           ))}

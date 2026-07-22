@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Barbell, Note, Timer } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Tag } from '@/components/ui';
+import { AppText, Card, Tag } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 import { ExerciseThumb } from './ExerciseThumb';
@@ -21,6 +21,7 @@ type Props = {
   // Posição (1-based) p/ numerar exercícios em treinos longos. Omitido → sem número.
   position?: number;
   wgerExerciseId?: number | null;
+  exerciseId?: string | null;
   onPress?: () => void;
 };
 
@@ -34,11 +35,12 @@ export function ExerciseCard({
   notes,
   position,
   wgerExerciseId,
+  exerciseId,
   onPress,
 }: Props) {
   const content = (
     <>
-      <ExerciseThumb size={56} wgerExerciseId={wgerExerciseId} muscleGroup={muscleGroup} />
+      <ExerciseThumb size={56} name={name} wgerExerciseId={wgerExerciseId} exerciseId={exerciseId} muscleGroup={muscleGroup} />
       <View style={styles.left}>
         <AppText variant="h3" numberOfLines={2}>
           {position ? `${position}. ${name}` : name}
@@ -89,33 +91,19 @@ export function ExerciseCard({
     .filter(Boolean)
     .join(', ');
 
-  if (onPress) {
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={a11yLabel}
-        onPress={onPress}
-        style={styles.card}
-      >
-        {content}
-      </Pressable>
-    );
-  }
-
-  return <View style={styles.card}>{content}</View>;
+  return (
+    <Card onPress={onPress} accessibilityLabel={onPress ? a11yLabel : undefined} style={styles.cardExtra}>
+      {content}
+    </Card>
+  );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
+  cardExtra: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: theme.spacing.sm,
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
   },
   left: { flex: 1, paddingRight: theme.spacing.sm },

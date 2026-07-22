@@ -10,6 +10,7 @@
   --color-surface-4: #406575;
   --color-neon: #CBFE00;
   --color-secondary: #4DE082;
+  --color-accent-muted: #7BA0BC;
   --color-text-1: #FFFFFF;
   --color-text-2: rgba(255,255,255,0.70);
   --color-text-3: rgba(255,255,255,0.50);
@@ -20,9 +21,54 @@
   --color-success: #4ADE80;
   --color-warning: #FBBF24;
   --color-error: #F87171;
+  --color-info: #60A5FA;
+  --color-flame: #F97316;
+  --color-surface-tint: #ABD600;
+  --color-accent-muted-surface: rgba(123, 160, 188, 0.16);
+  --color-overlay: rgba(16, 37, 45, 0.7);
+  --color-veil: rgba(16, 37, 45, 0.28);
+  --color-shadow: #000000;
+
+  /* Sombras nomeadas de elementos flutuantes (tooltip/dropdown) — evita
+     shadow-[...] arbitrário repetido nos gráficos e menus. */
+  --shadow-tooltip: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-dropdown: 0 12px 32px rgba(0, 0, 0, 0.42);
+
+  /* Raio de tooltip — 10px, precisão visual distinta de --radius-card (12px). */
+  --radius-tooltip: 10px;
+
+  /* Paleta de dataviz (categórica) — cor vem dos dados, não do fundo.
+     Neon segue reservado como única cor de ação (regra do design system). */
+  --color-data-1: #7BA0BC; /* azul-névoa */
+  --color-data-2: #5FD08A; /* verde */
+  --color-data-3: #F3B24C; /* âmbar */
+  --color-data-4: #E87D5E; /* coral */
+  --color-data-5: #9E8FE6; /* violeta */
+  --color-data-6: #4FBFD0; /* ciano */
+
   --font-display: 'Barlow Condensed', sans-serif;
   --font-body: 'Barlow', sans-serif;
   --font-mono: 'Share Tech Mono', monospace;
+
+  /* Raio — nomeado por função (não por tamanho), espelha app/src/theme/tokens.ts radius */
+  --radius-tag: 4px;
+  --radius-thumb: 8px;
+  --radius-card: 12px;
+  --radius-modal: 24px;
+  --radius-pill: 9999px;
+
+  /* Escala tipográfica pequena sem correspondente no default do Tailwind — evita
+     text-[9px]/[10px]/[11px] arbitrário repetido em dezenas de arquivos. */
+  --text-eyebrow: 10px;
+  --text-meta: 11px;
+
+  /* Altura do header de página (convenção já registrada em DESIGN_SYSTEM.md §06). */
+  --spacing-header: 52px;
+
+  /* Movimento — espelha app/src/theme/tokens.ts motion. */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-duration-micro: 150ms;
+  --transition-duration-screen: 300ms;
 }
 
 /* 1 momento de motion por tela: entrada de modal/toast. */
@@ -46,4 +92,24 @@ body {
   background: var(--color-bg-base);
   color: var(--color-text-1);
   font-family: var(--font-body);
+}
+
+/* Scrollbar global — discreta, alinhada ao design system */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-v);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-outline-v) transparent;
 }

@@ -1,36 +1,28 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { MagnifyingGlass, X } from 'phosphor-react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Funnel, MagnifyingGlass } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input } from '@/components/ui';
-import { exerciseName, wgerCatalog } from '@/lib/wger/catalog';
-import type { WgerExercise } from '@/lib/wger/types';
+import { AppText, BottomSheet, Button, Card, Input } from '@/components/ui';
+import {
+  exerciseCatalog,
+  CATEGORY_PT,
+  MUSCLE_PT,
+  EQUIPMENT_PT,
+  LEVEL_PT,
+} from '@/lib/exercises/catalog';
+import type { Exercise } from '@/lib/exercises/types';
 import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
 
-const { colors, motion } = darkTheme;
+const { colors } = darkTheme;
 
 // Dados que o sheet devolve ao confirmar. Sem position: a ordem sequencial é
-// responsabilidade do builder. `wgerExerciseId` = id REAL escolhido na busca.
-// `muscleGroup` mapeia para muscle_group de CreateWorkoutExercise; null quando
-// não escolhido (não inventar grupo).
+// responsabilidade do builder. Um dos dois ids de exercício deve ser não-nulo.
 export type ExerciseFormValue = {
   name: string;
-  wgerExerciseId: number; // id real do Wger (escolhido na busca)
+  exerciseId: string | null;     // slug do catálogo PT-BR (novo)
+  wgerExerciseId: number | null; // id legado do Wger (exercícios antigos)
   sets: number;
   reps: number;
   restSeconds: number;
@@ -51,13 +43,20 @@ export const MUSCLE_GROUPS = [
   'Cardio',
 ] as const;
 
-// Categoria do Wger (EN) → grupo muscular canônico em PT (mesma grafia dos chips).
-const CATEGORY_PT: Record<string, string> = {
-  Chest: 'Peito', Back: 'Costas', Legs: 'Pernas', Arms: 'Braço',
-  Shoulders: 'Ombro', Abs: 'Core', Calves: 'Pernas', Cardio: 'Cardio',
+// Músculo primário do catálogo (EN) → grupo canônico em PT (grafia dos chips).
+const MUSCLE_TO_GROUP: Record<string, string> = {
+  chest: 'Peito',
+  lats: 'Costas', 'middle back': 'Costas', 'upper back': 'Costas',
+  'lower back': 'Costas', traps: 'Costas',
+  quadriceps: 'Pernas', hamstrings: 'Pernas', calves: 'Pernas',
+  adductors: 'Pernas', abductors: 'Pernas',
+  shoulders: 'Ombro', neck: 'Ombro',
+  biceps: 'Braço', triceps: 'Braço', forearms: 'Braço',
+  abdominals: 'Core',
+  glutes: 'Glúteo',
 };
-function categoryToMuscleGroup(category: string): string | null {
-  return CATEGORY_PT[category] ?? category ?? null;
+function catalogMuscleGroup(ex: Exercise): string | null {
+  return MUSCLE_TO_GROUP[ex.primary_muscles[0] ?? ''] ?? null;
 }
 
 export type ExerciseFormSheetProps = {
@@ -108,7 +107,7 @@ function NumberField({
 }) {
   return (
     <View style={styles.numCol}>
-      <AppText variant="eyebrow" color="tertiary">
+      <AppText variant="eyebrow" color="tertiary" numberOfLines={1}>
         {label}
       </AppText>
       <TextInput
@@ -152,14 +151,19 @@ export function ExerciseFormSheet({
     initialValue ? 'prescribe' : 'search',
   );
   const [query, setQuery] = useState('');
-  // Exercício escolhido (id real do Wger + nome + grupo). null = ainda não escolhido.
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMuscle, setFilterMuscle] = useState('');
+  const [filterEquipment, setFilterEquipment] = useState('');
+  const [filterLevel, setFilterLevel] = useState('');
+  // Exercício escolhido (id do catálogo + nome + grupo). null = ainda não escolhido.
   const [picked, setPicked] = useState<
-    { name: string; wgerId: number; muscleGroup: string | null } | null
+    { name: string; exerciseId: string | null; muscleGroup: string | null } | null
   >(
     initialValue
       ? {
           name: initialValue.name,
-          wgerId: initialValue.wgerExerciseId,
+          exerciseId: initialValue.exerciseId,
           muscleGroup: initialValue.muscleGroup,
         }
       : null,
@@ -176,40 +180,54 @@ export function ExerciseFormSheet({
     setSubmitted(false);
     setMode(initialValue ? 'prescribe' : 'search');
     setQuery('');
+    setFiltersOpen(false);
+    setFilterCategory('');
+    setFilterMuscle('');
+    setFilterEquipment('');
+    setFilterLevel('');
     setPicked(
       initialValue
         ? {
             name: initialValue.name,
-            wgerId: initialValue.wgerExerciseId,
+            exerciseId: initialValue.exerciseId,
             muscleGroup: initialValue.muscleGroup,
           }
         : null,
     );
   }, [visible, initialValue]);
 
-  // Resultados da busca (até 20). Vazio quando o termo está em branco.
-  const results = useMemo(
-    () => (query.trim() ? wgerCatalog().search(query, 20) : []),
-    [query],
-  );
+  const activeFilterCount = [filterCategory, filterMuscle, filterEquipment, filterLevel].filter(Boolean).length;
+
+  function clearFilters() {
+    setFilterCategory('');
+    setFilterMuscle('');
+    setFilterEquipment('');
+    setFilterLevel('');
+  }
+
+  // Busca no catálogo + filtros client-side.
+  // Sem texto e sem filtros: retorna os primeiros 20 (catálogo padrão).
+  // Com filtros e sem texto: percorre tudo antes de filtrar.
+  const results = useMemo(() => {
+    const hasQuery = query.trim().length > 0;
+    const hasFilters = !!(filterCategory || filterMuscle || filterEquipment || filterLevel);
+    const limit = hasQuery ? 200 : hasFilters ? 1000 : 20;
+
+    let pool = exerciseCatalog().search(query.trim(), limit);
+    if (filterCategory)  pool = pool.filter((e) => e.category === filterCategory);
+    if (filterMuscle)    pool = pool.filter((e) => e.primary_muscles.includes(filterMuscle) || e.secondary_muscles.includes(filterMuscle));
+    if (filterEquipment) pool = pool.filter((e) => e.equipment === filterEquipment);
+    if (filterLevel)     pool = pool.filter((e) => e.level === filterLevel);
+    return pool.slice(0, 20);
+  }, [query, filterCategory, filterMuscle, filterEquipment, filterLevel]);
 
   // Escolhe um exercício do catálogo → preenche nome/grupo e vai pro passo prescrever.
-  function choose(ex: WgerExercise) {
-    const mg = categoryToMuscleGroup(ex.category);
-    setPicked({ name: exerciseName(ex), wgerId: ex.id, muscleGroup: mg });
+  function choose(ex: Exercise) {
+    const mg = catalogMuscleGroup(ex);
+    setPicked({ name: ex.name_pt, exerciseId: ex.id, muscleGroup: mg });
     setMuscleGroup(mg);
     setMode('prescribe');
   }
-
-  // ÚNICA animação do sheet: slide/fade de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(visible ? 1 : 0, { duration: motion.screenMs });
-  }, [visible, reveal]);
-  const sheetStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 24 }],
-  }));
 
   const parsed = useMemo(
     () => ({
@@ -232,7 +250,8 @@ export function ExerciseFormSheet({
     if (!picked || hasError) return;
     onConfirm({
       name: picked.name,
-      wgerExerciseId: picked.wgerId,
+      exerciseId: picked.exerciseId,
+      wgerExerciseId: null,
       sets: parsed.sets as number,
       reps: parsed.reps as number,
       restSeconds: parsed.rest as number,
@@ -244,96 +263,190 @@ export function ExerciseFormSheet({
   const isEditing = Boolean(initialValue);
 
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      accessibilityViewIsModal
+      title={
+        mode === 'search'
+          ? 'Buscar exercício'
+          : isEditing
+            ? 'Editar exercício'
+            : 'Adicionar exercício'
+      }
+      onClose={onClose}
+      closeLabel="Fechar formulário"
     >
-      <View style={styles.backdrop}>
-        <Pressable
-          style={styles.backdropPress}
-          accessibilityRole="button"
-          accessibilityLabel="Fechar formulário"
-          onPress={onClose}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <Animated.View style={[styles.sheet, sheetStyle]}>
-            <View style={styles.handle} />
-
-            <View style={styles.header}>
-              <AppText variant="h3">
-                {mode === 'search'
-                  ? 'Buscar exercício'
-                  : isEditing
-                    ? 'Editar exercício'
-                    : 'Adicionar exercício'}
-              </AppText>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Fechar"
-                hitSlop={12}
-                onPress={onClose}
-              >
-                <X size={20} weight="bold" color={colors.textSecondary} />
-              </Pressable>
-            </View>
-
-            {mode === 'search' ? (
-              // --- Passo 1: busca no catálogo Wger ---
+      {mode === 'search' ? (
+              // --- Passo 1: busca no catálogo PT-BR ---
               <>
-                <View style={styles.search}>
-                  <MagnifyingGlass
-                    size={18}
-                    weight="duotone"
-                    color={colors.textTertiary}
-                  />
-                  <TextInput
-                    style={styles.searchInput}
-                    accessibilityLabel="Buscar exercício"
-                    placeholder="Buscar no Wger (ex.: supino)"
-                    placeholderTextColor={colors.textTertiary}
-                    value={query}
-                    onChangeText={setQuery}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoFocus
-                    returnKeyType="search"
-                  />
+                {/* Barra de busca + botão de filtros */}
+                <View style={styles.searchRow}>
+                  <View style={styles.search}>
+                    <MagnifyingGlass
+                      size={18}
+                      weight="duotone"
+                      color={colors.textTertiary}
+                    />
+                    <TextInput
+                      style={styles.searchInput}
+                      accessibilityLabel="Buscar exercício"
+                      placeholder="supino, agachamento…"
+                      placeholderTextColor={colors.textTertiary}
+                      value={query}
+                      onChangeText={setQuery}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      autoFocus
+                      returnKeyType="search"
+                    />
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Filtros"
+                    onPress={() => setFiltersOpen((o) => !o)}
+                    style={[styles.filterBtn, (filtersOpen || activeFilterCount > 0) && styles.filterBtnOpen]}
+                  >
+                    <Funnel
+                      size={15}
+                      weight="duotone"
+                      color={filtersOpen || activeFilterCount > 0 ? colors.neon : colors.textSecondary}
+                    />
+                    <AppText variant="metaSmall" color={filtersOpen || activeFilterCount > 0 ? 'neon' : 'secondary'}>
+                      Filtros
+                    </AppText>
+                    {activeFilterCount > 0 && (
+                      <View style={styles.filterBadge}>
+                        <AppText variant="metaSmall" color="inverse">
+                          {activeFilterCount}
+                        </AppText>
+                      </View>
+                    )}
+                  </Pressable>
                 </View>
 
+                {/* Painel de filtros — aparece ao tocar no botão */}
+                {filtersOpen && (
+                  <Card style={styles.filterPanelExtra}>
+                    {/* Categoria */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Categoria
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(CATEGORY_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterCategory(filterCategory === key ? '' : key)}
+                              style={[styles.filterChip, filterCategory === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterCategory === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Músculo */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Músculo
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(MUSCLE_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterMuscle(filterMuscle === key ? '' : key)}
+                              style={[styles.filterChip, filterMuscle === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterMuscle === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Equipamento */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Equipamento
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(EQUIPMENT_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterEquipment(filterEquipment === key ? '' : key)}
+                              style={[styles.filterChip, filterEquipment === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterEquipment === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Nível */}
+                    <View>
+                      <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
+                        Nível
+                      </AppText>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.filterChips}>
+                          {Object.entries(LEVEL_PT).map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setFilterLevel(filterLevel === key ? '' : key)}
+                              style={[styles.filterChip, filterLevel === key && styles.filterChipActive]}
+                            >
+                              <AppText variant="metaSmall" color={filterLevel === key ? 'inverse' : 'secondary'}>
+                                {label}
+                              </AppText>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {activeFilterCount > 0 && (
+                      <Pressable onPress={clearFilters} style={styles.filterClear}>
+                        <AppText variant="metaSmall" color="tertiary">Limpar filtros</AppText>
+                      </Pressable>
+                    )}
+                  </Card>
+                )}
+
                 <ScrollView
-                  style={styles.resultsList}
+                  style={[styles.resultsList, filtersOpen && styles.resultsListCompact]}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator={false}
                 >
                   {results.length === 0 ? (
                     <AppText variant="bodySm" color="tertiary">
-                      {query.trim()
-                        ? 'Nenhum exercício encontrado.'
-                        : 'Digite para buscar no catálogo.'}
+                      Nenhum exercício encontrado.
                     </AppText>
                   ) : (
                     results.map((ex) => (
                       <Pressable
                         key={ex.id}
                         accessibilityRole="button"
-                        accessibilityLabel={exerciseName(ex)}
+                        accessibilityLabel={ex.name_pt}
                         onPress={() => choose(ex)}
                         style={styles.resultRow}
                       >
-                        <ExerciseThumb size={40} wgerExerciseId={ex.id} muscleGroup={ex.muscles[0] ?? null} />
+                        <ExerciseThumb size={40} exerciseId={ex.id} muscleGroup={ex.primary_muscles[0] ?? null} />
                         <View style={styles.resultText}>
                           <AppText variant="bodyMd" numberOfLines={1}>
-                            {exerciseName(ex)}
+                            {ex.name_pt}
                           </AppText>
                           <AppText variant="metaSmall" color="tertiary">
-                            {`${ex.category}${
-                              ex.equipment[0] ? ' · ' + ex.equipment[0] : ''
-                            }`}
+                            {[ex.category, ex.equipment].filter(Boolean).join(' · ')}
                           </AppText>
                         </View>
                       </Pressable>
@@ -381,11 +494,11 @@ export function ExerciseFormSheet({
                     hint={`${LIMITS.reps.min}–${LIMITS.reps.max}`}
                   />
                   <NumberField
-                    label="Descanso (s)"
+                    label="Descanso"
                     value={rest}
                     onChangeText={setRest}
                     invalid={submitted && errors.rest}
-                    hint={`${LIMITS.rest.min}–${LIMITS.rest.max}`}
+                    hint={`${LIMITS.rest.min}–${LIMITS.rest.max} s`}
                   />
                 </View>
 
@@ -407,50 +520,18 @@ export function ExerciseFormSheet({
                 </View>
               </>
             )}
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: theme.colors.overlay,
-  },
-  backdropPress: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  sheet: {
-    backgroundColor: theme.colors.bgBase,
-    borderTopLeftRadius: theme.radius.modal,
-    borderTopRightRadius: theme.radius.modal,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-    // Sombra: permitida em sheet (exceção do design para modal/sheet/dropdown).
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 4,
-    borderRadius: theme.radius.tag,
-    backgroundColor: theme.colors.surface3,
-  },
-  header: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
   },
   search: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
@@ -467,8 +548,59 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: theme.typeScale.bodyMd,
     color: theme.colors.textPrimary,
   },
+  filterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    backgroundColor: theme.colors.surface1,
+  },
+  filterBtnOpen: {
+    borderColor: theme.colors.neon,
+  },
+  filterBadge: {
+    minWidth: 16,
+    height: 16,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.neon,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  filterPanelExtra: {
+    gap: theme.spacing.md,
+  },
+  filterRowLabel: {
+    marginBottom: theme.spacing.xs,
+  },
+  filterChips: {
+    flexDirection: 'row',
+    gap: theme.spacing.xs,
+  },
+  filterChip: {
+    paddingVertical: 4,
+    paddingHorizontal: theme.spacing.sm,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    backgroundColor: theme.colors.surface2,
+  },
+  filterChipActive: {
+    backgroundColor: theme.colors.neon,
+    borderColor: theme.colors.neon,
+  },
+  filterClear: {
+    alignSelf: 'flex-end',
+  },
   resultsList: {
     maxHeight: 320,
+  },
+  resultsListCompact: {
+    maxHeight: 160,
   },
   resultRow: {
     flexDirection: 'row',

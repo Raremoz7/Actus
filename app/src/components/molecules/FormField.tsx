@@ -15,6 +15,8 @@ type FormFieldProps<T extends FieldValues> = Omit<
   label: string;
   // Mensagem de erro (vem do formState.errors[name]?.message).
   error?: string;
+  // Repassado ao Input — anunciado só pro leitor de tela (accessibleFieldLabel).
+  required?: boolean;
 };
 
 // Wrapper que conecta o átomo Input ao react-hook-form via Controller.
@@ -24,6 +26,7 @@ export function FormField<T extends FieldValues>({
   name,
   label,
   error,
+  required,
   ...inputProps
 }: FormFieldProps<T>) {
   return (
@@ -34,10 +37,10 @@ export function FormField<T extends FieldValues>({
         <Input
           label={label}
           error={error}
+          required={required}
           value={typeof value === 'string' ? value : ''}
           onChangeText={onChange}
           onBlur={onBlur}
-          accessibilityLabel={label}
           {...inputProps}
         />
       )}

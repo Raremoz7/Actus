@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-*/
+.vite/
+*.local
+.env
+.env.*
+!.env.example
+# Supabase CLI metadata (project refs / tokens) copiado do backend original
+**/supabase/.temp/
+**/.temp/
+.DS_Store
+coverage/
+*.log

@@ -10,6 +10,24 @@ const router = Router();
 function normalizeCpf(input) {
     return input.replace(/\D/g, "");
 }
+// Emite uma sessão (access + refresh persistido) para um usuário recém-criado.
+// Compartilhado por /register e /register-professional — fonte única do trio de tokens.
+async function issueSession(userId) {
+    const claimsBundle = await withTx(async (client) => loadSessionClaims(client, userId));
+    const { token: access_token, expiresInSeconds } = signAccessToken({
+        userId,
+        roles: claimsBundle.roles,
+        must_change_password: claimsBundle.must_change_password,
+    });
+    const refresh_token = randomToken(32);
+    const refresh_hash = sha256(refresh_token);
+    const refreshTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
+    const expiresAt = new Date(Date.now() + refreshTtlDays * 24 * 60 * 60 * 1000);
+    await withTx(async (client) => {
+        await client.query(`insert into public.refresh_tokens (id, user_id, token_hash, expires_at) values ($1, $2, $3, $4)`, [uuid(), userId, refresh_hash, expiresAt.toISOString()]);
+    });
+    return { access_token, access_token_expires_in: expiresInSeconds, refresh_token };
+}
 const registerSchema = z.object({
     invite_code: z.string().min(3).max(200),
     email: z.string().email().max(320),
@@ -101,28 +119,7 @@ router.post("/register", async (req, res) => {
         });
         if (!created.ok)
             return res.status(400).json({ error: created.error });
-        const claimsBundle = await withTx(async (client) => loadSessionClaims(client, created.userId));
-        const { token: access_token, expiresInSeconds } = signAccessToken({
-            userId: created.userId,
-            roles: claimsBundle.roles,
-            must_change_password: claimsBundle.must_change_password,
-        });
-        const refresh_token = randomToken(32);
-        const refresh_hash = sha256(refresh_token);
-        const refreshTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
-        const expiresAt = new Date(Date.now() + refreshTtlDays * 24 * 60 * 60 * 1000);
-        await withTx(async (client) => {
-            const id = uuid();
-            await client.query(`
-        insert into public.refresh_tokens (id, user_id, token_hash, expires_at)
-        values ($1, $2, $3, $4)
-        `, [id, created.userId, refresh_hash, expiresAt.toISOString()]);
-        });
-        return res.status(201).json({
-            access_token,
-            access_token_expires_in: expiresInSeconds,
-            refresh_token,
-        });
+        return res.status(201).json(await issueSession(created.userId));
     }
     catch (e) {
         const msg = String(e?.message ?? "");
@@ -141,6 +138,49 @@ router.post("/register", async (req, res) => {
         if (process.env.NODE_ENV === "test") {
             return res.status(500).json({ error: "internal_error", detail: msg });
         }
+        return res.status(500).json({ error: "internal_error" });
+    }
+});
+// [ACTUS — NOVO vs produção: auto-cadastro de profissional (card MVP "Fluxo cadastro
+// personal"). Em produção, profissional só nasce via /admin/professionals (staff). Aqui o
+// próprio se cadastra: conta ATIVA + tokens (espelha /register, sem convite). Cria tipo
+// 'personal' — o contrato do app não envia role; CREF/CRN e nutri vêm no onboarding/futuro.
+// Ver backend/CHANGES-FROM-PRODUCTION.md]
+const registerProfessionalSchema = z.object({
+    email: z.string().trim().email().max(320),
+    password: z.string().min(8).max(200),
+    full_name: z.string().trim().min(3).max(200),
+    phone: z.string().trim().min(6).max(40),
+    lgpd_consent: z.literal(true).optional().default(true),
+    policy_version: z.string().min(1).max(100).optional().default("v1"),
+});
+router.post("/register-professional", async (req, res) => {
+    const parsed = registerProfessionalSchema.safeParse(req.body);
+    if (!parsed.success)
+        return res.status(400).json({ error: "invalid_body", details: parsed.error.flatten() });
+    const { email, password, full_name, phone, policy_version } = parsed.data;
+    const password_hash = await bcrypt.hash(password, 12);
+    try {
+        const created = await withTx(async (client) => {
+            const userId = uuid();
+            await client.query(`insert into public.app_users (id, email, password_hash) values ($1, $2, $3)`, [userId, email, password_hash]);
+            // tipo 'personal' ativo; perfil profissional detalhado (CREF etc.) vem no onboarding.
+            await client.query(`insert into public.profiles (id, display_name, tipo, phone) values ($1, $2, 'personal', $3)`, [userId, full_name, phone]);
+            await client.query(`insert into public.user_lgpd_consents (id, user_id, policy_version, source) values ($1, $2, $3, 'api')`, [uuid(), userId, policy_version]);
+            return { userId };
+        });
+        // Conta ativa imediata — mesma emissão de sessão do /register.
+        return res.status(201).json(await issueSession(created.userId));
+    }
+    catch (e) {
+        const msg = String(e?.message ?? "");
+        if (msg.includes("app_users_email_key") || msg.includes("duplicate key")) {
+            if (process.env.NODE_ENV === "test")
+                return res.status(409).json({ error: "email_already_in_use", detail: msg });
+            return res.status(409).json({ error: "email_already_in_use" });
+        }
+        if (process.env.NODE_ENV === "test")
+            return res.status(500).json({ error: "internal_error", detail: msg });
         return res.status(500).json({ error: "internal_error" });
     }
 });

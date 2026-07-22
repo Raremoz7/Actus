@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import axios, { type AxiosError } from 'axios';
 import { Button } from '../../components/ui/Button';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Modal } from '../../components/ui/Modal';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
@@ -10,10 +12,7 @@ import type { StaffMember } from '../../lib/schemas';
 
 const inputClass =
   'h-9 w-full rounded-xl border border-outline-v bg-surface-2 px-3 text-sm text-text-1 focus:border-neon focus:outline-none';
-const labelClass = 'mb-1 block font-mono text-[10px] uppercase tracking-widest text-text-3';
-
-const thClass =
-  'px-4 py-2 text-left font-mono text-[10px] uppercase tracking-widest text-text-3';
+const labelClass = 'mb-1 block';
 
 export function StaffPage() {
   const staffQuery = useStaff();
@@ -21,11 +20,7 @@ export function StaffPage() {
 
   return (
     <>
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Equipe
-        </h1>
-      </div>
+      <PageHeader title="Equipe" />
       <div className="p-6">
         {staffQuery.isLoading ? (
           <Skeleton className="h-48 w-full" />
@@ -36,10 +31,10 @@ export function StaffPage() {
             <table className="w-full bg-surface-1 text-sm">
               <thead className="border-b border-outline-v">
                 <tr>
-                  <th className={thClass}>Nome</th>
-                  <th className={thClass}>E-mail</th>
-                  <th className={thClass}>Papéis</th>
-                  <th className={thClass} />
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Nome</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">E-mail</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Papéis</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left" />
                 </tr>
               </thead>
               <tbody>
@@ -133,9 +128,9 @@ function EditStaffModal({ member, onClose }: { member: StaffMember; onClose: () 
     <Modal open onClose={onClose} title="Editar membro">
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <div>
-          <label htmlFor="staff-name" className={labelClass}>
+          <Eyebrow as="label" htmlFor="staff-name" className={labelClass}>
             Nome de exibição
-          </label>
+          </Eyebrow>
           <input
             id="staff-name"
             value={displayName}
@@ -145,9 +140,9 @@ function EditStaffModal({ member, onClose }: { member: StaffMember; onClose: () 
           />
         </div>
         <div>
-          <label htmlFor="staff-email" className={labelClass}>
+          <Eyebrow as="label" htmlFor="staff-email" className={labelClass}>
             E-mail
-          </label>
+          </Eyebrow>
           <input
             id="staff-email"
             type="email"
@@ -158,7 +153,7 @@ function EditStaffModal({ member, onClose }: { member: StaffMember; onClose: () 
           />
         </div>
         <fieldset>
-          <legend className={labelClass}>Papéis</legend>
+          <Eyebrow as="legend" className={labelClass}>Papéis</Eyebrow>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 text-sm text-text-1">
               <input

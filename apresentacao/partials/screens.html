@@ -1,0 +1,401 @@
+<!-- partials/screens.html — Telas reais do app Actus em frames de celular (.phone).
+     Fragmento (sem <html>/<head>/<body>): incluído manualmente no index.html.
+     Estilizado por css/screens.css usando SÓ tokens semânticos → cada bloco vira
+     vermelho/branco/grafite sozinho quando colocado dentro de [data-theme="worldgym"]. -->
+
+<!-- ============================================================
+     #screen-hoje · ALUNO — tela central "Hoje"
+     ============================================================ -->
+<div class="phone" id="screen-hoje" data-role="aluno">
+  <div class="phone-screen">
+    <div class="sc-island"></div>
+
+    <div class="sc-sb">
+      <span class="sc-time">9:41</span>
+      <span class="sc-sb-ic">
+        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 4.2a12 12 0 0 1 16 0"/><path d="M4 7.3a7.5 7.5 0 0 1 10 0"/><path d="M7 10.3a3 3 0 0 1 4 0"/></svg>
+        <svg viewBox="0 0 26 13" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1" y="1" width="20.5" height="11" rx="3"/><rect x="3" y="3" width="13" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="sc-body">
+      <div class="sc-head">
+        <div>
+          <div class="sc-eyebrow">QUINTA &middot; 18 JUN</div>
+          <div class="sc-greet">Bom treino,<br>Lucas</div>
+        </div>
+        <div class="sc-streak">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2c.5 3-1.5 4.5-3 6.5C8 11 7 12.6 7 15a5 5 0 0 0 10 0c0-2-1-3.8-2-5 .3 1.3-.2 2.4-1 3 .5-3-1-5.5-1-11z"/></svg>
+          12
+        </div>
+      </div>
+
+      <div class="sc-week">
+        <div class="sc-day is-done"><span class="d">Seg</span><span class="n">15</span><span class="dot"></span></div>
+        <div class="sc-day is-done"><span class="d">Ter</span><span class="n">16</span><span class="dot"></span></div>
+        <div class="sc-day is-done"><span class="d">Qua</span><span class="n">17</span><span class="dot"></span></div>
+        <div class="sc-day is-today"><span class="d">Qui</span><span class="n">18</span><span class="dot"></span></div>
+        <div class="sc-day"><span class="d">Sex</span><span class="n">19</span><span class="dot"></span></div>
+        <div class="sc-day"><span class="d">Sáb</span><span class="n">20</span><span class="dot"></span></div>
+        <div class="sc-day"><span class="d">Dom</span><span class="n">21</span><span class="dot"></span></div>
+      </div>
+
+      <div class="sc-card sc-train">
+        <div class="sc-eyebrow">TREINO DE HOJE</div>
+        <div class="sc-h sc-title">Peito e Tríceps</div>
+        <div class="sc-meta" style="margin-top:6px;">6 EXERCÍCIOS &middot; ~50 MIN</div>
+        <div class="sc-next">
+          <span class="lbl">Próximo</span>
+          <span class="val">Supino reto com barra</span>
+        </div>
+        <div class="sc-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg>
+          Iniciar treino
+        </div>
+      </div>
+
+      <div class="sc-grid2">
+        <div class="sc-mini">
+          <div class="sc-eyebrow">DIETA</div>
+          <div class="k">Próxima: Almoço</div>
+          <div class="v">720 kcal</div>
+          <div class="s">P 45 &middot; C 80 &middot; G 18</div>
+        </div>
+        <div class="sc-mini">
+          <div class="sc-eyebrow">DESAFIO</div>
+          <div class="k">Outubro sem falhas</div>
+          <div class="v">4º / 12</div>
+          <div class="s">14 DE 31 DIAS</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sc-tabbar">
+      <a class="sc-tab is-on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></svg>
+        <span class="sc-tab-l">Hoje</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9.5v5M6.5 7v10M17.5 7v10M21 9.5v5M6.5 12h11"/></svg>
+        <span class="sc-tab-l">Treinos</span>
+      </a>
+      <span class="sc-center">
+        <span class="sc-center-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>
+        </span>
+      </span>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4h10v4.5a5 5 0 0 1-10 0zM7 5H4v1.5A3.5 3.5 0 0 0 7.5 10M17 5h3v1.5A3.5 3.5 0 0 1 16.5 10M9.5 20h5M12 13.5V20"/></svg>
+        <span class="sc-tab-l">Desafios</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+        <span class="sc-tab-l">Perfil</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================================================
+     #screen-sessao · ALUNO — execução guiada da sessão
+     ============================================================ -->
+<div class="phone" id="screen-sessao" data-role="aluno">
+  <div class="phone-screen">
+    <div class="sc-island"></div>
+
+    <div class="sc-sb">
+      <span class="sc-time">9:41</span>
+      <span class="sc-sb-ic">
+        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 4.2a12 12 0 0 1 16 0"/><path d="M4 7.3a7.5 7.5 0 0 1 10 0"/><path d="M7 10.3a3 3 0 0 1 4 0"/></svg>
+        <svg viewBox="0 0 26 13" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1" y="1" width="20.5" height="11" rx="3"/><rect x="3" y="3" width="13" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="sc-body">
+      <div class="sc-sess-top">
+        <span class="sc-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>
+        </span>
+        <span class="sc-sess-name">Peito e Tríceps</span>
+        <span class="sc-sess-prog">2 / 6</span>
+      </div>
+      <div class="sc-prog"><i style="width:33%;"></i></div>
+
+      <div class="sc-h sc-exname">Supino reto<br>com barra</div>
+
+      <div class="sc-gif">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5v5M6.5 7v10M17.5 7v10M21 9.5v5M6.5 12h11"/></svg>
+        <span class="lbl">Demonstração do movimento</span>
+      </div>
+
+      <div class="sc-timer-wrap">
+        <div class="sc-timer-lbl">Descanso</div>
+        <div class="sc-timer">01:30</div>
+      </div>
+
+      <div class="sc-series sc-flex">
+        <div class="sc-serie done">
+          <span class="ix">01</span>
+          <span class="desc">12 reps &middot; 40 kg</span>
+          <span class="sc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12.5 10 17 19 7"/></svg></span>
+        </div>
+        <div class="sc-serie done">
+          <span class="ix">02</span>
+          <span class="desc">12 reps &middot; 42 kg</span>
+          <span class="sc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12.5 10 17 19 7"/></svg></span>
+        </div>
+        <div class="sc-serie active">
+          <span class="ix">03</span>
+          <span class="desc">10 reps &middot; 44 kg</span>
+          <span class="sc-check"></span>
+        </div>
+        <div class="sc-serie">
+          <span class="ix">04</span>
+          <span class="desc">10 reps &middot; 44 kg</span>
+          <span class="sc-check"></span>
+        </div>
+      </div>
+
+      <div class="sc-btn">Concluir série</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     #screen-dashboard · PERSONAL — aba Início
+     ============================================================ -->
+<div class="phone" id="screen-dashboard" data-role="personal">
+  <div class="phone-screen">
+    <div class="sc-island"></div>
+
+    <div class="sc-sb">
+      <span class="sc-time">9:41</span>
+      <span class="sc-sb-ic">
+        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 4.2a12 12 0 0 1 16 0"/><path d="M4 7.3a7.5 7.5 0 0 1 10 0"/><path d="M7 10.3a3 3 0 0 1 4 0"/></svg>
+        <svg viewBox="0 0 26 13" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1" y="1" width="20.5" height="11" rx="3"/><rect x="3" y="3" width="13" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="sc-body">
+      <div class="sc-head">
+        <div>
+          <div class="sc-eyebrow">INÍCIO</div>
+          <div class="sc-greet">Olá, Marina</div>
+        </div>
+      </div>
+
+      <div class="sc-kpis">
+        <div class="sc-kpi"><span class="num">24</span><span class="lbl">Alunos</span></div>
+        <div class="sc-kpi"><span class="num">18</span><span class="lbl">Treinos</span></div>
+        <div class="sc-kpi"><span class="num">3</span><span class="lbl">Desafios</span></div>
+      </div>
+
+      <div class="sc-eyebrow">AÇÕES RÁPIDAS</div>
+      <div class="sc-qas">
+        <div class="sc-qa">
+          <span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="lbl">Criar treino</span>
+        </div>
+        <div class="sc-qa">
+          <span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7L11.3 7"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7L12.7 17"/></svg></span>
+          <span class="lbl">Gerar convite</span>
+        </div>
+        <div class="sc-qa">
+          <span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 21V4M6 5h11l-2.5 4L17 13H6"/></svg></span>
+          <span class="lbl">Novo desafio</span>
+        </div>
+      </div>
+
+      <div class="sc-card sc-card--elev sc-eng">
+        <div class="sc-eyebrow">ENGAJAMENTO</div>
+        <div>
+          <div class="ln"><span class="ek">Adesão aos treinos</span><span class="ev">78%</span></div>
+          <div class="sc-bar" style="margin-top:8px;"><i style="width:78%;"></i></div>
+        </div>
+        <div class="ln"><span class="ek">Check-ins desta semana</span><span class="ev">19</span></div>
+        <div class="ln"><span class="ek">Alunos inativos</span><span class="ev">2</span></div>
+        <div class="sc-inactive">Sem check-in há 7+ dias: <b>Bruno T.</b>, <b>Carla M.</b></div>
+      </div>
+    </div>
+
+    <nav class="sc-tabbar sc-tabbar--5">
+      <a class="sc-tab is-on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>
+        <span class="sc-tab-l">Início</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.4M16.5 14.2A5.5 5.5 0 0 1 20.5 19"/></svg>
+        <span class="sc-tab-l">Alunos</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9.5v5M6.5 7v10M17.5 7v10M21 9.5v5M6.5 12h11"/></svg>
+        <span class="sc-tab-l">Treinos</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4h10v4.5a5 5 0 0 1-10 0zM7 5H4v1.5A3.5 3.5 0 0 0 7.5 10M17 5h3v1.5A3.5 3.5 0 0 1 16.5 10M9.5 20h5M12 13.5V20"/></svg>
+        <span class="sc-tab-l">Desafios</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+        <span class="sc-tab-l">Perfil</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================================================
+     #screen-dieta · NUTRI — plano alimentar do dia
+     ============================================================ -->
+<div class="phone" id="screen-dieta" data-role="nutri">
+  <div class="phone-screen">
+    <div class="sc-island"></div>
+
+    <div class="sc-sb">
+      <span class="sc-time">9:41</span>
+      <span class="sc-sb-ic">
+        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 4.2a12 12 0 0 1 16 0"/><path d="M4 7.3a7.5 7.5 0 0 1 10 0"/><path d="M7 10.3a3 3 0 0 1 4 0"/></svg>
+        <svg viewBox="0 0 26 13" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1" y="1" width="20.5" height="11" rx="3"/><rect x="3" y="3" width="13" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="sc-body">
+      <div>
+        <div class="sc-eyebrow">DIETA &middot; LUCAS</div>
+        <div class="sc-h" style="font-size:24px;margin-top:4px;">Plano de hoje</div>
+      </div>
+
+      <div class="sc-card sc-card--elev">
+        <div class="sc-meta">TOTAL DO DIA</div>
+        <div class="sc-kcal" style="margin-top:7px;">
+          <span class="big">1.840</span>
+          <span class="small">/ 2.100 kcal</span>
+        </div>
+        <div class="sc-macros">
+          <div class="sc-macro p">
+            <div class="top"><span>Proteína</span><span>138 / 160 g</span></div>
+            <div class="track"><i style="width:86%;"></i></div>
+          </div>
+          <div class="sc-macro c">
+            <div class="top"><span>Carboidrato</span><span>196 / 230 g</span></div>
+            <div class="track"><i style="width:85%;"></i></div>
+          </div>
+          <div class="sc-macro g">
+            <div class="top"><span>Gordura</span><span>52 / 60 g</span></div>
+            <div class="track"><i style="width:87%;"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc-meals sc-flex">
+        <div class="sc-meal">
+          <div><div class="mn">Café da manhã</div><div class="mi">Ovos, aveia, banana</div></div>
+          <div class="mk">420 kcal</div>
+        </div>
+        <div class="sc-meal">
+          <div><div class="mn">Almoço</div><div class="mi">Frango, arroz, brócolis</div></div>
+          <div class="mk">680 kcal</div>
+        </div>
+        <div class="sc-meal">
+          <div><div class="mn">Lanche</div><div class="mi">Iogurte, whey, castanhas</div></div>
+          <div class="mk">320 kcal</div>
+        </div>
+        <div class="sc-meal">
+          <div><div class="mn">Janta</div><div class="mi">Tilápia, batata-doce, salada</div></div>
+          <div class="mk">420 kcal</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sc-tabbar">
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>
+        <span class="sc-tab-l">Início</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.4M16.5 14.2A5.5 5.5 0 0 1 20.5 19"/></svg>
+        <span class="sc-tab-l">Alunos</span>
+      </a>
+      <a class="sc-tab is-on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 13.5C5 8 9.5 4.5 19 4.5c0 9.5-4 14-9.5 14A4.5 4.5 0 0 1 5 14zM8.5 16 15 9"/></svg>
+        <span class="sc-tab-l">Dietas</span>
+      </a>
+      <a class="sc-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+        <span class="sc-tab-l">Perfil</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================================================
+     #screen-parq · Questionário Par-Q (selo de Atenção)
+     ============================================================ -->
+<div class="phone" id="screen-parq" data-role="aluno">
+  <div class="phone-screen">
+    <div class="sc-island"></div>
+
+    <div class="sc-sb">
+      <span class="sc-time">9:41</span>
+      <span class="sc-sb-ic">
+        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 4.2a12 12 0 0 1 16 0"/><path d="M4 7.3a7.5 7.5 0 0 1 10 0"/><path d="M7 10.3a3 3 0 0 1 4 0"/></svg>
+        <svg viewBox="0 0 26 13" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1" y="1" width="20.5" height="11" rx="3"/><rect x="3" y="3" width="13" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="23" y="4.5" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="sc-body">
+      <div class="sc-parq-head">
+        <span class="sc-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>
+        </span>
+        <div>
+          <div class="sc-eyebrow">PRONTIDÃO P/ ATIVIDADE FÍSICA</div>
+          <div class="sc-h" style="font-size:30px;margin-top:3px;">Par-Q</div>
+        </div>
+      </div>
+
+      <div class="sc-seal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4.2"/><path d="M12 17.4h.01"/></svg>
+        Atenção
+      </div>
+      <div class="sc-seal-note">1 resposta &ldquo;sim&rdquo; — recomendamos liberação médica antes de treinar.</div>
+
+      <div class="sc-qs sc-flex">
+        <div class="sc-q">
+          <span class="qt">1. Algum problema cardíaco diagnosticado?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">2. Sente dor no peito ao fazer atividade física?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">3. Teve tontura ou perda de equilíbrio recente?</span>
+          <span class="sc-toggle"><span class="sc-pill on-warn">Sim</span><span class="sc-pill">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">4. Tem problema ósseo ou articular agravado por exercício?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">5. Usa medicação para pressão ou coração?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">6. Há orientação médica para não se exercitar?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+        <div class="sc-q">
+          <span class="qt">7. Outra razão para não praticar atividade física?</span>
+          <span class="sc-toggle"><span class="sc-pill">Sim</span><span class="sc-pill on">Não</span></span>
+        </div>
+      </div>
+
+      <div class="sc-btn">Salvar respostas</div>
+    </div>
+  </div>
+</div>

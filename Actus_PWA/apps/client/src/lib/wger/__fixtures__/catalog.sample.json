@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-06-08T00:00:00.000Z",
+  "source": "wger.de/api/v2",
+  "exercises": [
+    {
+      "id": 101,
+      "name_pt": "Supino reto com barra",
+      "name_en": "Barbell Bench Press",
+      "category": "Peito",
+      "equipment": ["Barra"],
+      "muscles": ["Peitoral maior"],
+      "description_pt": "Deite no banco e empurre a barra.",
+      "description_en": "Lie on the bench and press the bar.",
+      "hasImage": true,
+      "hasVideo": false
+    },
+    {
+      "id": 102,
+      "name_pt": null,
+      "name_en": "Incline Dumbbell Press",
+      "category": "Peito",
+      "equipment": ["Halter"],
+      "muscles": ["Peitoral maior"],
+      "description_pt": null,
+      "description_en": "Press dumbbells on an incline bench.",
+      "hasImage": false,
+      "hasVideo": true
+    }
+  ]
+}

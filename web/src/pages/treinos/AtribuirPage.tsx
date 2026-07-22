@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useStudents } from '../../hooks/useStudents';
 import { useWorkoutDetail } from '../../hooks/useWorkouts';
@@ -87,10 +88,18 @@ export function AtribuirPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center gap-4 border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Atribuir treino
-        </h1>
+      <PageHeader
+        title="Atribuir treino"
+        actions={
+          <Button
+            variant="ghost"
+            className="!px-4 !py-1.5 !text-xs"
+            onClick={() => navigate('/treinos')}
+          >
+            Voltar
+          </Button>
+        }
+      >
         {workout.isLoading ? (
           <Skeleton className="h-5 w-40" />
         ) : workout.data ? (
@@ -100,14 +109,7 @@ export function AtribuirPage() {
         ) : (
           <span className="text-xs text-error">Treino não encontrado.</span>
         )}
-        <Button
-          variant="ghost"
-          className="ml-auto !px-4 !py-1.5 !text-xs"
-          onClick={() => navigate('/treinos')}
-        >
-          Voltar
-        </Button>
-      </div>
+      </PageHeader>
 
       <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
         <section>

@@ -1,10 +1,10 @@
 // Entry point real do app (referenciado em package.json "main").
 // MOTIVO: o Unistyles 3 exige que StyleSheet.configure rode ANTES de qualquer
-// StyleSheet.create — com Expo Router, as rotas em app/ podem ser avaliadas antes
-// do _layout.tsx, então a configuração precisa acontecer aqui, antes do router.
-// Ref: https://www.unistyl.es/v3/guides/expo-router
+// StyleSheet.create — a configuração precisa acontecer aqui, antes de qualquer tela.
 import './src/theme/unistyles';
-// Blindagem do DOM contra extensões de navegador (Bitwarden, Google Tradutor…) que
-// quebram o reconciliador do react-native-web ao desmontar telas. No-op em nativo.
-import './src/lib/domGuard';
-import 'expo-router/entry';
+
+import { AppRegistry } from 'react-native';
+
+import App from './src/App';
+
+AppRegistry.registerComponent('Actus', () => App);

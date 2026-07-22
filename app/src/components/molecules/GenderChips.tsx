@@ -35,14 +35,14 @@ export function GenderChips({ value, onChange, label }: GenderChipsProps) {
         accessibilityLabel={label ?? 'Gênero'}
       >
         {OPTIONS.map((option) => {
-          const active = value === option.value;
-          styles.useVariants({ active });
+          const selected = value === option.value;
+          styles.useVariants({ selected });
 
           return (
             <Pressable
               key={option.value}
               accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
+              accessibilityState={{ selected }}
               accessibilityLabel={option.label}
               hitSlop={6}
               onPress={() => onChange(option.value)}
@@ -50,7 +50,7 @@ export function GenderChips({ value, onChange, label }: GenderChipsProps) {
             >
               <AppText
                 variant="bodySm"
-                color={active ? 'inverse' : 'secondary'}
+                color={selected ? 'inverse' : 'secondary'}
               >
                 {option.label}
               </AppText>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,
     variants: {
-      active: {
+      selected: {
         true: {
           backgroundColor: theme.colors.neon,
           borderColor: theme.colors.neon,

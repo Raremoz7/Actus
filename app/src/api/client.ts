@@ -39,13 +39,7 @@ function emit(event: 'onLogout' | 'onMustChangePassword'): void {
   }
 }
 
-// No navegador (Expo web) o backend sem CORS bloqueia chamadas diretas; por isso o web
-// pode apontar para o proxy CORS local (EXPO_PUBLIC_API_BASE_URL_WEB → scripts/cors-proxy.mjs).
-// Se a var web não estiver setada, cai na URL normal (e bateria em CORS). Nativo ignora isso.
-const BASE_URL =
-  (Platform.OS === 'web' ? process.env.EXPO_PUBLIC_API_BASE_URL_WEB : undefined) ??
-  process.env.EXPO_PUBLIC_API_BASE_URL ??
-  '';
+const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? '';
 
 // Túnel ngrok (usado em builds de QA contra o backend local): sem este header o
 // ngrok-free intercepta a request e devolve uma página de aviso em HTML em vez de

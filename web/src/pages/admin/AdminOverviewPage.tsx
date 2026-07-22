@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useStaff, useStudentLinks } from '../../hooks/useAdmin';
 
@@ -20,11 +22,7 @@ export function AdminOverviewPage() {
 
   return (
     <>
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Overview
-        </h1>
-      </div>
+      <PageHeader title="Overview" />
       <div className="grid grid-cols-2 gap-4 p-6 lg:grid-cols-4">
         {loading ? (
           Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-24 w-full" />)
@@ -44,7 +42,7 @@ export function AdminOverviewPage() {
 function Kpi({ label, value }: { label: string; value: number }) {
   return (
     <Card>
-      <p className="font-mono text-[10px] uppercase tracking-widest text-text-3">{label}</p>
+      <Eyebrow as="p">{label}</Eyebrow>
       <p className="mt-2 font-mono text-3xl text-neon">{value}</p>
     </Card>
   );

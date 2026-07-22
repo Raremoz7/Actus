@@ -3,10 +3,14 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { useExerciseCatalog } from '../../hooks/useExerciseCatalog';
 import {
   categoryLabel,
+  equipmentLabel,
   exerciseMuscleGroup,
-  CATEGORIES,
-  MUSCLES,
+  levelLabel,
   muscleLabel,
+  CATEGORIES,
+  EQUIPMENTS,
+  LEVELS,
+  MUSCLES,
   type Exercise,
 } from '../../lib/exercises';
 
@@ -14,6 +18,8 @@ export function CatalogPanel({ onAdd }: { onAdd: (exercise: Exercise) => void })
   const [term, setTerm] = useState('');
   const [category, setCategory] = useState('');
   const [muscle, setMuscle] = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [level, setLevel] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
 
   // Debounce simples para não disparar request a cada tecla.
@@ -29,6 +35,8 @@ export function CatalogPanel({ onAdd }: { onAdd: (exercise: Exercise) => void })
     q: debouncedTerm || undefined,
     category: category || undefined,
     muscle: muscle || undefined,
+    equipment: equipment || undefined,
+    level: level || undefined,
     limit: 60,
   });
 
@@ -45,11 +53,11 @@ export function CatalogPanel({ onAdd }: { onAdd: (exercise: Exercise) => void })
           placeholder="Buscar exercício"
           className="h-8 w-full rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none"
         />
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="h-7 flex-1 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
+            className="h-7 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
           >
             <option value="">Categoria</option>
             {CATEGORIES.map((c) => (
@@ -59,11 +67,31 @@ export function CatalogPanel({ onAdd }: { onAdd: (exercise: Exercise) => void })
           <select
             value={muscle}
             onChange={(e) => setMuscle(e.target.value)}
-            className="h-7 flex-1 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
+            className="h-7 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
           >
             <option value="">Músculo</option>
             {MUSCLES.map((m) => (
               <option key={m} value={m}>{muscleLabel(m)}</option>
+            ))}
+          </select>
+          <select
+            value={equipment}
+            onChange={(e) => setEquipment(e.target.value)}
+            className="h-7 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
+          >
+            <option value="">Equipamento</option>
+            {EQUIPMENTS.map((eq) => (
+              <option key={eq} value={eq}>{equipmentLabel(eq)}</option>
+            ))}
+          </select>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            className="h-7 rounded-lg border border-outline-v bg-surface-1 px-2 text-xs text-text-1 focus:border-neon focus:outline-none"
+          >
+            <option value="">Nível</option>
+            {LEVELS.map((lv) => (
+              <option key={lv} value={lv}>{levelLabel(lv)}</option>
             ))}
           </select>
         </div>

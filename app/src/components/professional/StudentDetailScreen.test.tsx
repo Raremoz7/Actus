@@ -29,7 +29,7 @@ jest.mock('@/hooks/useUpdateStudentWorkout', () => ({
 jest.mock('@/hooks/useMe', () => ({
   useMe: () => mockUseMe(),
 }));
-jest.mock('expo-router', () => ({
+jest.mock('@/navigation', () => ({
   router: {
     push: (...args: unknown[]) => mockPush(...args),
     back: () => mockBack(),

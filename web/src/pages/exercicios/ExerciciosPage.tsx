@@ -11,6 +11,7 @@ import {
   EQUIPMENTS,
   MUSCLES,
   LEVELS,
+  MACHINE_TYPES,
   type Exercise,
 } from '../../lib/exercises';
 
@@ -21,6 +22,7 @@ export function ExerciciosPage() {
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [category, setCategory] = useState('');
   const [equipment, setEquipment] = useState('');
+  const [machineType, setMachineType] = useState('');
   const [muscle, setMuscle] = useState('');
   const [level, setLevel] = useState('');
   const [offset, setOffset] = useState(0);
@@ -44,6 +46,7 @@ export function ExerciciosPage() {
     q: debouncedTerm || undefined,
     category: category || undefined,
     equipment: equipment || undefined,
+    machine_type: machineType || undefined,
     muscle: muscle || undefined,
     level: level || undefined,
     limit: PAGE_SIZE,
@@ -93,7 +96,10 @@ export function ExerciciosPage() {
           </select>
           <select
             value={equipment}
-            onChange={(e) => handleFilter(setEquipment, e.target.value)}
+            onChange={(e) => {
+              handleFilter(setEquipment, e.target.value);
+              setMachineType('');
+            }}
             className="h-8 rounded-xl border border-outline-v bg-surface-1 px-2 text-sm text-text-1 focus:border-neon focus:outline-none"
           >
             <option value="">Equipamento</option>
@@ -101,6 +107,18 @@ export function ExerciciosPage() {
               <option key={eq} value={eq}>{equipmentLabel(eq)}</option>
             ))}
           </select>
+          {equipment === 'machine' && (
+            <select
+              value={machineType}
+              onChange={(e) => handleFilter(setMachineType, e.target.value)}
+              className="h-8 rounded-xl border border-outline-v bg-surface-1 px-2 text-sm text-text-1 focus:border-neon focus:outline-none"
+            >
+              <option value="">Tipo de máquina</option>
+              {MACHINE_TYPES.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          )}
           <select
             value={level}
             onChange={(e) => handleFilter(setLevel, e.target.value)}
@@ -266,7 +284,10 @@ function ExerciseDetail({ exercise, onClose }: { exercise: Exercise; onClose: ()
           <Field label="Categoria" value={categoryLabel(exercise.category)} />
         )}
         {exercise.equipment && (
-          <Field label="Equipamento" value={equipmentLabel(exercise.equipment)} />
+          <Field
+            label="Equipamento"
+            value={exercise.machine_type ?? equipmentLabel(exercise.equipment)}
+          />
         )}
         {exercise.level && (
           <Field label="Nível" value={levelLabel(exercise.level)} />

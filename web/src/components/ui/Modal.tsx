@@ -5,10 +5,17 @@ type Props = {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  size?: 'md' | 'lg' | 'xl';
+};
+
+const SIZE_CLASS: Record<NonNullable<Props['size']>, string> = {
+  md: 'max-w-md',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
 };
 
 // Modal do design system: radius 24 (rounded-3xl), sombra permitida só aqui.
-export function Modal({ open, onClose, title, children }: Props) {
+export function Modal({ open, onClose, title, children, size = 'md' }: Props) {
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -31,7 +38,7 @@ export function Modal({ open, onClose, title, children }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="modal-enter w-full max-w-md rounded-3xl border border-outline-v bg-surface-1 p-6 shadow-2xl"
+        className={`modal-enter max-h-[85vh] w-full overflow-y-auto rounded-3xl border border-outline-v bg-surface-1 p-6 shadow-2xl ${SIZE_CLASS[size]}`}
       >
         <h2 className="font-display text-lg font-black uppercase tracking-wide text-text-1">
           {title}

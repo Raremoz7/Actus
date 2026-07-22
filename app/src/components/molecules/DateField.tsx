@@ -1,17 +1,13 @@
-import { useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, Platform, Pressable, View } from 'react-native';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { AppText, Input } from '@/components/ui';
-import {
-  formatDateLocal,
-  isoFromBrDigits,
-  maskDateBr,
-  onlyDigits,
-} from '@/lib/format';
+import { formatDateLocal } from '@/lib/format';
+import { accessibleFieldLabel } from '@/lib/accessibleFieldLabel';
 
 type DateFieldProps = {
   // Data no formato YYYY-MM-DD (ou null quando ainda não escolhida).
@@ -20,6 +16,8 @@ type DateFieldProps = {
   // Label eyebrow mono acima do campo (opcional: o consumidor pode rotular por fora).
   label?: string;
   error?: string;
+  // Anunciado só para leitor de tela (accessibleFieldLabel) — não muda o visual.
+  required?: boolean;
   // Limites do picker (data-only LOCAL, sem UTC). Contrato do teto:
   //   prop ausente (undefined) → teto = HOJE (caso nascimento, padrão).
   //   maximumDate={null}        → sem teto (datas futuras, ex.: período de desafio).
@@ -48,61 +46,7 @@ function displayDate(date: Date): string {
   return `${day}/${month}/${year}`;
 }
 
-// Converte YYYY-MM-DD em DD/MM/AAAA para preencher o input web.
-function brFromIso(value: string | null): string {
-  if (!value) return '';
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return '';
-  return `${match[3]}/${match[2]}/${match[1]}`;
-}
-
-// WEB: o DateTimePicker nativo não funciona no navegador. Renderiza um input
-// mascarado (DD/MM/AAAA) digitável; só emite o YYYY-MM-DD quando a data é real
-// e dentro dos limites — respeita o mesmo contrato de teto/piso do nativo
-// (maximumDate undefined → HOJE; null → sem teto; Date → explícito).
-function DateFieldWeb({ value, onChange, label, error, minimumDate, maximumDate }: DateFieldProps) {
-  const [text, setText] = useState(() => brFromIso(value));
-
-  function handleText(input: string) {
-    const digits = onlyDigits(input).slice(0, 8);
-    setText(maskDateBr(digits));
-    const iso = isoFromBrDigits(digits);
-    if (!iso) {
-      onChange('');
-      return;
-    }
-    const maxIso =
-      maximumDate === undefined
-        ? formatDateLocal(new Date())
-        : maximumDate
-          ? formatDateLocal(maximumDate)
-          : null;
-    const minIso = minimumDate ? formatDateLocal(minimumDate) : null;
-    const okMax = maxIso === null || iso <= maxIso;
-    const okMin = minIso === null || iso >= minIso;
-    onChange(okMax && okMin ? iso : '');
-  }
-
-  return (
-    <Input
-      label={label}
-      error={error}
-      value={text}
-      onChangeText={handleText}
-      placeholder="DD/MM/AAAA"
-      keyboardType="number-pad"
-      inputMode="numeric"
-      maxLength={10}
-      accessibilityLabel={label}
-      style={styles.webInput}
-    />
-  );
-}
-
 export function DateField(props: DateFieldProps) {
-  if (Platform.OS === 'web') {
-    return <DateFieldWeb {...props} />;
-  }
   return <DateFieldNative {...props} />;
 }
 
@@ -111,6 +55,7 @@ function DateFieldNative({
   onChange,
   label,
   error,
+  required = false,
   minimumDate,
   maximumDate,
 }: DateFieldProps) {
@@ -122,6 +67,12 @@ function DateFieldNative({
   // Contrato do teto (ver DateFieldProps): undefined → HOJE; null → sem teto.
   const effectiveMaximum =
     maximumDate === undefined ? today : (maximumDate ?? undefined);
+
+  // Anúncio ativo pro leitor de tela — mesmo motivo do Input: o texto visual
+  // sozinho não é anunciado de forma confiável no iOS.
+  useEffect(() => {
+    if (error) AccessibilityInfo.announceForAccessibility(error);
+  }, [error]);
 
   function handleChange(event: DateTimePickerEvent, date?: Date) {
     // No Android o picker é um diálogo: fecha em qualquer ação.
@@ -147,7 +98,8 @@ function DateFieldNative({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={accessibleFieldLabel(label, error, required)}
+        aria-invalid={hasError || undefined}
         accessibilityValue={selected ? { text: displayDate(selected) } : undefined}
         onPress={() => setOpen(true)}
         style={[styles.field, hasError ? styles.fieldError : null]}
@@ -207,9 +159,5 @@ const styles = StyleSheet.create((theme) => ({
   },
   error: {
     marginTop: theme.spacing.xs,
-  },
-  webInput: {
-    fontFamily: theme.fontFamily.mono,
-    letterSpacing: 1,
   },
 }));

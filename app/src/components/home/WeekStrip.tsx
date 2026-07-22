@@ -39,7 +39,9 @@ export function WeekStrip({ overview, plannedWeekdays }: Props) {
     <View>
       <View style={styles.header}>
         <View style={styles.kpi}>
-          <Flame size={22} weight="duotone" color={colors.flame} />
+          {overview.streak_current >= 3 ? (
+            <Flame size={22} weight="duotone" color={colors.flame} />
+          ) : null}
           <AppText variant="dataBig" color="neon">
             {String(overview.streak_current)}
           </AppText>

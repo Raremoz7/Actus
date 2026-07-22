@@ -1,0 +1,127 @@
+%% Actus — diagrama geral de dados (Fase 1)
+%% Tipos genéricos para compatibilidade Mermaid / Kroki
+
+erDiagram
+  AUTH_USERS ||--|| PROFILES : "um_para_um"
+  PROFILES ||--o{ INVITES : "profissional_emite"
+  PROFILES ||--o{ STUDENT_PROFESSIONAL_LINKS : "aluno_ou_profissional"
+  PROFILES ||--o{ WORKOUTS : "personal_dono_template"
+  WORKOUTS ||--o{ WORKOUT_EXERCISES : "exercicios"
+  PROFILES ||--o{ STUDENT_WORKOUTS : "atribuicao_aluno"
+  WORKOUTS ||--o{ STUDENT_WORKOUTS : "template"
+  STUDENT_WORKOUTS ||--o{ WORKOUT_SESSIONS : "sessoes"
+  PROFILES ||--o{ WORKOUT_SESSIONS : "aluno_executa"
+  WORKOUT_SESSIONS ||--o{ SESSION_EXERCISES : "marcacao"
+  WORKOUT_EXERCISES ||--o{ SESSION_EXERCISES : "ref_exercicio"
+  PROFILES ||--o{ CHECK_INS : "aluno"
+  PROFILES ||--o{ SYNC_APPLIED_OPS : "idempotencia_sync"
+  PROFILES ||--o{ DIET_TEMPLATES : "nutri_planos"
+  DIET_TEMPLATES ||--o{ STUDENT_DIETS : "atribuicao_dieta"
+
+  AUTH_USERS {
+    string id PK
+    string email
+  }
+
+  PROFILES {
+    string id PK
+    string tipo
+    string display_name
+    string timezone
+    int streak_current
+    int streak_best
+    string last_activity_date
+    int total_workouts_completed
+    int total_check_ins
+  }
+
+  INVITES {
+    string id PK
+    string professional_id FK
+    string code
+    string expires_at
+    int max_uses
+    int used_count
+  }
+
+  STUDENT_PROFESSIONAL_LINKS {
+    string id PK
+    string student_id FK
+    string professional_id FK
+    string professional_role
+    string status
+    string linked_at
+  }
+
+  WORKOUTS {
+    string id PK
+    string owner_personal_id FK
+    string name
+    string updated_at
+  }
+
+  WORKOUT_EXERCISES {
+    string id PK
+    string workout_id FK
+    int position
+    int wger_exercise_id
+    string name_snapshot
+    int sets
+    int reps
+    int rest_seconds
+  }
+
+  STUDENT_WORKOUTS {
+    string id PK
+    string student_id FK
+    string workout_id FK
+    string weekdays
+    string start_date
+    string is_active
+  }
+
+  WORKOUT_SESSIONS {
+    string id PK
+    string student_id FK
+    string student_workout_id FK
+    string scheduled_for_date
+    string status
+    string completed_at
+  }
+
+  SESSION_EXERCISES {
+    string id PK
+    string session_id FK
+    string workout_exercise_id FK
+    string completed
+  }
+
+  CHECK_INS {
+    string id PK
+    string student_id FK
+    string check_in_date
+    string source
+  }
+
+  SYNC_APPLIED_OPS {
+    string user_id FK
+    string device_id
+    string op_id
+    string op_type
+    string applied_at
+  }
+
+  DIET_TEMPLATES {
+    string id PK
+    string owner_nutritionist_id FK
+    string name
+    string body_json
+  }
+
+  STUDENT_DIETS {
+    string id PK
+    string student_id FK
+    string diet_template_id FK
+    string start_date
+    string is_active
+  }

@@ -64,7 +64,8 @@ export type ProStudentWorkoutsResponse = StudentWorkoutsResponse;
 export const WorkoutExerciseSchema = z.object({
   id: z.string().uuid(),
   position: z.number().int().positive(),
-  wger_exercise_id: z.number().int(),
+  wger_exercise_id: z.number().int().nullable().optional(),
+  exercise_id: z.string().nullable().optional(),
   name_snapshot: z.string(),
   sets: z.number().int().positive(),
   reps: z.number().int().positive(),
@@ -127,7 +128,8 @@ export type ProWorkoutsResponse = z.infer<typeof ProWorkoutsResponseSchema>;
 export const ProWorkoutExerciseSchema = z.object({
   id: z.string().uuid(),
   position: z.number().int().positive(),
-  wger_exercise_id: z.number().int(),
+  exercise_id: z.string().nullable().optional(),
+  wger_exercise_id: z.number().int().nullable().optional(),
   name_snapshot: z.string(),
   sets: z.number().int().positive(),
   reps: z.number().int().positive(),

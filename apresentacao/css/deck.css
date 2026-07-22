@@ -1,0 +1,550 @@
+/* ============================================================================
+   deck.css — Linguagem visual da Direção A (dir-a.html aprovado) portada para
+   classes reutilizáveis. NENHUM hex solto: tudo via var(--*) de tokens.css.
+
+   Palco FIXO 1920x1080 (impress escala tudo) → tamanhos internos em PX.
+   Os papéis semânticos (--slide-bg, --accent, --ink, --panel...) trocam sozinhos
+   dentro de [data-theme="worldgym"] (slides 6 e 7), então qualquer componente
+   que use var(--accent)/var(--ink)/var(--card) vira branco/vermelho/grafite
+   automaticamente. Por isso este arquivo nunca fixa cores cruas.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   00 · Reset mínimo + base do documento
+   --------------------------------------------------------------------------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;                 /* impress controla a câmera/scroll */
+  background: var(--slide-bg);      /* fundo do palco = papel semântico */
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* utilitário tipográfico (ex.: <div class="nav-hint mono">) */
+.mono { font-family: var(--mono); }
+
+/* ---------------------------------------------------------------------------
+   01 · impress / step / slide — palco fixo 1920x1080
+   impress.js aplica as transforms de câmera nos .step; aqui só damos dimensão,
+   superfície e o stacking interno. .slide usa var(--slide-bg) para que o modo
+   World Gym (data-theme no próprio .slide) pinte de vermelho sozinho.
+   --------------------------------------------------------------------------- */
+#impress { position: relative; }
+
+.step {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+}
+
+.slide {
+  position: relative;               /* âncora p/ .s-panel absoluto */
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--slide-bg);      /* IMPORTANTE: pega o vermelho no modo WG */
+  color: var(--ink);
+}
+
+/* enquanto o impress não inicializou, evita empilhar todos os steps visíveis */
+.impress-not-supported .step { display: none; }
+
+/* ---------------------------------------------------------------------------
+   02 · slide-frame — grid de 3 zonas (topo / centro / rodapé) + padding de palco
+   Filho direto do .slide. Fica acima do .s-panel (z-index).
+   --------------------------------------------------------------------------- */
+.slide-frame {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* topo / centro / rodapé */
+  padding: 56px 92px;                /* margem de palco generosa */
+}
+
+/* zonas — filhas diretas do .slide-frame, mapeadas às 3 linhas do grid */
+.top    { display: flex; align-items: flex-start; justify-content: space-between; gap: 48px; }
+.center { display: flex; flex-direction: column; justify-content: center; }
+.bottom { display: flex; align-items: flex-end;  justify-content: space-between; gap: 72px; }
+
+/* Se houver painel lateral, o conteúdo central recua para não correr sob ele */
+.slide:has(.s-panel) .center { max-width: 1180px; }
+
+/* ---------------------------------------------------------------------------
+   03 · eyebrow + tick — rótulo mono com barra de acento
+   --------------------------------------------------------------------------- */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+.eyebrow .tick {
+  width: 30px;
+  height: 1px;
+  background: var(--tick);
+  display: inline-block;
+  flex: none;
+}
+
+/* ---------------------------------------------------------------------------
+   04 · s-index — índice mono do slide (ex.: "01 / CAPA")
+   --------------------------------------------------------------------------- */
+.s-index {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;              /* respiro índice → headline */
+}
+.s-index .num { color: var(--ink-70); }
+
+/* datestamp opcional (canto superior direito da capa) */
+.datestamp {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.8;
+}
+.datestamp .label { display: block; color: var(--eyebrow); font-size: 12px; letter-spacing: 0.32em; }
+.datestamp .val   { color: var(--ink-70); }
+
+/* ---------------------------------------------------------------------------
+   05 · headline — display gigante (Barlow Condensed 900, CAIXA ALTA)
+   Default = headline-herói (~134px). Modificador --section p/ títulos de slide.
+   Palavras destacadas: <span class="accent">. Apoios opcionais: .lead / .muted.
+   --------------------------------------------------------------------------- */
+.headline {
+  font-family: var(--disp);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-size: 134px;                 /* herói: ~120–160px */
+  line-height: 0.9;
+  letter-spacing: -0.004em;
+}
+.headline .accent { color: var(--accent); }            /* único acento */
+.headline .lead   { color: var(--ink-70); font-weight: 800; }
+.headline .muted  { color: var(--ink-50); font-weight: 800; }
+
+/* título de slide (não-herói) ~64px — ex.: contexto, pilares, "nós e vocês" */
+.headline--section { font-size: 64px; line-height: 0.94; }
+/* visão: título maior que os demais slides de seção */
+#visao .headline--section { font-size: 84px; }
+/* capa: maior, mas cada linha em nowrap pra não quebrar em linhas extras */
+#capa .headline,
+#obrigado .headline { font-size: 104px; line-height: 0.96; }
+#capa .headline .hl-line,
+#obrigado .headline .hl-line { white-space: nowrap; }
+
+/* ---------------------------------------------------------------------------
+   06 · hl-line — reveal linha-a-linha (clip + filho transladável)
+   Estrutura igual à dir-a.html: <span class="hl-line"><span>TEXTO</span></span>.
+   O estado inicial/animação fica em transitions.css + GSAP; aqui só a mecânica
+   de clip. Sem JS o filho está em translateY(0) (visível — fallback seguro).
+   --------------------------------------------------------------------------- */
+.hl-line {
+  display: block;
+  overflow: hidden;                 /* recorta o filho que sobe */
+  /* respiro p/ acentos altos (Ã, Á) e cedilha (Ç) não serem cortados pelo clip */
+  padding: 0.12em 0.04em 0.16em;
+}
+.hl-line > span {
+  display: inline-block;
+  transform: translateY(0);
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------------------
+   07 · subhead — apoio do headline (Barlow Condensed 600)
+   --------------------------------------------------------------------------- */
+.subhead {
+  font-family: var(--disp);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink-70);
+  font-size: 40px;
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+  margin-top: 30px;                 /* respiro headline → subhead */
+}
+
+/* ---------------------------------------------------------------------------
+   08 · s-panel — painel de superfície lateral direito (~30%)
+   Full-bleed: filho direto do .slide (irmão do .slide-frame). Hairline à
+   esquerda + coluna interna mais escura + eco sutil de grade (estrutura, não
+   decoração). Usa --panel/--panel-2/--rule → vira grafite no modo WG.
+   --------------------------------------------------------------------------- */
+.s-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  z-index: 1;
+  background: var(--panel);
+  border-left: 1px solid var(--rule);
+  overflow: hidden;
+}
+/* coluna interna mais profunda (quiet depth, sem gradiente decorativo) */
+.s-panel::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 42%;
+  background: var(--panel-2);
+  opacity: 0.55;
+}
+/* eco sutil de grade — meridiano central + paralelas, bem discreto */
+.s-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px),
+    linear-gradient(180deg, var(--rule) 1px, transparent 1px);
+  background-position: 50% 0, 0 50%;
+  background-size: 100% 100%, 100% 25%;
+}
+
+/* ---------------------------------------------------------------------------
+   09 · lockup / mark / sep — co-branding (logos + separador "×")
+   .mark contém a <img> do logo; .sep é o "×". Modo WG: --invert recolore o
+   logo (alpha) para branco via filtro.
+   --------------------------------------------------------------------------- */
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  white-space: nowrap;
+}
+.lockup .mark { display: flex; align-items: center; }
+.lockup .mark img {
+  height: 80px;       /* versão vertical: as duas marcas no MESMO tamanho */
+  width: auto;
+  display: block;
+}
+/* recolore um logo com alpha para branco (ex.: World Gym no modo WG) */
+.lockup .mark--invert img { filter: brightness(0) invert(1); }
+
+/* contexto — lede curta + resposta "No produto" (contraponto neon) */
+.context-lede {
+  margin-top: 24px; max-width: 980px;
+  font-family: var(--body); font-size: 26px; line-height: 1.45; color: var(--ink-70);
+}
+.context-answer {
+  margin-top: 44px; padding-left: 22px; max-width: 900px;
+  border-left: 3px solid var(--accent);
+  font-family: var(--body); font-size: 24px; line-height: 1.45; color: var(--ink);
+}
+.context-answer b {
+  display: inline-block; font-family: var(--mono); font-weight: 400;
+  font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-right: 14px;
+}
+
+/* atrito com tela do app ao lado: problema à esquerda, prova (mockup) à direita */
+/* contexto + pilares: problema/tese à esquerda, prova (mockup) à direita —
+   título e mockup grandes, título sem quebra extra de linha */
+.center.context-split { flex-direction: row; align-items: center; gap: 48px; }
+.context-split .context-text { flex: 1 1 0; min-width: 0; }
+.context-split .headline { font-size: 102px; line-height: .95; }
+.context-split .hl-line { white-space: nowrap; }
+.context-split .phone-mount {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  width: 470px;
+}
+.context-split .phone-mount .phone { transform: scale(1.18); transform-origin: center; }
+/* o webp da World Gym tem margem interna → aumenta p/ casar com o Actus */
+.lockup .mark img[src*="world-gym"] { height: 112px; }
+
+.lockup .sep {
+  font-family: var(--disp);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--eyebrow);
+  opacity: 0.7;
+  transform: translateY(-0.04em);
+}
+
+/* ---------------------------------------------------------------------------
+   10 · slogan + dot — linha mono sobre hairline, com ponto de acento
+   --------------------------------------------------------------------------- */
+.slogan {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 720px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+.slogan .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 100px;
+  background: var(--accent);
+  flex: none;
+}
+
+/* ---------------------------------------------------------------------------
+   11 · pillar-card — cartão de pilar/micro-atrito (superfície --card)
+   Borda hairline, raio 12. .pillar-title em display; corpo em --ink-70;
+   .pillar-note ("No produto: ...") fixada no rodapé do cartão sobre hairline.
+   --------------------------------------------------------------------------- */
+.pillar-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 32px;
+}
+.pillar-card .pillar-title {
+  font-family: var(--disp);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: 32px;
+  line-height: 1.02;
+  color: var(--ink);
+}
+.pillar-card p {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--ink-70);
+}
+.pillar-card .pillar-note {
+  margin-top: auto;                 /* empurra p/ o rodapé do cartão */
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--body);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--ink-50);
+}
+/* rótulo "No produto:" do .pillar-note ganha o acento, em mono */
+.pillar-card .pillar-note b,
+.pillar-card .pillar-note strong {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   12 · insight-card — bloco elevado de insight/IA (superfície --card-elev)
+   Elevação semântica via superfície mais clara + filete de acento (sem sombra
+   genérica, conforme anti-slop §08).
+   --------------------------------------------------------------------------- */
+.insight-card {
+  position: relative;
+  background: var(--card-elev);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 36px 36px 36px 44px;
+}
+/* filete de acento à esquerda = "isto é insight/IA" */
+.insight-card::before {
+  content: "";
+  position: absolute;
+  top: 24px; bottom: 24px; left: 18px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+.insight-card p {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.38;
+  color: var(--ink);
+}
+.insight-card .label {
+  display: block;
+  margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+}
+
+/* ---------------------------------------------------------------------------
+   13 · col-left / col-right — duas colunas (slide 7)
+   Direita em destaque/elevada (superfície --card-elev + filete de acento no
+   topo). Wrapper opcional .cols-2 dá o grid de duas colunas.
+   --------------------------------------------------------------------------- */
+.cols-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: stretch;
+}
+/* duas colunas = cards simétricos (mesma superfície e altura) */
+.col-left,
+.col-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 44px 44px 40px;
+}
+/* coluna direita = realce (a parceria destrava): superfície elevada + filete */
+.col-right { background: var(--card-elev); }
+.col-right::before {                /* filete de acento no topo do destaque */
+  content: "";
+  position: absolute;
+  top: 0; left: 28px; right: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent);
+}
+
+/* cabeçalho de coluna (display) e itens de lista */
+.col-left .col-head,
+.col-right .col-head {
+  font-family: var(--disp);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: 30px;
+  line-height: 1.02;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.col-left ul,
+.col-right ul { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.col-left li,
+.col-right li {
+  font-family: var(--body);
+  font-size: 22px;
+  line-height: 1.35;
+  color: var(--ink-70);
+  padding-left: 22px;
+  position: relative;
+}
+/* marcador de item = ponto de acento */
+.col-left li::before,
+.col-right li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.55em;
+  width: 7px; height: 7px;
+  border-radius: 100px;
+  background: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   14 · nav-hint — dica de navegação (rodapé direito, mono, discreta)
+   deck.js pode dar fade-out depois da 1ª navegação; aqui só o estado base.
+   --------------------------------------------------------------------------- */
+.nav-hint {
+  position: fixed;
+  right: 28px;
+  bottom: 24px;
+  z-index: 50;
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+  transition: opacity 0.6s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   15 · fallback — só aparece quando o impress não é suportado
+   --------------------------------------------------------------------------- */
+.fallback { display: none; }
+.impress-not-supported .fallback {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 10vw;
+  background: var(--slide-bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------------
+   14 · NÓS E VOCÊS — split meio a meio (Actus dark | World Gym vermelho)
+   --------------------------------------------------------------------------- */
+.nv-split .nv-bg { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 0; }
+.nv-split .nv-bg-actus { left: 0;  background: var(--bg-base); }
+.nv-split .nv-bg-wg    { right: 0; background: var(--slide-bg);
+  box-shadow: -1px 0 0 rgba(255,255,255,.14); }
+
+#nos-voces .nv-top { justify-content: center; }
+#nos-voces .nv-top .eyebrow { color: #fff; }
+#nos-voces .nv-center { align-items: center; text-align: center; }
+#nos-voces .nv-title { color: #fff; margin-bottom: 64px; }
+#nos-voces .nv-title .hl-line { text-align: center; }
+
+#nos-voces .nv-cols {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 40px;
+  width: 100%;
+  max-width: 1780px;
+}
+#nos-voces .nv-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 38px; text-align: center;
+}
+#nos-voces .nv-logo img { height: 108px; width: auto; display: block; }
+#nos-voces .nv-col-wg .nv-logo img { height: 132px; filter: brightness(0) invert(1); }
+#nos-voces .nv-col ul { list-style: none; display: flex; flex-direction: column; gap: 22px; }
+#nos-voces .nv-col li {
+  font-family: var(--body);
+  font-size: 26px;
+  line-height: 1.35;
+  color: var(--ink-70);
+  max-width: 760px;
+  white-space: nowrap;
+}
+#nos-voces .nv-x {
+  font-family: var(--disp); font-weight: 800;
+  font-size: 88px; line-height: 1;
+  color: rgba(255,255,255,.5);
+  align-self: center;
+}

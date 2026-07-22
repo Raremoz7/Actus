@@ -1,5 +1,6 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import {
+  AccessibilityInfo,
   Pressable,
   TextInput,
   View,
@@ -15,6 +16,7 @@ import { Eye, EyeSlash } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { darkTheme } from '@/theme';
+import { accessibleFieldLabel } from '@/lib/accessibleFieldLabel';
 import { AppText } from './Text';
 
 type InputProps = TextInputProps & {
@@ -24,12 +26,14 @@ type InputProps = TextInputProps & {
   invalid?: boolean;
   // Habilita o botão de mostrar/ocultar senha (Eye/EyeSlash duotone).
   secureToggle?: boolean;
+  // Anunciado só para leitor de tela (accessibleFieldLabel) — não muda o visual.
+  required?: boolean;
 };
 
 const { motion, colors } = darkTheme;
 
 export const Input = forwardRef<TextInput, InputProps>(function Input(
-  { label, error, invalid = false, secureToggle = false, onFocus, onBlur, style, ...rest },
+  { label, error, invalid = false, secureToggle = false, required = false, onFocus, onBlur, style, ...rest },
   ref,
 ) {
   // Estado de senha oculta (só relevante quando secureToggle).
@@ -41,6 +45,12 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   // Mensagem só quando há texto real; `invalid` pinta a borda sem ocupar linha.
   const errorText = error && error.trim().length > 0 ? error : null;
   const hasError = errorText != null || invalid;
+
+  // Anúncio ativo pro leitor de tela: accessibilityLiveRegion do bloco abaixo só
+  // funciona no Android, então anunciamos explicitamente também pra cobrir iOS.
+  useEffect(() => {
+    if (errorText) AccessibilityInfo.announceForAccessibility(errorText);
+  }, [errorText]);
 
   const borderStyle = useAnimatedStyle(() => {
     // Erro tem prioridade sobre o estado de foco.
@@ -77,7 +87,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
       <Animated.View style={[styles.field, borderStyle]}>
         <TextInput
           ref={ref}
-          accessibilityLabel={label}
+          accessibilityLabel={accessibleFieldLabel(label, errorText, required)}
           aria-invalid={hasError || undefined}
           style={[styles.input, style]}
           placeholderTextColor={colors.textTertiary}

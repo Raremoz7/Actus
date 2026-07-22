@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ScrollView, Share, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   ArrowDown,
@@ -16,7 +17,7 @@ import { AppText, Button } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import type { LoadEvolutionRow, WorkoutFinishSummary } from '@/types/sessions';
 
-const { colors, motion } = darkTheme;
+const { colors, motion, spacing, layout } = darkTheme;
 
 type SessionFinishSummaryProps = {
   summary: WorkoutFinishSummary;
@@ -57,6 +58,7 @@ function DeltaIcon({ delta }: { delta: number | null }) {
 }
 
 export function SessionFinishSummary({ summary, onDone }: SessionFinishSummaryProps) {
+  const insets = useSafeAreaInsets();
   // 1 motion por tela: um único reveal do resumo (fade + leve subida).
   const reveal = useSharedValue(0);
   useEffect(() => {
@@ -80,7 +82,10 @@ export function SessionFinishSummary({ summary, onDone }: SessionFinishSummaryPr
 
   return (
     <View style={styles.flex}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: layout.tabBarSafePaddingLg + insets.bottom }]}
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View style={revealStyle}>
           <AppText variant="eyebrow" color="neon">
             Treino concluído
@@ -171,7 +176,7 @@ export function SessionFinishSummary({ summary, onDone }: SessionFinishSummaryPr
         </Animated.View>
       </ScrollView>
 
-      <View style={styles.ctaBar}>
+      <View style={[styles.ctaBar, { paddingBottom: spacing.lg + insets.bottom }]}>
         <Button
           variant="secondary"
           label="Compartilhar"
@@ -213,7 +218,7 @@ const styles = StyleSheet.create((theme) => ({
   scroll: {
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.md,
-    paddingBottom: 140,
+    paddingBottom: layout.tabBarSafePaddingLg,
   },
   title: { marginTop: theme.spacing.sm },
   subtitle: { marginTop: theme.spacing.xs },

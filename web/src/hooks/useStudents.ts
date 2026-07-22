@@ -3,11 +3,13 @@ import { api } from '../api/client';
 import { StudentsResponseSchema, type CheckIn, type StudentWorkout } from '../lib/schemas';
 import { checkInsQueryOptions, workoutsQueryOptions } from './useStudentDetail';
 
-export function useStudents() {
+export type StudentsFilter = 'active' | 'revoked' | 'all';
+
+export function useStudents(status: StudentsFilter = 'active') {
   return useQuery({
-    queryKey: ['students'],
+    queryKey: ['students', status],
     queryFn: async () => {
-      const r = await api.get('/professional/students');
+      const r = await api.get('/professional/students', { params: { status } });
       return StudentsResponseSchema.parse(r.data).students;
     },
   });

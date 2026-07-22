@@ -406,9 +406,231 @@ export const openapi = {
             },
             MeStudentPostCheckInRequest: {
                 type: "object",
+                description: "Opcional: `workout_session_id` deve ser uma sessão do próprio aluno (`workout_sessions.id` com `student_id` = utilizador). Listar check-ins: **GET /me/check-ins** (aluno) ou **GET /professional/students/{student_id}/check-ins**.",
                 properties: {
                     check_in_date: { type: "string", example: "2026-05-04" },
                     workout_session_id: { type: "string", format: "uuid", nullable: true },
+                },
+            },
+            CheckInListItem: {
+                type: "object",
+                required: ["id", "check_in_date", "source", "created_at", "workout_session_id"],
+                properties: {
+                    id: { type: "string", format: "uuid" },
+                    check_in_date: { type: "string", example: "2026-05-04" },
+                    source: { type: "string" },
+                    created_at: { type: "string", format: "date-time" },
+                    workout_session_id: { type: "string", format: "uuid", nullable: true },
+                },
+            },
+            MeStudentCheckInsListResponse: {
+                type: "object",
+                required: ["check_ins"],
+                properties: {
+                    check_ins: { type: "array", items: { $ref: "#/components/schemas/CheckInListItem" } },
+                },
+            },
+            ProfessionalStudentCheckInsResponse: {
+                type: "object",
+                required: ["student_id", "check_ins"],
+                properties: {
+                    student_id: { type: "string", format: "uuid" },
+                    check_ins: { type: "array", items: { $ref: "#/components/schemas/CheckInListItem" } },
+                },
+            },
+            MeGamificationWeeklyDay: {
+                type: "object",
+                required: ["weekday", "date", "completed", "sources"],
+                properties: {
+                    weekday: { type: "integer", minimum: 1, maximum: 7, description: "1=seg … 7=dom (ISO)" },
+                    date: { type: "string", example: "2026-05-04" },
+                    completed: { type: "boolean" },
+                    sources: {
+                        type: "array",
+                        items: { type: "string", enum: ["check_in", "workout"] },
+                    },
+                },
+            },
+            MeGamificationWeeklyOverview: {
+                type: "object",
+                required: [
+                    "week_start",
+                    "week_end",
+                    "today_date",
+                    "today_weekday",
+                    "timezone",
+                    "streak_current",
+                    "streak_best",
+                    "days",
+                ],
+                properties: {
+                    week_start: { type: "string" },
+                    week_end: { type: "string" },
+                    today_date: { type: "string" },
+                    today_weekday: { type: "integer", minimum: 1, maximum: 7 },
+                    timezone: { type: "string" },
+                    streak_current: { type: "integer" },
+                    streak_best: { type: "integer" },
+                    days: { type: "array", items: { $ref: "#/components/schemas/MeGamificationWeeklyDay" } },
+                },
+            },
+            ChallengeDto: {
+                type: "object",
+                required: ["id", "owner_professional_id", "name", "starts_on", "ends_on", "visibility", "status", "created_at", "updated_at"],
+                properties: {
+                    id: { type: "string", format: "uuid" },
+                    owner_professional_id: { type: "string", format: "uuid" },
+                    name: { type: "string" },
+                    starts_on: { type: "string", example: "2026-05-01" },
+                    ends_on: { type: "string", example: "2026-05-31" },
+                    visibility: { type: "string", enum: ["private_ranking", "public_among_participants"] },
+                    status: { type: "string", enum: ["draft", "active", "ended"] },
+                    created_at: { type: "string", format: "date-time" },
+                    updated_at: { type: "string", format: "date-time" },
+                },
+            },
+            ChallengeParticipantAdmin: {
+                type: "object",
+                required: ["student_id", "status", "display_name", "invited_at", "responded_at"],
+                properties: {
+                    student_id: { type: "string", format: "uuid" },
+                    status: { type: "string", enum: ["invited", "active", "declined"] },
+                    display_name: { type: "string", nullable: true },
+                    invited_at: { type: "string", format: "date-time" },
+                    responded_at: { type: "string", format: "date-time", nullable: true },
+                },
+            },
+            ChallengeRankingRow: {
+                type: "object",
+                required: [
+                    "position",
+                    "student_id",
+                    "display_name",
+                    "active_days",
+                    "streak_current_in_challenge",
+                    "streak_best_in_challenge",
+                    "last_activity_date",
+                ],
+                properties: {
+                    position: { type: "integer" },
+                    student_id: { type: "string", format: "uuid" },
+                    display_name: { type: "string", nullable: true },
+                    active_days: { type: "integer" },
+                    streak_current_in_challenge: { type: "integer" },
+                    streak_best_in_challenge: { type: "integer" },
+                    last_activity_date: { type: "string", nullable: true, example: "2026-05-10" },
+                },
+            },
+            PostProfessionalChallengeRequest: {
+                type: "object",
+                required: ["name", "starts_on", "ends_on"],
+                properties: {
+                    name: { type: "string" },
+                    starts_on: { type: "string", example: "2026-05-01" },
+                    ends_on: { type: "string", example: "2026-05-31" },
+                    visibility: { type: "string", enum: ["private_ranking", "public_among_participants"] },
+                    status: { type: "string", enum: ["draft", "active"] },
+                },
+            },
+            PatchProfessionalChallengeRequest: {
+                type: "object",
+                properties: {
+                    name: { type: "string" },
+                    starts_on: { type: "string" },
+                    ends_on: { type: "string" },
+                    visibility: { type: "string", enum: ["private_ranking", "public_among_participants"] },
+                    status: { type: "string", enum: ["draft", "active", "ended"] },
+                },
+            },
+            PostChallengeParticipantsRequest: {
+                type: "object",
+                required: ["student_ids"],
+                properties: {
+                    student_ids: { type: "array", items: { type: "string", format: "uuid" }, minItems: 1, maxItems: 100 },
+                },
+            },
+            ProfessionalChallengesListResponse: {
+                type: "object",
+                required: ["challenges"],
+                properties: {
+                    challenges: { type: "array", items: { $ref: "#/components/schemas/ChallengeDto" } },
+                },
+            },
+            ProfessionalChallengeDetailResponse: {
+                type: "object",
+                required: ["challenge", "participants"],
+                properties: {
+                    challenge: { $ref: "#/components/schemas/ChallengeDto" },
+                    participants: { type: "array", items: { $ref: "#/components/schemas/ChallengeParticipantAdmin" } },
+                },
+            },
+            ChallengeRankingResponse: {
+                type: "object",
+                required: ["visibility", "ranking"],
+                properties: {
+                    visibility: { type: "string", enum: ["private_ranking", "public_among_participants"] },
+                    ranking: { type: "array", items: { $ref: "#/components/schemas/ChallengeRankingRow" } },
+                },
+            },
+            ChallengeReportResponse: {
+                type: "object",
+                required: [
+                    "challenge_id",
+                    "invited_count",
+                    "active_count",
+                    "declined_count",
+                    "average_active_days",
+                    "average_adherence_ratio",
+                    "challenge_day_span",
+                    "participants",
+                ],
+                properties: {
+                    challenge_id: { type: "string", format: "uuid" },
+                    invited_count: { type: "integer" },
+                    active_count: { type: "integer" },
+                    declined_count: { type: "integer" },
+                    average_active_days: { type: "number" },
+                    average_adherence_ratio: { type: "number" },
+                    challenge_day_span: { type: "integer" },
+                    participants: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            required: [
+                                "student_id",
+                                "display_name",
+                                "active_days",
+                                "streak_current_in_challenge",
+                                "last_activity_date",
+                                "streak_broken_hint",
+                            ],
+                            properties: {
+                                student_id: { type: "string", format: "uuid" },
+                                display_name: { type: "string", nullable: true },
+                                active_days: { type: "integer" },
+                                streak_current_in_challenge: { type: "integer" },
+                                last_activity_date: { type: "string", nullable: true },
+                                streak_broken_hint: { type: "boolean" },
+                            },
+                        },
+                    },
+                },
+            },
+            MeChallengesListResponse: {
+                type: "object",
+                required: ["challenges"],
+                properties: {
+                    challenges: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            required: ["challenge", "participant_status"],
+                            properties: {
+                                challenge: { $ref: "#/components/schemas/ChallengeDto" },
+                                participant_status: { type: "string", enum: ["invited", "active"] },
+                            },
+                        },
+                    },
                 },
             },
             MeStudentPatchSessionExerciseRequest: {
@@ -621,6 +843,40 @@ export const openapi = {
                 },
             },
         },
+        // [ACTUS — NOVO vs produção] auto-cadastro de profissional. Ver backend/CHANGES-FROM-PRODUCTION.md
+        "/auth/register-professional": {
+            post: {
+                tags: ["Auth"],
+                summary: "[ACTUS] Auto-cadastro de profissional (personal) — conta ativa + tokens",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["email", "password", "full_name", "phone"],
+                                properties: {
+                                    email: { type: "string", format: "email", maxLength: 320 },
+                                    password: { type: "string", minLength: 8, maxLength: 200 },
+                                    full_name: { type: "string", minLength: 3, maxLength: 200 },
+                                    phone: { type: "string", minLength: 6, maxLength: 40 },
+                                    lgpd_consent: { type: "boolean", enum: [true] },
+                                    policy_version: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": {
+                        description: "Conta criada (tipo personal) + tokens",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/AuthTokensResponse" } } },
+                    },
+                    "400": { description: "Erro de validação (`invalid_body`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "409": { description: "E-mail já usado (`email_already_in_use`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
         "/auth/login": {
             post: {
                 tags: ["Auth"],
@@ -687,6 +943,34 @@ export const openapi = {
                 },
             },
         },
+        // [ACTUS-NEW] upload de avatar. Ver backend/CHANGES-FROM-PRODUCTION.md
+        "/me/avatar": {
+            post: {
+                tags: ["Perfil"],
+                summary: "[ACTUS] Upload do avatar (multipart) — grava em disco e seta profiles.avatar_url",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "multipart/form-data": {
+                            schema: {
+                                type: "object",
+                                required: ["avatar"],
+                                properties: { avatar: { type: "string", format: "binary", description: "JPEG/PNG/WebP, até 5 MB" } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": {
+                        description: "Avatar salvo",
+                        content: { "application/json": { schema: { type: "object", required: ["avatar_url"], properties: { avatar_url: { type: "string" } } } } },
+                    },
+                    "400": { description: "Imagem inválida/ausente (`invalid_image`)", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
         "/me": {
             get: {
                 tags: ["Perfil"],
@@ -712,6 +996,41 @@ export const openapi = {
                     "400": { description: "Validação", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                     "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                     "403": { description: "must_change_password", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Perfil não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        // [ACTUS-NEW] A4 — perfil rico (read-back). Ver backend/CHANGES-FROM-PRODUCTION.md
+        "/me/profile": {
+            get: {
+                tags: ["Perfil"],
+                summary: "[ACTUS] Perfil rico do usuário logado (profiles + user_basic_info) p/ editar-perfil",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": {
+                        description: "Perfil rico (campos student vêm null para profissional)",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["id", "tipo", "display_name"],
+                                    properties: {
+                                        id: { type: "string", format: "uuid" },
+                                        tipo: { type: "string" },
+                                        display_name: { type: "string", nullable: true },
+                                        avatar_url: { type: "string", nullable: true },
+                                        timezone: { type: "string", nullable: true },
+                                        full_name: { type: "string", nullable: true },
+                                        phone: { type: "string", nullable: true },
+                                        gender: { type: "string", nullable: true },
+                                        body_weight_kg: { type: "number", nullable: true },
+                                        birth_date: { type: "string", format: "date", nullable: true },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                     "404": { description: "Perfil não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                 },
             },
@@ -761,7 +1080,7 @@ export const openapi = {
         "/me/workouts/{student_workout_id}/sessions": {
             post: {
                 tags: ["Aluno — programa"],
-                summary: "Criar ou reutilizar sessão para um dia (`scheduled_for_date`); idempotente por treino+dia",
+                summary: "Criar ou reutilizar sessão para um dia (`scheduled_for_date`); idempotente por treino+dia; `schedule_hint` informa se o dia coincide com os `weekdays` planejados (não bloqueia)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "student_workout_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
                 requestBody: {
@@ -921,6 +1240,96 @@ export const openapi = {
                 },
             },
         },
+        "/me/gamification/weekly-overview": {
+            get: {
+                tags: ["Gamificação"],
+                summary: "Linha do tempo semanal + streak (dashboard aluno)",
+                description: "Seg–Dom no fuso do aluno. `week_start` opcional (segunda YYYY-MM-DD); default = semana ISO atual.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "week_start",
+                        in: "query",
+                        required: false,
+                        schema: { type: "string", example: "2026-05-04" },
+                        description: "Deve ser uma segunda-feira",
+                    },
+                ],
+                responses: {
+                    "200": {
+                        description: "Overview",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/MeGamificationWeeklyOverview" } } },
+                    },
+                    "400": { description: "Query inválida", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Perfil não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/me/challenges": {
+            get: {
+                tags: ["Gamificação"],
+                summary: "Listar desafios em que participo (convite ou ativo)",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": {
+                        description: "Lista",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/MeChallengesListResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/me/challenges/{challenge_id}/accept": {
+            post: {
+                tags: ["Gamificação"],
+                summary: "Aceitar convite para um desafio",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": { description: "Ok", content: { "application/json": { schema: { type: "object", required: ["ok"], properties: { ok: { type: "boolean", enum: [true] } } } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Desafio não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "409": { description: "Não convidado ou desafio encerrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/me/challenges/{challenge_id}/decline": {
+            post: {
+                tags: ["Gamificação"],
+                summary: "Recusar convite",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": { description: "Ok", content: { "application/json": { schema: { type: "object", required: ["ok"], properties: { ok: { type: "boolean", enum: [true] } } } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Desafio não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "409": { description: "Estado inválido", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/me/challenges/{challenge_id}/ranking": {
+            get: {
+                tags: ["Gamificação"],
+                summary: "Ranking do desafio (só se visibilidade pública entre participantes)",
+                description: "`403 ranking_private` quando o personal escolheu ranking privado.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": {
+                        description: "Ranking",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ChallengeRankingResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Ranking privado ou sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Desafio não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
         "/me/diets": {
             get: {
                 tags: ["Aluno — programa"],
@@ -955,6 +1364,26 @@ export const openapi = {
             },
         },
         "/me/check-ins": {
+            get: {
+                tags: ["Aluno — programa"],
+                summary: "Listar check-ins do aluno autenticado",
+                description: "Query opcional: from, to (YYYY-MM-DD), limit (1–500, def.: 120). Ordenação: data desc.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "from", in: "query", required: false, schema: { type: "string", example: "2026-01-01" } },
+                    { name: "to", in: "query", required: false, schema: { type: "string", example: "2026-12-31" } },
+                    { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 500, default: 120 } },
+                ],
+                responses: {
+                    "200": {
+                        description: "Lista",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/MeStudentCheckInsListResponse" } } },
+                    },
+                    "400": { description: "Query inválida", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
             post: {
                 tags: ["Aluno — programa"],
                 summary: "Check-in diário (idempotente por data local)",
@@ -979,9 +1408,36 @@ export const openapi = {
                             },
                         },
                     },
-                    "400": { description: "Validação", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "400": {
+                        description: "Corpo inválido ou `workout_session_not_found` (UUID não é sessão deste aluno)",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+                    },
                     "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                     "403": { description: "Não é perfil aluno", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/students/{student_id}/check-ins": {
+            get: {
+                tags: ["Profissional — alunos"],
+                summary: "Listar check-ins de um aluno vinculado",
+                description: "Requer vínculo ativo com o aluno. Mesmos filtros que GET /me/check-ins.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "student_id", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+                    { name: "from", in: "query", required: false, schema: { type: "string", example: "2026-01-01" } },
+                    { name: "to", in: "query", required: false, schema: { type: "string", example: "2026-12-31" } },
+                    { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 500, default: 120 } },
+                ],
+                responses: {
+                    "200": {
+                        description: "Lista",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ProfessionalStudentCheckInsResponse" } } },
+                    },
+                    "400": { description: "UUID ou query inválidos", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é personal/nutricionista", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Aluno sem vínculo ativo", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                 },
             },
         },
@@ -996,6 +1452,171 @@ export const openapi = {
                         content: { "application/json": { schema: { $ref: "#/components/schemas/ProfessionalStudentsResponse" } } },
                     },
                     "403": { description: "Sem permissão / must_change_password", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/challenges": {
+            get: {
+                tags: ["Profissional — desafios"],
+                summary: "Listar desafios criados pelo personal",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": {
+                        description: "Lista",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ProfessionalChallengesListResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é personal", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+            post: {
+                tags: ["Profissional — desafios"],
+                summary: "Criar desafio",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/PostProfessionalChallengeRequest" } } },
+                },
+                responses: {
+                    "201": {
+                        description: "Criado",
+                        content: {
+                            "application/json": {
+                                schema: { type: "object", required: ["challenge"], properties: { challenge: { $ref: "#/components/schemas/ChallengeDto" } } },
+                            },
+                        },
+                    },
+                    "400": { description: "Validação", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Não é personal", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/challenges/{challenge_id}": {
+            get: {
+                tags: ["Profissional — desafios"],
+                summary: "Detalhe + participantes",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": {
+                        description: "Detalhe",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ProfessionalChallengeDetailResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+            patch: {
+                tags: ["Profissional — desafios"],
+                summary: "Atualizar desafio",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                requestBody: {
+                    required: true,
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/PatchProfessionalChallengeRequest" } } },
+                },
+                responses: {
+                    "200": {
+                        description: "Atualizado",
+                        content: {
+                            "application/json": { schema: { type: "object", required: ["challenge"], properties: { challenge: { $ref: "#/components/schemas/ChallengeDto" } } } },
+                        },
+                    },
+                    "400": { description: "Validação", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/challenges/{challenge_id}/participants": {
+            post: {
+                tags: ["Profissional — desafios"],
+                summary: "Convidar alunos (vínculo personal ativo)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                requestBody: {
+                    required: true,
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/PostChallengeParticipantsRequest" } } },
+                },
+                responses: {
+                    "200": {
+                        description: "Convites processados",
+                        content: {
+                            "application/json": {
+                                schema: { type: "object", required: ["invited_count"], properties: { invited_count: { type: "integer" } } },
+                            },
+                        },
+                    },
+                    "400": { description: "Validação ou alunos inválidos", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Desafio não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "409": { description: "Desafio encerrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/challenges/{challenge_id}/ranking": {
+            get: {
+                tags: ["Profissional — desafios"],
+                summary: "Ranking completo (dono)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": {
+                        description: "Ranking",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ChallengeRankingResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Desafio não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        "/professional/challenges/{challenge_id}/report": {
+            get: {
+                tags: ["Profissional — desafios"],
+                summary: "Relatório resumido (dono)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "challenge_id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+                responses: {
+                    "200": {
+                        description: "Relatório",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/ChallengeReportResponse" } } },
+                    },
+                    "401": { description: "Não autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "403": { description: "Sem permissão", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "404": { description: "Não encontrado", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                },
+            },
+        },
+        // [ACTUS-NEW] A3 — preview PÚBLICO de convite (sem security). Ver backend/CHANGES-FROM-PRODUCTION.md
+        "/invites/{code}/preview": {
+            get: {
+                tags: ["Convites"],
+                summary: "[ACTUS] Preview público de convite (passo 1 do cadastro, sem auth)",
+                parameters: [{ name: "code", in: "path", required: true, schema: { type: "string" } }],
+                responses: {
+                    "200": {
+                        description: "Convite válido",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["ok"],
+                                    properties: {
+                                        ok: { type: "boolean", enum: [true] },
+                                        professional_display_name: { type: "string", nullable: true },
+                                        avatar_url: { type: "string", nullable: true },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    "404": { description: "`invalid_invite` / `invalid_invite_professional`", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
+                    "410": { description: "`invite_expired` / `invite_exhausted`", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
                 },
             },
         },

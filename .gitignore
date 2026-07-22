@@ -3,3 +3,10 @@ node_modules/
 
 # Imagens de exercícios baixadas localmente (~83MB, não commitar)
 web/public/exercises/
+
+# Companion visual do brainstorming (mockups efêmeros)
+.superpowers/
+
+# Cache de navegador (automação) e site de referência scrapeado — não commitar
+.browser-profile/
+www_bevel_health/

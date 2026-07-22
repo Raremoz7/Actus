@@ -1,0 +1,95 @@
+import { Pressable, View } from 'react-native';
+import { Play } from 'phosphor-react-native';
+import { StyleSheet } from 'react-native-unistyles';
+
+import { AppText } from '@/components/ui';
+import { darkTheme } from '@/theme';
+
+import { WorkoutCardPhoto } from './WorkoutCardPhoto';
+
+const { colors } = darkTheme;
+
+type Props = {
+  title: string;
+  exerciseCount: number;
+  estMinutes: number;
+  isToday: boolean;
+  lastCompletedLabel?: string;
+  onStart: () => void;
+  onOpen: () => void;
+};
+
+export function NextWorkoutCard({
+  title,
+  exerciseCount,
+  estMinutes,
+  isToday,
+  lastCompletedLabel,
+  onStart,
+  onOpen,
+}: Props) {
+  const meta =
+    estMinutes > 0
+      ? `${exerciseCount} exercícios · ~${estMinutes} min`
+      : `${exerciseCount} exercícios`;
+  // Card não-interativo: a área de texto (abrir) e o CTA (iniciar) são IRMÃOS, nunca
+  // aninhados — Pressable vira <button> no web e button-dentro-de-button é DOM inválido.
+  return (
+    <View style={styles.card}>
+      <WorkoutCardPhoto hint={title} />
+      <Pressable
+        onPress={onOpen}
+        accessibilityRole="button"
+        accessibilityLabel={`Abrir treino ${title}`}
+      >
+        <AppText variant="eyebrow" color="neon">
+          {isToday ? 'Próximo · hoje' : 'Próximo treino'}
+        </AppText>
+        <AppText variant="h2" style={styles.title}>
+          {title}
+        </AppText>
+        <AppText variant="bodySm" color="accentMuted" style={styles.metaTight}>
+          {meta}
+        </AppText>
+        <AppText variant="metaSmall" color="tertiary" style={styles.meta}>
+          {lastCompletedLabel ?? ''}
+        </AppText>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Iniciar treino"
+        style={styles.cta}
+        onPress={onStart}
+      >
+        <Play size={18} weight="fill" color={colors.textInverse} />
+        <AppText variant="label" color="inverse">
+          Iniciar treino
+        </AppText>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create((theme) => ({
+  card: {
+    backgroundColor: theme.colors.surface1,
+    borderWidth: 1,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.lg,
+    // Clipa a foto soft full-bleed ao raio do card.
+    overflow: 'hidden',
+  },
+  title: { marginTop: theme.spacing.sm },
+  metaTight: { marginTop: theme.spacing.xs },
+  meta: { marginTop: theme.spacing.xs, marginBottom: theme.spacing.lg },
+  cta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.neon,
+    borderRadius: theme.radius.pill,
+    paddingVertical: theme.spacing.md,
+  },
+}));

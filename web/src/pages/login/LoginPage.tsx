@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../api/auth';
 import { Button } from '../../components/ui/Button';
+import { landingPathForUser, useAuthStore } from '../../store/authStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ export function LoginPage() {
     const result = await login(email, password);
     setLoading(false);
     if (result.ok) {
-      navigate('/', { replace: true });
+      // Rota inicial conforme o papel (gestor → academia, admin → admin, demais → app).
+      navigate(landingPathForUser(useAuthStore.getState().user), { replace: true });
       return;
     }
     if (result.error === 'invalid_credentials') {

@@ -9,7 +9,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import type { ProChallengeReport } from '@/types/challenges';
 
 // Arredonda um ratio 0..1 para inteiro de porcentagem (clamp 0..100).
@@ -36,7 +36,7 @@ export function ChallengeReportKpis({ report }: Props) {
 
   return (
     <View style={styles.grid}>
-      <View style={styles.cardWide}>
+      <Card padding="lg" style={styles.cardExtra}>
         <AppText variant="eyebrow" color="tertiary">
           Aderência média
         </AppText>
@@ -48,9 +48,9 @@ export function ChallengeReportKpis({ report }: Props) {
             %
           </AppText>
         </View>
-      </View>
+      </Card>
 
-      <View style={styles.cardWide}>
+      <Card padding="lg" style={styles.cardExtra}>
         <AppText variant="eyebrow" color="tertiary">
           Média de dias ativos
         </AppText>
@@ -62,9 +62,9 @@ export function ChallengeReportKpis({ report }: Props) {
             dias
           </AppText>
         </View>
-      </View>
+      </Card>
 
-      <View style={styles.cardWide}>
+      <Card padding="lg" style={styles.cardExtra}>
         <AppText variant="eyebrow" color="tertiary">
           Participação
         </AppText>
@@ -75,7 +75,7 @@ export function ChallengeReportKpis({ report }: Props) {
           <View style={styles.splitDivider} />
           <SplitStat label="Recusou" value={report.declined_count} tone="tertiary" />
         </View>
-      </View>
+      </Card>
     </View>
   );
 }
@@ -105,12 +105,7 @@ const styles = StyleSheet.create((theme) => ({
   grid: {
     gap: theme.spacing.md,
   },
-  cardWide: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
+  cardExtra: {
     gap: theme.spacing.sm,
   },
   valueRow: {

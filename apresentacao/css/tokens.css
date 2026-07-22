@@ -1,0 +1,39 @@
+/* tokens.css — única fonte de hex do deck. Tudo o mais usa var(--*).
+   Fontes self-hosted: ver fonts.css (linkado antes deste arquivo). */
+
+:root{
+  /* Actus — superfícies / profundidade */
+  --bg-lowest:#10252D; --bg-base:#1A343F;
+  --surface1:#203F4B; --surface2:#294B58; --surface3:#345867; --surface4:#406575;
+  /* acento / dados */
+  --neon:#CBFE00; --success:#4DE082; --fog:#7BA0BC; --fog-fill:rgba(123,160,188,.16);
+  --warning:#FBBF24; --flame:#F97316;
+  /* texto */
+  --txt:#fff; --txt-70:rgba(255,255,255,.70); --txt-50:rgba(255,255,255,.50);
+  --on-neon:#141414;
+  /* contornos */
+  --hair:#444933; --outline:#8E9379;
+  /* fontes */
+  --disp:'Barlow Condensed',sans-serif; --body:'Barlow',sans-serif; --mono:'Share Tech Mono',monospace;
+
+  /* PAPÉIS SEMÂNTICOS — o deck só usa estes; trocam no modo World Gym */
+  --slide-bg:var(--bg-lowest); --slide-bg-2:var(--bg-base);
+  --accent:var(--neon); --accent-on:var(--on-neon);
+  --panel:var(--surface1); --panel-2:var(--bg-base);
+  --card:var(--surface1); --card-elev:var(--surface2);
+  --ink:var(--txt); --ink-70:var(--txt-70); --ink-50:var(--txt-50);
+  --rule:var(--hair); --tick:var(--neon);
+  --eyebrow:var(--fog);
+}
+
+/* World Gym — re-mapeia só os papéis semânticos (slides 6 e 7) */
+[data-theme="worldgym"]{
+  --red:#C8102E; --red-deep:#A20C24; --graphite:#26292B; --graphite-2:#1C1F20;
+  --slide-bg:var(--red); --slide-bg-2:var(--red-deep);
+  --accent:#fff; --accent-on:var(--red);
+  --panel:var(--graphite); --panel-2:var(--graphite-2);
+  --card:var(--graphite); --card-elev:var(--graphite-2);
+  --ink:#fff; --ink-70:rgba(255,255,255,.72); --ink-50:rgba(255,255,255,.50);
+  --rule:rgba(255,255,255,.20); --tick:#fff;
+  --eyebrow:rgba(255,255,255,.72);
+}
