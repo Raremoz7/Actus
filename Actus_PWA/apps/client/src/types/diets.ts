@@ -1,0 +1,146 @@
+import { z } from 'zod';
+
+// Data no formato YYYY-MM-DD (string + regex, nunca z.date()).
+const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+// ── Visão do ALUNO (dieta atribuída) ────────────────────────────────────────
+// Shape REAL de GET /me/diets — a lista já traz template_name + template_body.
+// (template_body é jsonb livre → estrutura via parseDietBody, abaixo.)
+export const StudentDietSchema = z.object({
+  id: z.string().uuid(),
+  diet_template_id: z.string().uuid(),
+  start_date: dateOnly,
+  is_active: z.boolean(),
+  created_at: z.string(),
+  template_name: z.string(),
+  template_body: z.unknown(),
+});
+export type StudentDietItem = z.infer<typeof StudentDietSchema>;
+
+export const StudentDietsResponseSchema = z.object({
+  diets: z.array(StudentDietSchema),
+});
+export type StudentDietsResponse = z.infer<typeof StudentDietsResponseSchema>;
+
+// GET /me/diets/:id → mesmo item + updated_at.
+export const StudentDietDetailSchema = StudentDietSchema.extend({
+  updated_at: z.string(),
+});
+export type StudentDietDetail = z.infer<typeof StudentDietDetailSchema>;
+
+// ── Estrutura do BODY da dieta (jsonb LIVRE definido PELO APP) ──────────────
+// O backend aceita `body` como jsonb arbitrário (api/src/routes/dietTemplates.ts
+// usa z.unknown()). A forma é definida e validada aqui, no app.
+
+// Uma refeição: nome obrigatório + alimentos em texto livre multi-linha.
+// Macros são OPCIONAIS (não inventar dados; >= 0 quando presentes).
+// `time` é o horário sugerido da refeição (texto livre, ex.: '08:00'); opcional.
+export const MealSchema = z.object({
+  name: z.string().min(1),
+  // Horário sugerido (texto livre, ex.: '08:00' ou 'Pós-treino'). Opcional.
+  time: z.string().optional(),
+  foods: z.string().optional(),
+  kcal: z.number().nonnegative().optional(),
+  protein: z.number().nonnegative().optional(),
+  carbs: z.number().nonnegative().optional(),
+  fat: z.number().nonnegative().optional(),
+});
+export type Meal = z.infer<typeof MealSchema>;
+
+// Corpo completo da dieta: refeições + metas opcionais + observações livres.
+// As metas (target_*) e `water` são OPCIONAIS — só aparecem na UI quando o
+// nutricionista as preencheu. `water` é a meta diária de água em mililitros.
+export const DietBodySchema = z.object({
+  meals: z.array(MealSchema),
+  // Metas diárias opcionais (>= 0 quando presentes).
+  target_kcal: z.number().nonnegative().optional(),
+  target_protein: z.number().nonnegative().optional(),
+  target_carbs: z.number().nonnegative().optional(),
+  target_fat: z.number().nonnegative().optional(),
+  // Meta de água do dia, em mililitros (ex.: 3000 = 3L).
+  water: z.number().nonnegative().optional(),
+  notes: z.string().optional(),
+});
+export type DietBody = z.infer<typeof DietBodySchema>;
+
+// Lê um body de origem desconhecida (jsonb livre, pode vir {} em templates
+// antigos) e devolve sempre um DietBody válido. Fallback tolerante: { meals: [] }.
+export function parseDietBody(body: unknown): DietBody {
+  const parsed = DietBodySchema.safeParse(body);
+  return parsed.success ? parsed.data : { meals: [] };
+}
+
+// ── Visão do PROFISSIONAL (templates de dieta) ──────────────────────────────
+// Shapes REAIS verificados no backend: api/src/routes/dietTemplates.ts
+// (requireAuth + dono nutricionista) e api/src/routes/studentDiets.ts.
+
+// [Pro] Item da lista — GET /diet-templates → { diet_templates: [...] }.
+// A lista traz apenas id/name/created_at (sem body). `created_at` é ISO string.
+export const DietTemplateListItemSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  created_at: z.string(),
+});
+export type DietTemplateListItem = z.infer<typeof DietTemplateListItemSchema>;
+
+export const DietTemplatesResponseSchema = z.object({
+  diet_templates: z.array(DietTemplateListItemSchema),
+});
+export type DietTemplatesResponse = z.infer<typeof DietTemplatesResponseSchema>;
+
+// [Pro] Detalhe do template — GET /diet-templates/:id retorna FLAT:
+// { id, name, body, created_at }. `body` é jsonb LIVRE — valida-se tolerante
+// (z.unknown()); use parseDietBody() para obter a forma estruturada.
+export const DietTemplateDetailSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  body: z.unknown(),
+  created_at: z.string(),
+});
+export type DietTemplateDetail = z.infer<typeof DietTemplateDetailSchema>;
+
+// [Pro] Corpo de criação/edição — POST /diet-templates / PATCH /diet-templates/:id.
+// Verificado em api/src/routes/dietTemplates.ts (createDietSchema): name 1..200.
+// O app envia `body` já no formato DietBodySchema.
+export const CreateDietBodySchema = z.object({
+  name: z.string().min(1),
+  body: DietBodySchema,
+});
+export type CreateDietBody = z.infer<typeof CreateDietBodySchema>;
+
+// [Pro] Corpo de atribuição — POST /students/:student_id/diets.
+// Verificado em api/src/routes/studentDiets.ts (assignDietSchema).
+export const AssignDietBodySchema = z.object({
+  diet_template_id: z.string().uuid(),
+  start_date: dateOnly.optional(),
+  is_active: z.boolean().optional(),
+});
+export type AssignDietBody = z.infer<typeof AssignDietBodySchema>;
+
+// [Pro] Corpo de edição — PATCH /diet-templates/:id (patch parcial).
+// Verificado em api/src/routes/dietTemplates.ts (patchDietSchema): ao menos um campo.
+export const PatchDietBodySchema = z
+  .object({
+    name: z.string().min(1).max(200).optional(),
+    body: DietBodySchema.optional(),
+  })
+  .refine((o) => o.name !== undefined || o.body !== undefined, {
+    message: 'empty_patch',
+  });
+export type PatchDietBody = z.infer<typeof PatchDietBodySchema>;
+
+// [Pro] Resposta de POST /diet-templates → 201 { ok: true, diet_template_id }.
+// Verificado em api/src/routes/dietTemplates.ts (res.status(201).json(out)).
+export const CreateDietResponseSchema = z.object({
+  ok: z.literal(true),
+  diet_template_id: z.string().uuid(),
+});
+export type CreateDietResponse = z.infer<typeof CreateDietResponseSchema>;
+
+// [Pro] Resposta de POST /students/:id/diets → 201 { ok: true, student_diet_id }.
+// Verificado em api/src/routes/studentDiets.ts (res.status(201).json(out)).
+export const AssignDietResponseSchema = z.object({
+  ok: z.literal(true),
+  student_diet_id: z.string().uuid(),
+});
+export type AssignDietResponse = z.infer<typeof AssignDietResponseSchema>;

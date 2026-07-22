@@ -1,0 +1,59 @@
+{
+  "category": {
+    "strength": "Força",
+    "cardio": "Cardio",
+    "stretching": "Alongamento",
+    "plyometrics": "Pliometria",
+    "powerlifting": "Powerlifting",
+    "olympic weightlifting": "Levantamento Olímpico",
+    "strongman": "Strongman"
+  },
+  "equipment": {
+    "body only": "Peso do Corpo",
+    "barbell": "Barra",
+    "dumbbell": "Halteres",
+    "cable": "Cabo",
+    "machine": "Máquina",
+    "bands": "Faixas Elásticas",
+    "kettlebells": "Kettlebell",
+    "e-z curl bar": "Barra W",
+    "exercise ball": "Bola de Ginástica",
+    "medicine ball": "Bola Medicinal",
+    "foam roll": "Rolo de Espuma",
+    "other": "Outro"
+  },
+  "level": {
+    "beginner": "Iniciante",
+    "intermediate": "Intermediário",
+    "expert": "Avançado"
+  },
+  "mechanic": {
+    "compound": "Composto",
+    "isolation": "Isolado"
+  },
+  "force": {
+    "push": "Empurrar",
+    "pull": "Puxar",
+    "static": "Isométrico"
+  },
+  "muscle": {
+    "abdominals": "Abdômen",
+    "abductors": "Abdutores",
+    "adductors": "Adutores",
+    "biceps": "Bíceps",
+    "calves": "Panturrilhas",
+    "chest": "Peito",
+    "forearms": "Antebraços",
+    "glutes": "Glúteos",
+    "hamstrings": "Isquiotibiais",
+    "lats": "Dorsais",
+    "lower back": "Lombar",
+    "middle back": "Meio das Costas",
+    "upper back": "Parte Superior das Costas",
+    "neck": "Pescoço",
+    "quadriceps": "Quadríceps",
+    "shoulders": "Ombros",
+    "traps": "Trapézio",
+    "triceps": "Tríceps"
+  }
+}

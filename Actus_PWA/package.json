@@ -1,0 +1,17 @@
+{
+  "name": "actus-pwa",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Actus — super-sistema web unificado (front RN+react-native-web via Vite, backend Express, monorepo).",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "client": "npm run dev -w apps/client",
+    "client:build": "npm run build -w apps/client"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

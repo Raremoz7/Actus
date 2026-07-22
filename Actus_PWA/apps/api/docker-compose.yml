@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: actus
+      POSTGRES_PASSWORD: actus
+      POSTGRES_DB: actus
+    ports:
+      - "5433:5432"
+    volumes:
+      # Persistência dos dados entre restarts.
+      - actus_pgdata:/var/lib/postgresql/data
+      # Bootstrap automático no primeiro boot (data dir vazio): shim + migrations.
+      - ./local/initdb.sh:/docker-entrypoint-initdb.d/00_initdb.sh:ro
+      - ./local/00_shim.sql:/local/00_shim.sql:ro
+      - ./local/seed-ecosystem.sql:/local/seed-ecosystem.sql:ro
+      - ./local/seed-exercises.sql:/local/seed-exercises.sql:ro
+      - ./supabase/migrations:/local/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U actus -d actus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./api
+    env_file:
+      - ./api/.env
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      NODE_OPTIONS: --dns-result-order=ipv4first
+      # Origens liberadas no CORS: painel web (5173) + Expo web no navegador (8081/8082).
+      CORS_ORIGINS: "http://localhost:5173,http://localhost:8081,http://localhost:8082,http://127.0.0.1:8081,http://127.0.0.1:8082"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  actus_pgdata:
+

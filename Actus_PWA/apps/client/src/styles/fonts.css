@@ -1,0 +1,45 @@
+/* Fontes do design system para a web. Os nomes de família batem EXATAMENTE com
+   os nomes de arquivo usados nos tokens (no nativo o fontFamily resolve pelo
+   nome do .ttf). */
+@font-face {
+  font-family: 'Barlow_400Regular';
+  src: url('../../assets/fonts/Barlow_400Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow_500Medium';
+  src: url('../../assets/fonts/Barlow_500Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow_600SemiBold';
+  src: url('../../assets/fonts/Barlow_600SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow_700Bold';
+  src: url('../../assets/fonts/Barlow_700Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'BarlowCondensed_800ExtraBold';
+  src: url('../../assets/fonts/BarlowCondensed_800ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'BarlowCondensed_900Black';
+  src: url('../../assets/fonts/BarlowCondensed_900Black.ttf') format('truetype');
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'ShareTechMono_400Regular';
+  src: url('../../assets/fonts/ShareTechMono_400Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
