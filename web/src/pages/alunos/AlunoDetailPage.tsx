@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Skeleton } from '../../components/ui/Skeleton';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { useStudents } from '../../hooks/useStudents';
 import { useSetStudentStatus } from '../../hooks/useStudentProfile';
 import { VisaoGeralTab } from './VisaoGeralTab';
@@ -66,11 +67,13 @@ export function AlunoDetailPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center gap-3 border-b border-outline-v px-6">
-        <Link to="/app/alunos" className="text-sm text-text-3 hover:text-neon">
-          ‹ Alunos
-        </Link>
-      </div>
+      <PageHeader
+        before={
+          <Link to="/app/alunos" className="text-sm text-text-3 hover:text-neon">
+            ‹ Alunos
+          </Link>
+        }
+      />
 
       <div className="p-6">
         {studentsQuery.isLoading ? (

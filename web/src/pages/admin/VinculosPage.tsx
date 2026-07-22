@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Modal } from '../../components/ui/Modal';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
 import { usePatchStudentLink, useStudentLinks, type LinkStatus } from '../../hooks/useAdmin';
 import type { StudentLink } from '../../lib/schemas';
-
-const thClass =
-  'px-4 py-2 text-left font-mono text-[10px] uppercase tracking-widest text-text-3';
 
 const statusLabels: Record<LinkStatus, string> = {
   active: 'Ativos',
@@ -39,25 +38,25 @@ export function VinculosPage() {
 
   return (
     <>
-      <div className="flex h-[52px] items-center gap-4 border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Vínculos
-        </h1>
-        <div className="ml-auto flex gap-1">
-          {(Object.keys(statusLabels) as LinkStatus[]).map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setStatus(key)}
-              className={`rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors ${
-                status === key ? 'bg-neon/10 text-neon' : 'text-text-3 hover:text-text-1'
-              }`}
-            >
-              {statusLabels[key]}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        title="Vínculos"
+        actions={
+          <div className="flex gap-1">
+            {(Object.keys(statusLabels) as LinkStatus[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setStatus(key)}
+                className={`rounded-lg px-3 py-1.5 font-mono text-xs uppercase transition-colors ${
+                  status === key ? 'bg-neon/10 text-neon' : 'text-text-3 hover:text-text-1'
+                }`}
+              >
+                {statusLabels[key]}
+              </button>
+            ))}
+          </div>
+        }
+      />
       <div className="p-6">
         {linksQuery.isLoading ? (
           <Skeleton className="h-48 w-full" />
@@ -70,12 +69,12 @@ export function VinculosPage() {
             <table className="w-full bg-surface-1 text-sm">
               <thead className="border-b border-outline-v">
                 <tr>
-                  <th className={thClass}>Aluno</th>
-                  <th className={thClass}>Profissional</th>
-                  <th className={thClass}>Papel</th>
-                  <th className={thClass}>Status</th>
-                  <th className={thClass}>Vinculado em</th>
-                  <th className={thClass} />
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Aluno</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Profissional</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Papel</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Status</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left">Vinculado em</Eyebrow>
+                  <Eyebrow as="th" className="px-4 py-2 text-left" />
                 </tr>
               </thead>
               <tbody>

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, hex, fontBody, fontDisplay } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,8 +70,8 @@ export function PrivacySection() {
         >
           <defs>
             <linearGradient id="lockgrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(203,254,0,0.32)" />
-              <stop offset="100%" stopColor="rgba(203,254,0,0.06)" />
+              <stop offset="0%" stopColor={alpha(hex.neon, 0.32)} />
+              <stop offset="100%" stopColor={alpha(hex.neon, 0.06)} />
             </linearGradient>
           </defs>
           {/* shackle */}

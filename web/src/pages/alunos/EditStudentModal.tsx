@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Modal } from '../../components/ui/Modal';
 import { useUpdateStudent, type EditStudentInput } from '../../hooks/useStudentProfile';
 import type { Student } from '../../lib/schemas';
 
 const FIELD =
   'mt-1 h-9 w-full rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 focus:border-neon focus:outline-none';
-const LABEL = 'text-[10px] uppercase tracking-wider text-text-3';
 
 export function EditStudentModal({
   student,
@@ -45,15 +45,15 @@ export function EditStudentModal({
     <Modal open={open} onClose={onClose} title="Editar dados do aluno">
       <div className="flex flex-col gap-3">
         <label>
-          <span className={LABEL}>Nome</span>
+          <Eyebrow>Nome</Eyebrow>
           <input className={FIELD} value={fullName} onChange={(e) => setFullName(e.target.value)} />
         </label>
         <label>
-          <span className={LABEL}>Telefone</span>
+          <Eyebrow>Telefone</Eyebrow>
           <input className={FIELD} value={phone} onChange={(e) => setPhone(e.target.value)} />
         </label>
         <label>
-          <span className={LABEL}>Gênero</span>
+          <Eyebrow>Gênero</Eyebrow>
           <select
             className={FIELD}
             value={gender}
@@ -66,7 +66,7 @@ export function EditStudentModal({
           </select>
         </label>
         <label>
-          <span className={LABEL}>Nascimento</span>
+          <Eyebrow>Nascimento</Eyebrow>
           <input
             type="date"
             className={FIELD}
@@ -76,7 +76,7 @@ export function EditStudentModal({
         </label>
         <div className="flex gap-3">
           <label className="flex-1">
-            <span className={LABEL}>Peso (kg)</span>
+            <Eyebrow>Peso (kg)</Eyebrow>
             <input
               className={FIELD}
               inputMode="decimal"
@@ -85,7 +85,7 @@ export function EditStudentModal({
             />
           </label>
           <label className="flex-1">
-            <span className={LABEL}>Altura (cm)</span>
+            <Eyebrow>Altura (cm)</Eyebrow>
             <input
               className={FIELD}
               inputMode="decimal"

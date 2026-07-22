@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useStudents, useStudentsCheckIns, useStudentsWorkouts, MAX_FANOUT } from '../../hooks/useStudents';
@@ -157,11 +158,7 @@ export function DashboardPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Dashboard
-        </h1>
-      </div>
+      <PageHeader title="Dashboard" />
 
       {empty ? (
         <div className="flex flex-col items-center gap-4 px-6 py-24 text-center">

@@ -1,4 +1,4 @@
-import { c, hex, fontBody, fontDisplay } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay } from '../theme';
 
 const REVIEWS = [
   {
@@ -48,7 +48,7 @@ function ReviewCard({ review }: { review: typeof REVIEWS[0] }) {
         border: `1px solid ${c.outlineV}`,
         borderRadius: 16,
         padding: '20px 20px 24px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+        boxShadow: `0 8px 24px ${alpha(hex.shadow, 0.35)}`,
       }}
     >
       <div style={{ color: c.neon, fontSize: 13, marginBottom: 8 }}>★★★★★</div>

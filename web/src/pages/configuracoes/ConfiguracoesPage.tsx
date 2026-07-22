@@ -4,6 +4,8 @@ import axios, { type AxiosError } from 'axios';
 import { api } from '../../api/client';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
 import { useMe } from '../../hooks/useMe';
 import { ChangePasswordResponseSchema } from '../../lib/schemas';
@@ -12,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 const inputClass =
   'h-9 w-full rounded-xl border border-outline-v bg-surface-2 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none disabled:opacity-50';
 
-const labelClass = 'mb-1 block font-mono text-[10px] uppercase tracking-widest text-text-3';
+const labelClass = 'mb-1 block';
 
 const tipoLabels: Record<string, string> = {
   personal: 'Personal trainer',
@@ -28,11 +30,7 @@ export function ConfiguracoesPage() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Configurações
-        </h1>
-      </div>
+      <PageHeader title="Configurações" />
 
       <div className="flex max-w-xl flex-col gap-4 p-6">
         <Card>
@@ -41,13 +39,13 @@ export function ConfiguracoesPage() {
           </h2>
           <div className="mt-4 flex flex-col gap-3">
             <div>
-              <span className={labelClass}>Nome de exibição</span>
+              <Eyebrow className={labelClass}>Nome de exibição</Eyebrow>
               <p className="text-sm text-text-1">
                 {meQuery.isLoading ? '…' : (meQuery.data?.display_name ?? '—')}
               </p>
             </div>
             <div>
-              <span className={labelClass}>Tipo de conta</span>
+              <Eyebrow className={labelClass}>Tipo de conta</Eyebrow>
               <p className="text-sm text-text-1">
                 {meQuery.isLoading
                   ? '…'
@@ -61,21 +59,21 @@ export function ConfiguracoesPage() {
                 Edição indisponível — sem endpoint na API v1
               </p>
               <div>
-                <label htmlFor="cfg-area" className={labelClass}>
+                <Eyebrow as="label" htmlFor="cfg-area" className={labelClass}>
                   Área de atuação
-                </label>
+                </Eyebrow>
                 <input id="cfg-area" className={inputClass} disabled placeholder="—" />
               </div>
               <div>
-                <label htmlFor="cfg-cref" className={labelClass}>
+                <Eyebrow as="label" htmlFor="cfg-cref" className={labelClass}>
                   Registro (CREF/CRN)
-                </label>
+                </Eyebrow>
                 <input id="cfg-cref" className={inputClass} disabled placeholder="—" />
               </div>
               <div>
-                <label htmlFor="cfg-cidade" className={labelClass}>
+                <Eyebrow as="label" htmlFor="cfg-cidade" className={labelClass}>
                   Cidade
-                </label>
+                </Eyebrow>
                 <input id="cfg-cidade" className={inputClass} disabled placeholder="—" />
               </div>
             </div>
@@ -161,9 +159,9 @@ function ChangePasswordCard() {
       </h2>
       <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
         <div>
-          <label htmlFor="pw-current" className={labelClass}>
+          <Eyebrow as="label" htmlFor="pw-current" className={labelClass}>
             Senha atual
-          </label>
+          </Eyebrow>
           <input
             id="pw-current"
             type="password"
@@ -175,9 +173,9 @@ function ChangePasswordCard() {
           />
         </div>
         <div>
-          <label htmlFor="pw-next" className={labelClass}>
+          <Eyebrow as="label" htmlFor="pw-next" className={labelClass}>
             Nova senha (mínimo 8 caracteres)
-          </label>
+          </Eyebrow>
           <input
             id="pw-next"
             type="password"
@@ -190,9 +188,9 @@ function ChangePasswordCard() {
           />
         </div>
         <div>
-          <label htmlFor="pw-confirm" className={labelClass}>
+          <Eyebrow as="label" htmlFor="pw-confirm" className={labelClass}>
             Confirmar nova senha
-          </label>
+          </Eyebrow>
           <input
             id="pw-confirm"
             type="password"

@@ -1,6 +1,9 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
@@ -17,7 +20,6 @@ import {
 } from '../../hooks/useCommissions';
 import { currentPeriod, formatBRL, parseBRLToCents, ruleTypeLabel } from '../../lib/commission';
 
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 const inputClass =
   'rounded-xl border border-outline-v bg-surface-1 px-3 py-2 text-sm text-text-1 placeholder:text-text-3 outline-none focus:border-neon';
 
@@ -31,13 +33,15 @@ export function AcademyCommissionsPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center justify-between border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">Comissões</h1>
-        <label className="flex items-center gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Competência</span>
-          <input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className={inputClass} />
-        </label>
-      </div>
+      <PageHeader
+        title="Comissões"
+        actions={
+          <label className="flex items-center gap-2">
+            <Eyebrow>Competência</Eyebrow>
+            <Input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} />
+          </label>
+        }
+      />
 
       <div className="flex flex-col gap-4 p-6">
         <div className="flex gap-2">
@@ -107,13 +111,13 @@ function ReportTab({ period }: { period: string }) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-outline-v text-left">
-                <th className={thClass}>Instrutor</th>
-                <th className={thClass}>Alunos</th>
-                <th className={thClass}>Regra</th>
-                <th className={thClass}>Base</th>
-                <th className={thClass}>Comissão</th>
-                <th className={thClass}>Status</th>
-                <th className={thClass} />
+                <Eyebrow as="th" className="py-2 font-normal">Instrutor</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Alunos</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Regra</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Base</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Comissão</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Status</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal" />
               </tr>
             </thead>
             <tbody>
@@ -197,7 +201,7 @@ function RulesTab({ instructors }: { instructors: InstructorOption[] }) {
         <h2 className="mb-3 font-display text-base font-bold uppercase tracking-wide text-text-1">Definir regra</h2>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Instrutor</span>
+            <Eyebrow>Instrutor</Eyebrow>
             <select value={target} onChange={(e) => setTarget(e.target.value)} className={inputClass}>
               <option value="">Padrão da academia</option>
               {instructors.map((i) => (
@@ -208,7 +212,7 @@ function RulesTab({ instructors }: { instructors: InstructorOption[] }) {
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Tipo</span>
+            <Eyebrow>Tipo</Eyebrow>
             <select
               value={ruleType}
               onChange={(e) => setRuleType(e.target.value as CommissionRuleType)}
@@ -220,9 +224,9 @@ function RulesTab({ instructors }: { instructors: InstructorOption[] }) {
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">
+            <Eyebrow>
               {ruleType === 'percent' ? 'Percentual' : 'Valor (R$)'}
-            </span>
+            </Eyebrow>
             <input
               required
               value={value}
@@ -247,9 +251,9 @@ function RulesTab({ instructors }: { instructors: InstructorOption[] }) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-outline-v text-left">
-                <th className={thClass}>Escopo</th>
-                <th className={thClass}>Tipo</th>
-                <th className={thClass}>Valor</th>
+                <Eyebrow as="th" className="py-2 font-normal">Escopo</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Tipo</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Valor</Eyebrow>
               </tr>
             </thead>
             <tbody>
@@ -311,7 +315,7 @@ function EntriesTab({ period, instructors }: { period: string; instructors: Inst
         <h2 className="mb-3 font-display text-base font-bold uppercase tracking-wide text-text-1">Lançar valor</h2>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Instrutor</span>
+            <Eyebrow>Instrutor</Eyebrow>
             <select value={instructorId} onChange={(e) => setInstructorId(e.target.value)} className={inputClass}>
               <option value="">Selecione…</option>
               {instructors.map((i) => (
@@ -322,11 +326,11 @@ function EntriesTab({ period, instructors }: { period: string; instructors: Inst
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Valor (R$)</span>
+            <Eyebrow>Valor (R$)</Eyebrow>
             <input required value={value} onChange={(e) => setValue(e.target.value)} placeholder="1.000,00" className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-3">Observação</span>
+            <Eyebrow>Observação</Eyebrow>
             <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="opcional" className={inputClass} />
           </label>
           <Button type="submit" disabled={createEntry.isPending}>
@@ -348,10 +352,10 @@ function EntriesTab({ period, instructors }: { period: string; instructors: Inst
           <table className="w-full">
             <thead>
               <tr className="border-b border-outline-v text-left">
-                <th className={thClass}>Instrutor</th>
-                <th className={thClass}>Valor</th>
-                <th className={thClass}>Observação</th>
-                <th className={thClass} />
+                <Eyebrow as="th" className="py-2 font-normal">Instrutor</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Valor</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal">Observação</Eyebrow>
+                <Eyebrow as="th" className="py-2 font-normal" />
               </tr>
             </thead>
             <tbody>

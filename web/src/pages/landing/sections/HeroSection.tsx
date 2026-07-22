@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, ctaStyle, fontBody, fontDisplay, fontMono, hex } from '../theme';
+import { alpha, c, ctaStyle, fontBody, fontDisplay, fontMono, hex } from '../theme';
 import { PhoneFrame } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -83,7 +83,7 @@ export function HeroSection() {
       style={{
         minHeight: '100vh',
         background:
-          'radial-gradient(ellipse at 50% -10%, rgba(203,254,0,0.14) 0%, rgba(77,224,130,0.06) 35%, var(--color-bg-base) 70%)',
+          `radial-gradient(ellipse at 50% -10%, ${alpha(hex.neon, 0.14)} 0%, ${alpha(hex.secondary, 0.06)} 35%, var(--color-bg-base) 70%)`,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -131,7 +131,7 @@ export function HeroSection() {
             ...ctaStyle,
             padding: '14px 30px',
             fontSize: 16,
-            boxShadow: '0 8px 28px rgba(203,254,0,0.25)',
+            boxShadow: `0 8px 28px ${alpha(hex.neon, 0.25)}`,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(0.95)')}
           onMouseLeave={(e) => (e.currentTarget.style.filter = 'brightness(1)')}
@@ -173,7 +173,7 @@ export function HeroSection() {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          background: 'rgba(32,63,75,0.7)',
+          background: alpha(hex.surface1, 0.7),
           border: `1px solid ${c.outlineV}`,
           borderRadius: 12,
           padding: '8px 12px',
@@ -183,7 +183,7 @@ export function HeroSection() {
         <img
           src="/landing/qr-code.png"
           alt="QR code"
-          style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', padding: 2 }}
+          style={{ width: 48, height: 48, borderRadius: 6, background: c.text1, padding: 2 }}
         />
         <div>
           <div style={{ fontFamily: fontDisplay, fontWeight: 900, textTransform: 'uppercase', fontSize: 12, letterSpacing: '0.03em', color: c.text1 }}>

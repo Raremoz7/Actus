@@ -1,5 +1,5 @@
 import type { ReactNode, CSSProperties } from 'react';
-import { hex } from '../theme';
+import { alpha, c, hex } from '../theme';
 
 // Moldura de iPhone reutilizável: usa o frame transparente (phone-frame.avif) como bezel
 // e renderiza a "tela" (children) na área interna. A tela usa container-query (cqw/cqh),
@@ -28,7 +28,7 @@ export function PhoneFrame({
         height: h,
         display: 'inline-block',
         filter: glow
-          ? 'drop-shadow(0 24px 48px rgba(0,0,0,0.45)) drop-shadow(0 0 40px rgba(203,254,0,0.12))'
+          ? `drop-shadow(0 24px 48px ${alpha(hex.shadow, 0.45)}) drop-shadow(0 0 40px ${alpha(hex.neon, 0.12)})`
           : undefined,
         ...style,
       }}
@@ -115,7 +115,7 @@ export function StatusBar({ time = '9:41' }: { time?: string }) {
         fontFamily: "'Barlow', sans-serif",
         fontSize: '0.78em',
         fontWeight: 700,
-        color: '#fff',
+        color: c.text1,
       }}
     >
       <span>{time}</span>
@@ -127,12 +127,12 @@ export function StatusBar({ time = '9:41' }: { time?: string }) {
             display: 'inline-block',
             width: '1.6em',
             height: '0.85em',
-            border: '0.12em solid rgba(255,255,255,0.8)',
+            border: `0.12em solid ${c.text2}`,
             borderRadius: '0.25em',
             position: 'relative',
           }}
         >
-          <span style={{ position: 'absolute', inset: '0.12em', right: '0.4em', background: '#fff', borderRadius: '0.1em' }} />
+          <span style={{ position: 'absolute', inset: '0.12em', right: '0.4em', background: c.text1, borderRadius: '0.1em' }} />
         </span>
       </span>
     </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, ctaStyle, fontBody, fontDisplay, hex } from '../theme';
+import { alpha, c, ctaStyle, fontBody, fontDisplay, hex } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,7 +55,7 @@ export function CtaSection() {
             ...ctaStyle,
             padding: '14px 30px',
             fontSize: 16,
-            boxShadow: '0 8px 28px rgba(203,254,0,0.25)',
+            boxShadow: `0 8px 28px ${alpha(hex.neon, 0.25)}`,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(0.95)')}
           onMouseLeave={(e) => (e.currentTarget.style.filter = 'brightness(1)')}

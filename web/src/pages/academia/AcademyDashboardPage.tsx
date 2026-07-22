@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../components/ui/Avatar';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { KpiCard } from '../dashboard/KpiCard';
@@ -35,7 +37,6 @@ import {
   weekdayFullLabels,
 } from '../../mocks/academyInsights';
 
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 
 const sexLegend = [
   { label: 'Masc.', color: 'var(--color-data-1)' },
@@ -108,18 +109,17 @@ export function AcademyDashboardPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center justify-between gap-3 border-b border-outline-v px-6">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <h1 className="truncate font-display text-xl font-black uppercase tracking-wide text-text-1">
-            {scope ? (units.find((u) => u.id === scope)?.name ?? academy?.name ?? 'Academia') : (academy?.name ?? 'Academia')}
-          </h1>
-          {scope && <Tag variant="future">Filial</Tag>}
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-2.5">
-          {isHq && units.length > 0 && <UnitFilter units={units} value={scope} onChange={setScope} />}
-          <PeriodSegmented value={period} onChange={setPeriod} />
-        </div>
-      </div>
+      <PageHeader
+        title={scope ? (units.find((u) => u.id === scope)?.name ?? academy?.name ?? 'Academia') : (academy?.name ?? 'Academia')}
+        actions={
+          <>
+            {isHq && units.length > 0 && <UnitFilter units={units} value={scope} onChange={setScope} />}
+            <PeriodSegmented value={period} onChange={setPeriod} />
+          </>
+        }
+      >
+        {scope && <Tag variant="future">Filial</Tag>}
+      </PageHeader>
 
       <div className="grid grid-cols-12 gap-4 p-6">
         {/* KPIs reais — GET /academy/dashboard */}
@@ -282,10 +282,10 @@ export function AcademyDashboardPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-outline-v text-left">
-                  <th className={thClass}>Instrutor</th>
-                  <th className={thClass}>Alunos</th>
-                  <th className={thClass}>Ativos 7d</th>
-                  <th className={thClass}>Check-ins 30d</th>
+                  <Eyebrow as="th" className="py-2 font-normal">Instrutor</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Alunos</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Ativos 7d</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Check-ins 30d</Eyebrow>
                 </tr>
               </thead>
               <tbody>

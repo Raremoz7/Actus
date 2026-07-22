@@ -6,10 +6,21 @@ import { sendInternalError } from "../schemaCompat.js";
 
 const router = Router();
 
-const RegisterBody = z.object({
-  expo_push_token: z.string().min(1),
-  platform: z.enum(["ios", "android"]),
-});
+// Aceita `fcm_token` (app RN bare, token FCM cru) OU `expo_push_token` (apps
+// antigos instalados, transição). O token vai para a MESMA coluna
+// expo_push_token — o pushService decide o provedor pelo formato do token
+// (ExponentPushToken[...] → Expo; resto → FCM).
+const RegisterBody = z
+  .object({
+    expo_push_token: z.string().min(1).optional(),
+    fcm_token: z.string().min(1).optional(),
+    platform: z.enum(["ios", "android"]),
+  })
+  .refine((b) => !!(b.expo_push_token ?? b.fcm_token), { message: "token_required" })
+  .transform((b) => ({
+    expo_push_token: (b.expo_push_token ?? b.fcm_token) as string,
+    platform: b.platform,
+  }));
 
 router.post("/device-tokens", async (req, res) => {
   const userId = authedUserId(req);

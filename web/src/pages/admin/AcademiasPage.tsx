@@ -2,16 +2,16 @@ import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Modal } from '../../components/ui/Modal';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
 import { useAcademies, useCreateAcademy, useCreateAcademyManager } from '../../hooks/useAcademyAdmin';
 
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 const inputClass =
   'w-full rounded-xl border border-outline-v bg-surface-1 px-4 py-2.5 text-sm text-text-1 placeholder:text-text-3 outline-none focus:border-neon';
-const labelClass = 'font-mono text-[10px] uppercase tracking-widest text-text-3';
 
 export function AcademiasPage() {
   const { data: academies = [], isLoading } = useAcademies();
@@ -76,10 +76,10 @@ export function AcademiasPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center justify-between border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">Academias</h1>
-        <Button onClick={() => setCreateOpen(true)}>Nova academia</Button>
-      </div>
+      <PageHeader
+        title="Academias"
+        actions={<Button onClick={() => setCreateOpen(true)}>Nova academia</Button>}
+      />
 
       <div className="p-6">
         <Card>
@@ -95,11 +95,11 @@ export function AcademiasPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-outline-v text-left">
-                  <th className={thClass}>Academia</th>
-                  <th className={thClass}>Status</th>
-                  <th className={thClass}>Gestores</th>
-                  <th className={thClass}>Instrutores</th>
-                  <th className={thClass} />
+                  <Eyebrow as="th" className="py-2 font-normal">Academia</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Status</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Gestores</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Instrutores</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal" />
                 </tr>
               </thead>
               <tbody>
@@ -133,19 +133,19 @@ export function AcademiasPage() {
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Nova academia">
         <form onSubmit={onCreateAcademy} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Nome</span>
+            <Eyebrow>Nome</Eyebrow>
             <input required value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Slug (opcional)</span>
+            <Eyebrow>Slug (opcional)</Eyebrow>
             <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="minha-academia" className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>CNPJ (opcional)</span>
+            <Eyebrow>CNPJ (opcional)</Eyebrow>
             <input value={cnpj} onChange={(e) => setCnpj(e.target.value)} className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Tipo de rede</span>
+            <Eyebrow>Tipo de rede</Eyebrow>
             <select
               value={networkRole}
               onChange={(e) => setNetworkRole(e.target.value as typeof networkRole)}
@@ -158,7 +158,7 @@ export function AcademiasPage() {
           </label>
           {networkRole === 'unit' && (
             <label className="flex flex-col gap-1">
-              <span className={labelClass}>Rede (matriz)</span>
+              <Eyebrow>Rede (matriz)</Eyebrow>
               <select
                 required
                 value={parentAcademyId}
@@ -190,15 +190,15 @@ export function AcademiasPage() {
       <Modal open={managerFor != null} onClose={() => setManagerFor(null)} title={`Gestor — ${managerFor?.name ?? ''}`}>
         <form onSubmit={onCreateManager} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Nome completo</span>
+            <Eyebrow>Nome completo</Eyebrow>
             <input required value={gName} onChange={(e) => setGName(e.target.value)} className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Email</span>
+            <Eyebrow>Email</Eyebrow>
             <input type="email" required value={gEmail} onChange={(e) => setGEmail(e.target.value)} className={inputClass} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className={labelClass}>Senha inicial</span>
+            <Eyebrow>Senha inicial</Eyebrow>
             <input type="text" required minLength={8} value={gPassword} onChange={(e) => setGPassword(e.target.value)} placeholder="mín. 8 caracteres" className={inputClass} />
           </label>
           <div className="flex justify-end gap-2 pt-1">

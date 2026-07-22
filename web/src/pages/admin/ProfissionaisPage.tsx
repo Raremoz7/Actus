@@ -2,12 +2,14 @@ import { useState, type FormEvent } from 'react';
 import axios, { type AxiosError } from 'axios';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
 import { useCreateProfessional, type CreateProfessionalBody } from '../../hooks/useAdmin';
 
 const inputClass =
   'h-9 w-full rounded-xl border border-outline-v bg-surface-2 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none';
-const labelClass = 'mb-1 block font-mono text-[10px] uppercase tracking-widest text-text-3';
+const labelClass = 'mb-1 block';
 
 type Role = 'personal' | 'nutricionista';
 
@@ -79,11 +81,7 @@ export function ProfissionaisPage() {
 
   return (
     <>
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          Profissionais
-        </h1>
-      </div>
+      <PageHeader title="Profissionais" />
       <div className="max-w-xl p-6">
         <Card>
           <h2 className="font-display text-base font-bold uppercase tracking-wide text-text-1">
@@ -94,7 +92,7 @@ export function ProfissionaisPage() {
           </p>
           <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
             <fieldset>
-              <legend className={labelClass}>Papel</legend>
+              <Eyebrow as="legend" className={labelClass}>Papel</Eyebrow>
               <div className="flex gap-1">
                 {(['personal', 'nutricionista'] as Role[]).map((r) => (
                   <button
@@ -114,9 +112,9 @@ export function ProfissionaisPage() {
               </div>
             </fieldset>
             <div>
-              <label htmlFor="prof-name" className={labelClass}>
+              <Eyebrow as="label" htmlFor="prof-name" className={labelClass}>
                 Nome completo
-              </label>
+              </Eyebrow>
               <input
                 id="prof-name"
                 value={fullName}
@@ -127,9 +125,9 @@ export function ProfissionaisPage() {
               />
             </div>
             <div>
-              <label htmlFor="prof-email" className={labelClass}>
+              <Eyebrow as="label" htmlFor="prof-email" className={labelClass}>
                 E-mail
-              </label>
+              </Eyebrow>
               <input
                 id="prof-email"
                 type="email"
@@ -140,9 +138,9 @@ export function ProfissionaisPage() {
               />
             </div>
             <div>
-              <label htmlFor="prof-password" className={labelClass}>
+              <Eyebrow as="label" htmlFor="prof-password" className={labelClass}>
                 Senha inicial (mínimo 8 caracteres)
-              </label>
+              </Eyebrow>
               <input
                 id="prof-password"
                 type="password"
@@ -155,9 +153,9 @@ export function ProfissionaisPage() {
               />
             </div>
             <div>
-              <label htmlFor="prof-birth" className={labelClass}>
+              <Eyebrow as="label" htmlFor="prof-birth" className={labelClass}>
                 Data de nascimento
-              </label>
+              </Eyebrow>
               <input
                 id="prof-birth"
                 type="date"
@@ -168,9 +166,9 @@ export function ProfissionaisPage() {
               />
             </div>
             <div>
-              <label htmlFor="prof-registro" className={labelClass}>
+              <Eyebrow as="label" htmlFor="prof-registro" className={labelClass}>
                 {role === 'personal' ? 'CREF (opcional)' : 'CRN (opcional)'}
-              </label>
+              </Eyebrow>
               <input
                 id="prof-registro"
                 value={registro}

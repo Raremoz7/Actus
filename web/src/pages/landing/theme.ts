@@ -28,7 +28,19 @@ export const hex = {
   surface4: '#406575',
   neon: '#CBFE00',
   secondary: '#4DE082',
+  outline: '#8E9379',
+  shadow: '#000000', // espelha --color-shadow do tema
 } as const;
+
+// rgba(hex, alpha) — evita rgba(0,0,0,x)/rgba(203,254,0,x) hardcoded espalhado
+// pelas seções da landing. Uso: alpha(hex.shadow, 0.35), alpha(hex.neon, 0.25).
+export function alpha(hexColor: string, opacity: number): string {
+  const n = parseInt(hexColor.replace('#', ''), 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
 
 export const fontDisplay = "'Barlow Condensed', sans-serif";
 export const fontBody = "'Barlow', sans-serif";

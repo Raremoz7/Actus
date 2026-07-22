@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
@@ -101,18 +102,18 @@ export function ConvitesPage() {
     <>
       <Sidebar sections={sections} />
       <div className="flex-1">
-        <div className="flex h-[52px] items-center gap-4 border-b border-outline-v px-6">
-          <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-            Convites
-          </h1>
-          <Button
-            className="ml-auto !px-4 !py-1.5 !text-xs"
-            onClick={handleCreate}
-            disabled={createInvite.isPending}
-          >
-            {createInvite.isPending ? 'Gerando…' : 'Gerar convite'}
-          </Button>
-        </div>
+        <PageHeader
+          title="Convites"
+          actions={
+            <Button
+              className="!px-4 !py-1.5 !text-xs"
+              onClick={handleCreate}
+              disabled={createInvite.isPending}
+            >
+              {createInvite.isPending ? 'Gerando…' : 'Gerar convite'}
+            </Button>
+          }
+        />
 
         <div className="flex flex-col gap-2 p-6">
           {invitesQuery.isLoading ? (

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, hex, fontBody, fontDisplay } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay } from '../theme';
 import { PhoneShot } from '../mockups/PhoneFrame';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -114,8 +114,8 @@ export function HealthRecordsSection() {
                   fontFamily: fontDisplay,
                   fontWeight: 700,
                   fontSize: ic.size * 0.34,
-                  color: '#fff',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+                  color: c.text1,
+                  boxShadow: `0 8px 20px ${alpha(hex.shadow, 0.4)}`,
                 }}
               >
                 {ic.initials}

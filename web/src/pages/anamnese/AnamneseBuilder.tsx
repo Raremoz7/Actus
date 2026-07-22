@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import {
   useCreateAnamneseTemplate,
@@ -11,7 +13,6 @@ import type { AnamneseField, AnamneseFieldTypeT, AnamneseTemplate } from '../../
 
 const FIELD =
   'h-9 w-full rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 focus:border-neon focus:outline-none';
-const LABEL = 'text-[10px] uppercase tracking-wider text-text-3';
 
 const TYPE_LABELS: Record<AnamneseFieldTypeT, string> = {
   text: 'Texto',
@@ -91,26 +92,22 @@ export function AnamneseBuilder({
   return (
     <Modal open={open} onClose={onClose} title={template ? 'Editar anamnese' : 'Criar anamnese'} size="xl">
       <div className="flex flex-col gap-4">
-        <label className="block">
-          <span className={LABEL}>Nome do formulário</span>
-          <input className={`${FIELD} mt-1`} value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
+        <Input label="Nome do formulário" value={name} onChange={(e) => setName(e.target.value)} />
 
         <div className="flex flex-col gap-3">
           {fields.map((f, i) => (
             <Card key={i} className="flex flex-col gap-2 !p-3">
               <div className="flex flex-wrap items-end gap-2">
-                <label className="min-w-0 flex-1">
-                  <span className={LABEL}>Pergunta</span>
-                  <input
-                    className={`${FIELD} mt-1`}
+                <div className="min-w-0 flex-1">
+                  <Input
+                    label="Pergunta"
                     value={f.label}
                     placeholder="Ex.: Possui alguma lesão?"
                     onChange={(e) => patchField(i, { label: e.target.value })}
                   />
-                </label>
+                </div>
                 <label className="w-32">
-                  <span className={LABEL}>Tipo</span>
+                  <Eyebrow>Tipo</Eyebrow>
                   <select
                     className={`${FIELD} mt-1`}
                     value={f.type}
@@ -137,7 +134,7 @@ export function AnamneseBuilder({
 
               {f.type === 'select' && (
                 <label className="block">
-                  <span className={LABEL}>Opções (uma por linha)</span>
+                  <Eyebrow>Opções (uma por linha)</Eyebrow>
                   <textarea
                     className="mt-1 min-h-[64px] w-full rounded-xl border border-outline-v bg-surface-1 px-3 py-2 text-sm text-text-1 focus:border-neon focus:outline-none"
                     value={(f.options ?? []).join('\n')}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { c, fontDisplay } from '../theme';
+import { alpha, c, hex, fontDisplay } from '../theme';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -35,8 +35,8 @@ export function Navbar() {
         transform: 'translateX(-50%)',
         zIndex: 100,
         transition: 'background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
-        background: scrolled ? 'rgba(16,37,45,0.85)' : 'rgba(32,63,75,0.5)',
-        border: `1px solid ${scrolled ? c.outlineV : 'rgba(142,147,121,0.25)'}`,
+        background: scrolled ? alpha(hex.bgLowest, 0.85) : alpha(hex.surface1, 0.5),
+        border: `1px solid ${scrolled ? c.outlineV : alpha(hex.outline, 0.25)}`,
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderRadius: 128,
@@ -44,7 +44,7 @@ export function Navbar() {
         display: 'flex',
         alignItems: 'center',
         gap: 24,
-        boxShadow: scrolled ? '0 8px 28px rgba(0,0,0,0.35)' : '0 4px 20px rgba(0,0,0,0.2)',
+        boxShadow: scrolled ? `0 8px 28px ${alpha(hex.shadow, 0.35)}` : `0 4px 20px ${alpha(hex.shadow, 0.2)}`,
         minWidth: 340,
       }}
     >

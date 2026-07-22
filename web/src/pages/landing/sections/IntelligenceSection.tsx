@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, hex, fontBody, fontDisplay } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -59,7 +59,7 @@ export function IntelligenceSection() {
           transform: 'translateX(-50%)',
           width: 300,
           height: 320,
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(203,254,0,0.18), transparent 70%)',
+          background: `radial-gradient(ellipse at 50% 0%, ${alpha(hex.neon, 0.18)}, transparent 70%)`,
           pointerEvents: 'none',
         }}
       />
@@ -85,8 +85,8 @@ export function IntelligenceSection() {
                   borderRadius: '50%',
                   overflow: 'hidden',
                   boxShadow: orb.active
-                    ? '0 0 48px 10px rgba(203,254,0,0.35)'
-                    : '0 8px 24px rgba(0,0,0,0.4)',
+                    ? `0 0 48px 10px ${alpha(hex.neon, 0.35)}`
+                    : `0 8px 24px ${alpha(hex.shadow, 0.4)}`,
                   border: orb.active ? `2px solid ${c.neon}` : `1px solid ${c.outlineV}`,
                   opacity: orb.active ? 1 : 0.7,
                 }}

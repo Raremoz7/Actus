@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useAddMealComment, useStudentMeals } from '../../hooks/useMeals';
 import type { MealLog } from '../../lib/schemas';
@@ -41,9 +42,7 @@ function MealCard({ meal, studentId }: { meal: MealLog; studentId: string }) {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-text-3">
-            {formatDateTime(meal.eaten_at)}
-          </div>
+          <Eyebrow as="div">{formatDateTime(meal.eaten_at)}</Eyebrow>
           <p className="mt-1 text-sm text-text-1">{meal.description ?? 'Sem descrição'}</p>
         </div>
       </div>

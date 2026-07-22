@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { AnamneseBuilder } from '../anamnese/AnamneseBuilder';
 import {
@@ -12,7 +13,6 @@ import type { AnamneseAnswerValue, AnamneseField, AnamneseTemplate } from '../..
 
 const FIELD =
   'mt-1 h-9 w-full rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 focus:border-neon focus:outline-none';
-const LABEL = 'text-[10px] uppercase tracking-wider text-text-3';
 
 function FieldInput({
   field,
@@ -131,10 +131,10 @@ export function AnamneseTab({ studentId }: { studentId: string }) {
         <div className="flex flex-col gap-3">
           {template.fields.map((f) => (
             <label key={f.key} className="block">
-              <span className={LABEL}>
+              <Eyebrow>
                 {f.label}
                 {f.required ? ' *' : ''}
-              </span>
+              </Eyebrow>
               <FieldInput field={f} value={current[f.key] ?? null} onChange={(v) => setValue(f.key, v)} />
             </label>
           ))}

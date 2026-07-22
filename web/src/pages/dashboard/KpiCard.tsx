@@ -1,4 +1,5 @@
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 export function KpiCard({ label, value, hint, loading }: Props) {
   return (
     <Card className="flex flex-col gap-1.5">
-      <p className="font-mono text-[10px] uppercase tracking-widest text-text-3">{label}</p>
+      <Eyebrow as="p">{label}</Eyebrow>
       {loading ? (
         <Skeleton className="h-8 w-16" />
       ) : (

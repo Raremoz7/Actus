@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/ui/PageHeader';
 import { Sidebar, type SidebarSection } from '../layouts/Sidebar';
 
 type Props = {
@@ -11,11 +12,7 @@ export function Placeholder({ title, sections, description }: Props) {
     <>
       {sections && <Sidebar sections={sections} />}
       <div className="flex-1">
-        <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-          <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-            {title}
-          </h1>
-        </div>
+        <PageHeader title={title} />
         <div className="p-6">
           <p className="text-sm text-text-3">{description ?? 'Em construção.'}</p>
         </div>

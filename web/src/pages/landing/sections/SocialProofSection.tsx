@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, hex, fontBody, fontDisplay, fontMono } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay, fontMono } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,7 +60,7 @@ function PostCard({ post }: { post: typeof MEMBER_POSTS[0] }) {
         border: `1px solid ${c.outlineV}`,
         borderRadius: 16,
         overflow: 'hidden',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.3)',
+        boxShadow: `0 2px 16px ${alpha(hex.shadow, 0.3)}`,
       }}
     >
       <img src={post.img} alt={post.user} style={{ width: '100%', height: 160, objectFit: 'cover' }} />

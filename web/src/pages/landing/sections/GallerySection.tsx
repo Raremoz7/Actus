@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { c, hex, fontBody, fontDisplay } from '../theme';
+import { alpha, c, hex, fontBody, fontDisplay } from '../theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -91,7 +91,7 @@ export function GallerySection() {
               objectFit: 'cover',
               borderRadius: 22,
               transform: `translateY(${photo.yOffset}px)`,
-              boxShadow: '0 10px 28px rgba(0,0,0,0.4), 0 0 18px rgba(203,254,0,0.06)',
+              boxShadow: `0 10px 28px ${alpha(hex.shadow, 0.4)}, 0 0 18px ${alpha(hex.neon, 0.06)}`,
             }}
           />
         ))}

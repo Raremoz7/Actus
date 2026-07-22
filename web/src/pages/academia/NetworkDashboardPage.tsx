@@ -1,10 +1,10 @@
 import { Navigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { KpiCard } from '../dashboard/KpiCard';
 import { useNetworkDashboard } from '../../hooks/useAcademyNetwork';
-
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 
 export function NetworkDashboardPage() {
   const { data, isLoading, isError } = useNetworkDashboard();
@@ -15,9 +15,7 @@ export function NetworkDashboardPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">Rede</h1>
-      </div>
+      <PageHeader title="Rede" />
 
       <div className="flex flex-col gap-5 p-6">
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
@@ -41,9 +39,9 @@ export function NetworkDashboardPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-outline-v text-left">
-                  <th className={thClass}>Unidade</th>
-                  <th className={thClass}>Alunos</th>
-                  <th className={thClass}>Instrutores</th>
+                  <Eyebrow as="th" className="py-2 font-normal">Unidade</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Alunos</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Instrutores</Eyebrow>
                 </tr>
               </thead>
               <tbody>

@@ -1,21 +1,21 @@
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { selectAcademy, useAuthStore } from '../../store/authStore';
 
 export function AcademySettingsPage() {
   const academy = useAuthStore(selectAcademy);
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">Configurações</h1>
-      </div>
+      <PageHeader title="Configurações" />
       <div className="p-6">
         <Card className="flex max-w-lg flex-col gap-4">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-text-3">Academia</p>
+            <Eyebrow as="p">Academia</Eyebrow>
             <p className="text-sm text-text-1">{academy?.name ?? '—'}</p>
           </div>
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-text-3">Seu papel</p>
+            <Eyebrow as="p">Seu papel</Eyebrow>
             <p className="text-sm text-text-1">Gestor</p>
           </div>
           <p className="border-t border-outline-v pt-4 text-xs text-text-3">

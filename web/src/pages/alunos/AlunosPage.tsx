@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { StreakBadge } from '../../components/StreakBadge';
@@ -116,10 +117,19 @@ export function AlunosPage() {
         <Sidebar sections={sections} />
       </details>
       <div className="flex-1">
-        <div className="flex min-h-[52px] flex-wrap items-center gap-3 border-b border-outline-v px-6 py-2.5">
-          <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-            Alunos
-          </h1>
+        <PageHeader
+          title="Alunos"
+          wrap
+          actions={
+            <Button
+              variant="secondary"
+              className="!px-4 !py-1.5 !text-xs"
+              onClick={() => navigate('/app/convites')}
+            >
+              Convidar aluno
+            </Button>
+          }
+        >
           <input
             type="search"
             value={search}
@@ -147,14 +157,7 @@ export function AlunosPage() {
           >
             Arquivados
           </button>
-          <Button
-            variant="secondary"
-            className="ml-auto !px-4 !py-1.5 !text-xs"
-            onClick={() => navigate('/app/convites')}
-          >
-            Convidar aluno
-          </Button>
-        </div>
+        </PageHeader>
 
         <div className="flex flex-col gap-2 p-6">
           {loading ? (

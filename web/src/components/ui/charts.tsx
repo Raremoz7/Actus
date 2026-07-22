@@ -466,7 +466,7 @@ export function WeekdayLineChart({
 
         {active !== null && (
           <div
-            className="absolute z-10 min-w-[158px] -translate-x-1/2 -translate-y-full rounded-[10px] border border-outline-v bg-surface-3 px-[11px] py-[9px] shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
+            className="absolute z-10 min-w-40 -translate-x-1/2 -translate-y-full rounded-tooltip border border-outline-v bg-surface-3 px-3 py-2 shadow-tooltip"
             style={{
               left: `${Math.max(12, Math.min(88, x(active)))}%`,
               top: `${activeMinY}%`,

@@ -47,11 +47,11 @@ export function UnitFilter({
         <span className="text-[9px] text-text-3">▾</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex min-w-[248px] flex-col gap-0.5 rounded-xl border border-outline-v bg-surface-2 p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.42)]">
+        <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex min-w-64 flex-col gap-0.5 rounded-xl border border-outline-v bg-surface-2 p-1.5 shadow-dropdown">
           <button
             type="button"
             onClick={() => choose(null)}
-            className={`flex flex-col items-start gap-px rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-3 ${value == null ? 'bg-[rgba(203,254,0,0.10)] text-neon' : 'text-text-1'}`}
+            className={`flex flex-col items-start gap-px rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-3 ${value == null ? 'bg-neon/10 text-neon' : 'text-text-1'}`}
           >
             Todas as unidades
             <span className="font-mono text-[10px] uppercase tracking-wider text-text-3">Visão consolidada</span>
@@ -61,7 +61,7 @@ export function UnitFilter({
               key={u.id}
               type="button"
               onClick={() => choose(u.id)}
-              className={`flex flex-col items-start gap-px rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-3 ${value === u.id ? 'bg-[rgba(203,254,0,0.10)] text-neon' : 'text-text-1'}`}
+              className={`flex flex-col items-start gap-px rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-3 ${value === u.id ? 'bg-neon/10 text-neon' : 'text-text-1'}`}
             >
               {u.name}
               {u.type ? <span className="font-mono text-[10px] uppercase tracking-wider text-text-3">{u.type}</span> : null}

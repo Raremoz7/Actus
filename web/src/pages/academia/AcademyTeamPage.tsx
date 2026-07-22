@@ -3,7 +3,9 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Modal } from '../../components/ui/Modal';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useToast } from '../../components/ui/Toast';
@@ -15,7 +17,6 @@ import {
   type MemberStatusFilter,
 } from '../../hooks/useAcademy';
 
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 const inputClass =
   'w-full rounded-xl border border-outline-v bg-surface-1 px-4 py-3 text-text-1 placeholder:text-text-3 outline-none focus:border-neon';
 
@@ -52,10 +53,10 @@ export function AcademyTeamPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center justify-between border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">Equipe</h1>
-        <Button onClick={() => setModalOpen(true)}>Adicionar instrutor</Button>
-      </div>
+      <PageHeader
+        title="Equipe"
+        actions={<Button onClick={() => setModalOpen(true)}>Adicionar instrutor</Button>}
+      />
 
       <div className="flex flex-col gap-4 p-6">
         <div className="flex gap-2">
@@ -88,11 +89,11 @@ export function AcademyTeamPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-outline-v text-left">
-                  <th className={thClass}>Instrutor</th>
-                  <th className={thClass}>Email</th>
-                  <th className={thClass}>Alunos</th>
-                  <th className={thClass}>Status</th>
-                  <th className={thClass} />
+                  <Eyebrow as="th" className="py-2 font-normal">Instrutor</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Email</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Alunos</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Status</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal" />
                 </tr>
               </thead>
               <tbody>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Sidebar, type SidebarSection } from '../../layouts/Sidebar';
 import { useWorkouts } from '../../hooks/useWorkouts';
@@ -61,10 +62,20 @@ export function TreinosPage() {
     <>
       <Sidebar sections={sections} />
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex h-[52px] shrink-0 items-center gap-4 border-b border-outline-v px-6">
-          <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-            Treinos
-          </h1>
+        <PageHeader
+          title="Treinos"
+          className="shrink-0"
+          actions={
+            tab === 'meus' && (
+              <Button
+                className="!px-4 !py-1.5 !text-xs"
+                onClick={() => navigate('/treinos/novo')}
+              >
+                + Criar treino
+              </Button>
+            )
+          }
+        >
           <input
             type="search"
             value={search}
@@ -72,15 +83,7 @@ export function TreinosPage() {
             placeholder="Buscar por nome"
             className="ml-4 h-8 w-64 rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none"
           />
-          {tab === 'meus' && (
-            <Button
-              className="ml-auto !px-4 !py-1.5 !text-xs"
-              onClick={() => navigate('/treinos/novo')}
-            >
-              + Criar treino
-            </Button>
-          )}
-        </div>
+        </PageHeader>
 
         <div className="flex-1 overflow-y-auto">
           {tab === 'meus' ? (

@@ -1,6 +1,7 @@
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Tag } from '../../components/ui/Tag';
 import type { Student } from '../../lib/schemas';
 import { ageFromBirthDate } from '../../lib/studentStatus';
@@ -24,7 +25,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function ContactRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between border-b border-outline-v py-2 last:border-0">
-      <span className="text-[10px] uppercase tracking-wider text-text-3">{label}</span>
+      <Eyebrow>{label}</Eyebrow>
       <span className="text-sm text-text-1">{value}</span>
     </div>
   );

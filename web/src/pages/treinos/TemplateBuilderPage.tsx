@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useTemplateDetail, useCreateTemplate, useUpdateTemplate, type TemplatePayload } from '../../hooks/useTemplates';
 import { exerciseMuscleGroup, type Exercise } from '../../lib/exercises';
@@ -133,26 +135,28 @@ export function TemplateBuilderPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-[52px] shrink-0 items-center gap-4 border-b border-outline-v px-6">
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          {isEdit ? 'Editar template' : 'Novo template'}
-        </h1>
-        <input
+      <PageHeader
+        title={isEdit ? 'Editar template' : 'Novo template'}
+        className="shrink-0"
+        actions={
+          <>
+            <Button variant="ghost" className="!px-4 !py-1.5 !text-xs" onClick={() => navigate('/treinos/templates')}>
+              Cancelar
+            </Button>
+            <Button className="!px-4 !py-1.5 !text-xs" disabled={saving} onClick={() => void save()}>
+              {saving ? 'Salvando…' : 'Salvar template'}
+            </Button>
+          </>
+        }
+      >
+        <Input
           value={name}
           onChange={(e) => { setName(e.target.value); setValidationError(null); }}
           placeholder="Nome do template"
-          className="ml-4 h-8 w-72 rounded-xl border border-outline-v bg-surface-1 px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-neon focus:outline-none"
+          className="ml-4 h-8 w-72"
         />
         {validationError && <p className="text-xs text-error">{validationError}</p>}
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" className="!px-4 !py-1.5 !text-xs" onClick={() => navigate('/treinos/templates')}>
-            Cancelar
-          </Button>
-          <Button className="!px-4 !py-1.5 !text-xs" disabled={saving} onClick={() => void save()}>
-            {saving ? 'Salvando…' : 'Salvar template'}
-          </Button>
-        </div>
-      </div>
+      </PageHeader>
 
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[380px] min-h-0 shrink-0 flex-col border-r border-outline-v">

@@ -1,11 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
+import { Eyebrow } from '../../components/ui/Eyebrow';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tag } from '../../components/ui/Tag';
 import { useAcademyStudents } from '../../hooks/useAcademy';
 import { daysSinceLocal } from '../../lib/studentStatus';
-
-const thClass = 'py-2 font-mono text-[10px] font-normal uppercase tracking-widest text-text-3';
 
 export function AcademyInstructorDetailPage() {
   const { instructorId } = useParams<{ instructorId: string }>();
@@ -14,14 +14,14 @@ export function AcademyInstructorDetailPage() {
 
   return (
     <div className="flex-1">
-      <div className="flex h-[52px] items-center gap-3 border-b border-outline-v px-6">
-        <Link to="/app/academia/equipe" className="text-sm text-text-3 hover:text-neon">
-          ← Equipe
-        </Link>
-        <h1 className="font-display text-xl font-black uppercase tracking-wide text-text-1">
-          {instructorName ?? 'Instrutor'}
-        </h1>
-      </div>
+      <PageHeader
+        title={instructorName ?? 'Instrutor'}
+        before={
+          <Link to="/app/academia/equipe" className="text-sm text-text-3 hover:text-neon">
+            ← Equipe
+          </Link>
+        }
+      />
 
       <div className="p-6">
         <Card>
@@ -43,9 +43,9 @@ export function AcademyInstructorDetailPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-outline-v text-left">
-                  <th className={thClass}>Aluno</th>
-                  <th className={thClass}>Email</th>
-                  <th className={thClass}>Último check-in</th>
+                  <Eyebrow as="th" className="py-2 font-normal">Aluno</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Email</Eyebrow>
+                  <Eyebrow as="th" className="py-2 font-normal">Último check-in</Eyebrow>
                 </tr>
               </thead>
               <tbody>
