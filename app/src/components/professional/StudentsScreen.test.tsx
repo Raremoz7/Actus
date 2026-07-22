@@ -13,7 +13,7 @@ jest.mock('@/hooks/useStudents', () => ({
 jest.mock('@/hooks/useParq', () => ({
   useParqMap: () => ({}),
 }));
-jest.mock('expo-router', () => ({
+jest.mock('@/navigation', () => ({
   router: { push: (...args: unknown[]) => mockPush(...args) },
 }));
 

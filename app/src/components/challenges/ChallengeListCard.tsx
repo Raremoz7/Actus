@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Flame, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Tag } from '@/components/ui';
+import { AppText, Button, Card, Tag } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -67,7 +67,7 @@ export function ChallengeListCard({
   // Convite: card elevado + Trophy neon (destaque real, não só borda) + dois botões.
   if (isInvited) {
     return (
-      <View style={[styles.card, styles.cardInvited]}>
+      <Card surface="surface2" emphasis>
         <View style={styles.head}>
           <Trophy size={16} weight="duotone" color={colors.neon} />
           <AppText variant="eyebrow" color="neon">
@@ -97,13 +97,13 @@ export function ChallengeListCard({
             />
           </View>
         </View>
-      </View>
+      </Card>
     );
   }
 
   // Ativo/em breve/encerrado: card tocável com tag de status + barra de progresso.
   return (
-    <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
+    <Card onPress={onPress}>
       <View style={styles.headRow}>
         <View style={styles.head}>
           <Trophy size={14} weight="duotone" color={colors.textTertiary} />
@@ -150,23 +150,11 @@ export function ChallengeListCard({
           </View>
         </View>
       ) : null}
-    </Pressable>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
-  },
-  // Convite: surface elevada + borda neon — destaque real (ação pendente do aluno).
-  cardInvited: {
-    backgroundColor: theme.colors.surface2,
-    borderColor: theme.colors.neon,
-  },
   headRow: {
     flexDirection: 'row',
     alignItems: 'center',

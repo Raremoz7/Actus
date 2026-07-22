@@ -37,15 +37,21 @@ yarn-error.*
 # mockups do brainstorming (visual companion)
 .superpowers/
 
-# Sentry
-.sentryclirc
-
 # typescript
 *.tsbuildinfo
 
 # generated native folders
 /ios
-/android
+
+# Android (projeto nativo COMMITADO no RN bare — só saídas de build ignoradas)
+android/build/
+android/app/build/
+android/app/.cxx/
+android/.gradle/
+android/local.properties
+android/app/google-services.json
+*.keystore
+!android/app/debug.keystore
 
 # Git worktrees isoladas (subagent-driven)
 .claude/worktrees/

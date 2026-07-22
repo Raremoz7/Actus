@@ -1,6 +1,8 @@
 # Actus — App Mobile
 
-App de gestão e engajamento para personal trainers, nutricionistas e alunos. React Native + **Expo SDK 55** (docs: https://docs.expo.dev/versions/v55.0.0/), TypeScript estrito.
+App de gestão e engajamento para personal trainers, nutricionistas e alunos. **React Native 0.83 bare** (SEM Expo — navegação via React Navigation 7, build manual com Gradle), TypeScript estrito.
+
+> Nota da migração (2026-07): o Expo foi removido por completo nesta branch. Telas em `src/screens/`, navegação em `src/navigation/` (shim com API do expo-router — telas continuam usando `router.push('/path')` importando de `@/navigation`). A branch com Expo continua existindo (`branch/davi`).
 
 O backend (Node/Express + Postgres) vive neste monorepo em `../backend/` — cópia editável da versão em produção. O original `/mnt/h/actutus_fit_backend-main/actutus_fit_backend-main` é só referência do que está em produção (**nunca modificar**).
 
@@ -11,7 +13,7 @@ O backend (Node/Express + Postgres) vive neste monorepo em `../backend/` — có
 
 ## Stack (inegociável)
 
-Expo SDK 55 (dev build — **Expo Go não funciona**) · Expo Router · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod (toda resposta da API validada) · SecureStore (tokens) · Phosphor duotone · Reanimated · Sentry sem PII
+React Native 0.83 bare · React Navigation 7 (via shim `@/navigation`) · Unistyles 3 · Zustand · TanStack Query v5 + Axios · Zod (toda resposta da API validada) · react-native-keychain via `@/lib/secureStorage` (tokens) · Phosphor duotone · Reanimated 4 · FCM (@react-native-firebase/messaging) · react-native-bootsplash
 
 ## Regras críticas da API (violar = bug em produção)
 
@@ -43,10 +45,12 @@ Expo SDK 55 (dev build — **Expo Go não funciona**) · Expo Router · Unistyle
 ## Comandos
 
 ```bash
-npm run start        # expo start --dev-client (precisa de development build)
-npm run typecheck    # tsc --noEmit
-npm run lint         # eslint
-npx expo-doctor      # sanidade das deps
+npm run start           # Metro (react-native start)
+npm run android         # build + run no device/emulador
+npm run typecheck       # tsc --noEmit
+npm run lint            # eslint
+npm test                # jest
+cd android && ./gradlew assembleRelease   # APK de release (ver README p/ assinatura)
 ```
 
 ## Pendências conhecidas

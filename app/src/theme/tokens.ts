@@ -50,6 +50,13 @@ export const palette = {
   // Véu sobre imagens (thumb/hero de exercício) — bgLowest a 28%, escurece a foto
   // para o texto/ícone por cima manter contraste sem apagar a imagem.
   veil: 'rgba(16, 37, 45, 0.28)',
+  // Véu escuro discreto sobre superfícies de acento (ex.: bolha de ícone neon) — textInverse
+  // (#141414) a 12%, dá profundidade sem escurecer o acento visivelmente.
+  accentVeil: 'rgba(20, 20, 20, 0.12)',
+  // Scrim preto puro do lightbox de imagem — intencionalmente neutro (não tingido de
+  // bgLowest) para não competir com a cor da foto em tela cheia.
+  scrimStrong: 'rgba(0, 0, 0, 0.92)',
+  scrimSubtle: 'rgba(0, 0, 0, 0.6)',
 } as const;
 
 // Gradientes (135deg no design; consumir os stops com expo-linear-gradient)
@@ -124,6 +131,8 @@ export const typeScale = {
   // Números-herói da sessão de treino — intencionalmente fora da escala de corpo.
   timerHero: 88,
   inputHero: 40,
+  // Texto de manifesto do hero de escolha de perfil — intencionalmente entre h1 (48) e h2 (32).
+  manifesto: 44,
 } as const;
 
 // Movimento — screen 300ms, micro 150ms, easing cubic-bezier(0.4,0,0.2,1)
@@ -131,4 +140,23 @@ export const motion = {
   screenMs: 300,
   microMs: 150,
   easing: [0.4, 0, 0.2, 1] as const,
+} as const;
+
+// Sombra elevada — modal/bottom sheet/dropdown (única exceção legítima a superfícies planas).
+export const shadow = {
+  modal: {
+    shadowColor: palette.shadow,
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
+  },
+} as const;
+
+// Alturas de chrome fixo, usadas para compensar padding de listas/scrolls que terminam
+// atrás da tab bar ou de um footer fixo.
+export const layout = {
+  tabBarSafePaddingSm: 96,
+  tabBarSafePaddingMd: 112,
+  tabBarSafePaddingLg: 140,
 } as const;

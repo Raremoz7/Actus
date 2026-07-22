@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Modal, Pressable, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -32,33 +32,14 @@ export function BadgeUnlockOverlay({ badge, onContinue }: Props) {
     // Haptics de sucesso (best-effort).
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 
-    // Som de conquista (best-effort). TODO: apontar para asset real quando o
-    // designer entregar o efeito sonoro; por ora o player é criado sob demanda
-    // e qualquer falha é engolida para não quebrar a UX.
-    let player: { remove?: () => void; release?: () => void; play?: () => void } | undefined;
-    try {
-      // import dinâmico evita carregar o módulo nativo em ambientes sem áudio.
-      const audio = require('expo-audio') as {
-        createAudioPlayer?: (source?: unknown) => typeof player;
-      };
-      // TODO: substituir `null` por require('@/assets/...mp3') quando existir.
-      player = audio.createAudioPlayer?.(null);
-      player?.play?.();
-    } catch {
-      // sem áudio disponível — segue sem som.
-    }
+    // Som de conquista: cortado na migração para RN bare (o player era um
+    // placeholder sem asset real). Reintroduzir quando o efeito sonoro existir.
 
     // Auto-dismiss após 3s.
     const timer = setTimeout(() => onContinueRef.current(), AUTO_DISMISS_MS);
 
     return () => {
       clearTimeout(timer);
-      try {
-        player?.remove?.();
-        player?.release?.();
-      } catch {
-        // nada a fazer.
-      }
     };
   }, []);
 
@@ -123,7 +104,7 @@ const styles = StyleSheet.create((theme) => ({
   medal: {
     width: 120,
     height: 120,
-    borderRadius: 60,
+    borderRadius: theme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.surface2,
@@ -139,7 +120,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.spacing.md,
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.xl,
-    borderRadius: 100,
+    borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.neon,
     alignItems: 'center',
   },

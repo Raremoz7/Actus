@@ -2,7 +2,7 @@
 // dispatcher (app/index) não divergirem. NUNCA redirecionar para '/': a raiz é AMBÍGUA
 // (colide entre app/index e (aluno)/(tabs)/index, ambos mapeiam para '/'), e um guard que
 // manda para '/' pode cair de volta na própria área e entrar em loop de redirect.
-import type { Href } from 'expo-router';
+import type { Href } from '@/navigation';
 import type { UserTipo } from '@/types/me';
 
 // Entrada do fluxo não autenticado.

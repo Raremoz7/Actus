@@ -1,27 +1,9 @@
-import { useFonts } from 'expo-font';
-import {
-  BarlowCondensed_800ExtraBold,
-  BarlowCondensed_900Black,
-} from '@expo-google-fonts/barlow-condensed';
-import {
-  Barlow_400Regular,
-  Barlow_500Medium,
-  Barlow_600SemiBold,
-  Barlow_700Bold,
-} from '@expo-google-fonts/barlow';
-import { ShareTechMono_400Regular } from '@expo-google-fonts/share-tech-mono';
-
-// Carrega todas as famílias do design system. Retorna true quando prontas.
+// Fontes do design system agora são BUNDLADAS no binário (assets/fonts/*.ttf,
+// linkadas via react-native.config.js + npx react-native-asset). No Android o
+// fontFamily resolve pelo NOME DO ARQUIVO — por isso os .ttf têm exatamente os
+// nomes das famílias usadas nos tokens (BarlowCondensed_800ExtraBold etc.).
+// Fontes bundladas carregam sincronamente: o hook existe só para manter o
+// contrato dos consumidores (splash espera fontsLoaded).
 export function useAppFonts(): boolean {
-  const [loaded] = useFonts({
-    BarlowCondensed_800ExtraBold,
-    BarlowCondensed_900Black,
-    Barlow_400Regular,
-    Barlow_500Medium,
-    Barlow_600SemiBold,
-    Barlow_700Bold,
-    ShareTechMono_400Regular,
-  });
-
-  return loaded;
+  return true;
 }

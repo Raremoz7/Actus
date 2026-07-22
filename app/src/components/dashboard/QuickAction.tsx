@@ -43,7 +43,7 @@ const styles = StyleSheet.create((theme) => ({
     height: 44,
     borderRadius: theme.radius.pill,
     // Véu escuro discreto sobre o verde para dar profundidade ao ícone.
-    backgroundColor: 'rgba(20, 20, 20, 0.12)',
+    backgroundColor: theme.colors.accentVeil,
     alignItems: 'center',
     justifyContent: 'center',
   },

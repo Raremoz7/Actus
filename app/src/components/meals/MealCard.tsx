@@ -3,7 +3,7 @@ import { Image, Pressable, View } from 'react-native';
 import { PencilSimple, Trash, ChatCircle, CloudArrowUp, WarningCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { mealTimeLabel, type FeedMeal } from '@/lib/meals';
 import { darkTheme } from '@/theme';
 
@@ -20,7 +20,7 @@ export function MealCard({ meal, onEdit, onDelete }: Props) {
   const commentCount = meal.comments.length;
 
   return (
-    <View style={styles.card}>
+    <Card style={styles.cardExtra}>
       {meal.photoUri ? (
         <Image source={{ uri: meal.photoUri }} style={styles.photo} resizeMode="cover" />
       ) : null}
@@ -88,17 +88,12 @@ export function MealCard({ meal, onEdit, onDelete }: Props) {
             </View>
           ))
         : null}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
+  cardExtra: {
     gap: theme.spacing.sm,
   },
   photo: {

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { HouseIcon } from 'phosphor-react-native';
 import { ActusTabBar, type TabSpec } from './ActusTabBar';
 

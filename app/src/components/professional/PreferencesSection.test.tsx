@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react-native';
 import { PreferencesSection } from './PreferencesSection';
 import { useStudentOnboardingMock } from '@/mocks/studentOnboarding';
 
-jest.mock('expo-secure-store', () => ({
+jest.mock('@/lib/secureStorage', () => ({
   getItemAsync: jest.fn(async () => null),
   setItemAsync: jest.fn(async () => undefined),
   deleteItemAsync: jest.fn(async () => undefined),

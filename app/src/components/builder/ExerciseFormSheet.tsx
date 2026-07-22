@@ -1,23 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Funnel, MagnifyingGlass, X } from 'phosphor-react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Funnel, MagnifyingGlass } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, Input } from '@/components/ui';
+import { AppText, BottomSheet, Button, Card, Input } from '@/components/ui';
 import {
   exerciseCatalog,
   CATEGORY_PT,
@@ -29,7 +15,7 @@ import type { Exercise } from '@/lib/exercises/types';
 import { ExerciseThumb } from '@/components/workouts/ExerciseThumb';
 import { darkTheme } from '@/theme';
 
-const { colors, motion, spacing } = darkTheme;
+const { colors } = darkTheme;
 
 // Dados que o sheet devolve ao confirmar. Sem position: a ordem sequencial é
 // responsabilidade do builder. Um dos dois ids de exercício deve ser não-nulo.
@@ -121,7 +107,7 @@ function NumberField({
 }) {
   return (
     <View style={styles.numCol}>
-      <AppText variant="eyebrow" color="tertiary">
+      <AppText variant="eyebrow" color="tertiary" numberOfLines={1}>
         {label}
       </AppText>
       <TextInput
@@ -151,9 +137,6 @@ export function ExerciseFormSheet({
   onClose,
   onConfirm,
 }: ExerciseFormSheetProps) {
-  // Respeita a barra de navegação inferior do Android (safe area), evitando que
-  // o botão "Adicionar" fique sob os botões de navegação. (TEC-75)
-  const insets = useSafeAreaInsets();
   const [sets, setSets] = useState(DEFAULT_SETS);
   const [reps, setReps] = useState(DEFAULT_REPS);
   const [rest, setRest] = useState(DEFAULT_REST);
@@ -246,16 +229,6 @@ export function ExerciseFormSheet({
     setMode('prescribe');
   }
 
-  // ÚNICA animação do sheet: slide/fade de entrada (300ms).
-  const reveal = useSharedValue(0);
-  useEffect(() => {
-    reveal.value = withTiming(visible ? 1 : 0, { duration: motion.screenMs });
-  }, [visible, reveal]);
-  const sheetStyle = useAnimatedStyle(() => ({
-    opacity: reveal.value,
-    transform: [{ translateY: (1 - reveal.value) * 24 }],
-  }));
-
   const parsed = useMemo(
     () => ({
       sets: toInt(sets),
@@ -290,51 +263,19 @@ export function ExerciseFormSheet({
   const isEditing = Boolean(initialValue);
 
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      accessibilityViewIsModal
+      title={
+        mode === 'search'
+          ? 'Buscar exercício'
+          : isEditing
+            ? 'Editar exercício'
+            : 'Adicionar exercício'
+      }
+      onClose={onClose}
+      closeLabel="Fechar formulário"
     >
-      <View style={styles.backdrop}>
-        <Pressable
-          style={styles.backdropPress}
-          accessibilityRole="button"
-          accessibilityLabel="Fechar formulário"
-          onPress={onClose}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <Animated.View
-            style={[
-              styles.sheet,
-              sheetStyle,
-              { paddingBottom: spacing.xxl + insets.bottom },
-            ]}
-          >
-            <View style={styles.handle} />
-
-            <View style={styles.header}>
-              <AppText variant="h3">
-                {mode === 'search'
-                  ? 'Buscar exercício'
-                  : isEditing
-                    ? 'Editar exercício'
-                    : 'Adicionar exercício'}
-              </AppText>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Fechar"
-                hitSlop={12}
-                onPress={onClose}
-              >
-                <X size={20} weight="bold" color={colors.textSecondary} />
-              </Pressable>
-            </View>
-
-            {mode === 'search' ? (
+      {mode === 'search' ? (
               // --- Passo 1: busca no catálogo PT-BR ---
               <>
                 {/* Barra de busca + botão de filtros */}
@@ -384,7 +325,7 @@ export function ExerciseFormSheet({
 
                 {/* Painel de filtros — aparece ao tocar no botão */}
                 {filtersOpen && (
-                  <View style={styles.filterPanel}>
+                  <Card style={styles.filterPanelExtra}>
                     {/* Categoria */}
                     <View>
                       <AppText variant="metaSmall" color="tertiary" style={styles.filterRowLabel}>
@@ -478,7 +419,7 @@ export function ExerciseFormSheet({
                         <AppText variant="metaSmall" color="tertiary">Limpar filtros</AppText>
                       </Pressable>
                     )}
-                  </View>
+                  </Card>
                 )}
 
                 <ScrollView
@@ -553,11 +494,11 @@ export function ExerciseFormSheet({
                     hint={`${LIMITS.reps.min}–${LIMITS.reps.max}`}
                   />
                   <NumberField
-                    label="Descanso (s)"
+                    label="Descanso"
                     value={rest}
                     onChangeText={setRest}
                     invalid={submitted && errors.rest}
-                    hint={`${LIMITS.rest.min}–${LIMITS.rest.max}`}
+                    hint={`${LIMITS.rest.min}–${LIMITS.rest.max} s`}
                   />
                 </View>
 
@@ -579,49 +520,11 @@ export function ExerciseFormSheet({
                 </View>
               </>
             )}
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: theme.colors.overlay,
-  },
-  backdropPress: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  sheet: {
-    backgroundColor: theme.colors.bgBase,
-    borderTopLeftRadius: theme.radius.modal,
-    borderTopRightRadius: theme.radius.modal,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-    // Sombra: permitida em sheet (exceção do design para modal/sheet/dropdown).
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 4,
-    borderRadius: theme.radius.tag,
-    backgroundColor: theme.colors.surface3,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -668,12 +571,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  filterPanel: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
+  filterPanelExtra: {
     gap: theme.spacing.md,
   },
   filterRowLabel: {

@@ -1,9 +1,7 @@
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from '@/lib/secureStorage';
 import { create } from 'zustand';
 
 const KEY = 'actus.meal.queue';
-const isWeb = Platform.OS === 'web';
 
 // Refeição criada localmente aguardando envio ao servidor.
 export interface QueuedMeal {
@@ -36,7 +34,6 @@ function localId(): string {
 }
 
 async function loadRaw(): Promise<string | null> {
-  if (isWeb) return globalThis.localStorage?.getItem(KEY) ?? null;
   try {
     return await SecureStore.getItemAsync(KEY);
   } catch {
@@ -46,10 +43,6 @@ async function loadRaw(): Promise<string | null> {
 
 function persist(items: Record<string, QueuedMeal>): void {
   const raw = JSON.stringify(items);
-  if (isWeb) {
-    globalThis.localStorage?.setItem(KEY, raw);
-    return;
-  }
   void SecureStore.setItemAsync(KEY, raw).catch(() => {
     // fila local: falha de persistência não trava o app.
   });

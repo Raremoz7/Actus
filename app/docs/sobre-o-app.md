@@ -103,7 +103,7 @@ O profissional **prescreve e acompanha**; o aluno **executa e progride**; o vín
 
 ## Tecnologia (resumo)
 
-React Native sobre **Expo SDK 55** (dev build — Expo Go não funciona), TypeScript estrito, **Expo Router** para navegação, **Unistyles 3** para estilos, **Zustand** para estado, **TanStack Query v5 + Axios** para dados, **Zod** validando toda resposta da API, **SecureStore** para tokens, **Phosphor** (duotone) para ícones e **Reanimated** para movimento. Monitoramento via Sentry, sempre sem dados pessoais.
+React Native sobre **Expo SDK 55** (dev build — Expo Go não funciona), TypeScript estrito, **Expo Router** para navegação, **Unistyles 3** para estilos, **Zustand** para estado, **TanStack Query v5 + Axios** para dados, **Zod** validando toda resposta da API, **SecureStore** para tokens, **Phosphor** (duotone) para ícones e **Reanimated** para movimento.
 
 A identidade visual segue um design system rigoroso: dark mode, neon verde (`#CBFE00`) como cor de ação, tipografia Barlow Condensed (títulos) / Share Tech Mono (dados) / Barlow (corpo), tudo regido por tokens centralizados — nunca valores avulsos no componente.
 

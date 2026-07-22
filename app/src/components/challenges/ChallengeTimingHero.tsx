@@ -9,7 +9,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import {
   challengeTimingLabel,
   type ChallengeTiming,
@@ -32,7 +32,7 @@ export function ChallengeTimingHero({ timing }: Props) {
         : 'Concluído';
 
   return (
-    <View style={styles.card}>
+    <Card padding="lg" style={styles.cardExtra}>
       <AppText variant="eyebrow" color="tertiary">
         {eyebrow}
       </AppText>
@@ -65,17 +65,12 @@ export function ChallengeTimingHero({ timing }: Props) {
           <View style={[styles.fill, { width: widthPct }]} />
         </View>
       ) : null}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
+  cardExtra: {
     gap: theme.spacing.sm,
   },
   runningValue: {

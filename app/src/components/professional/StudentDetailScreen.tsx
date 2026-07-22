@@ -6,11 +6,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, type Href } from 'expo-router';
+import { router, type Href } from '@/navigation';
 import { Barbell, CaretLeft, HandTap, Info, PencilSimple, Trash } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Button, KpiNumber, ListState } from '@/components/ui';
+import { AppText, Button, Card, KpiNumber, ListState } from '@/components/ui';
 import { useStudents } from '@/hooks/useStudents';
 import { useStudentCheckIns } from '@/hooks/useStudentCheckIns';
 import { useProStudentWorkouts } from '@/hooks/useProStudentWorkouts';
@@ -35,7 +35,7 @@ import {
   linkedSinceLabel,
 } from './studentPulse';
 
-const { colors, motion, spacing } = darkTheme;
+const { colors, motion, spacing, layout } = darkTheme;
 
 // Quantos check-ins listar na timeline (a KPI mostra o total real).
 const RECENT_LIMIT = 8;
@@ -197,7 +197,7 @@ export function StudentDetailScreen({ id }: Props) {
 
       <Animated.View style={[styles.flex, revealStyle]}>
         <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingBottom: 112 + insets.bottom }]}
+          contentContainerStyle={[styles.scroll, { paddingBottom: layout.tabBarSafePaddingMd + insets.bottom }]}
           showsVerticalScrollIndicator={false}
         >
           {student ? (
@@ -327,7 +327,7 @@ export function StudentDetailScreen({ id }: Props) {
                 ) : assignments.length > 0 ? (
                   <View style={styles.assignList}>
                     {assignments.map((sw) => (
-                      <View key={sw.id} style={styles.assignCard}>
+                      <Card key={sw.id} padding="lg" style={styles.assignCardExtra}>
                         <View style={styles.assignTop}>
                           <View style={styles.assignIcon}>
                             <Barbell size={20} weight="duotone" color={colors.neon} />
@@ -386,7 +386,7 @@ export function StudentDetailScreen({ id }: Props) {
                             </AppText>
                           </Pressable>
                         </View>
-                      </View>
+                      </Card>
                     ))}
                   </View>
                 ) : (
@@ -454,7 +454,7 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 112 },
+  scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.layout.tabBarSafePaddingMd },
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -526,12 +526,7 @@ const styles = StyleSheet.create((theme) => ({
   assignList: {
     gap: theme.spacing.md,
   },
-  assignCard: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
+  assignCardExtra: {
     gap: theme.spacing.md,
   },
   assignTop: {

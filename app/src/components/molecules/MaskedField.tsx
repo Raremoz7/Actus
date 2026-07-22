@@ -18,6 +18,8 @@ type MaskedFieldProps = Omit<
   mask: MaskKind;
   label: string;
   error?: string;
+  // Repassado ao Input — anunciado só pro leitor de tela (accessibleFieldLabel).
+  required?: boolean;
 };
 
 const MASKERS: Record<MaskKind, (v: string) => string> = {
@@ -37,6 +39,7 @@ export function MaskedField({
   mask,
   label,
   error,
+  required,
   ...rest
 }: MaskedFieldProps) {
   const masked = useMemo(() => MASKERS[mask](value), [mask, value]);
@@ -51,10 +54,10 @@ export function MaskedField({
     <Input
       label={label}
       error={error}
+      required={required}
       value={masked}
       onChangeText={handleChangeText}
       keyboardType="number-pad"
-      accessibilityLabel={label}
       style={styles.mono}
       {...rest}
     />

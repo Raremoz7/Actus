@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { CaretRight } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -18,7 +18,7 @@ type Props = {
 
 export function WorkoutListRow({ title, subtitle, lastCompletedLabel, onPress }: Props) {
   return (
-    <Pressable style={styles.row} onPress={onPress} accessibilityRole="button">
+    <Card onPress={onPress} padding="md" style={styles.rowExtra}>
       <View style={styles.body}>
         <AppText variant="h4">
           {title}
@@ -33,20 +33,15 @@ export function WorkoutListRow({ title, subtitle, lastCompletedLabel, onPress }:
         ) : null}
       </View>
       <CaretRight size={16} weight="bold" color={colors.textTertiary} />
-    </Pressable>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  row: {
+  rowExtra: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
   },
   body: { flex: 1 },

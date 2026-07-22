@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { ArrowDown, ArrowUp, PencilSimple, Trash } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, Tag } from '@/components/ui';
+import { AppText, Card, Tag } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -64,7 +64,7 @@ export function MealEditRow({
   const chips = macroChips(kcal, protein, carbs, fat);
 
   return (
-    <View style={styles.row}>
+    <Card padding="md" style={styles.rowExtra}>
       <View style={styles.reorder}>
         <Pressable
           accessibilityRole="button"
@@ -133,20 +133,15 @@ export function MealEditRow({
           <Trash size={18} weight="duotone" color={colors.error} />
         </Pressable>
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  row: {
+  rowExtra: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
   },
   reorder: {

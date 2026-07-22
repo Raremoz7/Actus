@@ -6,7 +6,7 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { CaretLeft } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 

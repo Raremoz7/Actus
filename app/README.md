@@ -1,6 +1,6 @@
 # Actus — App Mobile
 
-App de gestão e engajamento para personal trainers, nutricionistas e alunos. Desenvolvido com React Native + Expo SDK 55, TypeScript estrito, design dark mode "quiet luxury".
+App de gestão e engajamento para personal trainers, nutricionistas e alunos. Desenvolvido com **React Native 0.83 bare** (sem Expo — build manual via Gradle), TypeScript estrito, design dark mode "quiet luxury".
 
 ---
 
@@ -54,8 +54,8 @@ O roteamento é feito por perfil: ao logar, o app detecta o `tipo` do usuário (
 
 - Node.js 20+
 - npm 10+
-- **Expo Dev Client** instalado no dispositivo/emulador — o **Expo Go não funciona** (dependências nativas: Unistyles, Reanimated, SecureStore)
-- Android SDK ou Xcode para builds locais
+- **JDK 17+ e Android SDK** (Android Studio) — o projeto compila direto com Gradle
+- Emulador Android ou dispositivo físico com depuração USB
 
 ---
 
@@ -76,14 +76,11 @@ Edite `.env` com os valores corretos (veja a seção [Variáveis de ambiente](#v
 ## Rodando o projeto
 
 ```bash
-# Inicia o dev server (requer dev client no dispositivo)
+# Inicia o Metro (dev server)
 npm run start
 
 # Build e run direto no Android conectado
 npm run android
-
-# Build e run no iOS (macOS only)
-npm run ios
 
 # Verificação de tipos
 npm run typecheck
@@ -93,13 +90,38 @@ npm run lint
 
 # Testes unitários
 npm test
-
-# Proxy CORS para desenvolvimento web
-npm run cors-proxy
-
-# Sanidade geral das dependências Expo
-npm run doctor
 ```
+
+### Build manual (sem Expo/EAS)
+
+```bash
+# APK de debug
+cd android && ./gradlew assembleDebug
+# → android/app/build/outputs/apk/debug/app-debug.apk
+
+# APK de release assinado
+cd android && ./gradlew assembleRelease
+# → android/app/build/outputs/apk/release/app-release.apk
+```
+
+**Assinatura de release:** gere um keystore local e aponte as credenciais em
+`~/.gradle/gradle.properties` (fora do git):
+
+```properties
+ACTUS_UPLOAD_STORE_FILE=C:/caminho/actus-release.keystore
+ACTUS_UPLOAD_STORE_PASSWORD=...
+ACTUS_UPLOAD_KEY_ALIAS=actus
+ACTUS_UPLOAD_KEY_PASSWORD=...
+```
+
+```bash
+keytool -genkeypair -v -keystore actus-release.keystore -alias actus -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Sem as props, o release usa a chave de debug (serve para smoke test, não para publicar).
+
+**Push (FCM):** requer projeto no Firebase + `android/app/google-services.json`
+(gitignorado). Sem o arquivo o app compila normalmente e o push vira no-op.
 
 ---
 
@@ -107,8 +129,9 @@ npm run doctor
 
 ```
 actus/
-├── app/               # Telas e layouts (Expo Router — file-based routing)
 ├── src/
+│   ├── screens/       # Telas (auth/, aluno/, personal/, nutri/, onboarding-*, shared/)
+│   ├── navigation/    # React Navigation: navigators, tabela de rotas e shim de router
 │   ├── api/           # Cliente HTTP, interceptors, endpoints, storage de tokens
 │   ├── hooks/         # React Query hooks (uma query/mutation por arquivo)
 │   ├── store/         # Zustand (auth, onboarding, rascunhos)
@@ -118,107 +141,52 @@ actus/
 │   ├── theme/         # Design tokens, fontes, configuração do Unistyles
 │   ├── mocks/         # Dados falsos para features sem endpoint real na API v1
 │   ├── features/      # Lógica de feature isolada (forms, transformações)
-│   ├── data/          # Dados estáticos/seed (biblioteca de exercícios)
-│   └── observability/ # Sentry
+│   └── data/          # Dados estáticos/seed (biblioteca de exercícios)
 ├── docs/              # Documentação interna (planos, specs de design, decisões)
 ├── scripts/           # Scripts utilitários Node.js
-├── assets/            # Imagens, ícones, splash
-├── android/           # Código nativo Android (gerado pelo Expo prebuild)
-├── app.config.ts      # Configuração Expo (nome, bundle IDs, plugins)
-├── babel.config.js
-├── metro.config.js
+├── assets/            # Imagens, ícones, splash, fontes (.ttf bundladas)
+├── android/           # Projeto nativo Android (COMMITADO — RN bare)
+├── index.ts           # Entry point: AppRegistry.registerComponent('Actus')
+├── babel.config.js    # @react-native/babel-preset + inline de env + worklets
+├── metro.config.js    # @react-native/metro-config + SVG transformer
 └── tsconfig.json
 ```
 
 ---
 
-### `app/` — telas e rotas
+### `src/screens/` + `src/navigation/` — telas e navegação
 
-O Expo Router usa o sistema de arquivos como roteador. Cada arquivo `.tsx` dentro de `app/` é uma rota. Layouts (`_layout.tsx`) definem o shell de navegação de cada grupo.
+A navegação usa **React Navigation 7** (stack nativo + bottom tabs). A estrutura de áreas
+espelha os antigos grupos do Expo Router:
 
 ```
-app/
-├── _layout.tsx                    # Root layout — inicializa fontes, Sentry, auth hydration
-├── index.tsx                      # Entry point — redireciona por tipo de usuário
-├── +not-found.tsx                 # Tela 404
-├── +html.tsx                      # Shell HTML para Expo web
-│
-├── (auth)/                        # Grupo de autenticação (sem tab bar)
-│   ├── login.tsx                  # Login com email e senha
-│   ├── escolha-perfil.tsx         # Escolha entre "sou aluno" e "sou profissional"
-│   ├── cadastro/                  # Cadastro de aluno (wizard multi-step)
-│   │   └── index.tsx              # Passo: dados da conta
-│   ├── cadastro-pro.tsx           # Cadastro de profissional (personal/nutri)
-│   └── trocar-senha.tsx           # Gate de troca de senha (403 must_change_password)
-│
-├── (aluno)/                       # Área do aluno (tab bar própria)
-│   ├── (tabs)/
-│   │   ├── index.tsx              # Início — hoje, semana, próximo treino, desafios
-│   │   ├── treinos.tsx            # Lista de treinos atribuídos
-│   │   ├── desafios.tsx           # Desafios em andamento
-│   │   └── perfil.tsx             # Perfil e configurações
-│   ├── treino/[id].tsx            # Detalhe de treino
-│   ├── sessao/[id].tsx            # Execução de sessão de treino (stepper)
-│   ├── exercicio/[id].tsx         # Detalhe de exercício (vídeo/gif + instruções)
-│   ├── dieta/[id].tsx             # Detalhe de dieta atribuída
-│   ├── desafio/[id].tsx           # Detalhe de desafio + ranking
-│   └── par-q.tsx                  # Questionário PAR-Q
-│
-├── (personal)/                    # Área do personal trainer (tab bar própria)
-│   └── (tabs)/
-│       ├── inicio.tsx             # Dashboard com KPIs e ações rápidas
-│       ├── alunos.tsx             # Lista de alunos vinculados
-│       ├── treinos.tsx            # Biblioteca de treinos criados
-│       ├── desafios.tsx           # Desafios criados
-│       └── perfil.tsx             # Perfil profissional
-│
-├── (nutri)/                       # Área do nutricionista (tab bar própria)
-│   └── (tabs)/
-│       ├── inicio.tsx             # Dashboard
-│       ├── alunos.tsx             # Lista de alunos vinculados
-│       ├── dietas.tsx             # Biblioteca de dietas
-│       └── perfil.tsx             # Perfil profissional
-│
-├── aluno/[id].tsx                 # Detalhe de aluno (para profissionais)
-├── montar-treino.tsx              # Editor de treino (exercícios + séries)
-├── montar-dieta.tsx               # Editor de dieta (refeições + alimentos)
-├── atribuir-treino.tsx            # Modal de atribuição de treino a aluno
-├── atribuir-dieta.tsx             # Modal de atribuição de dieta a aluno
-├── criar-desafio.tsx              # Criação de desafio
-├── desafio-pro/[id].tsx           # Detalhe de desafio (visão do profissional)
-├── banco-treino/[id].tsx          # Detalhe de programa da biblioteca pública
-├── editar-perfil.tsx              # Edição de perfil (nome, foto, bio)
-├── convite/
-│   ├── index.tsx                  # Lista de convites gerados
-│   └── novo.tsx                   # Geração de novo convite
-├── usar-convite.tsx               # Consumir convite recebido (aluno vincula profissional)
-├── register.tsx                   # Cadastro via deep link (actus://register?code=XXX)
-│
-├── onboarding-aluno/              # Wizard de onboarding do aluno (pós-cadastro)
-│   ├── interesse.tsx              # Objetivo de treino
-│   ├── experiencia.tsx            # Nível de experiência
-│   ├── frequencia.tsx             # Dias/semana disponíveis
-│   ├── local.tsx                  # Onde treina
-│   ├── corpo.tsx                  # Altura e dados físicos
-│   ├── foto.tsx                   # Upload de foto de perfil
-│   ├── par-q.tsx                  # PAR-Q no onboarding
-│   └── vinculo.tsx                # Inserir código de convite (vincular profissional)
-│
-├── onboarding-professor/          # Wizard de onboarding do profissional (pós-cadastro)
-│   ├── perfil.tsx                 # Nome profissional, área, CREF
-│   ├── forma-uso.tsx              # Como pretende usar o app
-│   ├── foto.tsx                   # Upload de foto de perfil
-│   └── convite.tsx                # Criar primeiro convite
-│
-└── _dev/
-    └── health.tsx                 # Tela de diagnóstico (DEV only — chama GET /health)
+src/navigation/
+├── navigators.tsx   # RootNavigator + áreas (Auth, Aluno, Personal, Nutri, Onboardings)
+│                    #   cada área tem o próprio guard (authStore) e stack
+├── routes.ts        # Tabela path → tela ('/(aluno)/treino/[id]' → Aluno>Treino)
+├── router.ts        # Shim com a API do expo-router (router.push/replace/back,
+│                    #   useLocalSearchParams, Redirect, Href) sobre navigationRef
+└── index.ts         # Re-exports — telas importam de '@/navigation'
+
+src/screens/
+├── splash.tsx             # Dispatcher de boot (roteia por status/tipo)
+├── auth/                  # login, escolha-perfil, cadastro/, cadastro-pro, trocar-senha
+├── aluno/                 # tabs/ (hoje, treinos, desafios, perfil) + treino/[id],
+│                          #   sessao/[id], exercicio/[id], dieta/[id], desafio/[id],
+│                          #   alimentacao, badges, par-q
+├── personal/tabs/         # inicio, alunos, treinos, desafios, perfil
+├── nutri/tabs/            # inicio, alunos, dietas, perfil
+├── onboarding-aluno/      # foto, interesse, experiencia, frequencia, local, vinculo, corpo, par-q
+├── onboarding-professor/  # foto, perfil, forma-uso, convite
+├── shared/                # telas soltas: montar-treino, atribuir-*, convite/, criar-desafio,
+│                          #   desafio-pro/[id], aluno/[id], banco-treino/[id], editar-perfil,
+│                          #   register, usar-convite, _dev/health
+└── not-found.tsx
 ```
 
-**Convenção de nomenclatura de rotas:**
-- `(grupo)/` — grupo de layout sem segmento na URL
-- `[id].tsx` — segmento dinâmico
-- `_layout.tsx` — define o shell de navegação do grupo
-- `_dev/` — telas de desenvolvimento, não entram em produção
+**Navegação nas telas:** continua por href de path — `router.push('/(aluno)/treino/123')`
+— via o shim de `@/navigation`. Deep link `actus://register?code=XXX` configurado no
+`linking` do `NavigationContainer` (`src/App.tsx`) + intent-filter no `AndroidManifest.xml`.
 
 ---
 
@@ -230,7 +198,7 @@ Toda comunicação com o backend passa por aqui.
 |---|---|
 | `client.ts` | Instância Axios com interceptors de auth (Bearer + refresh automático) |
 | `endpoints.ts` | Centraliza todos os paths da API — nunca escreva URL em componente |
-| `storage.ts` | Persiste e lê tokens (access + refresh) no `expo-secure-store` |
+| `storage.ts` | Persiste e lê tokens (access + refresh) via `@/lib/secureStorage` (Keychain/Keystore) |
 | `parseApi.ts` | Valida resposta com Zod; lança erro tipado se o shape não bater |
 | `errors.ts` | Classe `ApiError` com campo `code` (string) — nunca dependa do HTTP status |
 | `devMocks.ts` | Adapter axios-mock-adapter usado em desenvolvimento sem backend |
@@ -334,12 +302,15 @@ Funções sem efeitos colaterais, testáveis de forma isolada.
 | `invite.ts` | Geração e validação de links de convite |
 | `nextWorkout.ts` | Lógica de "próximo treino" do aluno |
 | `nav.ts` | Helpers de navegação tipados |
+| `secureStorage.ts` | Key-value seguro sobre react-native-keychain (API do expo-secure-store) |
+| `haptics.ts` | Vibração sobre react-native-haptic-feedback (API do expo-haptics) |
+| `imagePicker.ts` | Galeria sobre react-native-image-picker (API do expo-image-picker) |
+| `push.ts` | Token FCM + tap em notificação (@react-native-firebase/messaging, lazy) |
 | `authRoutes.ts` | Paths das rotas de autenticação (usados pelo root layout) |
 | `onboardingRoutes.ts` | Sequência de steps do onboarding |
 | `queryClient.ts` | Configuração e instância do TanStack Query |
-| `clipboard.ts` | Wrapper de `expo-clipboard` |
+| `clipboard.ts` | Wrapper de `@react-native-clipboard/clipboard` (require lazy) |
 | `devAuth.ts` | Controles do bypass de auth para desenvolvimento |
-| `domGuard.ts` | Guard para código que só existe no ambiente web |
 | `exerciseImage.ts` | Resolve URL de imagem/gif de exercício |
 | `exercises/` | Catálogo local de exercícios com tipos Zod |
 | `wger/` | Integração com a API pública Wger (biblioteca de exercícios open source) |
@@ -435,14 +406,6 @@ workoutLibrary.ts    # Seed editorial de programas de treino (exercícios do cat
 
 ---
 
-### `src/observability/` — monitoramento
-
-```
-sentry.ts   # Inicialização do Sentry com DSN do ambiente, sem dados pessoais (sem PII)
-```
-
----
-
 ### `docs/` — documentação interna
 
 ```
@@ -475,18 +438,20 @@ docs/
 
 | Categoria | Tecnologia |
 |---|---|
-| Runtime | React Native 0.83 + React 19 |
-| Build | Expo SDK 55 (dev client obrigatório) |
-| Roteamento | Expo Router (file-based) |
+| Runtime | React Native 0.83 (bare) + React 19 |
+| Build | Gradle direto (`gradlew assembleDebug/Release`) — sem Expo/EAS |
+| Roteamento | React Navigation 7 (native-stack + bottom-tabs) via shim `@/navigation` |
 | Estilos | React Native Unistyles 3 |
 | Estado global | Zustand 5 |
 | Dados remotos | TanStack Query v5 + Axios |
 | Validação | Zod (toda resposta da API é validada) |
-| Tokens seguros | expo-secure-store |
+| Tokens seguros | react-native-keychain (wrapper `@/lib/secureStorage`) |
 | Formulários | React Hook Form + @hookform/resolvers |
 | Animações | React Native Reanimated 4 |
 | Ícones | Phosphor React Native (duotone) |
-| Monitoramento | Sentry |
+| Push | FCM (@react-native-firebase/messaging) |
+| Splash | react-native-bootsplash |
+| Fontes | .ttf bundladas em assets/fonts (react-native-asset) |
 | Testes | Jest + @testing-library/react-native |
 
 ---
@@ -551,8 +516,8 @@ Cobertura atual inclui: schemas Zod (validação de contratos da API), component
 Para desenvolver sem backend ativo, defina no `.env`:
 
 ```bash
-EXPO_PUBLIC_DEV_BYPASS_AUTH=true
-EXPO_PUBLIC_DEV_TIPO=personal   # ou nutri, aluno
+EXPO_PUBLIC_DEV_BYPASS_AUTH=1
+EXPO_PUBLIC_DEV_TIPO=personal   # ou nutricionista, aluno
 ```
 
 Com isso, o app inicia diretamente na área do tipo definido com dados falsos do `src/api/devMocks.ts`. A tela `_dev/health.tsx` permite trocar o tipo de usuário em runtime.
@@ -565,18 +530,14 @@ Com isso, o app inicia diretamente na área do tipo definido com dados falsos do
 # URL base do backend (obrigatória)
 EXPO_PUBLIC_API_BASE_URL=https://seu-backend.com
 
-# URL do backend para Expo web (opcional — usa cors-proxy local em dev)
-EXPO_PUBLIC_API_BASE_URL_WEB=http://localhost:8010/proxy
-
 # Bypass de auth para dev sem backend
 EXPO_PUBLIC_DEV_BYPASS_AUTH=false
 EXPO_PUBLIC_DEV_TIPO=personal
-
-# DSN do Sentry (opcional em dev)
-EXPO_PUBLIC_SENTRY_DSN=
 ```
 
-Veja `.env.example` para o template completo.
+Os nomes `EXPO_PUBLIC_*` foram mantidos na migração para RN bare — o inline em
+build time é feito pelo `babel.config.js` (transform-inline-environment-variables),
+que lê o `.env` da raiz. Veja `.env.example` para o template completo.
 
 ---
 

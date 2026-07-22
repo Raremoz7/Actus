@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { MealFormSheet } from './MealFormSheet';
 
-jest.mock('expo-image-picker', () => ({
+jest.mock('@/lib/imagePicker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(async () => ({ granted: true })),
   launchImageLibraryAsync: jest.fn(async () => ({ canceled: true })),
 }));

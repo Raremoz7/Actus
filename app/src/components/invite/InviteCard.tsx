@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { ShareNetwork, Copy, Trash, ArrowClockwise } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -38,7 +38,7 @@ export function InviteCard({
   const usesLabel = `${usedCount} / ${maxUses} ${maxUses === 1 ? 'uso' : 'usos'}`;
 
   return (
-    <View style={styles.card}>
+    <Card>
       <View style={styles.head}>
         <AppText variant="dataMed" color="neon" style={styles.code}>
           {code}
@@ -99,18 +99,11 @@ export function InviteCard({
           </Pressable>
         )}
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
-  },
   head: {
     flexDirection: 'row',
     alignItems: 'center',

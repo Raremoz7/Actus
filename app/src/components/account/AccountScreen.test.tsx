@@ -18,7 +18,7 @@ jest.mock('@/hooks/useWeeklyOverview', () => ({
 jest.mock('@/features/auth/hooks', () => ({
   useLogoutMutation: () => ({ mutate: mockLogout, isPending: false }),
 }));
-jest.mock('expo-router', () => ({
+jest.mock('@/navigation', () => ({
   router: { push: jest.fn() },
 }));
 

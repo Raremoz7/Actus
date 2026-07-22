@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { Play } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 import { WorkoutCardPhoto } from './WorkoutCardPhoto';
@@ -35,7 +35,7 @@ export function NextWorkoutCard({
   // Card não-interativo: a área de texto (abrir) e o CTA (iniciar) são IRMÃOS, nunca
   // aninhados — Pressable vira <button> no web e button-dentro-de-button é DOM inválido.
   return (
-    <View style={styles.card}>
+    <Card padding="lg" style={styles.cardExtra}>
       <WorkoutCardPhoto hint={title} />
       <Pressable
         onPress={onOpen}
@@ -66,17 +66,12 @@ export function NextWorkoutCard({
           Iniciar treino
         </AppText>
       </Pressable>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
+  cardExtra: {
     // Clipa a foto soft full-bleed ao raio do card.
     overflow: 'hidden',
   },

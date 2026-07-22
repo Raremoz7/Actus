@@ -8,13 +8,13 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { darkTheme } from '@/theme';
 import { AppText } from './Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 
 type ButtonProps = {
   variant?: ButtonVariant;
@@ -100,7 +100,7 @@ export function Button({
   styles.useVariants({ variant });
 
   const textColor =
-    variant === 'primary'
+    variant === 'primary' || variant === 'destructive'
       ? 'inverse'
       : variant === 'secondary'
         ? 'primary'
@@ -125,7 +125,7 @@ export function Button({
       >
         <Animated.View style={[styles.fill, ghostBgStyle]}>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <AppText variant="label" color={textColor}>
+          <AppText variant="label" color={textColor} numberOfLines={1}>
             {label}
           </AppText>
         </Animated.View>
@@ -146,7 +146,7 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.spacing.sm,
-    paddingVertical: 17,
+    paddingVertical: theme.spacing.lg,
     paddingHorizontal: theme.spacing.xl,
     variants: {
       variant: {
@@ -166,6 +166,12 @@ const styles = StyleSheet.create((theme) => ({
         ghost: {
           backgroundColor: 'transparent',
           borderRadius: theme.radius.input,
+        },
+        // Destrutivo: mesma forma do primário (pill), fill error. Usado em ações
+        // irreversíveis (ex.: excluir, sair) — ex.: ConfirmDialog tone="destructive".
+        destructive: {
+          backgroundColor: theme.colors.error,
+          borderRadius: theme.radius.pill,
         },
       },
     },

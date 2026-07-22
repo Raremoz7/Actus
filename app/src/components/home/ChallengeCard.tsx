@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 import { ProgressRing } from './ProgressRing';
 
@@ -22,10 +22,10 @@ export function ChallengeCard({ title, current, total, onPress, wide = false }: 
   const pct = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
 
   return (
-    <Pressable
-      style={[styles.card, wide && styles.cardWide]}
+    <Card
       onPress={onPress}
-      accessibilityRole="button"
+      padding={wide ? 'lg' : 'md'}
+      style={styles.cardFlex}
       accessibilityLabel={`Desafio ${title}, dia ${current} de ${total}`}
     >
       <View style={styles.head}>
@@ -49,21 +49,13 @@ export function ChallengeCard({ title, current, total, onPress, wide = false }: 
           </AppText>
         </ProgressRing>
       </View>
-    </Pressable>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
+  cardFlex: {
     flex: 1,
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
-  },
-  cardWide: {
-    padding: theme.spacing.lg,
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   body: {

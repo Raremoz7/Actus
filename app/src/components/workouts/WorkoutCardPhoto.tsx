@@ -1,5 +1,5 @@
 import { Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { exerciseImageUrl } from '@/lib/exerciseImage';
@@ -25,8 +25,8 @@ export function WorkoutCardPhoto({ hint, wgerExerciseId }: { hint: string; wgerE
       />
       <LinearGradient
         pointerEvents="none"
-        colors={gradients.cardPhotoScrim}
-        locations={cardPhotoScrimLocations}
+        colors={[...gradients.cardPhotoScrim]}
+        locations={[...cardPhotoScrimLocations]}
         style={StyleSheet.absoluteFill}
       />
     </>

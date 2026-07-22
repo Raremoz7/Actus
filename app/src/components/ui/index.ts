@@ -5,7 +5,16 @@ export type { AppTextVariant, AppTextColor } from './Text';
 export { Button } from './Button';
 export type { ButtonVariant } from './Button';
 
+export { Card } from './Card';
+export type { CardSurface, CardPadding } from './Card';
+
+export { SegmentedControl } from './SegmentedControl';
+export type { SegmentedOption } from './SegmentedControl';
+
 export { Input } from './Input';
+
+export { BottomSheet } from './BottomSheet';
+export type { BottomSheetProps } from './BottomSheet';
 
 export { KpiNumber } from './KpiNumber';
 

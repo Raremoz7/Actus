@@ -131,7 +131,7 @@ export function ImageLightbox({ images, initialIndex, visible, onClose }: ImageL
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.92)',
+    backgroundColor: colors.scrimStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: colors.scrimSubtle,
     alignItems: 'center',
     justifyContent: 'center',
   },

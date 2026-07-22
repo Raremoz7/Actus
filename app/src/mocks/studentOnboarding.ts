@@ -3,8 +3,7 @@
 // status do vínculo escolhido. Peso NÃO entra aqui (vai REAL via PATCH /me).
 // Mesmo padrão do src/mocks/parq.ts: schema Zod + persistência local por aluno.
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from '@/lib/secureStorage';
 import { create } from 'zustand';
 import { z } from 'zod';
 
@@ -31,10 +30,8 @@ export const StudentAnswersSchema = z.object({
 export type StudentAnswers = z.infer<typeof StudentAnswersSchema>;
 
 const KEY = 'actus.mock.studentOnboarding';
-const isWeb = Platform.OS === 'web';
 
 async function loadRaw(): Promise<string | null> {
-  if (isWeb) return globalThis.localStorage?.getItem(KEY) ?? null;
   try {
     return await SecureStore.getItemAsync(KEY);
   } catch {
@@ -43,10 +40,6 @@ async function loadRaw(): Promise<string | null> {
 }
 
 async function saveRaw(value: string): Promise<void> {
-  if (isWeb) {
-    globalThis.localStorage?.setItem(KEY, value);
-    return;
-  }
   try {
     await SecureStore.setItemAsync(KEY, value);
   } catch {

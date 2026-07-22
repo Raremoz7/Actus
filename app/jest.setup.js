@@ -85,12 +85,48 @@ jest.mock('phosphor-react-native', () => {
   );
 });
 
-jest.mock('expo-haptics', () => ({
-  impactAsync: jest.fn(),
-  selectionAsync: jest.fn(),
+// Haptics: mocka o WRAPPER (@/lib/haptics) — os testes asseguram chamadas nele.
+jest.mock('@/lib/haptics', () => ({
+  selectionAsync: jest.fn(() => Promise.resolve()),
+  impactAsync: jest.fn(() => Promise.resolve()),
   notificationAsync: jest.fn(() => Promise.resolve()),
-  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium' },
-  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+  ImpactFeedbackStyle: { Light: 'impactLight', Medium: 'impactMedium', Heavy: 'impactHeavy' },
+  NotificationFeedbackType: {
+    Success: 'notificationSuccess',
+    Warning: 'notificationWarning',
+    Error: 'notificationError',
+  },
+}));
+
+jest.mock('react-native-haptic-feedback', () => ({
+  trigger: jest.fn(),
+  default: { trigger: jest.fn() },
+}));
+
+// react-native-keychain — módulo nativo do armazenamento seguro; no jest um
+// backend em memória (o suficiente para os stores que persistem estado).
+jest.mock('react-native-keychain', () => {
+  const store = new Map();
+  return {
+    setGenericPassword: jest.fn((user, pass, opts) => {
+      store.set(opts?.service ?? 'default', pass);
+      return Promise.resolve(true);
+    }),
+    getGenericPassword: jest.fn((opts) => {
+      const key = opts?.service ?? 'default';
+      return Promise.resolve(store.has(key) ? { username: key, password: store.get(key) } : false);
+    }),
+    resetGenericPassword: jest.fn((opts) => {
+      store.delete(opts?.service ?? 'default');
+      return Promise.resolve(true);
+    }),
+  };
+});
+
+// react-native-image-picker — nativo; cancelado por padrão (testes que precisam
+// de asset mockam '@/lib/imagePicker' diretamente).
+jest.mock('react-native-image-picker', () => ({
+  launchImageLibrary: jest.fn(() => Promise.resolve({ didCancel: true })),
 }));
 
 // lottie-react-native — renderiza animação nativa; no jest vira uma View simples
@@ -104,36 +140,22 @@ jest.mock('lottie-react-native', () => {
   };
 });
 
-// expo-audio — player nativo; no jest expomos a API consumida (createAudioPlayer)
-// com no-ops para o som best-effort não quebrar nos testes.
-jest.mock('expo-audio', () => ({
-  createAudioPlayer: jest.fn(() => ({
-    play: jest.fn(),
-    pause: jest.fn(),
-    seekTo: jest.fn(),
-    remove: jest.fn(),
-    release: jest.fn(),
-  })),
-  setIsAudioActiveAsync: jest.fn(() => Promise.resolve()),
-}));
-
-// expo-notifications — módulo nativo de push; no jest expomos a API consumida
-// (permissões, token e listener de tap) com no-ops.
-jest.mock('expo-notifications', () => ({
-  getPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
-  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
-  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'ExponentPushToken[test]' })),
-  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
-}));
-
-// expo-linear-gradient — nativo; no jest retorna View simples.
-jest.mock('expo-linear-gradient', () => {
+// react-native-linear-gradient — nativo; no jest retorna View simples.
+jest.mock('react-native-linear-gradient', () => {
   const React = require('react');
   const { View } = require('react-native');
-  return {
-    LinearGradient: ({ children, ...props }) => React.createElement(View, props, children),
-  };
+  const LinearGradient = ({ children, ...props }) => React.createElement(View, props, children);
+  return { __esModule: true, default: LinearGradient, LinearGradient };
 });
+
+// react-native-bootsplash — nativo; hide vira no-op.
+jest.mock('react-native-bootsplash', () => ({
+  __esModule: true,
+  default: {
+    hide: jest.fn(() => Promise.resolve()),
+    isVisible: jest.fn(() => Promise.resolve(false)),
+  },
+}));
 
 // react-native-safe-area-context — nativo; retorna stubs sem bridge.
 jest.mock('react-native-safe-area-context', () => {

@@ -1,4 +1,4 @@
-import { router, type Href } from 'expo-router';
+import { router, type Href } from '@/navigation';
 
 // Volta na pilha se houver histórico; senão cai num destino de fallback (ou no-op).
 // Evita o warning de dev "The action 'GO_BACK' was not handled by any navigator"

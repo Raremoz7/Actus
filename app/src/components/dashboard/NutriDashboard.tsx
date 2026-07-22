@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, type Href } from 'expo-router';
+import { router, type Href } from '@/navigation';
 import { UserPlus, ForkKnife } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 

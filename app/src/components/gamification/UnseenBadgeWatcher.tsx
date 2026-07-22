@@ -66,7 +66,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
     // Sombra: banner flutuante (dropdown-like) — exceção permitida ao "sem sombra".
-    shadowColor: '#000',
+    shadowColor: theme.colors.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },

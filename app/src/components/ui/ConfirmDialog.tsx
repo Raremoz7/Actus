@@ -77,20 +77,12 @@ export function ConfirmDialog({
 
           <View style={styles.actions}>
             <Button variant="secondary" label={cancelLabel} onPress={onCancel} disabled={loading} />
-            {tone === 'destructive' ? (
-              <Pressable
-                accessibilityRole="button"
-                disabled={loading}
-                onPress={onConfirm}
-                style={({ pressed }) => [styles.dangerPill, pressed && styles.dangerPillPressed]}
-              >
-                <AppText variant="label" style={styles.dangerLabel}>
-                  {confirmLabel}
-                </AppText>
-              </Pressable>
-            ) : (
-              <Button label={confirmLabel} onPress={onConfirm} loading={loading} />
-            )}
+            <Button
+              variant={tone === 'destructive' ? 'destructive' : 'primary'}
+              label={confirmLabel}
+              onPress={onConfirm}
+              loading={loading}
+            />
           </View>
         </Animated.View>
       </View>
@@ -116,11 +108,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.spacing.md,
     gap: theme.spacing.sm,
     // Sombra — exceção legítima do design (modal/sheet/dropdown).
-    shadowColor: theme.colors.shadow,
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 12,
+    ...theme.shadow.modal,
   },
   title: {
     marginBottom: theme.spacing.xs,
@@ -132,20 +120,5 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: theme.spacing.sm,
-  },
-  // Botão destrutivo: pill error, texto escuro (mesma forma do primário).
-  dangerPill: {
-    minHeight: 48,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.error,
-  },
-  dangerPillPressed: {
-    opacity: 0.85,
-  },
-  dangerLabel: {
-    color: theme.colors.textInverse,
   },
 }));

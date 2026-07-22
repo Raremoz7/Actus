@@ -1,4 +1,4 @@
-import type { Href } from 'expo-router';
+import type { Href } from '@/navigation';
 import type { UserTipo } from '@/types/me';
 import { homeForTipo } from '@/lib/authRoutes';
 

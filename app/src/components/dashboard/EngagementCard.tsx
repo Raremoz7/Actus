@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { ChartLineUp, Pulse } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText, KpiNumber } from '@/components/ui';
+import { AppText, Card, KpiNumber } from '@/components/ui';
 import type { Student } from '@/types/professional';
 import {
   buildEngagementOverview,
@@ -24,7 +24,7 @@ export function EngagementCard({ students }: Props) {
   const hasStudents = students.length > 0;
 
   return (
-    <View style={styles.card}>
+    <Card style={styles.cardExtra}>
       <View style={styles.head}>
         <ChartLineUp size={14} weight="duotone" color={colors.textTertiary} />
         <AppText variant="eyebrow" color="tertiary">
@@ -82,17 +82,12 @@ export function EngagementCard({ students }: Props) {
           Convide alunos para acompanhar adesão e check-ins aqui.
         </AppText>
       )}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
+  cardExtra: {
     gap: theme.spacing.md,
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },

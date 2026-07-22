@@ -32,7 +32,11 @@ export function HeroCarousel({ images, height, onTap, children }: HeroCarouselPr
     .failOffsetY([-8, 8])
     .onUpdate((e) => {
       if (!hasTwo) return;
-      translateX.value = -page.value * width + e.translationX;
+      // Clampa nas bordas: sem arrastar além da 1ª/última imagem (elimina o bounce/
+      // overscroll de "borracha" ao puxar contra o limite). (TEC-87)
+      const raw = -page.value * width + e.translationX;
+      const min = -(Math.max(images.length, 1) - 1) * width;
+      translateX.value = Math.max(min, Math.min(0, raw));
     })
     .onEnd((e) => {
       if (!hasTwo) return;

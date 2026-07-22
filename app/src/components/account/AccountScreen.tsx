@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { router, type Href } from 'expo-router';
+import { router, type Href } from '@/navigation';
 import {
   CaretRight,
   PencilSimple,

@@ -1,4 +1,4 @@
-jest.mock('expo-secure-store', () => {
+jest.mock('@/lib/secureStorage', () => {
   const store = new Map<string, string>();
   return {
     getItemAsync: jest.fn(async (k: string) => store.get(k) ?? null),

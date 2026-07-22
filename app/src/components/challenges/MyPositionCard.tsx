@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Flame, Trophy } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -51,7 +51,7 @@ export function MyPositionCard({ standing, isPrivate = false, today }: Props) {
       : null;
 
   return (
-    <View style={styles.card}>
+    <Card surface="surface2" emphasis padding="lg">
       <View style={styles.head}>
         <Trophy size={14} weight="duotone" color={colors.neon} />
         <AppText variant="eyebrow" color="neon">
@@ -109,18 +109,11 @@ export function MyPositionCard({ standing, isPrivate = false, today }: Props) {
           no ranking.
         </AppText>
       )}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
-    backgroundColor: theme.colors.surface2,
-    borderWidth: 1,
-    borderColor: theme.colors.neon,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.lg,
-  },
   head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   metricsRow: {
     flexDirection: 'row',

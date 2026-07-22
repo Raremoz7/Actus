@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
-jest.mock('expo-router', () => ({ router: { push: (...a: unknown[]) => mockPush(...a) } }));
+jest.mock('@/navigation', () => ({ router: { push: (...a: unknown[]) => mockPush(...a) } }));
 jest.mock('@/hooks/useMe', () => ({
   useMe: () => ({ data: { display_name: 'Lia', tipo: 'nutricionista' } }),
 }));

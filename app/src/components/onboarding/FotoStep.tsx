@@ -4,13 +4,14 @@
 // [requer dev client com o módulo nativo do expo-image-picker compilado — rebuild se ausente]
 import { useState } from 'react';
 import { Alert, Image, Pressable, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from '@/lib/imagePicker';
 import { UserCircle } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { OnboardingScreen } from './OnboardingScreen';
 import { useUploadAvatar } from '@/hooks/useUploadAvatar';
 import { darkTheme } from '@/theme';
+import { apiErrorMessage } from '@/lib/apiErrorMessage';
 
 const { colors } = darkTheme;
 
@@ -48,10 +49,10 @@ export function FotoStep({ step, total, subtitle, onAdvance }: Props) {
       { uri: asset.uri, mimeType: asset.mimeType, fileName: asset.fileName },
       {
         onSuccess: () => onAdvance(),
-        onError: () => {
+        onError: (err) => {
           Alert.alert(
             'Não foi possível enviar',
-            'Tente outra foto ou pule por enquanto — dá para adicionar depois no perfil.',
+            `${apiErrorMessage(err)} Tente outra foto ou pule por enquanto — dá para adicionar depois no perfil.`,
           );
         },
       },

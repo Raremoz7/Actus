@@ -1,15 +1,12 @@
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from '@/lib/secureStorage';
 import { create } from 'zustand';
 
 // Gate LOCAL do onboarding pós-cadastro (uma flag por usuário).
 // [local — sem endpoint; sinalizar persistência no /me quando o back expuser]
 // Contas existentes não têm a flag → caem no onboarding uma vez (passos puláveis).
 const KEY = 'actus.onboarding.done';
-const isWeb = Platform.OS === 'web';
 
 async function loadRaw(): Promise<string | null> {
-  if (isWeb) return globalThis.localStorage?.getItem(KEY) ?? null;
   try {
     return await SecureStore.getItemAsync(KEY);
   } catch {
@@ -18,10 +15,6 @@ async function loadRaw(): Promise<string | null> {
 }
 
 async function saveRaw(value: string): Promise<void> {
-  if (isWeb) {
-    globalThis.localStorage?.setItem(KEY, value);
-    return;
-  }
   try {
     await SecureStore.setItemAsync(KEY, value);
   } catch {

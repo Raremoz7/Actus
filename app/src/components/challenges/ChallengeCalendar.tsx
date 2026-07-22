@@ -187,7 +187,7 @@ const styles = StyleSheet.create((theme) => ({
   cell: {
     flex: 1,
     aspectRatio: 1,
-    borderRadius: 5,
+    borderRadius: theme.radius.tag,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 1.5,

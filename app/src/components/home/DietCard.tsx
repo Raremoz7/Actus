@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { ForkKnife } from 'phosphor-react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { AppText } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { darkTheme } from '@/theme';
 
 const { colors } = darkTheme;
@@ -42,25 +42,16 @@ export function DietCard({ title, mealCount, targetKcal, onPress }: Props) {
     </>
   );
 
-  if (onPress) {
-    return (
-      <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
-        {inner}
-      </Pressable>
-    );
-  }
-
-  return <View style={styles.card}>{inner}</View>;
+  return (
+    <Card onPress={onPress} style={styles.cardExtra}>
+      {inner}
+    </Card>
+  );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  card: {
+  cardExtra: {
     flex: 1,
-    backgroundColor: theme.colors.surface1,
-    borderWidth: 1,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.radius.card,
-    padding: theme.spacing.md,
     overflow: 'hidden',
   },
   bgIcon: {
