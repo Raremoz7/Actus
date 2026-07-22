@@ -1,0 +1,2794 @@
+{
+  "H:\\Actus\\backend\\api\\vitest.config.ts": {
+    "mtime": 1781061494.9738145,
+    "hash": "8a55b9a7d41b83640987cf1dfdaca1ac"
+  },
+  "H:\\Actus\\backend\\api\\scripts\\seed-academy.ts": {
+    "mtime": 1782159528.3583937,
+    "hash": "2c0a251668d65289b7a87e8b9a9eaf60"
+  },
+  "H:\\Actus\\backend\\api\\src\\app.ts": {
+    "mtime": 1782956411.8710864,
+    "hash": "c4c7e232bf5f3a05db81e0883454d2d0"
+  },
+  "H:\\Actus\\backend\\api\\src\\crypto.ts": {
+    "mtime": 1781061493.0409825,
+    "hash": "322a86f2e6e25d83f0f1b44eaa531c6c"
+  },
+  "H:\\Actus\\backend\\api\\src\\db.ts": {
+    "mtime": 1781061493.0640063,
+    "hash": "a04c8e9ad8f9a7e13a6b84f5976b873e"
+  },
+  "H:\\Actus\\backend\\api\\src\\index.ts": {
+    "mtime": 1781061493.1491897,
+    "hash": "0f779f2945ebb48d4001a685020b04c1"
+  },
+  "H:\\Actus\\backend\\api\\src\\openapi.ts": {
+    "mtime": 1781218139.4288247,
+    "hash": "814ce1ea7414698310ce1dd31e804833"
+  },
+  "H:\\Actus\\backend\\api\\src\\openapiTags.ts": {
+    "mtime": 1781061493.485261,
+    "hash": "8ac6345222f5fbbac0ab163a4f96481c"
+  },
+  "H:\\Actus\\backend\\api\\src\\schemaCompat.ts": {
+    "mtime": 1781061494.2520134,
+    "hash": "16edf8bfbb6b1c2834f60ed2db82003a"
+  },
+  "H:\\Actus\\backend\\api\\src\\studentCheckInsQuery.ts": {
+    "mtime": 1781061494.384949,
+    "hash": "c53cea027727108f3e88540b2468fdd8"
+  },
+  "H:\\Actus\\backend\\api\\src\\auth\\jwt.ts": {
+    "mtime": 1781061492.9997358,
+    "hash": "58d2549f01c306a350e07dd937b5a631"
+  },
+  "H:\\Actus\\backend\\api\\src\\auth\\sessionClaims.ts": {
+    "mtime": 1781061493.0242238,
+    "hash": "c827d9388b6ce52bfbf57336d7bacd23"
+  },
+  "H:\\Actus\\backend\\api\\src\\domain\\workoutCalories.ts": {
+    "mtime": 1781061493.1018069,
+    "hash": "66317fee9986f0d569deb8811ae140fb"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireAcademyManager.ts": {
+    "mtime": 1782157970.4938142,
+    "hash": "ab366210d5116f86762d17c861b3bad6"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireAcademyMember.ts": {
+    "mtime": 1782157970.5558975,
+    "hash": "7a48d41698411241cd511cd39aaa0d68"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireAnyRole.ts": {
+    "mtime": 1781061493.2262433,
+    "hash": "e78a42d502c54e9b5d8c4e7ed489b26a"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireAuth.ts": {
+    "mtime": 1781061493.2722259,
+    "hash": "e40defe6dd0ac3108543bcb1e0dce1c5"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requirePersonal.ts": {
+    "mtime": 1781061493.3145218,
+    "hash": "5196e1bf5caac2da9cfc3411ea297e59"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireStaff.ts": {
+    "mtime": 1781061493.3574133,
+    "hash": "40e2d6db1817ecd8e818d32de25215e3"
+  },
+  "H:\\Actus\\backend\\api\\src\\middleware\\requireStudent.ts": {
+    "mtime": 1781061493.3998706,
+    "hash": "a1acfd2d822cb8e6c640d9dc0c420faa"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\academy.ts": {
+    "mtime": 1782157970.592412,
+    "hash": "47c95ad4af371a1508ae25bbfdacdac6"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\academyCommissions.ts": {
+    "mtime": 1782157970.7161512,
+    "hash": "b09acc1b68f4203602c3957debf3e31f"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\academyNetwork.ts": {
+    "mtime": 1782956822.1098816,
+    "hash": "c60fc61e63119de1a0f3aea2058fd53e"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\adminAcademies.ts": {
+    "mtime": 1782956411.8725986,
+    "hash": "23751550fa0e253d21db73b467a31042"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\adminProfessionals.ts": {
+    "mtime": 1781061493.5646305,
+    "hash": "b0bde74db9c0979ec80e597ea1f5f63a"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\adminStaff.ts": {
+    "mtime": 1781061493.6565125,
+    "hash": "e94113eff296f12fb115886943f7d46d"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\adminStudentLinks.ts": {
+    "mtime": 1781061493.7173073,
+    "hash": "abca20ead916e7959968abdf0e906dee"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\auth.ts": {
+    "mtime": 1781218139.4597535,
+    "hash": "b2ba113ea70d6325a9bf136a01d234c6"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\deviceTokens.ts": {
+    "mtime": 1783116899.0720825,
+    "hash": "bde29af16781a4c9f9026fe572160014"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\dietTemplates.ts": {
+    "mtime": 1781061493.7876885,
+    "hash": "92325a217f68251533c0b152a1e54bf2"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\exercises.ts": {
+    "mtime": 1782157970.8499641,
+    "hash": "51bfb63d945849312f09c2974457ea98"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\invitePreview.ts": {
+    "mtime": 1781218139.4835243,
+    "hash": "8440cd411055077267ad4a8224ffc487"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\invites.ts": {
+    "mtime": 1781061493.8449197,
+    "hash": "5e284fabb8888f4506058c0b8762af25"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\me.ts": {
+    "mtime": 1782957194.5654047,
+    "hash": "04862102ff3d5219d26aa76abc6e8941"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\meAvatar.ts": {
+    "mtime": 1781218139.5252578,
+    "hash": "160e6066b6bc20eb1b18ba50c2a83eb3"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\meBadges.ts": {
+    "mtime": 1782164882.6091745,
+    "hash": "19c303e608e23ec085f89f5f9741a4b9"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\meChallenges.ts": {
+    "mtime": 1781061493.9312248,
+    "hash": "ff761ac84c1cf36c804a7387fc111793"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\meGamification.ts": {
+    "mtime": 1782164801.406322,
+    "hash": "41cb75d584007baee670294d6eb43a9b"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\meStudentProgram.ts": {
+    "mtime": 1782166037.1647477,
+    "hash": "e133eb77ce00140261564c2b976ee08c"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\parq.ts": {
+    "mtime": 1781218139.5433884,
+    "hash": "fde666348cb89df8ece7bbffaf230995"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\professionalChallenges.ts": {
+    "mtime": 1781061494.0877023,
+    "hash": "d202d122e4e51c69406f1a9c35f07e48"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\professionalDashboard.ts": {
+    "mtime": 1782157971.0373478,
+    "hash": "9c6cb03fe9c625466b177be0f276855b"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\professionalStudents.ts": {
+    "mtime": 1782954987.1634634,
+    "hash": "da8575ddf55cdf77b07db909b7adab12"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\studentDiets.ts": {
+    "mtime": 1781061494.1682982,
+    "hash": "3f6364c76f2feafd880745c651a4e646"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\studentWorkouts.ts": {
+    "mtime": 1781064457.1545074,
+    "hash": "7acf0925698be1686f3114788221a10b"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\workouts.ts": {
+    "mtime": 1781223819.4449754,
+    "hash": "7d2ba45e4f89968356e10ab23c7ef714"
+  },
+  "H:\\Actus\\backend\\api\\src\\routes\\workoutTemplates.ts": {
+    "mtime": 1782157971.194219,
+    "hash": "9400673fc1b087db2efaa7c22df10c36"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\badgeService.ts": {
+    "mtime": 1782162955.026649,
+    "hash": "f27d6fb6b4301e1b42e3d2554bd4c20e"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\challengeStats.ts": {
+    "mtime": 1781061494.3120122,
+    "hash": "350cac374fc693eb03d7fcdf3a6f5de8"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\commission.ts": {
+    "mtime": 1782157971.3923695,
+    "hash": "b481f69e4aa5d19fc4c8f46ae301f986"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\pushService.ts": {
+    "mtime": 1783117038.68162,
+    "hash": "21d7d3024b8f772c40878d092d4e32c8"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\streakService.ts": {
+    "mtime": 1782162530.6645918,
+    "hash": "4d08b0a7441c53c13c560fa7f54f9b06"
+  },
+  "H:\\Actus\\backend\\api\\src\\services\\studentWorkoutSummary.ts": {
+    "mtime": 1781061494.3598907,
+    "hash": "dc16026a82015169b6c9633f60869af4"
+  },
+  "H:\\Actus\\backend\\api\\src\\types\\swagger-ui-express.d.ts": {
+    "mtime": 1781061494.457847,
+    "hash": "665e075d56a839bc24c57b41ff362498"
+  },
+  "H:\\Actus\\backend\\api\\test\\academy.int.test.ts": {
+    "mtime": 1782157971.506225,
+    "hash": "21ef7441a0af2c27b8d447af9cb23dd4"
+  },
+  "H:\\Actus\\backend\\api\\test\\academyNetwork.int.test.ts": {
+    "mtime": 1782957168.7796817,
+    "hash": "4c00c723c3ffe6bfb7988a6b3d496c08"
+  },
+  "H:\\Actus\\backend\\api\\test\\admin.links.students.int.test.ts": {
+    "mtime": 1781061494.5437245,
+    "hash": "5bc587626cf46488369016df64443e16"
+  },
+  "H:\\Actus\\backend\\api\\test\\admin.professionals.int.test.ts": {
+    "mtime": 1781061494.592792,
+    "hash": "fcc61b2d64eb647b67025cd1435b2c9f"
+  },
+  "H:\\Actus\\backend\\api\\test\\auth.register-professional.int.test.ts": {
+    "mtime": 1781218139.5636084,
+    "hash": "11b7060f16c150eea7b3072449b8e9a9"
+  },
+  "H:\\Actus\\backend\\api\\test\\auth.register.invite-first.int.test.ts": {
+    "mtime": 1781061494.6750345,
+    "hash": "3dbbdd503932718f0030012d75c02b0f"
+  },
+  "H:\\Actus\\backend\\api\\test\\badges.routes.int.test.ts": {
+    "mtime": 1782164827.494746,
+    "hash": "b875d5b18cf504d484cae1b548958de5"
+  },
+  "H:\\Actus\\backend\\api\\test\\badgeService.unit.test.ts": {
+    "mtime": 1782162931.0731337,
+    "hash": "79f51bba4fb4b427227a7246dd3657c5"
+  },
+  "H:\\Actus\\backend\\api\\test\\challenges.int.test.ts": {
+    "mtime": 1781061494.7182055,
+    "hash": "656c9f7c7fc605393716f3d798c4c724"
+  },
+  "H:\\Actus\\backend\\api\\test\\deviceTokens.int.test.ts": {
+    "mtime": 1782165768.2483253,
+    "hash": "b06dac2fef5b37bd63c3f196aa474dac"
+  },
+  "H:\\Actus\\backend\\api\\test\\gamification.badges.int.test.ts": {
+    "mtime": 1782163372.939612,
+    "hash": "896af3d51356255c28972ce754dcdcd9"
+  },
+  "H:\\Actus\\backend\\api\\test\\gamification.int.test.ts": {
+    "mtime": 1782165000.001972,
+    "hash": "76a50f16dae0237be0dfce25d09718a4"
+  },
+  "H:\\Actus\\backend\\api\\test\\invites.list.int.test.ts": {
+    "mtime": 1781061494.816432,
+    "hash": "2dac880805cc680e4ae8872914db0cd3"
+  },
+  "H:\\Actus\\backend\\api\\test\\invites.preview.int.test.ts": {
+    "mtime": 1781218139.6057055,
+    "hash": "9fd5d7911e0cda1df9977804748a9bba"
+  },
+  "H:\\Actus\\backend\\api\\test\\me.avatar.int.test.ts": {
+    "mtime": 1781218139.622841,
+    "hash": "1bd4729bce464d4acaee05719aacf8c9"
+  },
+  "H:\\Actus\\backend\\api\\test\\me.patch.int.test.ts": {
+    "mtime": 1781061494.833671,
+    "hash": "5942e173f581499dd399f145a9e4566d"
+  },
+  "H:\\Actus\\backend\\api\\test\\me.professional-profile.int.test.ts": {
+    "mtime": 1782954987.1649857,
+    "hash": "34851ac24e7e62bb41bb5e2735be5930"
+  },
+  "H:\\Actus\\backend\\api\\test\\me.profile.int.test.ts": {
+    "mtime": 1781218139.6519947,
+    "hash": "1fa73dd326dce66ce5831e6638724562"
+  },
+  "H:\\Actus\\backend\\api\\test\\me.student.program.int.test.ts": {
+    "mtime": 1781061494.8556542,
+    "hash": "2d0c83338fb44101a4ce315d7bd88760"
+  },
+  "H:\\Actus\\backend\\api\\test\\parq.int.test.ts": {
+    "mtime": 1781218139.6817636,
+    "hash": "116d7528effca407ff25ceebdd4af464"
+  },
+  "H:\\Actus\\backend\\api\\test\\patch.routes.int.test.ts": {
+    "mtime": 1781061494.8739955,
+    "hash": "61f7b77d6d30eabe88de28095c137285"
+  },
+  "H:\\Actus\\backend\\api\\test\\professional.students.gamification.int.test.ts": {
+    "mtime": 1782165516.2545474,
+    "hash": "5cb1fa6134df58e555b5d54fea1f4690"
+  },
+  "H:\\Actus\\backend\\api\\test\\professional.students.int.test.ts": {
+    "mtime": 1782954987.166504,
+    "hash": "c0c2f269e0b3861682f1c9d0a4ed2b17"
+  },
+  "H:\\Actus\\backend\\api\\test\\pushService.unit.test.ts": {
+    "mtime": 1782166003.5626388,
+    "hash": "4632cac8210c31cdc6ac1a3fb43a79c3"
+  },
+  "H:\\Actus\\backend\\api\\test\\streakService.unit.test.ts": {
+    "mtime": 1782162507.430204,
+    "hash": "bd303717fa5789e122202b9ea02f53f8"
+  },
+  "H:\\Actus\\backend\\api\\test\\studentWorkouts.get.int.test.ts": {
+    "mtime": 1781064927.7427163,
+    "hash": "76afbd9fcd438f4cb2daa956d34734b0"
+  },
+  "H:\\Actus\\backend\\api\\test\\workoutCalories.test.ts": {
+    "mtime": 1781061494.9253814,
+    "hash": "49e5896f44caaafaf31b9324d889e07a"
+  },
+  "H:\\Actus\\backend\\api\\test\\workouts.and.diets.int.test.ts": {
+    "mtime": 1781061494.942273,
+    "hash": "ae716c2b7c01992d4995bd72ae1bd233"
+  },
+  "H:\\Actus\\backend\\api\\test\\helpers\\testDb.ts": {
+    "mtime": 1782956411.8736053,
+    "hash": "83ecc54c2a305e525b775d3858805f43"
+  },
+  "H:\\Actus\\backend\\local\\00_shim.sql": {
+    "mtime": 1781218139.7915742,
+    "hash": "cf4baa3ca32e4ad958fa2428ef33ee1b"
+  },
+  "H:\\Actus\\backend\\local\\migrate-workouts-to-catalog.sql": {
+    "mtime": 1782157971.8059852,
+    "hash": "71b0da1a5f2a13b34334a1e43a465837"
+  },
+  "H:\\Actus\\backend\\local\\seed-ecosystem.sql": {
+    "mtime": 1782157971.8115535,
+    "hash": "274b1ed73baee26dee87e437ec59b569"
+  },
+  "H:\\Actus\\backend\\local\\seed-exercises.sql": {
+    "mtime": 1781230980.9500487,
+    "hash": "92bb7a6d255c7ddcfcce996742ff8a9d"
+  },
+  "H:\\Actus\\backend\\scripts\\build-exercise-db.mjs": {
+    "mtime": 1781222577.764145,
+    "hash": "06b462c537263fbe393a4ac06d4fab09"
+  },
+  "H:\\Actus\\backend\\scripts\\download-exercise-images.mjs": {
+    "mtime": 1781230877.3204699,
+    "hash": "761b89083568c5528b98bac7b842f0bc"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260423120000_actus_fase1_schema.sql": {
+    "mtime": 1781061495.7194612,
+    "hash": "40fd8fa1e546085019cca0da092cbd06"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260428120000_actus_custom_auth.sql": {
+    "mtime": 1781061495.752278,
+    "hash": "850a0e28755081a16874a7035eb12c4d"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260429120000_actus_invite_first_and_user_fields.sql": {
+    "mtime": 1781061495.7845483,
+    "hash": "8cc62758ebf97ce803d9462bfcaaf6c9"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260430130000_actus_staff_roles.sql": {
+    "mtime": 1781061495.8150764,
+    "hash": "a4d979280450665adbfd69fe4cc9a815"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260507120000_student_session_sets_checkin_summary.sql": {
+    "mtime": 1781061495.8536541,
+    "hash": "a09d7ef69a6842068e09877d0e5a31e6"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260508100000_fix_recompute_streak_ambiguous_d.sql": {
+    "mtime": 1781061495.8744879,
+    "hash": "60f73b7ffc561d9681dd916b410bddda"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260509120000_challenges.sql": {
+    "mtime": 1781061495.9027019,
+    "hash": "6052296e02c6e1b41187740f97b8b2f3"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260610120000_par_q.sql": {
+    "mtime": 1781064572.0107982,
+    "hash": "3e8cd26a3d563793b99e140331d4607d"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260610130000_actus_register_professional.sql": {
+    "mtime": 1781218139.8870857,
+    "hash": "28ed3aa92fd29f0733975330d8038792"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260611180000_exercises.sql": {
+    "mtime": 1782950602.7064748,
+    "hash": "0ca7bc3359de8c73cdf8ea27c4b13f67"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260612000000_workout_exercises_exercise_id.sql": {
+    "mtime": 1781223306.089878,
+    "hash": "bb9c08f3cf20778004d73380a22bed1a"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260612100000_exercises_machine_type.sql": {
+    "mtime": 1782157971.874211,
+    "hash": "d3a87ef73c6181e732584ffa7e63ab6d"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260612110000_workout_templates.sql": {
+    "mtime": 1782157971.881776,
+    "hash": "6d11139f857cd48a4e513e6ea6894902"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260621120000_actus_academies_core.sql": {
+    "mtime": 1782157971.9508476,
+    "hash": "696d273b4875f1d74b218b98f15aa416"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260621121000_actus_academy_commissions.sql": {
+    "mtime": 1782157971.9793468,
+    "hash": "cb0693b41ac0083f9687eb283519fdcf"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260622120000_gamification_v1.sql": {
+    "mtime": 1782161832.9313004,
+    "hash": "d17608d5f46229522ab9c892f1e0fca3"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260622120100_seed_badges.sql": {
+    "mtime": 1782162340.1795843,
+    "hash": "86b578d44fb640f1d95f4db794aab1fa"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260622120200_streak_single_source.sql": {
+    "mtime": 1782164386.7001116,
+    "hash": "b2bd888aea26db7824592ed0c54afb83"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260622130000_actus_professional_self_profile.sql": {
+    "mtime": 1782167622.9480703,
+    "hash": "a66e6914640c5bc06f0064f3f4e3c317"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260623120000_user_height.sql": {
+    "mtime": 1782954987.166504,
+    "hash": "dc95252233e22a6347da0d7096220ec1"
+  },
+  "H:\\Actus\\backend\\supabase\\migrations\\20260701120000_actus_academy_network.sql": {
+    "mtime": 1782954437.15356,
+    "hash": "5c99296821fd5cd3cd0202895d00d1b4"
+  },
+  "H:\\Actus\\web\\eslint.config.js": {
+    "mtime": 1781218139.9613035,
+    "hash": "0355276bc79439afe3c53e3a2470ca1e"
+  },
+  "H:\\Actus\\web\\vite.config.ts": {
+    "mtime": 1781218144.6160328,
+    "hash": "47ccad94cf9355bfbeeac7403df2a431"
+  },
+  "H:\\Actus\\web\\vite.landing.config.ts": {
+    "mtime": 1783669823.3908322,
+    "hash": "d474ed78a4047463064f4602ba782d8d"
+  },
+  "H:\\Actus\\web\\vitest.config.ts": {
+    "mtime": 1783669823.3908322,
+    "hash": "dfbfa4bbe1610f1978f262fb1054e6d7"
+  },
+  "H:\\Actus\\web\\vitest.setup.ts": {
+    "mtime": 1783669823.3954694,
+    "hash": "7e6f3777dced54d8b270a63afad2d09f"
+  },
+  "H:\\Actus\\web\\dist-landing\\assets\\landing-QPEUj6fZ.js": {
+    "mtime": 1782157972.3114538,
+    "hash": "8895d008a93b98f34d9ad6648104ad47"
+  },
+  "H:\\Actus\\web\\src\\landing-main.tsx": {
+    "mtime": 1783669823.3244047,
+    "hash": "d273f2b8cffda53e9171b82912a0d9c1"
+  },
+  "H:\\Actus\\web\\src\\main.tsx": {
+    "mtime": 1781218143.9233234,
+    "hash": "816eb0237e2bf950a8a0d65aa2a64938"
+  },
+  "H:\\Actus\\web\\src\\routes.tsx": {
+    "mtime": 1783669823.3908322,
+    "hash": "58f28476e495f2a3941246bedcb131fe"
+  },
+  "H:\\Actus\\web\\src\\api\\auth.ts": {
+    "mtime": 1781218143.3518019,
+    "hash": "642620a25a19bac685d6075fa79f43bd"
+  },
+  "H:\\Actus\\web\\src\\api\\client.ts": {
+    "mtime": 1781218143.3617928,
+    "hash": "b5efba2a10b4da3957160f5a1e8686cd"
+  },
+  "H:\\Actus\\web\\src\\components\\HomeRoute.tsx": {
+    "mtime": 1783669823.274855,
+    "hash": "a57576d040df74e454ffebff0e83ca27"
+  },
+  "H:\\Actus\\web\\src\\components\\RequireAcademyManager.tsx": {
+    "mtime": 1783669823.274855,
+    "hash": "8196efe17606cca5dca8be47218ab07d"
+  },
+  "H:\\Actus\\web\\src\\components\\RequireAdmin.tsx": {
+    "mtime": 1781218143.3775544,
+    "hash": "d5a399f262071cd893584b594a272779"
+  },
+  "H:\\Actus\\web\\src\\components\\RequireAuth.tsx": {
+    "mtime": 1781218143.4013922,
+    "hash": "344220e5f09ffa5af2f1bd5841bc6092"
+  },
+  "H:\\Actus\\web\\src\\components\\StreakBadge.tsx": {
+    "mtime": 1783669823.2763784,
+    "hash": "8ed6f5174c1f326b1e3b630d70c78ce8"
+  },
+  "H:\\Actus\\web\\src\\components\\StudentBadges.tsx": {
+    "mtime": 1783669823.3009055,
+    "hash": "6fcfd87330266a60067c2b53c1e591d2"
+  },
+  "H:\\Actus\\web\\src\\components\\academy\\PeriodSegmented.tsx": {
+    "mtime": 1783670084.4212525,
+    "hash": "f9b6c6af2d1a6adea529104e2951810a"
+  },
+  "H:\\Actus\\web\\src\\components\\academy\\UnitFilter.test.tsx": {
+    "mtime": 1783670084.4212525,
+    "hash": "f6e4b14bca98151665965e7cca37d897"
+  },
+  "H:\\Actus\\web\\src\\components\\academy\\UnitFilter.tsx": {
+    "mtime": 1783670084.4227884,
+    "hash": "b218124ef4ac79048f93983c882998ee"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Avatar.tsx": {
+    "mtime": 1781218143.42509,
+    "hash": "2ef368a20efa289f7f46e9aab395ada0"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Button.tsx": {
+    "mtime": 1783670084.4227884,
+    "hash": "ded9d36ef4a275d94c439d7c480b5944"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Card.tsx": {
+    "mtime": 1781218143.4682992,
+    "hash": "61b0cd574965bdcd9e729c3ecb2f9a31"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\charts.test.tsx": {
+    "mtime": 1783670084.4243102,
+    "hash": "1bc5fcc640bd12a8d2785efaac9a33f4"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\charts.tsx": {
+    "mtime": 1783670084.4258754,
+    "hash": "c9a3b2e62612eab2631c9fbf38c6a30f"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\ConfirmDialog.tsx": {
+    "mtime": 1783669823.317258,
+    "hash": "2e23ef8532d76f8ac1da6c5950751c75"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Eyebrow.tsx": {
+    "mtime": 1783670084.4243102,
+    "hash": "4b55517aec36fa02a763dceed296f221"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Input.tsx": {
+    "mtime": 1783670084.4243102,
+    "hash": "d9a66b9f627b10337351ed508e879c61"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Modal.tsx": {
+    "mtime": 1783669823.3183022,
+    "hash": "2a267eb97c4792018d8f1a1eff7363c9"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\PageHeader.tsx": {
+    "mtime": 1783670084.4243102,
+    "hash": "5777d46fae54dd92f248cb10eb675ffd"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Skeleton.tsx": {
+    "mtime": 1781218143.5005653,
+    "hash": "8b66a1b1753114968bdb273f4ca8b7ce"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Tag.tsx": {
+    "mtime": 1783669823.319829,
+    "hash": "e7291e8f682925f6aac965c2dca5d63b"
+  },
+  "H:\\Actus\\web\\src\\components\\ui\\Toast.tsx": {
+    "mtime": 1781218143.5431945,
+    "hash": "8372fd9fe714e8991cf9c2221bcf1e0f"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useAcademy.ts": {
+    "mtime": 1783669823.3213522,
+    "hash": "7957c67adfc8ff47628b0974a41c677a"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useAcademyAdmin.ts": {
+    "mtime": 1783669823.3213522,
+    "hash": "60629b4c86b2c34a646d24724addc267"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useAcademyNetwork.ts": {
+    "mtime": 1783670084.4263997,
+    "hash": "2481338151255eb65e4d4407fb9a1b84"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useAdmin.ts": {
+    "mtime": 1781218143.5674605,
+    "hash": "fc172465d5c67a5d741f753db74323c7"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useAnamnese.ts": {
+    "mtime": 1783669823.3228805,
+    "hash": "1b595f71881a0549b9ef90c6fc277b94"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useCommissions.ts": {
+    "mtime": 1783669823.3228805,
+    "hash": "9705ef8dcb05cedd381168626337927c"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useExerciseCatalog.ts": {
+    "mtime": 1783043167.1413634,
+    "hash": "84c8dd817a828e9294f1e4ab7413108b"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useInvites.ts": {
+    "mtime": 1781218143.5957913,
+    "hash": "29d6d00c2ddfe85744c7ca5a57ca2582"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useLenis.ts": {
+    "mtime": 1783043167.1413634,
+    "hash": "84009babfea053b505923fe099e20f50"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useMe.ts": {
+    "mtime": 1781218143.6230597,
+    "hash": "dc6170a715ec6cc8bee62387e8f68b78"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useMeals.ts": {
+    "mtime": 1783669823.3228805,
+    "hash": "c4ae7f6aec48de5df035dc5b21e7b93e"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useStudentDetail.ts": {
+    "mtime": 1781218143.645231,
+    "hash": "1d987dc9dc544bd674b4b141c28112e6"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useStudentProfile.ts": {
+    "mtime": 1783669823.3228805,
+    "hash": "cba3289fe98bfc5b97be3e182961f9d8"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useStudents.ts": {
+    "mtime": 1783669823.3244047,
+    "hash": "9394c1c3f004cc570eeb31a628f7891d"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useTemplates.ts": {
+    "mtime": 1783043167.1449022,
+    "hash": "5e7a776f587a1debef72c8c5c42f8bf8"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useWgerCatalog.ts": {
+    "mtime": 1781218143.7035158,
+    "hash": "6a4399de98c8320eccd981648f199221"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useWorkoutMutations.ts": {
+    "mtime": 1781223441.2030296,
+    "hash": "3b56f600838f2db3177bc6d049f4c1ff"
+  },
+  "H:\\Actus\\web\\src\\hooks\\useWorkouts.ts": {
+    "mtime": 1781218143.7541492,
+    "hash": "fc09b2ce656ab4c602b846b05656d77c"
+  },
+  "H:\\Actus\\web\\src\\layouts\\AcademyLayout.tsx": {
+    "mtime": 1783670084.4269166,
+    "hash": "09bb887448d642b525c331557775b173"
+  },
+  "H:\\Actus\\web\\src\\layouts\\AdminLayout.tsx": {
+    "mtime": 1783669823.3259327,
+    "hash": "c5e43e10ab81ae57a26b73f0b3941e7c"
+  },
+  "H:\\Actus\\web\\src\\layouts\\AppLayout.tsx": {
+    "mtime": 1783669823.328558,
+    "hash": "7aabb11ddc03f25d50dfcf6172bd4d31"
+  },
+  "H:\\Actus\\web\\src\\layouts\\Sidebar.tsx": {
+    "mtime": 1781218143.8485334,
+    "hash": "2a7738e6e328b302c1831f7d12212550"
+  },
+  "H:\\Actus\\web\\src\\lib\\commission.ts": {
+    "mtime": 1783669823.328558,
+    "hash": "c00251a49c6b85ff09e635279a5f0c6b"
+  },
+  "H:\\Actus\\web\\src\\lib\\exercises.ts": {
+    "mtime": 1783043167.1484227,
+    "hash": "691a93322e4014a7aa0b8dcf367b8df3"
+  },
+  "H:\\Actus\\web\\src\\lib\\schemas.ts": {
+    "mtime": 1783669823.3300862,
+    "hash": "4bfecff013132a1ae3b4dd44551c5d50"
+  },
+  "H:\\Actus\\web\\src\\lib\\studentStatus.ts": {
+    "mtime": 1783669823.3300862,
+    "hash": "9f9e032b4162667d04b2e3a201818cb9"
+  },
+  "H:\\Actus\\web\\src\\lib\\wger.ts": {
+    "mtime": 1781650550.6200647,
+    "hash": "af938103d0e4bd988712f28f5d299949"
+  },
+  "H:\\Actus\\web\\src\\mocks\\academyInsights.ts": {
+    "mtime": 1783670084.4284358,
+    "hash": "f1316c95641f3ceea799aa951bfb6b8c"
+  },
+  "H:\\Actus\\web\\src\\pages\\Placeholder.tsx": {
+    "mtime": 1783670084.4284358,
+    "hash": "1c19758e90556d1fde8a05cd2a68d7b7"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademyCommissionsPage.tsx": {
+    "mtime": 1783670084.4299798,
+    "hash": "fc5d2160b890af1206c774ec9f1aa720"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademyDashboardPage.test.tsx": {
+    "mtime": 1783670084.4299798,
+    "hash": "474c45455f39d1bcd66105cb17d2950c"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademyDashboardPage.tsx": {
+    "mtime": 1783670084.4299798,
+    "hash": "9c690722357cb1f9793b8f00c73f0d2a"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademyInstructorDetailPage.tsx": {
+    "mtime": 1783670084.431502,
+    "hash": "0197b94255a30511ceb26fc86a9d4329"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademySettingsPage.tsx": {
+    "mtime": 1783670084.4330232,
+    "hash": "bf10839b4be48e5599b581569c7df7b0"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\AcademyTeamPage.tsx": {
+    "mtime": 1783670084.4330232,
+    "hash": "50202c6040fdbffab1eb0f39c9abc0e2"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\NetworkDashboardPage.test.tsx": {
+    "mtime": 1783669823.3377123,
+    "hash": "7895d999278951ddea3af3add84ea1fb"
+  },
+  "H:\\Actus\\web\\src\\pages\\academia\\NetworkDashboardPage.tsx": {
+    "mtime": 1783670084.4345486,
+    "hash": "46433a84c0a5a3ae31db09c24eb0e456"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\AcademiasPage.test.tsx": {
+    "mtime": 1783669823.3382318,
+    "hash": "c72c54fb3c96db79df27cbf66e611310"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\AcademiasPage.tsx": {
+    "mtime": 1783670084.4355984,
+    "hash": "8e1a9de36862ce0c99c42c1ce12ae8fc"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\AdminOverviewPage.tsx": {
+    "mtime": 1783670084.4355984,
+    "hash": "716ab37217b5da89d4ababff80f685b8"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\ProfissionaisPage.tsx": {
+    "mtime": 1783670084.4371176,
+    "hash": "da8314c4384c969c7fcfcc7e2331d94f"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\StaffPage.tsx": {
+    "mtime": 1783670084.4371176,
+    "hash": "c90bd75be05f7304ff00891e85f0d759"
+  },
+  "H:\\Actus\\web\\src\\pages\\admin\\VinculosPage.tsx": {
+    "mtime": 1783670084.4386454,
+    "hash": "6331bd97a571334151a11564ad2d1c9e"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\AlimentacaoTab.tsx": {
+    "mtime": 1783670084.4386454,
+    "hash": "40a87b371062bf9ae747bf45e5812b38"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\AlunoDetailPage.tsx": {
+    "mtime": 1783670084.44017,
+    "hash": "fc4c8b932930e6c099ae4cb8972b883b"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\AlunosPage.tsx": {
+    "mtime": 1783670084.44017,
+    "hash": "fb23bca433cf6f237b755b045e013185"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\AnamneseTab.tsx": {
+    "mtime": 1783670084.441758,
+    "hash": "a9c424b56cba064e65444e3b11e5fb79"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\BadgesTab.tsx": {
+    "mtime": 1783669823.3509898,
+    "hash": "82aca623e8da85bb1bf7b56eb5b9141a"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\EditStudentModal.tsx": {
+    "mtime": 1783670084.441758,
+    "hash": "a2ab10db6a72dedafa16796196115a6c"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\HistoricoTab.tsx": {
+    "mtime": 1783669823.3520255,
+    "hash": "8d87df119b50fa6e15271cd656da7714"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\PreferenciasTab.tsx": {
+    "mtime": 1781218144.1760964,
+    "hash": "0081da84c9105047b58ba50d49bb28bb"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\TreinosTab.tsx": {
+    "mtime": 1783669823.3535516,
+    "hash": "44526572a5c36d0261b7d34dda55e437"
+  },
+  "H:\\Actus\\web\\src\\pages\\alunos\\VisaoGeralTab.tsx": {
+    "mtime": 1783670084.4432852,
+    "hash": "c50042f24396ef08266bb2a70c24af6a"
+  },
+  "H:\\Actus\\web\\src\\pages\\anamnese\\AnamneseBuilder.tsx": {
+    "mtime": 1783670084.4432852,
+    "hash": "419cf429b4f69bc646ad63073d1ebe30"
+  },
+  "H:\\Actus\\web\\src\\pages\\configuracoes\\ConfiguracoesPage.tsx": {
+    "mtime": 1783670084.4478624,
+    "hash": "0897bc757e44997a9b94ffad9f476745"
+  },
+  "H:\\Actus\\web\\src\\pages\\convites\\ConvitesPage.tsx": {
+    "mtime": 1783670084.4493902,
+    "hash": "6ee78f581fc719f3bd0f965492c57bd4"
+  },
+  "H:\\Actus\\web\\src\\pages\\dashboard\\ActivityPanel.tsx": {
+    "mtime": 1781218144.2788012,
+    "hash": "5ae39ce5a975a654b81cac5bfdc76209"
+  },
+  "H:\\Actus\\web\\src\\pages\\dashboard\\DashboardPage.tsx": {
+    "mtime": 1783670084.4509115,
+    "hash": "efd66170b571169ddc41ed510c7fcde9"
+  },
+  "H:\\Actus\\web\\src\\pages\\dashboard\\KpiCard.tsx": {
+    "mtime": 1783670084.4524379,
+    "hash": "0b997596fe068ce6030135a8380cddda"
+  },
+  "H:\\Actus\\web\\src\\pages\\exercicios\\ExerciciosPage.tsx": {
+    "mtime": 1783043167.217454,
+    "hash": "b3fb3d96ce1b3f04683628a73446f9dd"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\LandingPage.tsx": {
+    "mtime": 1783669823.3581252,
+    "hash": "c66157c110eb0e8a88eae1bb6f6c1180"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\theme.ts": {
+    "mtime": 1783670084.4642365,
+    "hash": "ac0fdc038a655426b950b7db2148ad09"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\mockups\\PhoneFrame.tsx": {
+    "mtime": 1783670084.45348,
+    "hash": "f7cc8d015034876aa636b7bd56867461"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\AccordionSection.tsx": {
+    "mtime": 1783669823.368408,
+    "hash": "01d9923fd02dc4a2813337a26816e557"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\CtaSection.tsx": {
+    "mtime": 1783670084.45348,
+    "hash": "a6cf4587c464e905b6b1ca8e34b55411"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\EatSection.tsx": {
+    "mtime": 1783669823.3714547,
+    "hash": "1e59d9802ed86a4ed5a85dfd784adabb"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\Footer.tsx": {
+    "mtime": 1783669823.3714547,
+    "hash": "e6ec0d1410acd2c2180e5416ec0cdcce"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\GallerySection.tsx": {
+    "mtime": 1783670084.4550097,
+    "hash": "b722c9e96f201dfdba5c06dd37374fa5"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\HealthRecordsSection.tsx": {
+    "mtime": 1783670084.4565878,
+    "hash": "bd716ab957d9cee3ed1125945a0d0174"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\HeroSection.tsx": {
+    "mtime": 1783670084.458115,
+    "hash": "b7083b34cd6ea8da81820d6ee0189d5b"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\IntelligenceSection.tsx": {
+    "mtime": 1783670084.4596446,
+    "hash": "91b1381a79d450e172d3ef4986fbc98b"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\Navbar.tsx": {
+    "mtime": 1783670084.461167,
+    "hash": "9750b1dae1b41de4a621550f2e1a2360"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\PrivacySection.tsx": {
+    "mtime": 1783670084.461167,
+    "hash": "f0a6dc7bfea841a5607df773464a825f"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\ReviewsSection.tsx": {
+    "mtime": 1783670084.462695,
+    "hash": "e2e434cb32911c2c3f4811dad76b442f"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\SocialProofSection.tsx": {
+    "mtime": 1783670084.462695,
+    "hash": "6c0a33058f1de3cf4291f626d56c8f2e"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\StartTheDaySection.tsx": {
+    "mtime": 1783669823.3832164,
+    "hash": "d24c6766b0c323a95807eed5d7fb8727"
+  },
+  "H:\\Actus\\web\\src\\pages\\landing\\sections\\StickyFeaturesSection.tsx": {
+    "mtime": 1783669823.3832164,
+    "hash": "b00f451a558861f565a6a0f696cbdf0d"
+  },
+  "H:\\Actus\\web\\src\\pages\\login\\LoginPage.tsx": {
+    "mtime": 1783669823.3847404,
+    "hash": "e39cb58905ecf85db23056d4c0d25eae"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\AtribuirPage.tsx": {
+    "mtime": 1783670084.4642365,
+    "hash": "fc007bab8504e729ba6a0e0e2490f615"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\BuilderPage.tsx": {
+    "mtime": 1783670084.4657714,
+    "hash": "dafdf7d903b2e2b7023079d23cad62bd"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\CatalogPanel.tsx": {
+    "mtime": 1783043167.381244,
+    "hash": "2b33007cbf773bb4473e482d242f8122"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\ExerciseList.tsx": {
+    "mtime": 1781218144.4874213,
+    "hash": "3baa96e34a3f01d0727b7e52a804945a"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\TemplateBuilderPage.tsx": {
+    "mtime": 1783670084.467311,
+    "hash": "9b3e7526f6c44c33fed14a910ed2cc11"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\TemplatesPage.tsx": {
+    "mtime": 1783670084.467311,
+    "hash": "17dc600da3b38ce352e251d649a4acea"
+  },
+  "H:\\Actus\\web\\src\\pages\\treinos\\TreinosPage.tsx": {
+    "mtime": 1783670084.4688487,
+    "hash": "a99bd63861b34b374bef08b0daa1e716"
+  },
+  "H:\\Actus\\web\\src\\store\\authStore.ts": {
+    "mtime": 1783669823.3908322,
+    "hash": "5f537adbb89b967afa27a53eeaf8a8a2"
+  },
+  "H:\\Actus\\app\\babel.config.js": {
+    "mtime": 1783729917.4612997,
+    "hash": "0d66ebdaaf6febbe8b4cf3f4bdd02526"
+  },
+  "H:\\Actus\\app\\eslint.config.js": {
+    "mtime": 1781062103.9917347,
+    "hash": "ddebc8ec2bfc68d98feeccf01919928a"
+  },
+  "H:\\Actus\\app\\index.ts": {
+    "mtime": 1783357362.8344316,
+    "hash": "7629757e581021de06c0845ea450f6c4"
+  },
+  "H:\\Actus\\app\\jest.config.js": {
+    "mtime": 1783729930.9724698,
+    "hash": "3192c7f1fed4605f497ee4cb7639cc8a"
+  },
+  "H:\\Actus\\app\\jest.setup.js": {
+    "mtime": 1783357362.854262,
+    "hash": "22e5f2781dda2bb0a740b1252496a46e"
+  },
+  "H:\\Actus\\app\\jest.svgMock.js": {
+    "mtime": 1783357362.854262,
+    "hash": "6af15982e10ac2d3e9635b1289fcc35a"
+  },
+  "H:\\Actus\\app\\metro.config.js": {
+    "mtime": 1783729910.065431,
+    "hash": "3a103172ed4b57147aff4547e1515e5a"
+  },
+  "H:\\Actus\\app\\react-native.config.js": {
+    "mtime": 1783357362.8802958,
+    "hash": "c0ed0d89b87a6311eeae2503a040c035"
+  },
+  "H:\\Actus\\app\\android\\build.gradle": {
+    "mtime": 1783357362.7701902,
+    "hash": "f61371af549dee3f332e5d54329dd19c"
+  },
+  "H:\\Actus\\app\\android\\gradlew": {
+    "mtime": 1783357362.7732873,
+    "hash": "4f7a8a3a765f6f751d47568dc3bb913f"
+  },
+  "H:\\Actus\\app\\android\\settings.gradle": {
+    "mtime": 1783357362.7748108,
+    "hash": "fe3990befb9a5e8fdacb1955ab3e2bb6"
+  },
+  "H:\\Actus\\app\\android\\app\\build.gradle": {
+    "mtime": 1783357362.7045078,
+    "hash": "e1f9d1f9b0402de1c6229733ae7dbd17"
+  },
+  "H:\\Actus\\app\\android\\app\\src\\main\\java\\br\\tec\\somo\\actus\\MainActivity.kt": {
+    "mtime": 1783357362.7487543,
+    "hash": "bef175e43008f319d653ef219112c3e3"
+  },
+  "H:\\Actus\\app\\android\\app\\src\\main\\java\\br\\tec\\somo\\actus\\MainApplication.kt": {
+    "mtime": 1783357362.7487543,
+    "hash": "f79b8f656d31d2c6d04a6630cd56751b"
+  },
+  "H:\\Actus\\app\\assets\\wger\\images.ts": {
+    "mtime": 1781062101.2110443,
+    "hash": "20fc6d214baac03cb6e1dfef93608fac"
+  },
+  "H:\\Actus\\app\\scripts\\build-wger-snapshot.mjs": {
+    "mtime": 1781062104.043286,
+    "hash": "b31218bb8570284bc6edb107064ff391"
+  },
+  "H:\\Actus\\app\\scripts\\gen-brand-assets.mjs": {
+    "mtime": 1782962970.87432,
+    "hash": "051e5fb71d4c3e2a17787821a092df24"
+  },
+  "H:\\Actus\\app\\scripts\\seed-accounts-extra.sql": {
+    "mtime": 1781062104.058573,
+    "hash": "f9ea3c05c634cbb1d5435c0a7a5f5cad"
+  },
+  "H:\\Actus\\app\\scripts\\seed-ecosystem.sql": {
+    "mtime": 1781062104.0672767,
+    "hash": "01a75491c1fb7765bb61dacbd1bc5366"
+  },
+  "H:\\Actus\\app\\src\\App.tsx": {
+    "mtime": 1783729898.8420398,
+    "hash": "3c10fd81de8a3fd9012c25f03941f504"
+  },
+  "H:\\Actus\\app\\src\\api\\client.ts": {
+    "mtime": 1783357362.9031193,
+    "hash": "cb4392c9491ccdd8b882e1ad77351ac0"
+  },
+  "H:\\Actus\\app\\src\\api\\devMocks.registers.test.ts": {
+    "mtime": 1783357362.9107523,
+    "hash": "17798925356af2a998f3c70f5eb617ac"
+  },
+  "H:\\Actus\\app\\src\\api\\devMocks.ts": {
+    "mtime": 1782962970.87432,
+    "hash": "97bed8afe1e5af8c39ecc1c06b919c30"
+  },
+  "H:\\Actus\\app\\src\\api\\endpoints.ts": {
+    "mtime": 1782962970.8758466,
+    "hash": "857e5fae2c75fffe8ce843d40643a5e4"
+  },
+  "H:\\Actus\\app\\src\\api\\errors.ts": {
+    "mtime": 1781061308.6540437,
+    "hash": "8003450326e5fae8b1300ef244921935"
+  },
+  "H:\\Actus\\app\\src\\api\\parseApi.ts": {
+    "mtime": 1781061308.6628118,
+    "hash": "3b7a9faf28af55d536b754e11b21393b"
+  },
+  "H:\\Actus\\app\\src\\api\\professionalProfile.ts": {
+    "mtime": 1782962970.8758466,
+    "hash": "931c95ed01917f07b208406bd02489c6"
+  },
+  "H:\\Actus\\app\\src\\api\\storage.ts": {
+    "mtime": 1783357362.912271,
+    "hash": "ff9472a9d8fbab0b50f53da828310724"
+  },
+  "H:\\Actus\\app\\src\\components\\account\\AccountScreen.test.tsx": {
+    "mtime": 1783357362.9228873,
+    "hash": "7bea23d8cf3608a703d02d0dbd753c5a"
+  },
+  "H:\\Actus\\app\\src\\components\\account\\AccountScreen.tsx": {
+    "mtime": 1783357362.944342,
+    "hash": "ebe42e10693fbe4ca71bcd7db367e49f"
+  },
+  "H:\\Actus\\app\\src\\components\\builder\\ExerciseEditRow.test.tsx": {
+    "mtime": 1781062104.219381,
+    "hash": "0a5d53ebabe608ff08c16d5751df6ae8"
+  },
+  "H:\\Actus\\app\\src\\components\\builder\\ExerciseEditRow.tsx": {
+    "mtime": 1783669767.5001974,
+    "hash": "c76aa30f14f6a9c6a931eecbbe6fb9d8"
+  },
+  "H:\\Actus\\app\\src\\components\\builder\\ExerciseFormSheet.test.tsx": {
+    "mtime": 1782962970.877376,
+    "hash": "325a3bf21ca88d963cde2d7cf02da85e"
+  },
+  "H:\\Actus\\app\\src\\components\\builder\\ExerciseFormSheet.tsx": {
+    "mtime": 1783731494.20531,
+    "hash": "3af7a9e56db5f2ceb2a1632e4e2a3b08"
+  },
+  "H:\\Actus\\app\\src\\components\\builder\\index.ts": {
+    "mtime": 1781062104.2638657,
+    "hash": "3a789a08caa9c019edb25b9df0ddbe2b"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\AddParticipantsSheet.tsx": {
+    "mtime": 1783731541.2856855,
+    "hash": "5d1968a3f44be16f0644d06d4beeb5c5"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeCalendar.test.tsx": {
+    "mtime": 1782962970.8789003,
+    "hash": "6aeda651693762b8c9306d47123242ab"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeCalendar.tsx": {
+    "mtime": 1783669767.501713,
+    "hash": "3cbac1395a3a88bbcdcb125cb32f59f9"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeListCard.test.tsx": {
+    "mtime": 1782962970.8799076,
+    "hash": "bea624cd33a785a1de55ef0439338620"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeListCard.tsx": {
+    "mtime": 1783669767.5032299,
+    "hash": "6aafcd369bc998ea121c68f4116a8b6a"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\challengeProgress.ts": {
+    "mtime": 1781062104.3709142,
+    "hash": "dac382a257f74aff351594d6f35a4b38"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeReportKpis.tsx": {
+    "mtime": 1783669767.5032299,
+    "hash": "b0690417986009bb0346a67f366ec1b0"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeSectionHeader.tsx": {
+    "mtime": 1781062104.3123052,
+    "hash": "8efa8d587d71c830da18e42de0639359"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\ChallengeTimingHero.tsx": {
+    "mtime": 1783669767.5032299,
+    "hash": "280397438ec04cd51f13277c19185665"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\index.ts": {
+    "mtime": 1782962970.8850882,
+    "hash": "6b0e7c9e4d7fa90f3348189563d1bd0e"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\MyPositionCard.test.tsx": {
+    "mtime": 1782962970.8804135,
+    "hash": "eabba05a29d5f0acb8fc9c59f2203a77"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\MyPositionCard.tsx": {
+    "mtime": 1783669767.5048673,
+    "hash": "0932b70cd157ee95c11bd04b419857fd"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\RankingRow.test.tsx": {
+    "mtime": 1782962970.881932,
+    "hash": "7980eed0850569efcb57670ee5f791b4"
+  },
+  "H:\\Actus\\app\\src\\components\\challenges\\RankingRow.tsx": {
+    "mtime": 1782962970.8834565,
+    "hash": "6f130aefb824f7a86d091cd25b7051b8"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\DashboardHeader.tsx": {
+    "mtime": 1781063559.1229951,
+    "hash": "b5ac4f00b4fd35c228b6a8dbe0756ba5"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\DashboardScreen.test.tsx": {
+    "mtime": 1781063559.1512713,
+    "hash": "1fd1a5081491160631afd119e9c917f8"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\DashboardScreen.tsx": {
+    "mtime": 1782962970.8850882,
+    "hash": "372518627ec4c1458382ff605eff020b"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\EngagementCard.tsx": {
+    "mtime": 1783669767.5048673,
+    "hash": "116415e3fe8c799b2c39fc5d256d45c6"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\index.ts": {
+    "mtime": 1782962970.888153,
+    "hash": "0ebb3c576e41344150c4277432f21dea"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\KpiCard.test.tsx": {
+    "mtime": 1781063559.2070937,
+    "hash": "4baa946bd1410fcfdde231713f408737"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\KpiCard.tsx": {
+    "mtime": 1783669767.5048673,
+    "hash": "821e9598e47108204334a2592e3d47dc"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\NutriDashboard.test.tsx": {
+    "mtime": 1783357362.945858,
+    "hash": "64f6376246aed849ffc6f726db1f6120"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\NutriDashboard.tsx": {
+    "mtime": 1783357362.9581916,
+    "hash": "7ee56b08d0ac20b1b143ece117707cd1"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\PersonalDashboard.test.tsx": {
+    "mtime": 1783357362.9597218,
+    "hash": "c1b924d364a08fe1df705d32d3bd7fa0"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\PersonalDashboard.tsx": {
+    "mtime": 1783357362.967285,
+    "hash": "1ca2d32e02699ed683a4abe1a768d7ca"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\QuickAction.test.tsx": {
+    "mtime": 1781063559.362837,
+    "hash": "1db8e43b603d1a36effedb6b17873637"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\QuickAction.tsx": {
+    "mtime": 1783669767.5063832,
+    "hash": "ae623f0c489570b46790af4e271c4eac"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\RecentStudents.test.tsx": {
+    "mtime": 1781063559.4120412,
+    "hash": "b5eb4c21e73e952908fdd197db032c34"
+  },
+  "H:\\Actus\\app\\src\\components\\dashboard\\RecentStudents.tsx": {
+    "mtime": 1781063559.4375565,
+    "hash": "41c9aaf518107f9af5d77e984a41c009"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\index.ts": {
+    "mtime": 1781062104.4600778,
+    "hash": "acdcc9a76eeac90d3ccf62e69818ac5c"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealCard.test.tsx": {
+    "mtime": 1781062104.3954525,
+    "hash": "c67570005efe574a1d365a725213ee90"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealCard.tsx": {
+    "mtime": 1781062104.4092014,
+    "hash": "138919cac962e0c5b0dd95f06f88ec40"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealEditRow.test.tsx": {
+    "mtime": 1781062104.424019,
+    "hash": "f54a6b5d4d406b9f305e1225d11a822c"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealEditRow.tsx": {
+    "mtime": 1783669767.5063832,
+    "hash": "e24e3df13e7232f121ded234a42f84c0"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealFormSheet.test.tsx": {
+    "mtime": 1781062104.4433455,
+    "hash": "0255fb5a10d82a0a497d765d7f95328c"
+  },
+  "H:\\Actus\\app\\src\\components\\diet\\MealFormSheet.tsx": {
+    "mtime": 1781062104.450953,
+    "hash": "92794df70501f92184a68c0eb13ef279"
+  },
+  "H:\\Actus\\app\\src\\components\\exercises\\HeroCarousel.tsx": {
+    "mtime": 1782962970.888153,
+    "hash": "570fb9707b49c8a12b458c2f6c614e29"
+  },
+  "H:\\Actus\\app\\src\\components\\exercises\\ImageLightbox.tsx": {
+    "mtime": 1783669767.5078986,
+    "hash": "866539f8f2c5071ebf456ad973800a99"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\BadgeGrid.test.tsx": {
+    "mtime": 1782962970.8896768,
+    "hash": "0bfdb7d23231301693df275608944f79"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\BadgeGrid.tsx": {
+    "mtime": 1782962970.8896768,
+    "hash": "8fef1a23611918ccf4f5504d39adde7b"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\BadgeUnlockOverlay.test.tsx": {
+    "mtime": 1782962970.8896768,
+    "hash": "845f349a1c9c9dae9490cbf320e3c995"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\BadgeUnlockOverlay.tsx": {
+    "mtime": 1783669767.5084126,
+    "hash": "25a1b2c6e11430675bf3798bd4b37d75"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\BadgeUnlockQueue.tsx": {
+    "mtime": 1782962970.8911996,
+    "hash": "a333bb330e96986f6d956e2e341c5d48"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\StreakCounter.test.tsx": {
+    "mtime": 1782962970.9064214,
+    "hash": "f85218880475dad18ff16224cbe01a10"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\StreakCounter.tsx": {
+    "mtime": 1782962970.9064214,
+    "hash": "b19c4ff3faa661689b062350c411e2eb"
+  },
+  "H:\\Actus\\app\\src\\components\\gamification\\UnseenBadgeWatcher.tsx": {
+    "mtime": 1783669767.508922,
+    "hash": "3c1451e58036a08ba7bed54a9b681f5b"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\AlimentacaoCard.tsx": {
+    "mtime": 1783669767.508922,
+    "hash": "88485371f99773ac19bed810df7671b7"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\ChallengeCard.test.tsx": {
+    "mtime": 1781062104.4809866,
+    "hash": "3611a7234b713afb0c0504bf828a2d82"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\ChallengeCard.tsx": {
+    "mtime": 1783669767.508922,
+    "hash": "822a0a475a0d5ba504266c5edc1863c0"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\DietCard.test.tsx": {
+    "mtime": 1781062104.5839906,
+    "hash": "465d611163a046920ef118b4789cdaaf"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\DietCard.tsx": {
+    "mtime": 1783669767.5104353,
+    "hash": "f8c8d92d125d0bccb6a8a7c507289e3f"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\HomeHeader.test.tsx": {
+    "mtime": 1781062104.6008232,
+    "hash": "788d1165e46fb30bda501dc599c6c011"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\HomeHeader.tsx": {
+    "mtime": 1781062104.6100066,
+    "hash": "037dcceaf4c36ff7161b51a1b7e236cf"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\index.ts": {
+    "mtime": 1782962970.9094715,
+    "hash": "8491a763a452ef40921eeee4e7661bf2"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\ParqPromptCard.test.tsx": {
+    "mtime": 1781062104.6160805,
+    "hash": "45cfd66ba713d14fa3f72948b8cc0a85"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\ParqPromptCard.tsx": {
+    "mtime": 1783669767.5104353,
+    "hash": "2361a78d1308dc6828b69ef6e0dc2680"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\ProgressRing.tsx": {
+    "mtime": 1781062104.6298206,
+    "hash": "00a992cdec61b82d1c126a2a57fe4674"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\TodayWorkoutCard.test.tsx": {
+    "mtime": 1781062104.6389487,
+    "hash": "b43c73f7e849cd4f336991cf79c9ccb3"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\TodayWorkoutCard.tsx": {
+    "mtime": 1783669767.51195,
+    "hash": "ddab20ea43f5f4ed952b1c6999b38f90"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\WeekStrip.test.tsx": {
+    "mtime": 1781062104.6542256,
+    "hash": "61506853811b8ceffacea08d697528e6"
+  },
+  "H:\\Actus\\app\\src\\components\\home\\WeekStrip.tsx": {
+    "mtime": 1782157966.2203171,
+    "hash": "0a0ee4d2bb581cdb505c24fed4232cd1"
+  },
+  "H:\\Actus\\app\\src\\components\\invite\\index.ts": {
+    "mtime": 1781062104.7047353,
+    "hash": "0a187d1886db495ab532b574a5b40939"
+  },
+  "H:\\Actus\\app\\src\\components\\invite\\InviteCard.test.tsx": {
+    "mtime": 1782962970.9105103,
+    "hash": "eb079da689a85f317943742fc1b16a73"
+  },
+  "H:\\Actus\\app\\src\\components\\invite\\InviteCard.tsx": {
+    "mtime": 1783669767.51195,
+    "hash": "e2c469e001567da61cb3a2e7a6b66e4a"
+  },
+  "H:\\Actus\\app\\src\\components\\library\\index.ts": {
+    "mtime": 1782962970.9150887,
+    "hash": "d75c60f66207ceda23e111967249f1a5"
+  },
+  "H:\\Actus\\app\\src\\components\\library\\WorkoutScopeToggle.test.tsx": {
+    "mtime": 1781062333.3986764,
+    "hash": "2e5b1b8cfa078f5f8224ae6e1b149fe8"
+  },
+  "H:\\Actus\\app\\src\\components\\library\\WorkoutScopeToggle.tsx": {
+    "mtime": 1783669767.51195,
+    "hash": "c82688e8ba2196f5f23363a1c73ae7fd"
+  },
+  "H:\\Actus\\app\\src\\components\\meals\\index.ts": {
+    "mtime": 1782962970.9182117,
+    "hash": "288e17f119f2dbb9fe27eab0293d4aec"
+  },
+  "H:\\Actus\\app\\src\\components\\meals\\MealCard.test.tsx": {
+    "mtime": 1782962970.9166741,
+    "hash": "07ad533a95cb615b09562feb9872b10c"
+  },
+  "H:\\Actus\\app\\src\\components\\meals\\MealCard.tsx": {
+    "mtime": 1783669767.5134683,
+    "hash": "eca32489824d35b4fdb6e6dd7e843625"
+  },
+  "H:\\Actus\\app\\src\\components\\meals\\MealFormSheet.test.tsx": {
+    "mtime": 1783357362.9874146,
+    "hash": "21d8c06df115a2b4a54c6f40f4b36e2b"
+  },
+  "H:\\Actus\\app\\src\\components\\meals\\MealFormSheet.tsx": {
+    "mtime": 1783669767.5150676,
+    "hash": "6daedc98987202822d860548f278c538"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\DateField.tsx": {
+    "mtime": 1783357363.016972,
+    "hash": "1010d38e5ba03815a8711ea083c5b0e1"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\FormErrorBanner.tsx": {
+    "mtime": 1781062104.7245429,
+    "hash": "4f7cc9cba0fb7f2bfb716005d30691a1"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\FormField.tsx": {
+    "mtime": 1781062104.7321944,
+    "hash": "f2b032f2a5aa46f037e42ee5ee6bf66f"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\GenderChips.tsx": {
+    "mtime": 1783669767.5150676,
+    "hash": "7b6d207e973d561aa9262e6d0250d5c0"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\index.ts": {
+    "mtime": 1781062104.7621677,
+    "hash": "755d49555db6148fbbea8e0a7dce23a5"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\MaskedField.tsx": {
+    "mtime": 1781062104.747421,
+    "hash": "af8352c73bde4990106b31c097476e83"
+  },
+  "H:\\Actus\\app\\src\\components\\molecules\\WizardProgress.tsx": {
+    "mtime": 1781062104.754518,
+    "hash": "ab50d81fbc8ec92935848831a3acd879"
+  },
+  "H:\\Actus\\app\\src\\components\\navigation\\ActusTabBar.test.tsx": {
+    "mtime": 1783357363.01853,
+    "hash": "db0d75c674f8f5aa26ecacc9f3833b8c"
+  },
+  "H:\\Actus\\app\\src\\components\\navigation\\ActusTabBar.tsx": {
+    "mtime": 1783357363.0307922,
+    "hash": "8b654ae175204e3dc395db20b14eed0a"
+  },
+  "H:\\Actus\\app\\src\\components\\navigation\\underline.test.ts": {
+    "mtime": 1781062104.8191776,
+    "hash": "626b80843b98d59dd2549b0ac8504258"
+  },
+  "H:\\Actus\\app\\src\\components\\navigation\\underline.ts": {
+    "mtime": 1781062104.828457,
+    "hash": "c41f06f47380422f895cb09176c16ae0"
+  },
+  "H:\\Actus\\app\\src\\components\\onboarding\\FotoStep.tsx": {
+    "mtime": 1783357363.0445907,
+    "hash": "e8747147da35a2bfc25368f4a8523d3e"
+  },
+  "H:\\Actus\\app\\src\\components\\onboarding\\index.ts": {
+    "mtime": 1781218137.6268313,
+    "hash": "9ed49ea6222520772cf75f1420a0b255"
+  },
+  "H:\\Actus\\app\\src\\components\\onboarding\\OnboardingScreen.tsx": {
+    "mtime": 1782962970.9197333,
+    "hash": "b7fd88717abab0228b7448aa9bf73446"
+  },
+  "H:\\Actus\\app\\src\\components\\onboarding\\OptionCard.test.tsx": {
+    "mtime": 1781218137.6005683,
+    "hash": "1a8ef1f60407d942a1be3d9532faa28d"
+  },
+  "H:\\Actus\\app\\src\\components\\onboarding\\OptionCard.tsx": {
+    "mtime": 1781218137.6157017,
+    "hash": "080fe9872f3851281d2bef87d160faa1"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\index.ts": {
+    "mtime": 1781062104.897679,
+    "hash": "18d7a0eb927ae49cfe5b2b07c83118b0"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqAttentionBanner.test.tsx": {
+    "mtime": 1781062104.8416524,
+    "hash": "f052a792f11bbdb6685adecf42a23cf0"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqAttentionBanner.tsx": {
+    "mtime": 1781062104.8528697,
+    "hash": "992b2cccec145802563bc6dc0a72ecdb"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqQuestionRow.test.tsx": {
+    "mtime": 1781062104.8620565,
+    "hash": "88cf56a477255571b5c895b9715ddd7b"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqQuestionRow.tsx": {
+    "mtime": 1781062104.868689,
+    "hash": "965c123ee06fd8e399be79d9ec5eadad"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqStatusBadge.test.tsx": {
+    "mtime": 1781062104.8778524,
+    "hash": "7dcb5d29f57dea7e65ad82b7dc8a9c05"
+  },
+  "H:\\Actus\\app\\src\\components\\parq\\ParqStatusBadge.tsx": {
+    "mtime": 1781062104.8854537,
+    "hash": "ed03d25d9f29cb9c036ae779537dcede"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\CheckInHeatmap.tsx": {
+    "mtime": 1781062104.9121807,
+    "hash": "dacd07e77adf8c4db623dc8b7167fa3e"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\index.ts": {
+    "mtime": 1781218137.9381585,
+    "hash": "d268463cc24ac22f8961ad12e1b76d5d"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\ParqSection.test.tsx": {
+    "mtime": 1781218137.6571846,
+    "hash": "f6ed5d22e987c504bb3112d585f254f6"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\ParqSection.tsx": {
+    "mtime": 1781218137.689471,
+    "hash": "cce411a6929a073cb71e6fbfebda609e"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\PreferencesSection.test.tsx": {
+    "mtime": 1783357363.0461047,
+    "hash": "040ffee72451def84b070f12e5dbb40a"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\PreferencesSection.tsx": {
+    "mtime": 1781218137.7404459,
+    "hash": "2b20783e8f592a6e2c26c51af89a3e98"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentDetailScreen.test.tsx": {
+    "mtime": 1783357363.0567605,
+    "hash": "e589b2e123ae2d6785cb3e4d28ab9aed"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentDetailScreen.tsx": {
+    "mtime": 1783669767.5165892,
+    "hash": "ef8fd0fa4e9e60f759eed85e0a046d91"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\studentPulse.ts": {
+    "mtime": 1781062105.0391035,
+    "hash": "953f9f3cbb86456f7d619d9f632515ea"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentRow.test.tsx": {
+    "mtime": 1782962970.921256,
+    "hash": "7458876d201ab5e820c32d9d2ea3bfb4"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentRow.tsx": {
+    "mtime": 1782962970.921256,
+    "hash": "fd1f3ff0160af2115d1b0a3f236c4bc7"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentsScreen.test.tsx": {
+    "mtime": 1783357363.071249,
+    "hash": "d3a629f2c723900ce2dcfa84fa459efb"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentsScreen.tsx": {
+    "mtime": 1783357363.0807626,
+    "hash": "39937c1f4f7a0bd54022a461ab68819c"
+  },
+  "H:\\Actus\\app\\src\\components\\professional\\StudentTargetHeader.tsx": {
+    "mtime": 1781062104.9894624,
+    "hash": "fab1e8cbef902e3f6dd219f8fd46260b"
+  },
+  "H:\\Actus\\app\\src\\components\\session\\SessionFinishSummary.tsx": {
+    "mtime": 1783669767.5165892,
+    "hash": "0eb3537fe105899a8fcc6e2c8acf9f70"
+  },
+  "H:\\Actus\\app\\src\\components\\session\\Stepper.tsx": {
+    "mtime": 1781062105.0722737,
+    "hash": "7c53d65f22113c3681ecbef152bce1be"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\AnimatedPage.tsx": {
+    "mtime": 1783357363.0822792,
+    "hash": "2e3575967d7fe37ad822adc8539ab92d"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Button.tsx": {
+    "mtime": 1783669767.518113,
+    "hash": "0a0aaea520ec3e746d1c615c83748035"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Card.tsx": {
+    "mtime": 1783669767.518113,
+    "hash": "a9ea7a32fe5282047ac9ef78aa732cff"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\ConfirmDialog.tsx": {
+    "mtime": 1783669767.5196407,
+    "hash": "1e549dc29770c7bb719e231bf64efee2"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\index.ts": {
+    "mtime": 1783731413.2048297,
+    "hash": "db483325169bee71bfa813a68b45f4ca"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Input.tsx": {
+    "mtime": 1781062105.1080234,
+    "hash": "a6e1fbc4d1be80b2c5d2501102503304"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\KpiNumber.tsx": {
+    "mtime": 1781218467.7637205,
+    "hash": "28d09cca3f08cd2d67c8ec9c7c9f4e41"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\ListState.tsx": {
+    "mtime": 1781062105.1181936,
+    "hash": "3d6333c55b1f210194d105d0c161d00d"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Logo.tsx": {
+    "mtime": 1781062105.142402,
+    "hash": "b5d5cfa7cc948759dccb12ab66ad5aba"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Screen.tsx": {
+    "mtime": 1781062105.1597428,
+    "hash": "0743ab87dd77fd24baa536468b775273"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\ScreenHero.tsx": {
+    "mtime": 1783357363.1129942,
+    "hash": "e50b940c6f3b0ce70cf0e57e61a86476"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\SegmentedControl.tsx": {
+    "mtime": 1783669767.5196407,
+    "hash": "5b99d878997a759a10e07330638180fe"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Tag.tsx": {
+    "mtime": 1781062105.1801343,
+    "hash": "3c369082d192791cc8f918f90a666657"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Text.tsx": {
+    "mtime": 1782962970.9273467,
+    "hash": "64dc664dbf72d849918e09a9da700b67"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\Toast.tsx": {
+    "mtime": 1782962970.9273467,
+    "hash": "16bfc18c1c282a635647a657c20985f8"
+  },
+  "H:\\Actus\\app\\src\\components\\ui\\TopBar.tsx": {
+    "mtime": 1781062105.2078078,
+    "hash": "ffb3a29502a8338a99f9b868534c3fe2"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\ExerciseCard.test.tsx": {
+    "mtime": 1781062105.2481265,
+    "hash": "5c7a43ca93366c53553ebbf975a60f37"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\ExerciseCard.tsx": {
+    "mtime": 1783669767.5211632,
+    "hash": "647f2521fd2a761e86dcfa1bfda8e8cd"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\ExerciseThumb.test.tsx": {
+    "mtime": 1781062105.2730806,
+    "hash": "797727a3b0aa3f6ed8dd96336227b42e"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\ExerciseThumb.tsx": {
+    "mtime": 1782962970.9303994,
+    "hash": "9863442d797b243b79655944751592b1"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\index.ts": {
+    "mtime": 1781062105.373176,
+    "hash": "684e4ada781f74be1a1df815261a3ad0"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\NextWorkoutCard.test.tsx": {
+    "mtime": 1781062105.3026779,
+    "hash": "003213109a579df31ea04fce74d266ff"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\NextWorkoutCard.tsx": {
+    "mtime": 1783669767.5211632,
+    "hash": "1d74f537e3e5424309ffbe3eb03eaca8"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WeekdayChips.test.tsx": {
+    "mtime": 1781062105.3210177,
+    "hash": "f98a934e4f0abc6a47e50e25034471f1"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WeekdayChips.tsx": {
+    "mtime": 1781062105.3291974,
+    "hash": "ae2a8204f01ac842ed74aabd087d212e"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WeekStrip.tsx": {
+    "mtime": 1781062105.3149192,
+    "hash": "30c3a12db0984a84cf03d8c6f732a8b4"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WorkoutCardPhoto.tsx": {
+    "mtime": 1783357363.1377177,
+    "hash": "21fb268c9b525505745e911ca09f7783"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WorkoutDetailHeader.tsx": {
+    "mtime": 1781062105.3444917,
+    "hash": "7a1ec171ec44ee3e6172d5c081d41a56"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WorkoutHistory.tsx": {
+    "mtime": 1783669767.5211632,
+    "hash": "9248724ed34096c2c46e87c63c437d76"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WorkoutListRow.test.tsx": {
+    "mtime": 1781062105.359439,
+    "hash": "ca7a2b8696795e09765fe0e4b5f74b63"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\WorkoutListRow.tsx": {
+    "mtime": 1783669767.5226774,
+    "hash": "11a0e22ece56f76077d60925f3f08d86"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\workoutMeta.test.ts": {
+    "mtime": 1781062105.379255,
+    "hash": "d11848b2928a699d21195c0d54c2528a"
+  },
+  "H:\\Actus\\app\\src\\components\\workouts\\workoutMeta.ts": {
+    "mtime": 1781062105.3853865,
+    "hash": "1820815018e4c6f1f9f9fd9419209555"
+  },
+  "H:\\Actus\\app\\src\\features\\auth\\contaForm.test.ts": {
+    "mtime": 1781062333.451047,
+    "hash": "65606fa20a9d1c3e9c13d344f384a421"
+  },
+  "H:\\Actus\\app\\src\\features\\auth\\contaForm.ts": {
+    "mtime": 1781062333.4566703,
+    "hash": "5c4f323dbd6d431cdbaab67a810be1b0"
+  },
+  "H:\\Actus\\app\\src\\features\\auth\\errors.ts": {
+    "mtime": 1781061308.8897364,
+    "hash": "53dce2521cc2fddcf07715e8a8d4766d"
+  },
+  "H:\\Actus\\app\\src\\features\\auth\\hooks.ts": {
+    "mtime": 1781062333.468915,
+    "hash": "379c1db6cf3350b0730e6fd7abdf1709"
+  },
+  "H:\\Actus\\app\\src\\features\\builder\\toApiExercises.test.ts": {
+    "mtime": 1782962970.9303994,
+    "hash": "d7e75571602bd8795b7c2698d3751393"
+  },
+  "H:\\Actus\\app\\src\\features\\builder\\toApiExercises.ts": {
+    "mtime": 1782962970.9319727,
+    "hash": "19717e5e426314f6b1274eb5fc19ab5b"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useAssignDiet.ts": {
+    "mtime": 1781062105.4397242,
+    "hash": "e1b260c66330d377de83ec15dbbd5d44"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useAssignWorkout.ts": {
+    "mtime": 1781062105.4442704,
+    "hash": "824b67344d1cb14ccf440285b4a8827d"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useBadges.ts": {
+    "mtime": 1782962970.9319727,
+    "hash": "8860a1eae466d6a6f99e34fc82616821"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useChallengeActions.ts": {
+    "mtime": 1781062105.4525092,
+    "hash": "b91a8830c820e8cff07f73d5d9a4445c"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useChallengeMutations.ts": {
+    "mtime": 1781062105.4555473,
+    "hash": "d894321033ab81bbff63dc52ad504c53"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useChallengeRanking.ts": {
+    "mtime": 1781062105.4616191,
+    "hash": "d788ae604a50822a2939a9657931025d"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useChallenges.ts": {
+    "mtime": 1781062105.4677615,
+    "hash": "f8e5addec76c596d1fc3686637e46dc1"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useConsumeInvite.ts": {
+    "mtime": 1781062333.4795825,
+    "hash": "8ec57ff89701c339ab7e0bb910647798"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useCreateSession.ts": {
+    "mtime": 1781062105.4723277,
+    "hash": "e03e29ca30088dbf9a06dad8b2d5516f"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useDietMutations.ts": {
+    "mtime": 1781062105.483048,
+    "hash": "5bbcf9df85cad573b146eb2a6be89711"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useDietTemplateDetail.ts": {
+    "mtime": 1781062105.489149,
+    "hash": "578a730321d7312f010db3245d233115"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useDietTemplates.ts": {
+    "mtime": 1781062105.496804,
+    "hash": "35415f9e38f17ccad8b407c49eacf1fe"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useHealth.ts": {
+    "mtime": 1781061308.9141507,
+    "hash": "4003cc9fd448af8bd9ecb81bada9915b"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useInviteActions.ts": {
+    "mtime": 1782962970.9319727,
+    "hash": "d2d5a0cf0b4aa56ac4a52fae20e5a632"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useInvitePreview.ts": {
+    "mtime": 1781218138.1483054,
+    "hash": "fff1f82ac7a09cbf6b1aa089f69129ed"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useInvites.ts": {
+    "mtime": 1781062105.5166628,
+    "hash": "f4942427928fa119ffc5164599219980"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useMarkBadgesSeen.ts": {
+    "mtime": 1782962970.933499,
+    "hash": "b20136d7441239e22cfcd23eba9e4462"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useMe.ts": {
+    "mtime": 1781061308.9218256,
+    "hash": "804c16f1d25ab0564c4f877b2eb071d4"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useMeals.ts": {
+    "mtime": 1782962970.933499,
+    "hash": "2b49c627677c19715954a0eeebbc141e"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useMyProfile.ts": {
+    "mtime": 1781218138.1751633,
+    "hash": "e7645185bb1c6d9294d7aed56543aff3"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useParq.ts": {
+    "mtime": 1781218138.2043388,
+    "hash": "5394015b2d4b3ba44bb9014fda0db8d8"
+  },
+  "H:\\Actus\\app\\src\\hooks\\usePatchMe.ts": {
+    "mtime": 1781218138.2583308,
+    "hash": "03623cb2e9add10d304c9436d4bf0c57"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProChallengeDetail.ts": {
+    "mtime": 1781062105.531883,
+    "hash": "244a4676942d4f20392decaa12c34553"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProChallengeRanking.ts": {
+    "mtime": 1781062105.536444,
+    "hash": "f0993d08ee6a4e4dbffd13d07c8dfe53"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProChallengeReport.ts": {
+    "mtime": 1781062105.545579,
+    "hash": "83e63ba09a0600a07d323285829b0466"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProChallenges.ts": {
+    "mtime": 1781062105.551201,
+    "hash": "f19e4d9706d457ccebf9b1c8a664ecbb"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProStudentWorkouts.ts": {
+    "mtime": 1781062105.565041,
+    "hash": "b508e23d6ccd55e3c6eaaa9ed9e88868"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProWorkoutDetail.ts": {
+    "mtime": 1781062105.5788443,
+    "hash": "f13ec7daac61041ee8e6585612e96294"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useProWorkouts.ts": {
+    "mtime": 1781062105.5900126,
+    "hash": "1bde388a69dfe7665160d36a96136796"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useRegisterPushToken.ts": {
+    "mtime": 1783357363.168921,
+    "hash": "2fa994bbd69ab807648056c035339931"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useSession.ts": {
+    "mtime": 1781062105.598513,
+    "hash": "b24205aeb7fa587a1d7c59bf43a7a7eb"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useSessionMutations.ts": {
+    "mtime": 1782962970.9350252,
+    "hash": "caf07e0a344a81ec93d5be736c83874b"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useStudentCheckIns.ts": {
+    "mtime": 1781062105.6168642,
+    "hash": "cb276452b3c067ecd6e88160aca4da60"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useStudentDiet.ts": {
+    "mtime": 1781062105.6286066,
+    "hash": "41744e294868aec386d919cb1a9de97e"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useStudentDietDetail.ts": {
+    "mtime": 1781062105.6362896,
+    "hash": "9f32da3fd547aa8c54d97894040a590c"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useStudents.ts": {
+    "mtime": 1781062105.6551476,
+    "hash": "5b7b9a45ec5f3e5f727f493329f0436a"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useStudentWorkouts.ts": {
+    "mtime": 1781062105.6449373,
+    "hash": "12ef39aa1aaf61b5bb20604a59952044"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useUnseenBadges.ts": {
+    "mtime": 1782962970.9350252,
+    "hash": "dcf1fa78056d06cd3be6578265967cc2"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useUpdateStudentWorkout.ts": {
+    "mtime": 1781062105.6638045,
+    "hash": "c1d717ecf8e51aa2b73a024feba13fa4"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useUploadAvatar.ts": {
+    "mtime": 1781218138.3134928,
+    "hash": "67fbc2abb43805c53c013e9602938df3"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useWeeklyOverview.ts": {
+    "mtime": 1781062105.6770825,
+    "hash": "6ea7d71623326b8c9f4f2de6b46b51cf"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useWorkoutDetail.ts": {
+    "mtime": 1781062105.692361,
+    "hash": "41aefc465819f53bf8ce93a8eb9f200d"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useWorkoutMutations.ts": {
+    "mtime": 1781062105.7051218,
+    "hash": "87feee60f46467a04922f68c7e2b16dc"
+  },
+  "H:\\Actus\\app\\src\\hooks\\useWorkoutTemplates.ts": {
+    "mtime": 1782962970.9350252,
+    "hash": "b676c216a9c2951ed3d4e3e892fb8ce3"
+  },
+  "H:\\Actus\\app\\src\\lib\\authRoutes.ts": {
+    "mtime": 1783357363.1704643,
+    "hash": "f9a0d4307e8a6ff2a0debae621391d0a"
+  },
+  "H:\\Actus\\app\\src\\lib\\challenge.test.ts": {
+    "mtime": 1781062105.72093,
+    "hash": "0be3204b513f8649827589494a71890c"
+  },
+  "H:\\Actus\\app\\src\\lib\\challenge.ts": {
+    "mtime": 1781062105.725487,
+    "hash": "5fce082dd938caaa32ca83c86a3b7237"
+  },
+  "H:\\Actus\\app\\src\\lib\\clipboard.ts": {
+    "mtime": 1783357363.1704643,
+    "hash": "43a39bfd0369ca2fbd42916dee88cb4d"
+  },
+  "H:\\Actus\\app\\src\\lib\\devAuth.ts": {
+    "mtime": 1783357363.179725,
+    "hash": "e3de43955a55c2e2890e2a142a787391"
+  },
+  "H:\\Actus\\app\\src\\lib\\diet.test.ts": {
+    "mtime": 1781062105.749438,
+    "hash": "195938eacc774b8bcc4fb618bc931168"
+  },
+  "H:\\Actus\\app\\src\\lib\\diet.ts": {
+    "mtime": 1781062105.7555332,
+    "hash": "2834bd474cc3504ef1556d969246bdd1"
+  },
+  "H:\\Actus\\app\\src\\lib\\duration.test.ts": {
+    "mtime": 1781062105.7632425,
+    "hash": "86a2874472a0c65560bafc6927fd290b"
+  },
+  "H:\\Actus\\app\\src\\lib\\duration.ts": {
+    "mtime": 1781062105.769362,
+    "hash": "e143e13dd63abcbfb328fd40b468deab"
+  },
+  "H:\\Actus\\app\\src\\lib\\exerciseImage.ts": {
+    "mtime": 1781062105.772404,
+    "hash": "151dec82632f654b11911089a470bc76"
+  },
+  "H:\\Actus\\app\\src\\lib\\format.ts": {
+    "mtime": 1781062105.783126,
+    "hash": "37208dcbc29d25d85bb68c3e14957bc4"
+  },
+  "H:\\Actus\\app\\src\\lib\\greeting.test.ts": {
+    "mtime": 1781062105.7876842,
+    "hash": "310ad1577f67308b73349b237784fb48"
+  },
+  "H:\\Actus\\app\\src\\lib\\greeting.ts": {
+    "mtime": 1781062105.7968776,
+    "hash": "99fbaf57b117a62486f721d197a6524c"
+  },
+  "H:\\Actus\\app\\src\\lib\\haptics.ts": {
+    "mtime": 1783357363.1812353,
+    "hash": "bded001e34f6f53572976f75155aa36d"
+  },
+  "H:\\Actus\\app\\src\\lib\\imagePicker.ts": {
+    "mtime": 1783357363.1812353,
+    "hash": "58a941921d9f7e70a1faa9e6abb05aeb"
+  },
+  "H:\\Actus\\app\\src\\lib\\invite.test.ts": {
+    "mtime": 1781062105.8044965,
+    "hash": "2f7e6607cdd3e27c30d79bb4fa92e657"
+  },
+  "H:\\Actus\\app\\src\\lib\\invite.ts": {
+    "mtime": 1782962970.936551,
+    "hash": "3c14cf63bfa60e336c09b79a21bd788b"
+  },
+  "H:\\Actus\\app\\src\\lib\\meals.test.ts": {
+    "mtime": 1782962970.936551,
+    "hash": "59d0951d00ff14b803fd63e08bd80adc"
+  },
+  "H:\\Actus\\app\\src\\lib\\meals.ts": {
+    "mtime": 1782962970.938075,
+    "hash": "d40e3198e94ce985c3c60c3e12a002ea"
+  },
+  "H:\\Actus\\app\\src\\lib\\nav.ts": {
+    "mtime": 1783357363.1827512,
+    "hash": "3b9380c27fdf147400b3b2687e76f4e0"
+  },
+  "H:\\Actus\\app\\src\\lib\\nextWorkout.test.ts": {
+    "mtime": 1781062105.8289495,
+    "hash": "21b9cbd2e19c72c097da3c773fd55c64"
+  },
+  "H:\\Actus\\app\\src\\lib\\nextWorkout.ts": {
+    "mtime": 1781062105.8381348,
+    "hash": "0b20f618fd52fde9faf29c3f61412e79"
+  },
+  "H:\\Actus\\app\\src\\lib\\onboardingRoutes.ts": {
+    "mtime": 1783357363.1827512,
+    "hash": "f4e226d7254fb27179b48dbb77b953bc"
+  },
+  "H:\\Actus\\app\\src\\lib\\parq.test.ts": {
+    "mtime": 1781062105.8442214,
+    "hash": "c23aeee268497b7339df577f5f8bbd04"
+  },
+  "H:\\Actus\\app\\src\\lib\\parq.ts": {
+    "mtime": 1781062105.853413,
+    "hash": "42e265ec52b7da2f6e012a0dfe05b6b4"
+  },
+  "H:\\Actus\\app\\src\\lib\\push.ts": {
+    "mtime": 1783357363.201238,
+    "hash": "fc80598a6aa955c48df563592a735492"
+  },
+  "H:\\Actus\\app\\src\\lib\\queryClient.ts": {
+    "mtime": 1781061308.9389112,
+    "hash": "d3c3fd427f212ee1cbbbd61e304ae2b5"
+  },
+  "H:\\Actus\\app\\src\\lib\\secureStorage.ts": {
+    "mtime": 1783357363.201238,
+    "hash": "430259ad1a8feac3ac20569df5fe8afe"
+  },
+  "H:\\Actus\\app\\src\\lib\\session.test.ts": {
+    "mtime": 1781062105.8610318,
+    "hash": "8f5485b3d7c2b4133bb1bbc0ca554d1c"
+  },
+  "H:\\Actus\\app\\src\\lib\\session.ts": {
+    "mtime": 1781062105.867203,
+    "hash": "85c1bc9b6c2b8c8f7b95d17a6aeead22"
+  },
+  "H:\\Actus\\app\\src\\lib\\student.test.ts": {
+    "mtime": 1781062105.8732953,
+    "hash": "e1d1d5d0e616d569c8084ebc6710b0a8"
+  },
+  "H:\\Actus\\app\\src\\lib\\student.ts": {
+    "mtime": 1781062105.8809168,
+    "hash": "60c9da5949d12158008ca552fc5f4994"
+  },
+  "H:\\Actus\\app\\src\\lib\\weekday.test.ts": {
+    "mtime": 1781062105.8896549,
+    "hash": "a7a1daeb6d3c710e3c90c0d74a810674"
+  },
+  "H:\\Actus\\app\\src\\lib\\weekday.ts": {
+    "mtime": 1781062105.8957412,
+    "hash": "763a2ce7f0002b812921e0eee602a40a"
+  },
+  "H:\\Actus\\app\\src\\lib\\exercises\\catalog.ts": {
+    "mtime": 1782962970.9350252,
+    "hash": "afb7de5f4830e3119f72c5f0fe31be1f"
+  },
+  "H:\\Actus\\app\\src\\lib\\exercises\\index.ts": {
+    "mtime": 1781223535.8426106,
+    "hash": "e7c3de54e40f70011a22832d6a7b0074"
+  },
+  "H:\\Actus\\app\\src\\lib\\exercises\\types.ts": {
+    "mtime": 1782962970.936551,
+    "hash": "77e0a284c6243a8f9f5daebf0aecb28c"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\catalog.full.test.ts": {
+    "mtime": 1781062105.9201617,
+    "hash": "4959d2953c7513fa35cd280ac287f06e"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\catalog.test.ts": {
+    "mtime": 1781062105.9262419,
+    "hash": "1b9ec8306c9f1802fc7648c2f38a3df9"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\catalog.ts": {
+    "mtime": 1781062105.93392,
+    "hash": "115499dcd2e503e5af69e5dbf97bcfb2"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\media.test.ts": {
+    "mtime": 1781066037.8340604,
+    "hash": "ae535e076088e2ef5ba991edf8a61c60"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\media.ts": {
+    "mtime": 1781062105.949784,
+    "hash": "fd10a02dbd052dc658ab50612304174b"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\types.test.ts": {
+    "mtime": 1781062105.9853363,
+    "hash": "ee4c769c42911fc0e1abf10185d6c389"
+  },
+  "H:\\Actus\\app\\src\\lib\\wger\\types.ts": {
+    "mtime": 1781062105.9914608,
+    "hash": "cf357d010837f583e3f3f63b2f74abe4"
+  },
+  "H:\\Actus\\app\\src\\mocks\\engagement.ts": {
+    "mtime": 1782962970.942164,
+    "hash": "e31f678e1123691fa44a8dbf0faf0fbd"
+  },
+  "H:\\Actus\\app\\src\\mocks\\home.ts": {
+    "mtime": 1781062106.0036662,
+    "hash": "cd803fe50d3bac6cc5c9755cf00fefe2"
+  },
+  "H:\\Actus\\app\\src\\mocks\\studentOnboarding.test.ts": {
+    "mtime": 1783357363.201238,
+    "hash": "bb3d9f93c0ecdf81b6011093141285ef"
+  },
+  "H:\\Actus\\app\\src\\mocks\\studentOnboarding.ts": {
+    "mtime": 1783357363.2198906,
+    "hash": "91dcfe3bd2cc40f75325c6fd70959ece"
+  },
+  "H:\\Actus\\app\\src\\navigation\\index.ts": {
+    "mtime": 1783357363.2198906,
+    "hash": "05314dd3b1a1527835408483d31b0683"
+  },
+  "H:\\Actus\\app\\src\\navigation\\navigators.tsx": {
+    "mtime": 1783669767.5226774,
+    "hash": "2d0a0b36151128bf851556f92cd9e296"
+  },
+  "H:\\Actus\\app\\src\\navigation\\router.ts": {
+    "mtime": 1783357363.2214098,
+    "hash": "ecd59d2f48f99d2de76df5845602d902"
+  },
+  "H:\\Actus\\app\\src\\navigation\\routes.ts": {
+    "mtime": 1783357363.2214098,
+    "hash": "f36d9c4bf9d9234f3dc89be48b6bab0b"
+  },
+  "H:\\Actus\\app\\src\\screens\\not-found.tsx": {
+    "mtime": 1783357363.232061,
+    "hash": "90ca7c644c66f1d73ee1d05ea25c5094"
+  },
+  "H:\\Actus\\app\\src\\screens\\splash.tsx": {
+    "mtime": 1783357363.2732542,
+    "hash": "50a50f64771ddf3b2f5c77ac2a3a2096"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\alimentacao.tsx": {
+    "mtime": 1783731203.0043297,
+    "hash": "2775a0ec8c3043f5476b809fab46f027"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\badges.tsx": {
+    "mtime": 1783669767.5241969,
+    "hash": "c756a35647fbd70c80dfba5b58fa9a31"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\par-q.test.tsx": {
+    "mtime": 1783357363.2244487,
+    "hash": "6413595764215abe0d8cf4a4f498221a"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\par-q.tsx": {
+    "mtime": 1783357363.2259595,
+    "hash": "146a80046c18103aa23f60a7ebac9173"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\desafio\\[id].tsx": {
+    "mtime": 1783669767.5241969,
+    "hash": "29733f2585b6096fa54aae5f2bc61602"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\dieta\\[id].tsx": {
+    "mtime": 1783669767.5257127,
+    "hash": "aefe79bced68d425008be97e9381e4ea"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\exercicio\\[id].tsx": {
+    "mtime": 1783669767.5257127,
+    "hash": "890788be462e850a96b7621b47ab8e08"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\sessao\\[id].tsx": {
+    "mtime": 1783669767.5257127,
+    "hash": "223efe1df5fbe921ea05e70e71708fc2"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\tabs\\desafios.tsx": {
+    "mtime": 1783357363.2259595,
+    "hash": "e704b75b66c6e713dcbebdd8175ab01a"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\tabs\\index.tsx": {
+    "mtime": 1783357363.2275085,
+    "hash": "c259027b54e69ba3867f09c074791924"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\tabs\\perfil.tsx": {
+    "mtime": 1783357363.2275085,
+    "hash": "1f5f1bc4352a38679d47a11d9957c95a"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\tabs\\treinos.tsx": {
+    "mtime": 1783357363.2275085,
+    "hash": "1515d63d1bb16c345a542a39b2a7a8d0"
+  },
+  "H:\\Actus\\app\\src\\screens\\aluno\\treino\\[id].tsx": {
+    "mtime": 1783669767.5272255,
+    "hash": "ff20328915953f18164aabbf9f9bc2af"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\cadastro-pro.test.tsx": {
+    "mtime": 1783357363.2290237,
+    "hash": "9f5fe48bd5b5bbce41f5d9c03162ab01"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\cadastro-pro.tsx": {
+    "mtime": 1783357363.2290237,
+    "hash": "c5e21beb001af425402191e2a51ae18b"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\escolha-perfil.tsx": {
+    "mtime": 1783669767.5282316,
+    "hash": "7b4267f92a8041d7462c72436dfbe029"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\login.tsx": {
+    "mtime": 1783357363.2305405,
+    "hash": "9c15ad1f85f9a11048c13095751271f4"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\trocar-senha.tsx": {
+    "mtime": 1783357363.2305405,
+    "hash": "99f91ba515a793b450a2d9c83b7f1739"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\cadastro\\conta-aluno.test.tsx": {
+    "mtime": 1783357363.2290237,
+    "hash": "f8c5928454c30da0c9defd18c6304bd0"
+  },
+  "H:\\Actus\\app\\src\\screens\\auth\\cadastro\\index.tsx": {
+    "mtime": 1783357363.2290237,
+    "hash": "60a945ccc8b7c06cecfd21bfed2452d7"
+  },
+  "H:\\Actus\\app\\src\\screens\\nutri\\tabs\\alunos.tsx": {
+    "mtime": 1783357363.232061,
+    "hash": "3c1b36241a5460e18cc2523539ffedd5"
+  },
+  "H:\\Actus\\app\\src\\screens\\nutri\\tabs\\dietas.test.tsx": {
+    "mtime": 1783357363.232061,
+    "hash": "f539f798b25e43a79bf933b13b379517"
+  },
+  "H:\\Actus\\app\\src\\screens\\nutri\\tabs\\dietas.tsx": {
+    "mtime": 1783669767.5287354,
+    "hash": "31402a162a168cb8f96333a7988eb26a"
+  },
+  "H:\\Actus\\app\\src\\screens\\nutri\\tabs\\inicio.tsx": {
+    "mtime": 1783357363.232061,
+    "hash": "01f38bbeeab247948e2130f9b5793a60"
+  },
+  "H:\\Actus\\app\\src\\screens\\nutri\\tabs\\perfil.tsx": {
+    "mtime": 1783357363.2335744,
+    "hash": "98379ba67b3704850b5b57dfca6b57e0"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\corpo.tsx": {
+    "mtime": 1783731184.1642063,
+    "hash": "01487c903d3d16fe8c44dd119ea7f2f8"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\experiencia.tsx": {
+    "mtime": 1783357363.2351453,
+    "hash": "b3fa177b046b4294ae0405224d665c9f"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\foto.tsx": {
+    "mtime": 1783357363.2351453,
+    "hash": "5aea735239625fe7b72d772dca90201c"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\frequencia.tsx": {
+    "mtime": 1783357363.2366743,
+    "hash": "018317f7d361fcf8d0935f72224f0223"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\interesse.tsx": {
+    "mtime": 1783357363.2366743,
+    "hash": "c49db16a2696515255c022a422dabac6"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\local.tsx": {
+    "mtime": 1783357363.2366743,
+    "hash": "4f74724d54645a6bf0b45bfe5f900ee5"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\par-q.tsx": {
+    "mtime": 1783357363.2382007,
+    "hash": "68139728a60e88784e5171c6ea85c916"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\quiz.test.tsx": {
+    "mtime": 1783357363.2382007,
+    "hash": "73cfb8aa153eb48e2721d3260eaad6a2"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-aluno\\vinculo.tsx": {
+    "mtime": 1783669767.5303216,
+    "hash": "28ff9429b4d5418dff2da410b5b08175"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-professor\\convite.tsx": {
+    "mtime": 1783357363.239725,
+    "hash": "bcb619da5d744664a6894c4f13c1a134"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-professor\\forma-uso.tsx": {
+    "mtime": 1783357363.239725,
+    "hash": "7c1e33a73a0ec921c1f8b068b1335f54"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-professor\\foto.tsx": {
+    "mtime": 1783357363.239725,
+    "hash": "8859b609951a50201294688b6a79b318"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-professor\\perfil.test.tsx": {
+    "mtime": 1783357363.239725,
+    "hash": "80d9b9395725bded2cec0845f95a135a"
+  },
+  "H:\\Actus\\app\\src\\screens\\onboarding-professor\\perfil.tsx": {
+    "mtime": 1783357363.2412493,
+    "hash": "86a734b82e80d26a3b27f8e26a968b9b"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\alunos.tsx": {
+    "mtime": 1783357363.2412493,
+    "hash": "6fea02594ae5bb66803c198d554cae04"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\desafios.test.tsx": {
+    "mtime": 1783357363.2427654,
+    "hash": "d8b3d692ca279b3d9498447d10389070"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\desafios.tsx": {
+    "mtime": 1783669767.5303216,
+    "hash": "a5a32eea3ece386b76a28d42af2c0e62"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\inicio.tsx": {
+    "mtime": 1783357363.2427654,
+    "hash": "d92932aa3740a47f26672a90886ebfd6"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\perfil.tsx": {
+    "mtime": 1783357363.2427654,
+    "hash": "e9489cdea470dbce243d8b1198b649e7"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\treinos.test.tsx": {
+    "mtime": 1783357363.2427654,
+    "hash": "2acad26713d4c4c71d96ec16f4b1e492"
+  },
+  "H:\\Actus\\app\\src\\screens\\personal\\tabs\\treinos.tsx": {
+    "mtime": 1783669767.5318434,
+    "hash": "46d97217dfc15bace54e6bfe5e2e06ac"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\atribuir-dieta.test.tsx": {
+    "mtime": 1783357363.2457986,
+    "hash": "46de088ad6e61affcec45b155ffa9bf2"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\atribuir-dieta.tsx": {
+    "mtime": 1783669767.5318434,
+    "hash": "b55a8064e95e3d2a0a008fbada4e514d"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\atribuir-treino.test.tsx": {
+    "mtime": 1783357363.2457986,
+    "hash": "688631ccc3484d4cc14303759166862f"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\atribuir-treino.tsx": {
+    "mtime": 1783669767.533363,
+    "hash": "7b9e013fe3e8b234c38e80e58d5563b2"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\criar-desafio.test.tsx": {
+    "mtime": 1783357363.2687123,
+    "hash": "0bcddc2cfb3f92db1dd9c93a731a0556"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\criar-desafio.tsx": {
+    "mtime": 1783357363.2687123,
+    "hash": "1ae80c1fb1db159c05706b06d7a81411"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\editar-perfil.test.tsx": {
+    "mtime": 1783357363.2702255,
+    "hash": "3665de2932a6d50827c052e46a3b6065"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\editar-perfil.tsx": {
+    "mtime": 1783357363.2702255,
+    "hash": "6bd3378fbf15c08f75b3e3b72c1fe03f"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\montar-dieta.test.tsx": {
+    "mtime": 1783357363.2702255,
+    "hash": "d766bf0a230d62cceecb6419fda6206d"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\montar-dieta.tsx": {
+    "mtime": 1783669767.534879,
+    "hash": "a037b8c9453d912b8b9839fbdee8e105"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\montar-treino.test.tsx": {
+    "mtime": 1783357363.271737,
+    "hash": "673a87caec21bfcb9e0b44d51f0c5632"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\montar-treino.tsx": {
+    "mtime": 1783669767.536394,
+    "hash": "b4762660bd79914c66d5e1a2595f6fb0"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\register.test.tsx": {
+    "mtime": 1783357363.271737,
+    "hash": "a42e7da14d5b5d05b2356b7b1d6c6fd3"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\register.tsx": {
+    "mtime": 1783357363.2732542,
+    "hash": "a8d58535b736aa33b229aa35eb1d6952"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\usar-convite.test.tsx": {
+    "mtime": 1783357363.2732542,
+    "hash": "0faa79d9822ccff48c75ff6ce9c03131"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\usar-convite.tsx": {
+    "mtime": 1783669767.536394,
+    "hash": "4ba9ac2d0f4f7ed011a466d091088270"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\aluno\\[id].tsx": {
+    "mtime": 1783357363.2442813,
+    "hash": "1f073d0a57830683802589692046ebce"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\banco-treino\\[id].test.tsx": {
+    "mtime": 1783357363.2473116,
+    "hash": "16a4fb72883d18921befd40027437ffe"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\banco-treino\\[id].tsx": {
+    "mtime": 1783669767.533363,
+    "hash": "a289148206ad80b7c1c6957995cee8f3"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\convite\\index.test.tsx": {
+    "mtime": 1783357363.2488291,
+    "hash": "159b2cfd4219ca0bd07ec947c1b4fbc1"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\convite\\index.tsx": {
+    "mtime": 1783357363.2672012,
+    "hash": "6c6c45072e2714e71b00e35ac672c33d"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\convite\\novo.test.tsx": {
+    "mtime": 1783357363.2672012,
+    "hash": "a93f921c476d368e038fa9b828624f06"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\convite\\novo.tsx": {
+    "mtime": 1783669767.533363,
+    "hash": "344a16b49c68a26d175d964e3932656b"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\desafio-pro\\[id].test.tsx": {
+    "mtime": 1783357363.2687123,
+    "hash": "90d1e444c7594860f5db50e1608589dc"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\desafio-pro\\[id].tsx": {
+    "mtime": 1783669767.534879,
+    "hash": "7e829fb457a6f7eee4fd9015c0006252"
+  },
+  "H:\\Actus\\app\\src\\screens\\shared\\_dev\\health.tsx": {
+    "mtime": 1783357363.2442813,
+    "hash": "ea5ede4e6ae371d1f87ede887e3b7838"
+  },
+  "H:\\Actus\\app\\src\\store\\authStore.ts": {
+    "mtime": 1781062333.5239213,
+    "hash": "ab06e73f4927b02209ed5928d65389e7"
+  },
+  "H:\\Actus\\app\\src\\store\\cadastroDraftStore.ts": {
+    "mtime": 1781062106.0429027,
+    "hash": "b0de27d2156f56d3220bfafafbfe2a57"
+  },
+  "H:\\Actus\\app\\src\\store\\mealQueueStore.test.ts": {
+    "mtime": 1782962970.9436848,
+    "hash": "e10da8ba6fa9bd37db83a4c142a9897c"
+  },
+  "H:\\Actus\\app\\src\\store\\mealQueueStore.ts": {
+    "mtime": 1783357363.3041315,
+    "hash": "c2b9898260237c151b1621944697b236"
+  },
+  "H:\\Actus\\app\\src\\store\\onboardingStore.test.ts": {
+    "mtime": 1783357363.3041315,
+    "hash": "e26274c0b71a8fc1bdc7ff1c19bd3cb3"
+  },
+  "H:\\Actus\\app\\src\\store\\onboardingStore.ts": {
+    "mtime": 1783357363.316479,
+    "hash": "a2deb20e3417651c402e876cbffd0453"
+  },
+  "H:\\Actus\\app\\src\\store\\toastStore.ts": {
+    "mtime": 1782962970.9467998,
+    "hash": "f5a0077bd29827168434069add41dadb"
+  },
+  "H:\\Actus\\app\\src\\theme\\fonts.ts": {
+    "mtime": 1783357363.316479,
+    "hash": "3f180244769e0760aabe4e25d3c3f401"
+  },
+  "H:\\Actus\\app\\src\\theme\\index.ts": {
+    "mtime": 1783669767.536394,
+    "hash": "a082c32e5d629dbabb06fe3445af9e08"
+  },
+  "H:\\Actus\\app\\src\\theme\\unistyles.ts": {
+    "mtime": 1781061309.0470457,
+    "hash": "20481df5a8941a6f7813ca80645af610"
+  },
+  "H:\\Actus\\app\\src\\types\\assets.d.ts": {
+    "mtime": 1783357363.316479,
+    "hash": "2b96bba493fc3e85122fa95606add7dc"
+  },
+  "H:\\Actus\\app\\src\\types\\auth.ts": {
+    "mtime": 1781062333.5638435,
+    "hash": "ab90ffd61d8b6ab0826dda5be265e5e1"
+  },
+  "H:\\Actus\\app\\src\\types\\challenges.pro.test.ts": {
+    "mtime": 1781062106.0805304,
+    "hash": "323de9a72dcd0bc2a228fda32976703b"
+  },
+  "H:\\Actus\\app\\src\\types\\challenges.test.ts": {
+    "mtime": 1781062106.091534,
+    "hash": "a99f1896c37d0660b30d53eca0f718a8"
+  },
+  "H:\\Actus\\app\\src\\types\\challenges.ts": {
+    "mtime": 1781062106.1025422,
+    "hash": "7baa7e72984076dd821a31b87bf92043"
+  },
+  "H:\\Actus\\app\\src\\types\\diets.student.test.ts": {
+    "mtime": 1781062106.1101763,
+    "hash": "c1ac976d33cc4add54c0d72f19a17ebc"
+  },
+  "H:\\Actus\\app\\src\\types\\diets.test.ts": {
+    "mtime": 1781062106.1209242,
+    "hash": "73cd56cce33e966afe597711ef348ae0"
+  },
+  "H:\\Actus\\app\\src\\types\\diets.ts": {
+    "mtime": 1781062106.131599,
+    "hash": "085f1e8dd16b490823d53c8bc4a40134"
+  },
+  "H:\\Actus\\app\\src\\types\\env.d.ts": {
+    "mtime": 1783729924.4329836,
+    "hash": "199d3faf6729b02c40782dc4ccccc6c1"
+  },
+  "H:\\Actus\\app\\src\\types\\error.ts": {
+    "mtime": 1781061309.1032417,
+    "hash": "a867d84d0869cf4dc6defcae8890e04f"
+  },
+  "H:\\Actus\\app\\src\\types\\gamification.ts": {
+    "mtime": 1782962970.9467998,
+    "hash": "c7cab2e469ad036e53f71f29e2d2b484"
+  },
+  "H:\\Actus\\app\\src\\types\\health.ts": {
+    "mtime": 1781061309.1279025,
+    "hash": "b5a9f1a45e881dd515e2cf10a925f1f1"
+  },
+  "H:\\Actus\\app\\src\\types\\home.test.ts": {
+    "mtime": 1781062106.1463776,
+    "hash": "961526bb8060b85b5489abcbff89fd84"
+  },
+  "H:\\Actus\\app\\src\\types\\invites.test.ts": {
+    "mtime": 1781062106.1539648,
+    "hash": "c8360d8e56c79063b12112265f66ccdd"
+  },
+  "H:\\Actus\\app\\src\\types\\invites.ts": {
+    "mtime": 1781218138.7499464,
+    "hash": "d2fda3d4d144b3201bb89b9a7317afb4"
+  },
+  "H:\\Actus\\app\\src\\types\\me.ts": {
+    "mtime": 1781218138.8171613,
+    "hash": "9e391fd917a43732f0f3bc97260571f9"
+  },
+  "H:\\Actus\\app\\src\\types\\meals.ts": {
+    "mtime": 1782962970.9467998,
+    "hash": "14bcf896b94ae558758f79012a2e1c8b"
+  },
+  "H:\\Actus\\app\\src\\types\\parq.ts": {
+    "mtime": 1781218138.8546124,
+    "hash": "29c45336ea3c01a221367aff23c014bc"
+  },
+  "H:\\Actus\\app\\src\\types\\professional.test.ts": {
+    "mtime": 1781062106.173826,
+    "hash": "e7f3fb0508a802a6c11314ee61ae064e"
+  },
+  "H:\\Actus\\app\\src\\types\\professional.ts": {
+    "mtime": 1782962970.948335,
+    "hash": "0668adf8d280eb6512075f225c2a9293"
+  },
+  "H:\\Actus\\app\\src\\types\\sessions.test.ts": {
+    "mtime": 1781062106.1863527,
+    "hash": "d5472e93ea0425055d76513387437383"
+  },
+  "H:\\Actus\\app\\src\\types\\sessions.ts": {
+    "mtime": 1782962970.948335,
+    "hash": "3506e92d4d2be79eb48960c857ab34e1"
+  },
+  "H:\\Actus\\app\\src\\types\\svg.d.ts": {
+    "mtime": 1781061309.1646526,
+    "hash": "cfb00ae4e90494f22c1d9f2b7490afb3"
+  },
+  "H:\\Actus\\app\\src\\types\\workouts.pro.test.ts": {
+    "mtime": 1781062106.1985478,
+    "hash": "96231c022c48d66a5a9bd7786e7f26e1"
+  },
+  "H:\\Actus\\app\\src\\types\\workouts.test.ts": {
+    "mtime": 1781062106.2015743,
+    "hash": "b2ff0b480348e93de0457b7c5cccd5e9"
+  },
+  "H:\\Actus\\app\\src\\types\\workouts.ts": {
+    "mtime": 1782962970.9498658,
+    "hash": "64db267bad2382d0772017e3eb6a7f26"
+  },
+  "H:\\Actus\\app\\src\\types\\workoutTemplates.ts": {
+    "mtime": 1782962970.9498658,
+    "hash": "bc4ad9eae21f15b3a98c8ebdf1b5cf07"
+  },
+  "H:\\Actus\\backend\\CHANGES-FROM-PRODUCTION.md": {
+    "mtime": 1781218138.918296,
+    "hash": "8713edf70c0b6c05e08289ea2ddbaa00"
+  },
+  "H:\\Actus\\backend\\COMPARATIVO-ORIGINAL-VS-ATUAL.md": {
+    "mtime": 1781220757.655502,
+    "hash": "42a336c07d40dd22dbbf4e3c2d9622f2"
+  },
+  "H:\\Actus\\backend\\design.md": {
+    "mtime": 1781218139.7136383,
+    "hash": "9ecdad9f947f3b0b2a366ac1f560c8b1"
+  },
+  "H:\\Actus\\backend\\docker-compose.yml": {
+    "mtime": 1782950602.7064748,
+    "hash": "c39116510df937fb6dd3ab8e84e2b38d"
+  },
+  "H:\\Actus\\backend\\README.md": {
+    "mtime": 1781280214.4871058,
+    "hash": "84bdc712c839f2dd8a4587333c23827e"
+  },
+  "H:\\Actus\\backend\\SOMO_DESIGN_CONSTRAINTS.md": {
+    "mtime": 1781061491.128696,
+    "hash": "e91899fd263dc8e173c179d5ce4d9e7c"
+  },
+  "H:\\Actus\\backend\\docs\\ACTUS-STAFF-SEED.md": {
+    "mtime": 1781061495.1349993,
+    "hash": "af39ba70cdd1c3183e63277be7133688"
+  },
+  "H:\\Actus\\backend\\docs\\BILLING-STRIPE.md": {
+    "mtime": 1781061495.157056,
+    "hash": "f1df22b4f3273641b6fefbae165d020f"
+  },
+  "H:\\Actus\\backend\\docs\\CHANGES-actus.md": {
+    "mtime": 1781218139.7703502,
+    "hash": "9052ec16085512a0843c5a3516bd05f6"
+  },
+  "H:\\Actus\\backend\\docs\\DATA-MODEL.md": {
+    "mtime": 1781061495.177464,
+    "hash": "4c1d4a463c3998f325ac11882b39a6c9"
+  },
+  "H:\\Actus\\backend\\docs\\OFFLINE-SYNC.md": {
+    "mtime": 1781061495.1985004,
+    "hash": "0ea3cfd70183fccb059c29bcf03463e1"
+  },
+  "H:\\Actus\\backend\\docs\\PLANEJAMENTO-STACK-ARQUITETURA.md": {
+    "mtime": 1781061495.2091434,
+    "hash": "030c443e5b1b7b9719a80a658e277ac0"
+  },
+  "H:\\Actus\\backend\\docs\\ROADMAP-MIGRACAO.md": {
+    "mtime": 1781061495.2780316,
+    "hash": "10c61f1fbe2e0ee99b1d43796945ab1d"
+  },
+  "H:\\Actus\\backend\\docs\\SECURITY-RLS.md": {
+    "mtime": 1781061495.2994218,
+    "hash": "b1cd6aace8e1452e8a208be9f4f0d90c"
+  },
+  "H:\\Actus\\backend\\local\\CREDITS-exercises.md": {
+    "mtime": 1781222584.0889456,
+    "hash": "caaacce2549ea58423598d411041ea66"
+  },
+  "H:\\Actus\\backend\\local\\exercises-coverage.md": {
+    "mtime": 1781222584.0889456,
+    "hash": "02e4fded7f8cf3a9ce873f5f17fac0ce"
+  },
+  "H:\\Actus\\web\\docker-compose.yml": {
+    "mtime": 1783669823.084169,
+    "hash": "fc5cd2a5420ca42ca62f25e659703f29"
+  },
+  "H:\\Actus\\web\\index.html": {
+    "mtime": 1781218139.9906082,
+    "hash": "9be63fdddb25c7379d70aa13712f2f01"
+  },
+  "H:\\Actus\\web\\landing.html": {
+    "mtime": 1783669823.13089,
+    "hash": "f051d8f60376efb683038e81c4aeb1b6"
+  },
+  "H:\\Actus\\web\\README.md": {
+    "mtime": 1782157972.03547,
+    "hash": "029566e8567a9bd012e67241f10dcc19"
+  },
+  "H:\\Actus\\web\\dist-landing\\404.html": {
+    "mtime": 1782157972.0909002,
+    "hash": "d6df6ebd6aeb972d8f500168392e6cda"
+  },
+  "H:\\Actus\\web\\dist-landing\\index.html": {
+    "mtime": 1782157972.324686,
+    "hash": "d6df6ebd6aeb972d8f500168392e6cda"
+  },
+  "H:\\Actus\\web\\docs\\backend\\tec-12-historico.md": {
+    "mtime": 1783669823.084169,
+    "hash": "f7d940203d4aa2a4c263d2b0b336c57d"
+  },
+  "H:\\Actus\\web\\docs\\backend\\tec-56-bloco1.md": {
+    "mtime": 1783669823.1099799,
+    "hash": "0c174982e1d6824019acdaf736c3a4d5"
+  },
+  "H:\\Actus\\web\\docs\\backend\\tec-57-anamnese.md": {
+    "mtime": 1783669823.1099799,
+    "hash": "ab9b6bb6993a2325c627ea66de31b414"
+  },
+  "H:\\Actus\\web\\docs\\backend\\tec-58-alimentacao.md": {
+    "mtime": 1783669823.1115048,
+    "hash": "cb0feb291d32ad406c53c00a3acea68f"
+  },
+  "H:\\Actus\\web\\public\\prototipo-dashboard-gerencial.html": {
+    "mtime": 1783670084.4197125,
+    "hash": "dbbb044aaeedd4cc794be587e03e8831"
+  },
+  "H:\\Actus\\app\\AGENTS.md": {
+    "mtime": 1783729961.9536874,
+    "hash": "d2a698d4249001701f0dbadd9541fbc3"
+  },
+  "H:\\Actus\\app\\CLAUDE.md": {
+    "mtime": 1781061307.743039,
+    "hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "H:\\Actus\\app\\README.md": {
+    "mtime": 1783730368.0968177,
+    "hash": "ede74d57e68f31d6d902d7c29aca02bc"
+  },
+  "H:\\Actus\\app\\assets\\wger\\ATTRIBUTION.md": {
+    "mtime": 1781062101.1554039,
+    "hash": "1c6a6af454b436c16abe90797136940e"
+  },
+  "H:\\Actus\\app\\docs\\backend-pendencias.md": {
+    "mtime": 1781062103.784864,
+    "hash": "bad30b40d4385e62bb719504b79b96d6"
+  },
+  "H:\\Actus\\app\\docs\\contrato-backend-treinos-do-aluno.md": {
+    "mtime": 1781062103.7878919,
+    "hash": "4c8085a5c3f0bb764642f5a12c8818a3"
+  },
+  "H:\\Actus\\app\\docs\\critica-design-2026-06-06.md": {
+    "mtime": 1781062103.7924542,
+    "hash": "ceb77995c04839304cfcb92e5646ec37"
+  },
+  "H:\\Actus\\app\\docs\\decisoes-visuais-bloco-1.md": {
+    "mtime": 1781062103.8031793,
+    "hash": "1afe92b33a79c32f3bf5629d9b0c8de1"
+  },
+  "H:\\Actus\\app\\docs\\design-blocos-restantes.md": {
+    "mtime": 1781062103.8092794,
+    "hash": "e446553bec19cdb505f06daf8cc45dc0"
+  },
+  "H:\\Actus\\app\\docs\\lacunas-backend-producao.md": {
+    "mtime": 1782962970.863567,
+    "hash": "7baf3ef5f8fca2033bc768175e67d29f"
+  },
+  "H:\\Actus\\app\\docs\\plano-bloco-0-1.md": {
+    "mtime": 1781062103.816497,
+    "hash": "3ad93d6a777bd1a8cb2b1f0d249c26e6"
+  },
+  "H:\\Actus\\app\\docs\\sobre-o-app.md": {
+    "mtime": 1783730373.3717825,
+    "hash": "caa3d5fce43bcc7ec15b260c96f9ee78"
+  },
+  "H:\\Actus\\app\\docs\\backend\\tec-62-meals-mobile.md": {
+    "mtime": 1782962970.862039,
+    "hash": "a10abd871107c225d786cad92909ddb9"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-02-escolha-perfil-espaco-vazio.md": {
+    "mtime": 1781062103.8378673,
+    "hash": "68d1294445b718068e03019c8ffb19e4"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-03-bloco-2-hoje-aluno.md": {
+    "mtime": 1781062103.85263,
+    "hash": "a9f88b18dd0b110cd12baa88f82619dc"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-03-polimento-onboarding.md": {
+    "mtime": 1781062103.8663967,
+    "hash": "1190bc2752f94007c8b3a84b6569921c"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-04-bloco-treinos-aluno.md": {
+    "mtime": 1781062131.0649045,
+    "hash": "a57c715d4780e8c666c555cfec928a1f"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-05-bottom-menu.md": {
+    "mtime": 1781062103.8826983,
+    "hash": "a6a5004bb2e548755f3ff372016a56c3"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-05-dieta-aluno.md": {
+    "mtime": 1781062103.8934183,
+    "hash": "7579e42063d499d70f2123098bf8d036"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-08-wger-integration-offline.md": {
+    "mtime": 1781062103.9025478,
+    "hash": "8c10a3ab036ba31bc8607ed867bfe69c"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-09-banco-treinos.md": {
+    "mtime": 1781062333.2035735,
+    "hash": "90153f6f539c50ca30e3ee9a44b72794"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-09-cadastro-profissional-convite.md": {
+    "mtime": 1781062333.2279086,
+    "hash": "de86d80b366f4a2827f22e1d7fc999bb"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-09-dashboard-pro.md": {
+    "mtime": 1781063559.5327322,
+    "hash": "0f0e313c8d092004cc0bcd6e5e38b4a5"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-09-onboarding.md": {
+    "mtime": 1781062333.243163,
+    "hash": "ca3114ceeabb58bc51712dae8a9fe5ac"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-09-par-q.md": {
+    "mtime": 1781062103.908696,
+    "hash": "69aa714f6810ad5b8cbf94178f0e120f"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-11-web-plano-1-fundacao.md": {
+    "mtime": 1781218136.8514154,
+    "hash": "580c8f9b62f75f397c60c94bc59c6baf"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-11-web-plano-2-alunos.md": {
+    "mtime": 1781218136.969166,
+    "hash": "bf80b71a78b6a5721724ba243756070f"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-11-web-plano-3-treinos.md": {
+    "mtime": 1781218137.0015972,
+    "hash": "714eb9488cd42afe0af9fe37c221bede"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-11-web-plano-4-convites-config-admin.md": {
+    "mtime": 1781218137.0276515,
+    "hash": "1be9b232e552d8809fa24199a7630294"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-12-desafio-calendar-flame.md": {
+    "mtime": 1782962970.863567,
+    "hash": "3af2e0694a432e5efcc69a673dd585e6"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-06-12-workout-muscle-icons.md": {
+    "mtime": 1782962970.8651013,
+    "hash": "b1f316f5fb00cd2fee5506dd2272807a"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-07-01-o-que-comi-registro-alimentar.md": {
+    "mtime": 1782962970.8651013,
+    "hash": "16f5070a945e8800553771141299ceef"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\plans\\2026-07-10-app-qa-rodada1.md": {
+    "mtime": 1783731151.6062534,
+    "hash": "a7983285382e09dbc30623e241cef9f4"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-02-escolha-perfil-espaco-vazio-design.md": {
+    "mtime": 1781062103.922203,
+    "hash": "7e9a10ab0a3dcfd114bf5509bf68c96c"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-03-bloco-2-hoje-aluno-design.md": {
+    "mtime": 1781062103.934469,
+    "hash": "c81e43cd9ea2c15ba8b7344b89830d3b"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-03-polimento-onboarding-design.md": {
+    "mtime": 1781062103.9421444,
+    "hash": "2dc362dbacb1cd4bef1da06a7a28209c"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-04-bloco-treinos-aluno-design.md": {
+    "mtime": 1781062103.9492352,
+    "hash": "2896a97402aa9fdbe93af07c6f5c97a2"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-05-bottom-menu-design.md": {
+    "mtime": 1781062103.958459,
+    "hash": "5a1ff084737b9987ba5303d721c8e294"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-05-dieta-aluno-design.md": {
+    "mtime": 1781062103.967599,
+    "hash": "f66e4312da916119016597ac04ff0c98"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-08-wger-integration-offline-design.md": {
+    "mtime": 1781062103.9753084,
+    "hash": "502cc192f89084f043ee0453e957d1e3"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-09-cadastro-profissional-convite-design.md": {
+    "mtime": 1781062333.2564502,
+    "hash": "450148904c584c29a0b788702b082f60"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-09-onboarding-design.md": {
+    "mtime": 1781062333.2656279,
+    "hash": "4adf3dd22f95a718bd261ed61693b8d2"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-09-par-q-design.md": {
+    "mtime": 1781062103.9860213,
+    "hash": "00a99da9f548e6ccbcf54953c218e610"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-11-web-personal-admin-design.md": {
+    "mtime": 1781218137.1119034,
+    "hash": "b85628437f0c9e01cd28e69025b92740"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-12-desafio-calendar-flame-design.md": {
+    "mtime": 1782962970.8666227,
+    "hash": "9543a548fc1cb6cd04c663ea944782b2"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-06-12-workout-muscle-icons-design.md": {
+    "mtime": 1782962970.8666227,
+    "hash": "0291e7350d4a29893a65359c5ddf804c"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-07-01-o-que-comi-registro-alimentar-design.md": {
+    "mtime": 1782962970.8666227,
+    "hash": "e99a6f5e7e37fdc53e00732c9afbfa72"
+  },
+  "H:\\Actus\\app\\docs\\superpowers\\specs\\2026-07-10-app-qa-rodada1-design.md": {
+    "mtime": 1783731048.1992774,
+    "hash": "6efd11ad46cf0d19ee146ee4c2d80e38"
+  },
+  "H:\\Actus\\app\\src\\mocks\\README.md": {
+    "mtime": 1781061308.9524634,
+    "hash": "f21dc437d62036fe485526e189b40377"
+  },
+  "H:\\Actus\\backend\\docs\\diagramas\\actus-diagrama-geral.pdf": {
+    "mtime": 1781061495.3718746,
+    "hash": "207d5574846e4c07038c8e9c8acbf8af"
+  }
+}

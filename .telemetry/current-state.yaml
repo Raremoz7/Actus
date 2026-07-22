@@ -1,0 +1,17 @@
+# Current State: greenfield (no tracking detected)
+# Scanned: 2026-07-10
+# SDK: none
+#
+# Scope: monorepo — app (React Native/Expo), web (React/Vite), backend (Node/TS API).
+# No analytics SDK found in any package.json (segment, amplitude, mixpanel, posthog,
+# rudderstack, heap, accoil, snowplow). No track/identify/group/capture/logEvent
+# call sites in app/src, web/src, or backend. "Segmented"/"track" hits in source were
+# UI SegmentedControl components and fitness workout-tracking domain terms, not analytics.
+
+events: []
+identity:
+  identify_calls: []
+  group_calls: []
+patterns:
+  naming_style: n/a
+  centralized: n/a
